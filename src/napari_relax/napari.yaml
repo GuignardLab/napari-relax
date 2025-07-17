@@ -1,0 +1,44 @@
+name: napari-relax
+display_name: reLAX
+# use 'hidden' to remove plugin from napari hub search results
+visibility: public
+# see https://napari.org/stable/plugins/technical_references/manifest.html#fields for valid categories
+# categories: []
+contributions:
+  commands:
+    - id: napari-relax.get_reader
+      python_name: napari_relax._reader:napari_get_reader
+      title: Open data with reLAX
+    - id: napari-relax.make_sample_data
+      python_name: napari_relax._sample_data:make_sample_data
+      title: Load sample data from reLAX
+    - id: napari-relax.make_container_widget
+      python_name: napari_relax:ImageThreshold
+      title: Make threshold Container widget
+    - id: napari-relax.make_magic_widget
+      python_name: napari_relax:threshold_magic_widget
+      title: Make threshold magic widget
+    - id: napari-relax.make_function_widget
+      python_name: napari_relax:threshold_autogenerate_widget
+      title: Make threshold function widget
+    - id: napari-relax.make_qwidget
+      python_name: napari_relax:ExampleQWidget
+      title: Make example QWidget
+  readers:
+    - command: napari-relax.get_reader
+      accepts_directories: false
+      filename_patterns: ['*.npy']
+  sample_data:
+    - command: napari-relax.make_sample_data
+      display_name: reLAX
+      key: unique_id.1
+  widgets:
+    - command: napari-relax.make_container_widget
+      display_name: Container Threshold
+    - command: napari-relax.make_magic_widget
+      display_name: Magic Threshold
+    - command: napari-relax.make_function_widget
+      autogenerate: true
+      display_name: Autogenerate Threshold
+    - command: napari-relax.make_qwidget
+      display_name: Example QWidget
