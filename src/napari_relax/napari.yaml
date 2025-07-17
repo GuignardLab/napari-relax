@@ -8,37 +8,29 @@ contributions:
   commands:
     - id: napari-relax.get_reader
       python_name: napari_relax._reader:napari_get_reader
-      title: Open data with reLAX
-    - id: napari-relax.make_sample_data
-      python_name: napari_relax._sample_data:make_sample_data
-      title: Load sample data from reLAX
-    - id: napari-relax.make_container_widget
-      python_name: napari_relax:ImageThreshold
-      title: Make threshold Container widget
-    - id: napari-relax.make_magic_widget
-      python_name: napari_relax:threshold_magic_widget
-      title: Make threshold magic widget
-    - id: napari-relax.make_function_widget
-      python_name: napari_relax:threshold_autogenerate_widget
-      title: Make threshold function widget
-    - id: napari-relax.make_qwidget
-      python_name: napari_relax:ExampleQWidget
-      title: Make example QWidget
+      title: LineageTree reader
+    - id: napari-relax.lineage_tree_analysis
+      python_name: napari_relax._widgets:LineageTreeAnalysisWidget
+      title: Lineage tree analysis
+    - id: napari-relax.cross_embryo_comparison
+      python_name: napari_relax._widgets:CrossEmbryoComparisonWidget
+      title: Cross Lineagetree comparison
+    - id: napari-relax.load_demo
+      python_name: napari_relax.demo_data:load_demo
+      title: Load data
+
   readers:
     - command: napari-relax.get_reader
       accepts_directories: false
-      filename_patterns: ['*.npy']
+      filename_patterns: ["*.lT", "*.lt", "*.LT", "*.mastodon", "*.xml"]
+
   sample_data:
-    - command: napari-relax.make_sample_data
-      display_name: reLAX
-      key: unique_id.1
+    - command: napari-relax.load_demo
+      display_name: demo lineageTree dataset
+      key: unique_id.6
+
   widgets:
-    - command: napari-relax.make_container_widget
-      display_name: Container Threshold
-    - command: napari-relax.make_magic_widget
-      display_name: Magic Threshold
-    - command: napari-relax.make_function_widget
-      autogenerate: true
-      display_name: Autogenerate Threshold
-    - command: napari-relax.make_qwidget
-      display_name: Example QWidget
+    - command: napari-relax.lineage_tree_analysis
+      display_name: Lineage tree analysis
+    - command: napari-relax.cross_embryo_comparison
+      display_name: Cross Lineagetree comparison

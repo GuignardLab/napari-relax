@@ -32,7 +32,10 @@ dependencies = [
     "numpy",
     "magicgui",
     "qtpy",
-    "scikit-image",
+    "matplotlib",
+    "LineageTree",
+    "mplcursors",
+    "seaborn",
 ]
 
 [project.optional-dependencies]

@@ -3,10 +3,23 @@ This module is an example of a barebones numpy reader plugin for napari.
 
 It implements the Reader specification, but your plugin may choose to
 implement multiple readers or even other plugin contributions. see:
-https://napari.org/stable/plugins/building_a_plugin/guides.html#readers
+https://napari.org/stable/plugins/guides.html?#readers
 """
 
+from pathlib import Path
+
 import numpy as np
+from LineageTree import (
+    lineageTree,
+    read_from_ASTEC,
+    read_from_mamut_xml,
+    read_from_mastodon,
+    read_from_tgmm_xml,
+    utils,
+)
+from napari.utils import colormaps
+
+from ._util_classes import loading_dialog, time_res_dialog
 
 
 def napari_get_reader(path):
@@ -30,14 +43,20 @@ def napari_get_reader(path):
         path = path[0]
 
     # if we know we cannot read the file, we immediately return None.
-    if not path.endswith(".npy"):
-        return None
+
+    if (
+        path.endswith(".lT")
+        or path.lower().endswith(".mastodon")
+        or path.lower().endswith(".xml")
+        or path.lower().endswith(".csv")
+    ):
+        return reader_function
 
     # otherwise we return the *function* that can read ``path``.
-    return reader_function
+    return None
 
 
-def reader_function(path):
+def reader_function(path: str):
     """Take a path or list of paths and return a list of LayerData tuples.
 
     Readers are expected to return data as a list of tuples, where each tuple
@@ -60,14 +79,116 @@ def reader_function(path):
         default to layer_type=="image" if not provided
     """
     # handle both a string and a list of strings
-    paths = [path] if isinstance(path, str) else path
-    # load all files into array
-    arrays = [np.load(_path) for _path in paths]
-    # stack arrays into single array
-    data = np.squeeze(np.stack(arrays))
+    loaders = {
+        "mamut": read_from_mamut_xml,
+        "ASTEC": read_from_ASTEC,
+        "tgmm": read_from_tgmm_xml,
+    }
+    if isinstance(path, list):
+        lT = lineageTree(file_format=path, file_type="mastodon")
+    elif path.lower().endswith(".lt"):
+        lT = lineageTree.load(path)
+    elif path.lower().endswith(".mastodon"):
+        lT = read_from_mastodon(path)
+    elif path.lower().endswith(".xml"):
+        selector = loading_dialog()
+        selector.exec_()
+        file_type = selector.value_selected
+        if file_type is None:
+            raise Warning("Please select one type.")
+        lT = loaders[file_type](
+            path
+        )  # lineageTree(file_format=path, file_type=file_type)
+    if not hasattr(lT, "time_resolution") or lT.time_resolution == 0:
+        t_res = time_res_dialog()
+        t_res.exec_()
+        lT.time_resolution = t_res.value_selected
+        if t_res.check_resave:
+            lT.write(path)
+    return layer_preparation(lT, path)
 
-    # optional kwargs for the corresponding viewer.add_* method
-    add_kwargs = {}
 
-    layer_type = "image"  # optional, default is "image"
-    return [(data, add_kwargs, layer_type)]
+def layer_preparation(lT: lineageTree, path: str = ""):
+    tracks = lT.all_chains
+    first_c_to_track = {}
+    last_c_of_track = {}
+    data = []
+    c_id = 0
+    lT_to_here = {}
+    for i, t in enumerate(tracks):
+        first_c_to_track[t[0]] = i
+        last_c_of_track[i] = t[-1]
+        for cell in t:
+            data.append(
+                (
+                    i,
+                    lT.time[cell],
+                )
+                + tuple(p for p in np.array(lT.pos[cell])[::-1])
+            )
+
+            lT_to_here[cell] = c_id
+            c_id += 1
+    here_to_lT = {v: k for k, v in lT_to_here.items()}
+    data = np.array(data, dtype=float)
+
+    clone = np.zeros(len(data))
+    roots = lT.roots
+
+    clone2 = np.zeros((len(data), 4))
+    cmap = colormaps.label_colormap(len(roots))
+    for i, root in enumerate(roots, start=1):
+        color = cmap.map(i)
+        for cell in lT.get_subtree_nodes(root):
+            clone[lT_to_here[cell]] = i
+            clone2[lT_to_here[cell], :] = color
+
+    if Path(path).stem:
+        path = Path(path).stem
+    graphs = lT._create_dict_of_plots(
+        {
+            root
+            for root in lT.roots
+            if len(lT.get_subtree_nodes(root)) > (lT.t_e - lT.t_b) / 4
+        }
+    )
+    pos = {
+        i: utils.hierarchical_pos(
+            g, g["root"], ycenter=-int(lT.time[g["root"]])
+        )
+        for i, g in graphs.items()
+    }
+    graph = {}
+    for t, c in last_c_of_track.items():
+        for di in lT.successor.get(c, []):
+            graph.setdefault(first_c_to_track[di], []).append(t)
+    add_kwargs_point = {
+        "size": 100,
+        "properties": {
+            "clone": clone,
+            "Selection": np.zeros_like(clone),
+        },
+        "metadata": {
+            "lineageTree": lT,
+            "lT2napari": lT_to_here,
+            "napari2lT": here_to_lT,
+            "clone2": clone2,
+            "graphs": (graphs, pos),
+            "name_for_manager": path,
+            "data": data,
+            "graph_to_create_tracks": {
+                "graph": graph,
+                "properties": {
+                    "Lineage": clone,
+                    "Selection": np.ones_like(clone),
+                },
+            },
+        },
+        "name": path,
+        "face_color": clone2,
+        "shading": "spherical",
+    }
+
+    return [
+        (data[:, 1:], add_kwargs_point, "points"),
+    ]
