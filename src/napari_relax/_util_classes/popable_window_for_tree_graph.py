@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from napari.qt import get_current_stylesheet
-from qtpy.QtCore import Signal
+from psygnal import Signal
 from qtpy.QtGui import QColor, QDoubleValidator
 from qtpy.QtWidgets import (
     QColorDialog,

@@ -6,7 +6,7 @@ import numpy as np
 from magicgui import widgets
 from matplotlib.pyplot import colormaps
 from napari.layers import Points
-from qtpy.QtCore import Signal
+from psygnal import Signal
 from qtpy.QtGui import QDoubleValidator
 from qtpy.QtWidgets import (
     QButtonGroup,

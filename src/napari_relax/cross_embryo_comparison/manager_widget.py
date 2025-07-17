@@ -2,8 +2,8 @@ from pathlib import Path
 
 from LineageTree import lineageTree, lineageTreeManager
 from magicgui import widgets
+from psygnal import Signal
 from qtpy import QtCore, QtWidgets
-from qtpy.QtCore import Signal
 from qtpy.QtWidgets import (
     QLabel,
     QListWidget,

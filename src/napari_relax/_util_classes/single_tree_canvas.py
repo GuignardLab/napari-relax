@@ -5,7 +5,7 @@ from LineageTree.utils import hierarchical_pos
 from matplotlib.backends.backend_qtagg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
-from qtpy.QtCore import Signal
+from psygnal import Signal
 from scipy.spatial import KDTree
 
 
