@@ -227,19 +227,19 @@ class single_tree_progeny(FigureCanvas):
             self.draw_graph(reset=True)
 
     def pan_start(self, event):
-        if event.button == 1 and event.inaxes:
+        if event.button == 3 and event.inaxes:
             self.pan = True
             self.starting_pos = (event.xdata, event.ydata)
             self.xlims_on_click = self.ax.get_xlim()
             self.ylims_on_click = self.ax.get_ylim()
 
     def pan_stop(self, event):
-        if event.button == 1 and self.pan:
+        if event.button == 3 and self.pan:
             self.draw_graph()
             self.pan = False
 
     def panning(self, event):
-        if self.pan and event.button == 1 and event.inaxes:
+        if self.pan and event.button == 3 and event.inaxes:
             dx = event.xdata - self.starting_pos[0]
             dy = event.ydata - self.starting_pos[1]
             self.xlims_on_click -= dx

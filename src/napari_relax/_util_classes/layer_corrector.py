@@ -29,12 +29,14 @@ class Layer_corrector_Tree_Producer(QWidget):
             return 0
         lT = active_layer.metadata["lineageTree"]
         cell = active_layer.selected_data.pop()
+        active_layer.selected_data = {cell}
         scores = lT.get_subtree_nodes(active_layer.metadata["napari2lT"][cell])
         for val in scores:
             active_layer.selected_data.add(
                 active_layer.metadata["lT2napari"][val]
             )
         active_layer.refresh()
+        print(cell), print(active_layer.selected_data)
 
     def get_lT(self) -> lineageTree:
         """

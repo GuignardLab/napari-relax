@@ -2,6 +2,7 @@ import contextlib
 import os
 from pathlib import Path
 
+from typing import TYPE_CHECKING
 import numpy as np
 from magicgui import widgets
 from matplotlib.figure import Figure
@@ -27,6 +28,9 @@ from .._util_classes import (
     tooltip_button,
 )
 from .._utils import _select_correct_layer
+
+if TYPE_CHECKING:
+    from LineageTree import lineageTree
 
 
 class ProgenySelection(Layer_corrector_Tree_Producer):
@@ -70,6 +74,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         if not active_layer.selected_data:
             return 0
         cell = active_layer.selected_data.pop()
+        active_layer.selected_data = {cell}
         scores = self.get_sublineage(
             active_layer.metadata["napari2lT"][cell], self.lT
         )
@@ -221,6 +226,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         if not active_layer:
             return
         cell = active_layer.selected_data.pop()
+        print(cell)
         val = self.val_finder(
             active_layer.metadata["napari2lT"][cell],
             self.lT,
@@ -245,7 +251,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
             )
             self.canvas.selected_subtree = set(selected_cells)
             self.canvas.draw_graph()
-            active_layer.selected_data.add(cell)
+            active_layer.selected_data = {cell}
             self.sub_points_selector()
             lT_cell = self.lT.get_chain_of_node(
                 active_layer.metadata["napari2lT"][cell]
@@ -267,7 +273,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         if active_layer is None:
             return
         if len(self.viewer.layers.selection) == 1:
-            self.lT = self.get_lT()
+            self.lT: lineageTree = self.get_lT()
             if self.lT:
                 self.labels = self.lT.labels
                 self.roots = [
@@ -338,7 +344,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
 
-        self.lT = self.get_lT()
+        self.lT: lineageTree = self.get_lT()
         if self.lT:
             self.graph_slider = QSlider()
             self.graph_slider.setOrientation(Qt.Orientation.Horizontal)
