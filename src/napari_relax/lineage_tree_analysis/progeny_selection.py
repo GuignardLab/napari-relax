@@ -1,8 +1,8 @@
 import contextlib
 import os
 from pathlib import Path
-
 from typing import TYPE_CHECKING
+
 import numpy as np
 from magicgui import widgets
 from matplotlib.figure import Figure
@@ -226,7 +226,6 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         if not active_layer:
             return
         cell = active_layer.selected_data.pop()
-        print(cell)
         val = self.val_finder(
             active_layer.metadata["napari2lT"][cell],
             self.lT,

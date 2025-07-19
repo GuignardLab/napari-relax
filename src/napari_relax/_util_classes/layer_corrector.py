@@ -36,7 +36,6 @@ class Layer_corrector_Tree_Producer(QWidget):
                 active_layer.metadata["lT2napari"][val]
             )
         active_layer.refresh()
-        print(cell), print(active_layer.selected_data)
 
     def get_lT(self) -> lineageTree:
         """
