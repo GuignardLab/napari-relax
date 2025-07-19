@@ -9,7 +9,6 @@ from .eventfilter_for_delayed_tooltip import (
     delayedtooltipeventfilter,
 )
 from .layer_corrector import Layer_corrector_Tree_Producer
-from .single_tree_canvas import single_tree
 from .tab_template import tab_template
 from .tooltip import tooltip_button
 from .viewer_wrapper import QtViewerWrap
