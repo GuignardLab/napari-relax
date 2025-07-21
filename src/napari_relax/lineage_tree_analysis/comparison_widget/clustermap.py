@@ -264,24 +264,25 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
             f"Comparisons for Timepoint: {self.times[time]}"
         )
         self.ax_of_clustermap.set_aspect("auto")
+        self.figure.tight_layout()
+        self.canvas.draw()
         cursor = mplcursors.cursor(
             self.ax_of_clustermap,
             hover=2,  # Transient
             annotation_kwargs={
                 "bbox": {
-                    "boxstyle": "square,pad=0.3",
+                    "boxstyle": "square,pad=0.2",
                     "facecolor": "white",
+                    "alpha": 0.2,
                     "edgecolor": "#ddd",
-                    "linewidth": 0.5,
-                    "path_effects": [
-                        withSimplePatchShadow(offset=(1.5, -1.5))
-                    ],
+                    "linewidth": 0.3,
+                    # "path_effects": [
+                    #     withSimplePatchShadow(offset=(1.5, -1.5))
+                    # ],
                 },
-                "linespacing": 1.5,
+                "linespacing": 1,
                 "arrowprops": None,
             },
-            highlight=False,
-            highlight_kwargs={"linewidth": 2},
         )
         cursor.connect(
             "add",
@@ -289,8 +290,6 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
                 f"Value: {str(np.round(self.plot[[sel.index][0]],2))}\nNodes: {self.labels_of_node_real[[sel.index][0][0]]} ({self.names_of_nodes[[sel.index][0][0]]}) vs  {self.labels_of_node_real[[sel.index][0][1]]}({self.names_of_nodes[[sel.index][0][1]]})"
             ),
         )
-        self.figure.tight_layout()
-        self.canvas.draw()
 
     def update_dictionary(self, product):
         """
