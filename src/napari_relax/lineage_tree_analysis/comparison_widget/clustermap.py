@@ -276,9 +276,6 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
                     "alpha": 0.2,
                     "edgecolor": "#ddd",
                     "linewidth": 0.3,
-                    # "path_effects": [
-                    #     withSimplePatchShadow(offset=(1.5, -1.5))
-                    # ],
                 },
                 "linespacing": 1,
                 "arrowprops": None,
@@ -287,7 +284,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         cursor.connect(
             "add",
             lambda sel: sel.annotation.set_text(
-                f"Value: {str(np.round(self.plot[[sel.index][0]],2))}\nNodes: {self.labels_of_node_real[[sel.index][0][0]]} ({self.names_of_nodes[[sel.index][0][0]]}) vs  {self.labels_of_node_real[[sel.index][0][1]]}({self.names_of_nodes[[sel.index][0][1]]})"
+                f"Value: {str(np.round(self.plot[[sel.index][0]],2))}\nNodes: {self.labels_of_node_real[[sel.index][0][0]]} ({self.names_of_nodes[[sel.index][0][0]]}) vs {self.labels_of_node_real[[sel.index][0][1]]}({self.names_of_nodes[[sel.index][0][1]]})"
             ),
         )
 
