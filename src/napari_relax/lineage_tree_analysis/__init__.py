@@ -1,14 +1,16 @@
 from .cells_size import (
     CellSize,
 )
-from .clustermap import Online_clustermap
-from .distance_display import DisplayDistances
+from .comparison_widget.clustermap import Online_clustermap
 
 # Clustermap,
 # DisplayDistances,
 # Online_clustermap,
 # ProgenySelection,
-from .progeny_selection import ProgenySelection
+from .lineage_viewer_widget.progeny_selection import ProgenySelection
+from .recoloring_with_attributes_widget.distance_display import (
+    DisplayDistances,
+)
 
 __all__ = (
     "ProgenySelection",

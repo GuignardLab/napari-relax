@@ -34,7 +34,8 @@ from typing import TYPE_CHECKING
 from magicgui import widgets
 from qtpy.QtWidgets import QComboBox, QStackedWidget, QVBoxLayout, QWidget
 
-from . import cross_embryo_comparison, lineage_tree_analysis
+from . import lineage_tree_analysis
+from . import relax_multipledatasets
 
 if TYPE_CHECKING:
     pass
@@ -116,7 +117,7 @@ class LineageTreeAnalysisWidget(ReLAXWidget):
 
 
 class CrossEmbryoComparisonWidget(ReLAXWidget):
-    module = cross_embryo_comparison
+    module = relax_multipledatasets
 
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)

@@ -33,13 +33,13 @@ from qtpy.QtWidgets import (
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
 
-from .._util_classes import (
+from ..._util_classes import (
     Layer_corrector_Tree_Producer,
     containerize,
     delayedtooltipeventfilter,
     tooltip_button,
 )
-from .._utils import _select_correct_layer
+from ..._utils import _select_correct_layer
 
 
 class Online_clustermap(Layer_corrector_Tree_Producer):
