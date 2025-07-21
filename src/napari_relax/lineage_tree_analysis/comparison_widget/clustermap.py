@@ -48,7 +48,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
     plot Clustermaps and letting the user select respective Lineages.
     """
 
-    name = "New Clustermap Analysis"
+    name = "Distance Calculation"
 
     def add_spot_on_graph(self, cell, val, color, ax):
         """

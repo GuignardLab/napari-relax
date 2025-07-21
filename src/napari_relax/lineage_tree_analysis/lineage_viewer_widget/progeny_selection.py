@@ -38,7 +38,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
     # in one of two ways:
     # 1. use a parameter called `napari_viewer`, as done here
     # 2. use a type annotation of 'napari.viewer.Viewer' for any parameter
-    name = "Progeny selection"
+    name = "Explore and Relabel"
 
     @staticmethod
     def get_sublineage(cell, lT):

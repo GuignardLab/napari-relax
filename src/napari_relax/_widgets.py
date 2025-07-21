@@ -103,15 +103,15 @@ class LineageTreeAnalysisWidget(ReLAXWidget):
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
         self.widget_dictionary[
-            "Progeny selection"
+            "Explore and Relabel"
         ].w_lineedit.returnPressed.connect(
-            self.widget_dictionary["New Clustermap Analysis"].label_update
+            self.widget_dictionary["Distance Calculation"].label_update
         )
         self.widget_dictionary[
-            "Distance Display"
+            "Attribute Recoloring"
         ].coloring_widget.quant.color_signal.connect(
             self.widget_dictionary[
-                "Progeny selection"
+                "Explore and Relabel"
             ].canvas.change_attributes
         )
 
