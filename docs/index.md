@@ -1,17 +1,13 @@
-# Welcome to MkDocs
+# Welcome to ReLAX
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+<p style="text-align: justify;">
 
-## Commands
+This napari plugin extends the functionality of the LineageTree project by providing a comprehensive Graphical User Interface (GUI). Leveraging napari’s interactive visualization capabilities and Qt’s flexible framework, it enables users to import and explore lineage trees directly within the napari viewer. With this plugin, users can intuitively navigate spatial and temporal lineage data. Beyond data exploration, it also offers advanced features such as:
+</p>
+- Node Recoloring: Customize node colors based on lineage attributes for better insights into the embryo.
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+- Tree Distance Calculation: Compute distances between different lineage trees to assess their similarity or dissimilarity.
 
-## Project layout
+- Morphology Inspection: Visually compare tree structures to analyze morphological differences.
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+This integration enhances lineage analysis by combining the powerful visualization of Napari with quantitative comparison tools in an interactive environment.

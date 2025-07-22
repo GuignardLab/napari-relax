@@ -1,1 +1,56 @@
-site_name: My Docs
+site_name: ReLAX (Reconstructed Lineage Analysis & eXploration)
+theme:
+  name: material
+  features:
+  - navigation.path
+  - navigation.expand
+  - content.code.annotate
+  - content.tooltips
+  - navigation.instant
+  - navigation.sections
+  - navigation.indexes
+  - navigation.footer
+  - toc.follow
+  - search.suggest
+  - search.share
+
+plugins:
+- search:
+- mkdocstrings:
+    handlers:
+      python:
+        options:
+          show_submodules: true
+          docstring_style: numpy
+
+markdown_extensions:
+  - abbr
+  - attr_list
+  - md_in_html
+  - admonition
+  - pymdownx.extra
+  - pymdownx.details
+  - pymdownx.snippets
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
+
+
+nav:
+  - Overview: index.md
+  - Explore and Relabel: 
+    - explore_relabel.md
+    - Turorials: explore_relabel_tut.md
+  - Attribute Recoloring: 
+    - attribute.md
+    - Tutorials: attribute_tut.md
+  - Distance Calculation: 
+    - distance.md
+    - Tutorials: distance_tut.md
+  - Cross_dataset_Distances: 
+    - Manager: manager.md
+    - Distance Calculation: distance_cross.md
+    - Tutorials: smt.md
