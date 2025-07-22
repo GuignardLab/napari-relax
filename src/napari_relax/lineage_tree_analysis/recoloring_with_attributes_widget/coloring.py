@@ -315,7 +315,7 @@ class Quantitative(Layer_corrector_Tree_Producer):
             }
         )
         active_layer = _select_correct_layer(self, Points)
-        if active_layer:
+        if active_layer is not None:
             active_layer.face_color = active_layer.metadata["clone2"]
 
     def layer_change(self):
