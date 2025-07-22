@@ -291,14 +291,14 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
                 )
                 self.w_lineedit.update()
                 self.Progeny_diagram_loader()
-                self.pop_win = popable_window_for_tree_graph.setup(self.canvas)
-                self.config_settings.clicked.connect(
-                    lambda x: self.pop_win.exec_()
-                )
-                self.config_settings.setFixedSize(30, 30)
+                # self.pop_win = popable_window_for_tree_graph.setup(self.canvas)
+                # self.config_settings.clicked.connect(
+                #     lambda x: self.pop_win.exec_()
+                # )
+                # self.config_settings.setFixedSize(30, 30)
 
-                self.config_settings.setParent(self)
-                self.pop_win.sig.connect(self.canvas.change_attributes)
+                # # self.config_settings.setParent(self)
+                # self.pop_win.sig.connect(self.canvas.change_attributes)
 
     def label_remover(self):
         active_layer = _select_correct_layer(self, Points)

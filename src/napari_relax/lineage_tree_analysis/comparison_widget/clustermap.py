@@ -89,7 +89,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
             event: Button click (Right Click)
 
         """
-        if event.button == 1:
+        if event.button == 1 and event.inaxes:
             self.figure.canvas.mpl_disconnect(self.click_signal)
             active_layer = _select_correct_layer(self, Points)
             if not active_layer:
