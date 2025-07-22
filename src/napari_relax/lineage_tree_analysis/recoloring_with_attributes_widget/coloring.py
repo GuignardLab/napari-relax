@@ -319,6 +319,7 @@ class Quantitative(Layer_corrector_Tree_Producer):
 
     def layer_change(self):
         self.lT = self.get_lT()
+        self.reset_button_pr()
         if self.lT:
             self.selected_attribute.clear()
             self.selected_attribute.addItems(
