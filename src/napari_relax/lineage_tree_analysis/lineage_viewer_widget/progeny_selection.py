@@ -19,15 +19,15 @@ from qtpy.QtWidgets import (
 )
 from scipy.spatial import KDTree
 
-from .._util_classes import (
+from ..._util_classes import (
     Layer_corrector_Tree_Producer,
     containerize,
     delayedtooltipeventfilter,
     popable_window_for_tree_graph,
-    single_tree_progeny,
     tooltip_button,
 )
-from .._utils import _select_correct_layer
+from ..._utils import _select_correct_layer
+from .canvas_for_progeny import single_tree_progeny
 
 if TYPE_CHECKING:
     from LineageTree import lineageTree
@@ -38,7 +38,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
     # in one of two ways:
     # 1. use a parameter called `napari_viewer`, as done here
     # 2. use a type annotation of 'napari.viewer.Viewer' for any parameter
-    name = "Progeny selection"
+    name = "Explore and Relabel"
 
     @staticmethod
     def get_sublineage(cell, lT):
@@ -424,7 +424,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         self.tooltip.move(0, 0)
         self.config_settings = QPushButton(text="")
         self.config_settings.setIcon(
-            QIcon(str(Path(__file__).parent.parent / "gear-bold.svg"))
+            QIcon(str(Path(__file__).parent / "gear-bold.svg"))
         )
         self.pop_win = popable_window_for_tree_graph.setup(self.canvas)
         self.config_settings.clicked.connect(lambda x: self.pop_win.exec_())

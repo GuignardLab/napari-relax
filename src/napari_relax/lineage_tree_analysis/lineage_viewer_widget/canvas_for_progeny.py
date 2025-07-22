@@ -181,8 +181,6 @@ class single_tree_progeny(FigureCanvas):
             old_nodes = self.selected_subtree
         else:
             old_nodes = set()
-        # if hasattr(self, "line"):
-        #     del self.line
         self.__init__(
             figure,
             ax,
@@ -220,7 +218,6 @@ class single_tree_progeny(FigureCanvas):
             if not self.all_selected:
                 self.selected_subtree = set(self.lT.get_subtree_nodes(cell))
             self.draw_graph()
-            self.time_line()
 
     def reset(self, event):
         if event.key == "z":

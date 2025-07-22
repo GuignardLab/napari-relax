@@ -13,10 +13,14 @@ from qtpy.QtWidgets import (
 )
 
 from .._util_classes import containerize
-from .canvas_for_progeny import single_tree_progeny
+from ..lineage_tree_analysis.lineage_viewer_widget.canvas_for_progeny import (
+    single_tree_progeny,
+)
 
 if TYPE_CHECKING:
-    from .canvas_for_progeny import single_tree_progeny
+    from ..lineage_tree_analysis.lineage_viewer_widget.canvas_for_progeny import (
+        single_tree_progeny,
+    )
 
 
 class colored_push_button(QPushButton):

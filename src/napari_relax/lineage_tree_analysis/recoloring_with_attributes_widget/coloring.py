@@ -22,11 +22,11 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from .._util_classes import (
+from ..._util_classes import (
     Layer_corrector_Tree_Producer,
     containerize,
 )
-from .._utils import _select_correct_layer
+from ..._utils import _select_correct_layer
 
 if TYPE_CHECKING:
     pass

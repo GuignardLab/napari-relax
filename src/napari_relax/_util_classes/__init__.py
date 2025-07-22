@@ -1,4 +1,3 @@
-from .canvas_for_progeny import single_tree_progeny
 from .containerize import containerize
 from .dialog_for_reader import (
     big_dataset_names_dialog,

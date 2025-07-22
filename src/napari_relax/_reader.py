@@ -154,7 +154,7 @@ def layer_preparation(lT: lineageTree, path: str = ""):
     )
     pos = {
         i: utils.hierarchical_pos(
-            g, g["root"], ycenter=-int(lT.time[g["root"]])
+            g, g["root"], ycenter=-int(lT.time[g["root"]]), vert_gap=1
         )
         for i, g in graphs.items()
     }
