@@ -34,8 +34,7 @@ from typing import TYPE_CHECKING
 from magicgui import widgets
 from qtpy.QtWidgets import QComboBox, QStackedWidget, QVBoxLayout, QWidget
 
-from . import lineage_tree_analysis
-from . import relax_multipledatasets
+from . import lineage_tree_analysis, relax_multipledatasets
 
 if TYPE_CHECKING:
     pass

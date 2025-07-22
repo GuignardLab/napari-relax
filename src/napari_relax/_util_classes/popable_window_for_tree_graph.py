@@ -135,7 +135,6 @@ class setup(QDialog):
                 "color_of_selection": "magenta",
             }
         )
-        print("closed")
         self.accept()
 
     def apply(self):
@@ -151,5 +150,4 @@ class setup(QDialog):
                 "all_selected": False,
             }
         )
-        print("closed")
         self.accept()

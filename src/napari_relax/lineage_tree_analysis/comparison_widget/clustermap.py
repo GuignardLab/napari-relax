@@ -14,7 +14,6 @@ from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
 from matplotlib.figure import Figure
-from matplotlib.patheffects import withSimplePatchShadow
 from napari._qt.qthreading import thread_worker
 from napari.layers import Points
 from napari.utils import progress
