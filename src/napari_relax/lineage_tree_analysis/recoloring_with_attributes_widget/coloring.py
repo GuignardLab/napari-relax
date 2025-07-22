@@ -315,10 +315,21 @@ class Quantitative(Layer_corrector_Tree_Producer):
             }
         )
         active_layer = _select_correct_layer(self, Points)
-        active_layer.face_color = active_layer.metadata["clone2"]
+        if active_layer is not None:
+            active_layer.face_color = active_layer.metadata["clone2"]
 
     def layer_change(self):
         self.lT = self.get_lT()
+        self.color_signal.emit(
+            {
+                "color_of_nodes": "black",
+                "color_of_edges": "black",
+                "node_size": 10,
+                "lw": 0.3,
+                "fontsize": 6,
+                "color_of_selection": "magenta",
+            }
+        )
         if self.lT:
             self.selected_attribute.clear()
             self.selected_attribute.addItems(
