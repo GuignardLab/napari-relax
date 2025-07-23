@@ -26,7 +26,7 @@ Sample code to manipulate the dataset:
     viewer.layers[0].refresh()
     ```
 
--  **3-D viewer**: Toggle 3-D view, essential for navigating 3-D/4D datasets **(Ctrl+Y)**.
+- **3-D viewer**: Toggle 3-D view, essential for navigating 3-D/4D datasets **(Ctrl+Y)**.
 - **Visible axis controls**: Change the order of visible axes (not very useful in the context of the plugin)
 - **Transpose the dataset**.
 - **Grid view**: The grid view is only important if multiple specimens are shown in the same viewer and they should not overlap **(Ctrl+G)**.
