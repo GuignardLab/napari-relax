@@ -120,15 +120,15 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         active_layer = _select_correct_layer(self, Points)
         if not active_layer:
             return
-        for layer in viewer.layers:
-            with contextlib.suppress(Exception):
-                layer.selected_data.clear()
         if (
             "Shift" in event.modifiers
             and event.button == 2
             and "lineageTree" in active_layer.metadata
             and active_layer
         ):
+            for layer in viewer.layers:
+                with contextlib.suppress(Exception):
+                    layer.selected_data.clear()
             current_position = event.position
             time = current_position[0]
             near_point, far_point = active_layer.get_ray_intersections(
