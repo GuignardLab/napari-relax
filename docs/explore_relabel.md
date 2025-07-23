@@ -23,7 +23,7 @@ The Lineage Viewer is the plugin's first component, enabling lineage exploration
 - **The Lineage Viewer slider**: Using this slider, the user may inspect different lineages that exist in the dataset
 - **Label manipulation**: Change a label by entering a name, show all labels, or remove an existing label.
 - **Select Lineage/Sublineage**: After the user has selected a point on the napari viewer, they may decide to select the whole lineage this node belongs to or the subtree by pressing the corresponding button. This will also update the plot. The user may also decide to change the colors of all nodes selected. Using panel 1 of. layer controls
-- **Points Layer resizer**: Change the size of all the Points on a selected layer or all layers (add a gif?). The same value will be applied across all points modified.
+- **Points Layer resizer**: Change the size of all the Points on a selected layer or all layers. The same value will be applied across all points modified.
 - **General helping buttons**: 
     - **Left**: Toggle the visibility of other layers; this button may serve as a shortcut.
     - **Right**: Add a tracks layer to the Points layer for visualization purposes.
