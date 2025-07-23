@@ -1,6 +1,19 @@
 site_name: ReLAX (Reconstructed Lineage Analysis & eXploration)
 theme:
   name: material
+  palette:
+  - scheme: default
+    primary: indigo
+    accent: indigo
+    toggle:
+      icon: material/weather-night
+      name: Switch to dark mode
+  - scheme: slate
+    primary: indigo
+    accent: indigo
+    toggle:
+      icon: material/weather-sunny
+      name: Switch to light mode
   features:
   - navigation.path
   - navigation.expand
@@ -28,7 +41,7 @@ markdown_extensions:
   - attr_list
   - md_in_html
   - admonition
-  - pymdownx.extra
+  # - pymdownx.extra
   - pymdownx.details
   - pymdownx.snippets
   - pymdownx.highlight
@@ -41,6 +54,7 @@ markdown_extensions:
 
 nav:
   - Overview: index.md
+  - Napari Viewer: viewer.md
   - Explore and Relabel: 
     - explore_relabel.md
     - Turorials: explore_relabel_tut.md

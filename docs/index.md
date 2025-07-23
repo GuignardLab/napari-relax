@@ -11,3 +11,11 @@ This napari plugin extends the functionality of the LineageTree project by provi
 - Morphology Inspection: Visually compare tree structures to analyze morphological differences.
 
 This integration enhances lineage analysis by combining the powerful visualization of Napari with quantitative comparison tools in an interactive environment.
+
+## Does the napari extension offer things that LineageTree does not?
+
+<p style="text-align: justify;">
+Viewer: The 3-D positional data are loaded into the napari viewer and can be interacted with.
+Interaction with huge datasets: Huge datasets contain hundreds of annotations/nodes per chain/branch, the plugin offers the capability to explore lineages on an interactive lineage viewer
+No need for programming knowledge, this plugin does not require programming capabilities, thus uted is possible even for the untrained user.
+</p>
