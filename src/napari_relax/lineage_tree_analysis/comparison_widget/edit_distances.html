@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Distances</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            color: #ffffff;
+        }
+        h1, p {
+            color: #ffffff;
+        }
+        p {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 15px;
+        }
+        b {
+            color: #ffffff;
+        }
+        i {
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <p><b>Edit Distances:</b></p>
+        <ul>
+            <li><b>Mini Tree</b>: Mini Tree uses only the division patterns <b>without taking into account the chain distance (cell lifetime)</b>.</li>
+            <li><b>Simple Tree</b>: Simple Tree converts each chain into a <b>node with length equal to the cell lifetime.</b>.</li>
+            <li><b>Normalized Tree</b>: The Normalized Tree is similar to the Simple Tree, but its matching function is adjusted. In this version, two cells with long lifetimes and relatively small differences are assigned a smaller distance. So, <b>small</b> loss in synchonisity is not taken into account.</li>
+            <li><b>Downsampled Tree</b>: Downsampled Tree converts the tree <b>to nodes of <i>n</i> length</b> (where <i>n</i> is the downsample size). This method is very accurate and fast, and it is recommended for use when running comparisons live on <b>napari</b>.For downsample 1 it becomes identical to full tree.</li>
+            <li><b>Full Tree</b>: Directly compares two trees with each other. This is the most accurate method, but it is extremely slow. <b>Do not use in napari</b>.</li>
+        </ul>
+    </div>
+</body>
+</html>
