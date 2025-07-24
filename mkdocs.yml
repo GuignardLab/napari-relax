@@ -18,14 +18,6 @@ theme:
   - navigation.path
   - navigation.expand
   - content.code.annotate
-  - content.tooltips
-  - navigation.instant
-  - navigation.sections
-  - navigation.indexes
-  - navigation.footer
-  - toc.follow
-  - search.suggest
-  - search.share
 
 plugins:
 - search:
