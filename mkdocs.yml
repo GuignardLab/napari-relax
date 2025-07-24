@@ -55,16 +55,10 @@ markdown_extensions:
 nav:
   - Overview: index.md
   - Napari Viewer: viewer.md
-  - Explore and Relabel: 
-    - explore_relabel.md
-    - Turorials: explore_relabel_tut.md
-  - Attribute Recoloring: 
-    - attribute.md
-    - Tutorials: attribute_tut.md
-  - Distance Calculation: 
-    - distance.md
-    - Tutorials: distance_tut.md
+  - Explore and Relabel: explore_relabel.md
+  - Attribute Recoloring: attribute.md
+  - Distance Calculation:  distance.md
   - Cross_dataset_Distances: 
     - Manager: manager.md
     - Distance Calculation: distance_cross.md
-    - Tutorials: smt.md
+  - Guides: guides.md
