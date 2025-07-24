@@ -1,0 +1,36 @@
+name: napari-relax
+display_name: ReLAX
+# use 'hidden' to remove plugin from napari hub search results
+visibility: public
+# see https://napari.org/stable/plugins/technical_references/manifest.html#fields for valid categories
+# categories: []
+contributions:
+  commands:
+    - id: napari-relax.get_reader
+      python_name: napari_relax._reader:napari_get_reader
+      title: LineageTree reader
+    - id: napari-relax.lineage_tree_analysis
+      python_name: napari_relax._widgets:LineageTreeAnalysisWidget
+      title: Lineage tree analysis
+    - id: napari-relax.cross_embryo_comparison
+      python_name: napari_relax._widgets:CrossEmbryoComparisonWidget
+      title: Cross Lineagetree comparison
+    - id: napari-relax.load_demo
+      python_name: napari_relax.demo_data:load_demo
+      title: Load data
+
+  readers:
+    - command: napari-relax.get_reader
+      accepts_directories: false
+      filename_patterns: ["*.lT", "*.lt", "*.LT", "*.mastodon", "*.xml"]
+
+  sample_data:
+    - command: napari-relax.load_demo
+      display_name: demo lineageTree dataset
+      key: unique_id.6
+
+  widgets:
+    - command: napari-relax.lineage_tree_analysis
+      display_name: Lineage tree analysis
+    - command: napari-relax.cross_embryo_comparison
+      display_name: Cross Lineagetree comparison
