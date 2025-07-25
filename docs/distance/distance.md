@@ -1,5 +1,7 @@
 It enables users to calculate unordered tree edit distances online, using various [pre-made approximation methods](https://guignardlab.github.io/LineageTree/uted/). Once the distances have been computed, users may choose to inspect and compare the lineages using both the napari viewer and the clustermap results. Some algorithms are very fast but not precise, while others are slow but much more precise.
 
+This component focuses on calculating UTED systematically with different approximations and showcasing the results.
+
 ![image_for_clustermap](./clustermap_analysis.png)
 
 1. **Configuration Component**:

@@ -1,8 +1,9 @@
 
 The core parts of this Exploration and Relabeling are:
 
-- The interactive **Lineage Viewer** and its combination with the napari standard viewer
-- **Relabel** any chain lineage or sublineage
+- The interactive **Lineage Viewer**
+- **Relabel** any chain in a lineage
+- **Combine** the **Lineage Viewer** with the **Napari standard Viewer**
 
 
 This component contains features for navigating the lineages using both the Lineage Viewer and the Napari viewer and renaming lineages.
