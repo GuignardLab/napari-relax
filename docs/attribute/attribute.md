@@ -4,7 +4,7 @@ There are 2 sections:
 - One is for comparing different lineages between themselves, using the unordered tree edit distance algorithm
 - The other is about showing other precomputed features on both the viewers and the lineage Viewer.
 
-![distance_image](./images/recolor/distance_display_componentn.png)
+![distance_image](./distance_display_componentn.png)
 
 1. **The recolored clones**. This specific example was colored using the accent colormap at the timepoint, only 15 cells existed, while the dataset started from 8 cells.
 

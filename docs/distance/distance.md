@@ -1,6 +1,6 @@
-This component forms the core of the plugin. It enables users to calculate unordered tree edit distances online, using various pre-made approximation methods. Once the distances have been computed, users may choose to inspect and compare the lineages using both the napari viewer and the clustermap results. Some algorithms are very fast but not precise, while others are slow but much more precise.
+It enables users to calculate unordered tree edit distances online, using various [pre-made approximation methods](https://guignardlab.github.io/LineageTree/uted/). Once the distances have been computed, users may choose to inspect and compare the lineages using both the napari viewer and the clustermap results. Some algorithms are very fast but not precise, while others are slow but much more precise.
 
-![image_for_clustermap](./images/distance/clustermap_analysis.png)
+![image_for_clustermap](./clustermap_analysis.png)
 
 1. **Configuration Component**:
     1. **Levels of comparison selected**: For every lineage selected, their subtrees can also be compared to each other. Using this setting, the user can select to compare subtrees that have a root in a specific timepoint. Using the setting on the top the user may use a range of timepoints and using the bottom option the user can manually enter the timepoints they preffer. For example, if there are 2 lineages that start on timepoint 0 and both have a division in a timepoint earlier than or on timepoint 5, then if the user selects to make a comparison at timepoint 5, there are going to be 4 lineages to be compared with each other. If the user preffers to put the timepoints manually using the button on the bottom.

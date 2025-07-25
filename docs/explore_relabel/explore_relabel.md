@@ -1,23 +1,27 @@
 
-This component serves as the starting screen and is mainly focused on data exploration and inspection. The user may also make changes to the labels of the dataset or inspect structures created by lineages and sublineages using the lineage viewer and napari viewer simultaneously. Apart from that, the user may also make changes to the aesthetics of the application.
+The core parts of this Exploration and Relabeling are:
+
+- The interactive **Lineage Viewer** and its combination with the napari standard viewer
+- **Relabel** any chain lineage or sublineage
+
 
 This component contains features for navigating the lineages using both the Lineage Viewer and the Napari viewer and renaming lineages.
 
 
 The Lineage Viewer is the plugin's first component, enabling lineage exploration, relabeling, and navigation through the viewer's time data.
 
-![exploration_panel](./images/exploration/exploration.png)
+![exploration_panel](./exploration.png)
 
 1. **Lineage Viewer configuration button**: Press to open the configuration window
 
-- **Configuration window**: Using this window, the user may change the node size, node color, edge size, label fontsize, and the color of the selected cells (maybe add background??)
-- **The Lineage Viewer**. Using this viewer, the user may inspect all the lineages that exist in a dataset. It is zoomable and pannable; if zoomed in enough, the user may also see the label for each node that exists on the start or end of a chain. Clicking on the viewer, the user can select the nodes of subtrees by clicking on the graph in both viewers. Also, when clicking, the user may use component 5 to change the label of any subtree.
+- **Lineage Viewer configuration window**: Using this window, the user may change the Lineage viewers: node size, node color, edge size, label fontsize, and the color of the selected cells.
+- **The Lineage Viewer**: Using this viewer, the user may inspect all the lineages that exist in a dataset. It is zoomable and pannable; if zoomed in enough, the user may also see the label for each node. **Left + Clicking** on the viewer, the user can select the nodes of subtrees by clicking on the graph in both viewers. Also, when clicking, the user may use component 5 to change the label of any subtree.
 
     *Controls of the viewer:*
 
     - **Left click**: Using the left click, the user will select a subtree on the plot and the corresponding Points on the napari viewer.
     - **Mouse wheel**: Using the mouse wheel, the user can zoom in on the graph to observe specific details. If the user zooms in enough, the labels of each node will be shown on screen.
-    - **Left click** and drag: Edge pan to see different segments of the lineage if the plot is zoomed in.
+    - **Left click** and **drag**: Edge pan to see different segments of the lineage if the plot is zoomed in.
     - **Z**: Reset the view regardless of panning or zoom.
 
 - **The Lineage Viewer slider**: Using this slider, the user may inspect different lineages that exist in the dataset
@@ -28,7 +32,6 @@ The Lineage Viewer is the plugin's first component, enabling lineage exploration
     - **Left**: Toggle the visibility of other layers; this button may serve as a shortcut.
     - **Right**: Add a tracks layer to the Points layer for visualization purposes.
 
-
 An example of a Tracks Layer:
 
-![tracks](./images/exploration/tracks.png)
+![tracks](./tracks.png)
