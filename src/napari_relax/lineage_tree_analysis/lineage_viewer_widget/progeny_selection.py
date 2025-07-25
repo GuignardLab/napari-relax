@@ -255,7 +255,6 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
                     active_layer.metadata["napari2lT"][cell]
                 )[0]
             )
-            self.ax_for_tree_graph.clear()
             self.graph_slider.setValue(val)
             self.ax_for_tree_graph.clear()
             self.canvas.change_lineage(
