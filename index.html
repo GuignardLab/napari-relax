@@ -10,7 +10,7 @@
       
       
       
-        <link rel="next" href="viewer/">
+        <link rel="next" href="quick_start/q_start/">
       
       
       <link rel="icon" href="assets/images/favicon.png">
@@ -280,9 +280,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#does-the-napari-extension-offer-things-that-lineagetree-does-not" class="md-nav__link">
+  <a href="#what-does-this-combination-of-lineagetree-and-napari-offer" class="md-nav__link">
     <span class="md-ellipsis">
-      Does the napari extension offer things that LineageTree does not?
+      What does this combination of LineageTree and Napari offer
     </span>
   </a>
   
@@ -303,7 +303,29 @@
   
   
     <li class="md-nav__item">
-      <a href="viewer/" class="md-nav__link">
+      <a href="quick_start/q_start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick Start
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="viewer/viewer/" class="md-nav__link">
         
   
   
@@ -325,7 +347,7 @@
   
   
     <li class="md-nav__item">
-      <a href="explore_relabel/" class="md-nav__link">
+      <a href="explore_relabel/explore_relabel/" class="md-nav__link">
         
   
   
@@ -347,7 +369,7 @@
   
   
     <li class="md-nav__item">
-      <a href="attribute/" class="md-nav__link">
+      <a href="attribute/attribute/" class="md-nav__link">
         
   
   
@@ -369,7 +391,7 @@
   
   
     <li class="md-nav__item">
-      <a href="distance/" class="md-nav__link">
+      <a href="distance/distance/" class="md-nav__link">
         
   
   
@@ -401,10 +423,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
             
   
   
@@ -417,8 +439,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             Cross_dataset_Distances
           </label>
@@ -526,9 +548,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#does-the-napari-extension-offer-things-that-lineagetree-does-not" class="md-nav__link">
+  <a href="#what-does-this-combination-of-lineagetree-and-napari-offer" class="md-nav__link">
     <span class="md-ellipsis">
-      Does the napari extension offer things that LineageTree does not?
+      What does this combination of LineageTree and Napari offer
     </span>
   </a>
   
@@ -553,26 +575,33 @@
 <h1 id="welcome-to-relax">Welcome to ReLAX<a class="headerlink" href="#welcome-to-relax" title="Permanent link">&para;</a></h1>
 <p style="text-align: justify;">
 
-This napari plugin extends the functionality of the LineageTree project by providing a comprehensive Graphical User Interface (GUI). Leveraging napari’s interactive visualization capabilities and Qt’s flexible framework, it enables users to import and explore lineage trees directly within the napari viewer. With this plugin, users can intuitively navigate spatial and temporal lineage data. Beyond data exploration, it also offers features such as:
+This napari plugin extends the functionality of the <a href="https://guignardlab.github.io/LineageTree/" target="_blank">LineageTree</a> project by providing a comprehensive Graphical User Interface (GUI). Leveraging napari’s interactive visualization capabilities and Qt’s flexible framework, it enables users to import and explore tracking datasets, called **lineagetrees** from now on, directly into the napari viewer. With this plugin, users can intuitively navigate spatial and temporal tracking data. Beyond data exploration, it also offers features such as:
 </p>
+
 <ul>
 <li>
-<p>Node Recoloring: Customize node colors based on lineage attributes for better insights into the embryo.</p>
+<p><strong>Node Recoloring</strong>: Customize node colors based on lineage attributes for better insights into the embryo.</p>
 </li>
 <li>
-<p>Tree Distance Calculation: Compute distances between different lineage trees to assess their similarity or dissimilarity.</p>
+<p><strong>Tree Distance Calculation</strong>: Compute distances between different lineage trees to assess their similarity or dissimilarity, using <strong>Unordered Tree Edit Distance (UTED)</strong>.</p>
 </li>
 <li>
-<p>Morphology Inspection: Visually compare tree structures to analyze morphological differences.</p>
+<p><strong>Morphology Inspection</strong>: Visually compare tree structures to analyze morphological differences.</p>
 </li>
 </ul>
 <p>This integration enhances lineage analysis by combining the powerful visualization of Napari with quantitative comparison tools in an interactive environment.</p>
-<h2 id="does-the-napari-extension-offer-things-that-lineagetree-does-not">Does the napari extension offer things that LineageTree does not?<a class="headerlink" href="#does-the-napari-extension-offer-things-that-lineagetree-does-not" title="Permanent link">&para;</a></h2>
-<p style="text-align: justify;">
-- Viewer: The 3-D positional data are loaded into the napari viewer and can be interacted with.
-- Interaction with huge datasets: Huge datasets contain hundreds of annotations/nodes per chain/branch, the plugin offers the capability to explore lineages on an interactive lineage viewer
-- No need for programming knowledge, this plugin does not require programming capabilities, thus uted is possible even for the untrained user.
-</p>
+<h2 id="what-does-this-combination-of-lineagetree-and-napari-offer">What does this combination of LineageTree and Napari offer<a class="headerlink" href="#what-does-this-combination-of-lineagetree-and-napari-offer" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Viewer</strong>: The 3-D positional data are loaded into the napari viewer and can be interacted with.</li>
+<li><strong>Interaction with huge datasets</strong>: Huge datasets contain hundreds of annotations/nodes per chain/branch, the plugin offers the capability to explore lineages on an interactive lineage viewer</li>
+<li><strong>No need for programming knowledge</strong>: This plugin does not require programming capabilities, thus comparing lineagetrees is possible even for the untrained user.</li>
+</ul>
+<p>This plugin consists of 4 components:</p>
+<ul>
+<li><a href="./explore_relabel.md">Explore and Relabel</a>: Explore the lineages with its interactive <strong>Lineage Viewer</strong>, relabel lineages of interest. </li>
+<li><a href="./attribute.md">Attribute recoloring</a>: Recolor nodes on both the <strong>Lineage Viewer</strong> and the <strong>Napari standard Viewer</strong>, using the distance or precomputed attributes.</li>
+<li><a href="./distance.md">Distance Calculation</a>: Calculate UTED and see their result on the <strong>Napari Standard Viewer</strong>.</li>
+</ul>
 
 
 
