@@ -153,6 +153,24 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
                 active_layer._face.current_color = color
                 self.Progeny_diagram_loader()
                 active_layer.refresh()
+                cell = active_layer.selected_data.pop()
+                active_layer.selected_data = {cell}
+                val = self.val_finder(
+                    active_layer.metadata["napari2lT"][cell],
+                    self.lT,
+                    active_layer.metadata["graphs"][0],
+                )
+                if val is not None:
+                    self.graph_slider.setValue(int(val))
+                    self.canvas.change_lineage(
+                        self.figure,
+                        self.ax_for_tree_graph,
+                        val,
+                        self.lT,
+                        active_layer.metadata["graphs"][0][val],
+                        active_layer.metadata["graphs"][1][val],
+                    )
+                    self.canvas.draw_graph()
 
     def Progeny_diagram_loader(self):
         """
