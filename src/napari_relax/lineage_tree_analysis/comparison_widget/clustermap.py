@@ -13,6 +13,7 @@ from magicgui import widgets
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
+from .histogram_comp import HistogramWidget
 from matplotlib.figure import Figure
 from napari._qt.qthreading import thread_worker
 from napari.layers import Points
@@ -161,7 +162,6 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
                 self.tree_canvas.draw()
                 active_layer.selected_data.clear()
             active_layer.refresh()
-            # self.figure.tight_layout()
             if self.time_mover.value:
                 camera_pan = self.viewer.dims.current_step
                 self.viewer.dims.current_step = (
@@ -315,6 +315,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
             return
         self.pbr = progress(self.times)
         self.worker.yielded.connect(self.update_dictionary)
+        self.worker.yielded.connect(self.tab3.receive_values)
         self.worker.start()
         self.runbutton.setChecked(True)
         self.stopbutton.setChecked(False)
@@ -422,6 +423,8 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
             self.specific_roots.append(
                 self.list_of_selected_nodes[index.row()][0]
             )
+        if self.specific_roots == []:
+            self.specific_roots = self.lT.time_nodes[self.lT.t_b]
 
     def save_dictionary(self):
         """
@@ -514,6 +517,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         self.viewer = napari_viewer
         self.lT = self.get_lT()
         if self.lT:
+            self.specific_roots = self.lT.time_nodes[self.lT.t_b]
             self.labels = self.lT.labels
         self.time = 1
         self.crop = None
@@ -615,6 +619,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         self.list_widget = QListWidget()
         self.list_widget.setSelectionMode(QListWidget.MultiSelection)
         if self.lT:
+            self.specific_roots = self.lT.time_nodes[self.lT.t_b]
             selected_nodes = []
             already_used_nodes = set()
             for node, label in self.lT.labels.items():
@@ -731,12 +736,15 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         self.tab2.layout().addWidget(self.time_slider.native)
         self.tab2.layout().addWidget(container.native)
 
+        self.tab3 = HistogramWidget()
         # Rest Layout
         layout = QVBoxLayout()
         self.tabs = QTabWidget()
 
         self.tabs.addTab(self.tab1, "Configuration Options")
         self.tabs.addTab(self.tab2, "Tree Plots")
+        self.tabs.addTab(self.tab3, "Histograms")
+
         self.setLayout(layout)
         self.layout().addWidget(self.tabs)
         self.layout().addWidget(self.button_container.native)
