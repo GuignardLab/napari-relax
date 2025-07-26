@@ -28,12 +28,14 @@ from qtpy.QtWidgets import (
     QListWidget,
     QPushButton,
     QTabWidget,
+    QLabel,
     QVBoxLayout,
     QHBoxLayout,
     QWidget,
     QScrollArea,
     QSpacerItem,
     QSizePolicy,
+    QDialog,
 )
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
@@ -45,6 +47,15 @@ from ..._util_classes import (
     tooltip_button,
 )
 from ..._utils import _select_correct_layer
+
+
+class pop_up(QDialog):
+
+    def __init__(self, parent=..., flags=...):
+        super().__init__(parent, flags)
+
+        layout = QVBoxLayout()
+        self.setWindowTitle("Filter roots")
 
 
 class HistTemplate(QWidget):
@@ -126,7 +137,7 @@ class HistogramWidget(QScrollArea):
         )
         self.main_hist.plot_hist()
 
-    def select_values(self): ...
+    def create_filter(self): ...
 
     def add_hist(self, roots=...):
         hist = HistTemplate()
@@ -145,7 +156,9 @@ class HistogramWidget(QScrollArea):
             self.remove_hist(hist)
         self.main_hist.hist_ax.clear()
 
-    def __init__(self):
+    def __init__(
+        self,
+    ):
         super().__init__()
         self.range = 0
         self.comparisons = {}
