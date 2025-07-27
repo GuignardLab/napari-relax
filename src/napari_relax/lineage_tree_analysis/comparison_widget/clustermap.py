@@ -497,6 +497,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
             self.tab1.layout().update()
             self.layout().update()
             self.tab3.lT = self.lT
+            self.tab3.layer_change()
 
     def update_tree_style(self):
         self.downsampling_widget.visible = False

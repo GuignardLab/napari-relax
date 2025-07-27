@@ -194,6 +194,7 @@ class HistogramWidget(QScrollArea):
         hist.lT = self.lT
         hist.plot_hist()
         hist.kill_signal.connect(self.remove_hist)
+        hist.title.value = f"Roots: {','.join(str(self.labels.get(r,r)) for r in hist.specific_roots)}"
         self.layout.insertWidget(self.layout.count() - 2, hist)
 
     def remove_hist(self, obj: QWidget):
