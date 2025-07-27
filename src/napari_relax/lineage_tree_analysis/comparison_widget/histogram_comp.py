@@ -13,6 +13,7 @@ from magicgui import widgets
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
+from copy import copy
 from matplotlib.figure import Figure
 from napari._qt.qthreading import thread_worker
 from napari.layers import Points
@@ -51,27 +52,56 @@ from ..._utils import _select_correct_layer
 
 class pop_up(QDialog):
 
-    def __init__(self, parent=..., flags=...):
-        super().__init__(parent, flags)
+    def __init__(self, roots, labels):
+        super().__init__()
 
         layout = QVBoxLayout()
-        self.setWindowTitle("Filter roots")
+        self.setWindowTitle("Create new Histogram")
+        self.list_widget = QListWidget()
+        self.list_widget.setSelectionMode(QListWidget.MultiSelection)
+        self.list_items = [
+            f"{l[1]} - {labels[l[1]]}" for l in roots[0].values()
+        ]
+        self.list_widget.addItems(self.list_items)
+        self.in_group_check = QCheckBox("In-group comparisons")
+        self.in_group_check.setChecked(True)
+        self.out_group_check = QCheckBox("Out-group comparisons")
+        self.out_group_check.setChecked(True)
+        self.accept_button = QPushButton("Accept")
+        layout.addWidget(self.list_widget)
+        layout.addWidget(self.in_group_check)
+        layout.addWidget(self.out_group_check)
+        layout.addWidget(self.accept_button)
+        self.setLayout(layout)
+        self.accept_button.clicked.connect(self.accept_parameters)
+
+    def accept_parameters(self):
+        if len(self.list_widget.selectedItems()) > 0 and (
+            self.in_group_check.isChecked() or self.out_group_check.isChecked()
+        ):
+            lista = [
+                int(self.list_items[i.row()].split(" ")[0])
+                for i in self.list_widget.selectedIndexes()
+            ]
+            self.hist = HistTemplate(
+                specific_roots=lista,
+                in_group=self.in_group_check.isChecked(),
+                out_group=self.out_group_check.isChecked(),
+            )
+            self.accept()
 
 
 class HistTemplate(QWidget):
 
     kill_signal = Signal(object)
 
-    def __init__(self, comparisons=..., norms=..., labels=[]):
+    def __init__(self, specific_roots=..., in_group=True, out_group=True):
         super().__init__()
-        if labels:
-
-            self.title = widgets.Label(
-                value=f"Roots: {','.join(str(l) for l in labels[0])}"
-            )
-        else:
-            self.title = widgets.Label(value="")
-
+        self.lT = None
+        self.specific_roots = specific_roots
+        self.in_group = in_group
+        self.out_group = out_group
+        self.title = widgets.Label(value="")
         self.kill_button = QPushButton("X")
         self.kill_button.setFixedSize(20, 20)
         self.figure = Figure(figsize=(3, 2), constrained_layout=True)
@@ -84,8 +114,6 @@ class HistTemplate(QWidget):
         self.norm_dict = {"max": max, "sum": sum, "None": lambda x: 1}
         self.norm_combo.changed.connect(self.plot_hist)
         self.slider = widgets.Slider(min=0, max=self.range)
-        self.comparisons = comparisons
-        self.norms = norms
         self.hist_ax = self.figure.add_subplot(111)
         head_widget = QWidget()
         header = QHBoxLayout()
@@ -107,22 +135,42 @@ class HistTemplate(QWidget):
     def kill_widget(self):
         self.kill_signal.emit(self)
 
+    def filter_roots(self):
+        time = int(self.slider.value)
+        comparisons = self.comparisons[time]
+        list_of_comparisons = list(comparisons.keys())
+        new_c = {}
+        for key in list_of_comparisons:
+            if (
+                self.naming[time][key[0]][1] in self.specific_roots
+                and self.naming[time][key[1]][1] in self.specific_roots
+            ):
+                new_c[key] = comparisons[key]
+        return new_c
+
     def plot_hist(self):
         self.hist_ax.clear()
         time = int(self.slider.value)
+        if self.lT is None:
+            comparisons = self.comparisons[time]
+        else:
+            comparisons = self.filter_roots()
         hist_values = []
-        for keys, values in self.comparisons[time]:
-            hist_values.append(
-                self.comparisons[time][keys, values]
-                / self.norm_dict[str(self.norm_combo.value)](
-                    self.norms[time][keys, values]
+        if len(comparisons) > 0:
+            for keys, values in comparisons:
+                hist_values.append(
+                    comparisons[keys, values]
+                    / self.norm_dict[str(self.norm_combo.value)](
+                        self.norms[time][keys, values]
+                    )
                 )
-            )
-        self.hist_ax.hist(hist_values)
+            self.hist_ax.hist(hist_values)
         self.canvas.draw()
 
-    def update_values(self, product):
-        self.comparisons, *_, self.norms = product
+    def update_values(self, product, labels={}):
+        self.comparisons, self.naming, self.norms = product
+        self.labels = labels
+        self.slider.max = len(self.comparisons) - 1
 
 
 class HistogramWidget(QScrollArea):
@@ -131,18 +179,20 @@ class HistogramWidget(QScrollArea):
         self.comparisons, self.naming, self.norms = data_from_clustermap
         self.layer_change()
         self.main_hist.slider.max = len(self.comparisons) - 1
-        self.main_hist.update_values(data_from_clustermap)
-        self.main_hist.title.value = (
-            f"Roots: {','.join(str(l) for l in self.naming[0])}"
-        )
+        self.main_hist.update_values(data_from_clustermap, self.labels)
+        self.main_hist.title.value = f"Roots: {','.join(str(self.labels.get(l[1],l[1])) for l in self.naming[0].values())}"
         self.main_hist.plot_hist()
 
-    def create_filter(self): ...
-
-    def add_hist(self, roots=...):
-        hist = HistTemplate()
+    def add_hist(self):
+        popup = pop_up(self.naming, self.labels)
+        popup.exec_()
+        hist = popup.hist
         self.all_histograms.add(hist)
-
+        hist.update_values(
+            (self.comparisons, self.naming, self.norms), self.labels
+        )
+        hist.lT = self.lT
+        hist.plot_hist()
         hist.kill_signal.connect(self.remove_hist)
         self.layout.insertWidget(self.layout.count() - 2, hist)
 
@@ -156,13 +206,16 @@ class HistogramWidget(QScrollArea):
             self.remove_hist(hist)
         self.main_hist.hist_ax.clear()
 
-    def __init__(
-        self,
-    ):
+    def reeceive_labels(self, labels):
+        self.labels = labels
+
+    def __init__(self, lT):
         super().__init__()
+        self.lT = lT
         self.range = 0
         self.comparisons = {}
         self.norms = {}
+        self.labels = {}
         self.all_histograms = set()
         self.main_hist = HistTemplate()
         self.main_hist.layout().removeWidget(self.main_hist.kill_button)

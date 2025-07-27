@@ -316,6 +316,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         self.pbr = progress(self.times)
         self.worker.yielded.connect(self.update_dictionary)
         self.worker.yielded.connect(self.tab3.receive_values)
+        self.tab3.reeceive_labels(self.lT.labels)
         self.worker.start()
         self.runbutton.setChecked(True)
         self.stopbutton.setChecked(False)
@@ -478,6 +479,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         ]
         self.list_widget.addItems([s for k, s in self.list_of_selected_nodes])
         self.list_widget.update()
+        self.tab3.reeceive_labels(self.lT.labels)
 
     def c_layer_change(self, event):
         """Handles the layer change event.
@@ -494,6 +496,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
             self.label_update()
             self.tab1.layout().update()
             self.layout().update()
+            self.tab3.lT = self.lT
 
     def update_tree_style(self):
         self.downsampling_widget.visible = False
@@ -736,7 +739,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         self.tab2.layout().addWidget(self.time_slider.native)
         self.tab2.layout().addWidget(container.native)
 
-        self.tab3 = HistogramWidget()
+        self.tab3 = HistogramWidget(self.lT)
         # Rest Layout
         layout = QVBoxLayout()
         self.tabs = QTabWidget()
