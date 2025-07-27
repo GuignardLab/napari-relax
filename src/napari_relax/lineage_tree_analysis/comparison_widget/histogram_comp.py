@@ -80,6 +80,9 @@ class HistTemplate(QWidget):
             value="max",
             choices=["max", "sum", "None"],
         )
+        self.norm_combo.native.setSizePolicy(
+            QSizePolicy.Minimum, QSizePolicy.Minimum
+        )
         self.norm_dict = {"max": max, "sum": sum, "None": lambda x: 1}
         self.norm_combo.changed.connect(self.plot_hist)
         self.slider = widgets.Slider(min=0, max=self.range)
