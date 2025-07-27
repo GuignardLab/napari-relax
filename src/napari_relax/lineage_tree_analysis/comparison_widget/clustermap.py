@@ -13,7 +13,6 @@ from magicgui import widgets
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
-from .histogram_comp import HistogramWidget
 from matplotlib.figure import Figure
 from napari._qt.qthreading import thread_worker
 from napari.layers import Points
@@ -40,6 +39,7 @@ from ..._util_classes import (
     tooltip_button,
 )
 from ..._utils import _select_correct_layer
+from .histogram_comp import HistogramWidget
 
 
 class Online_clustermap(Layer_corrector_Tree_Producer):
@@ -498,6 +498,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
             self.layout().update()
             self.tab3.lT = self.lT
             self.tab3.layer_change()
+            self.tab3.reeceive_labels(self.lT.labels)
 
     def update_tree_style(self):
         self.downsampling_widget.visible = False

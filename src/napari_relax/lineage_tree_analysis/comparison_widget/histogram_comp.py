@@ -1,53 +1,22 @@
-import os
-import pickle
-from itertools import combinations
-from pathlib import Path
-from time import sleep
-
-import matplotlib.pyplot as plt
-import mplcursors
-import numpy as np
-import seaborn as sns
-from LineageTree.tree_approximation import tree_style
 from magicgui import widgets
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
-from copy import copy
 from matplotlib.figure import Figure
-from napari._qt.qthreading import thread_worker
-from napari.layers import Points
-from napari.utils import progress
-from qtpy.QtCore import QRegExp
-from qtpy.QtGui import QIntValidator, QRegExpValidator
 from psygnal import Signal
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
-    QButtonGroup,
     QCheckBox,
-    QLineEdit,
+    QDialog,
+    QHBoxLayout,
     QListWidget,
     QPushButton,
-    QTabWidget,
-    QLabel,
-    QVBoxLayout,
-    QHBoxLayout,
-    QWidget,
     QScrollArea,
-    QSpacerItem,
     QSizePolicy,
-    QDialog,
+    QSpacerItem,
+    QVBoxLayout,
+    QWidget,
 )
-from scipy.cluster.hierarchy import dendrogram, linkage
-from scipy.spatial.distance import squareform
-
-from ..._util_classes import (
-    Layer_corrector_Tree_Producer,
-    containerize,
-    delayedtooltipeventfilter,
-    tooltip_button,
-)
-from ..._utils import _select_correct_layer
 
 
 class pop_up(QDialog):
@@ -140,12 +109,45 @@ class HistTemplate(QWidget):
         comparisons = self.comparisons[time]
         list_of_comparisons = list(comparisons.keys())
         new_c = {}
-        for key in list_of_comparisons:
-            if (
-                self.naming[time][key[0]][1] in self.specific_roots
-                and self.naming[time][key[1]][1] in self.specific_roots
-            ):
-                new_c[key] = comparisons[key]
+        match (self.out_group, self.in_group):
+            case (True, True):
+                for key in list_of_comparisons:
+                    if (
+                        self.naming[time][key[0]][1] in self.specific_roots
+                        and self.naming[time][key[1]][1] in self.specific_roots
+                    ):
+                        new_c[key] = comparisons[key]
+            case (True, False):
+                for key in list_of_comparisons:
+                    if (
+                        self.naming[time][key[0]][1] in self.specific_roots
+                        and self.naming[time][key[1]][1] in self.specific_roots
+                        and (
+                            self.lT.get_ancestor_at_t(
+                                self.naming[time][key[0]][1]
+                            )
+                            != self.lT.get_ancestor_at_t(
+                                self.naming[time][key[1]][1]
+                            )
+                        )
+                    ):
+                        new_c[key] = comparisons[key]
+            case (False, True):
+                for key in list_of_comparisons:
+                    if (
+                        self.naming[time][key[0]][1] in self.specific_roots
+                        and self.naming[time][key[1]][1] in self.specific_roots
+                        and (
+                            self.lT.get_ancestor_at_t(
+                                self.naming[time][key[0]][1]
+                            )
+                            == self.lT.get_ancestor_at_t(
+                                self.naming[time][key[1]][1]
+                            )
+                        )
+                    ):
+                        new_c[key] = comparisons[key]
+
         return new_c
 
     def plot_hist(self):
