@@ -138,6 +138,10 @@ class HistTemplate(QWidget):
                         and self.naming[time][key[1]][1] in self.specific_roots
                     ):
                         new_c[key] = comparisons[key]
+                        self.hist_ax.set_title(
+                            f"Time: {self.times[int(self.slider.value)]}"
+                        )
+
             case (True, False):
                 for key in list_of_comparisons:
                     if (
@@ -155,6 +159,10 @@ class HistTemplate(QWidget):
                         )
                     ):
                         new_c[key] = comparisons[key]
+                        self.hist_ax.set_title(
+                            f"Time: {self.times[int(self.slider.value)]} only outgroup"
+                        )
+
             case (False, True):
                 for key in list_of_comparisons:
                     if (
@@ -172,6 +180,9 @@ class HistTemplate(QWidget):
                         )
                     ):
                         new_c[key] = comparisons[key]
+                        self.hist_ax.set_title(
+                            f"Time: {self.times[int(self.slider.value)]} only ingroup"
+                        )
 
         return new_c
 
@@ -192,7 +203,6 @@ class HistTemplate(QWidget):
                     )
                 )
             self.hist_ax.hist(hist_values)
-        self.hist_ax.set_title(f"Time: {self.times[int(self.slider.value)]}")
         self.canvas.draw()
 
     def update_values(self, product, labels={}, times=...):
