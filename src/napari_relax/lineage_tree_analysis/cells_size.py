@@ -33,7 +33,7 @@ class CellSize(Layer_corrector_Tree_Producer):
     """
 
     def add_tracks(self, event):
-        "Adds the tracks layer of a specific lineageTree points layer."
+        "Adds the tracks layer of a specific LineageTree points layer."
         active = _select_correct_layer(self, Points)
         if active:
             data = active.metadata["graph_to_create_tracks"]

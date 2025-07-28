@@ -26,12 +26,12 @@ class DisplayDistances(Layer_corrector_Tree_Producer):
             event.button == 2
             and "Shift" not in event.modifiers
             and "Control" in event.modifiers
-            and "lineageTree" in active_layer.metadata
+            and "LineageTree" in active_layer.metadata
             and active_layer
         ):
             current_position = event.position
             time = int(current_position[0])
-            lT = active_layer.metadata["lineageTree"]
+            lT = active_layer.metadata["LineageTree"]
             near_point, far_point = active_layer.get_ray_intersections(
                 np.array(event.position),
                 event.view_direction,
@@ -122,7 +122,7 @@ class DisplayDistances(Layer_corrector_Tree_Producer):
         active_layer = _select_correct_layer(self, Points)
         if not active_layer and not self.time_nodes:
             return
-        lT = active_layer.metadata["lineageTree"]
+        lT = active_layer.metadata["LineageTree"]
         times = list(range(lT.t_b, lT.t_e))
         nb_cells = [len(self.time_nodes[t]) for t in times]
         target_time = self.time_slider.value * (max(times) - min(times))
@@ -154,7 +154,7 @@ class DisplayDistances(Layer_corrector_Tree_Producer):
         active_layer = _select_correct_layer(self, Points)
         if not active_layer or not self.time_nodes:
             return
-        lT = active_layer.metadata["lineageTree"]
+        lT = active_layer.metadata["LineageTree"]
         min_t = lT.t_b
         max_t = lT.t_e
         times = list(range(lT.t_b, lT.t_e))

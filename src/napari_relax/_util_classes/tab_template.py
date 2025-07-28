@@ -1,4 +1,4 @@
-from LineageTree import lineageTree
+from lineagetree import LineageTree
 from magicgui import widgets
 from qtpy.QtCore import QRegExp
 from qtpy.QtGui import QRegExpValidator
@@ -84,7 +84,7 @@ class tab_template(QWidget):
 
         return self.times
 
-    def __init__(self, lineagetree: lineageTree, name):
+    def __init__(self, lineagetree: LineageTree, name):
         super().__init__()
         self.name = name  # lineagetree.name
         self.time_crop = None

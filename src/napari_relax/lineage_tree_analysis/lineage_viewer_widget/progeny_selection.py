@@ -30,7 +30,7 @@ from ..._utils import _select_correct_layer
 from .canvas_for_progeny import single_tree_progeny
 
 if TYPE_CHECKING:
-    from LineageTree import lineageTree
+    from lineagetree import LineageTree
 
 
 class ProgenySelection(Layer_corrector_Tree_Producer):
@@ -123,7 +123,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         if (
             "Shift" in event.modifiers
             and event.button == 2
-            and "lineageTree" in active_layer.metadata
+            and "LineageTree" in active_layer.metadata
             and active_layer
         ):
             for layer in viewer.layers:
@@ -231,9 +231,9 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
                 self.lT.time[cell_id]
                 - min(
                     {
-                        layer.metadata.get("lineageTree").t_b
+                        layer.metadata.get("LineageTree").t_b
                         for layer in self.viewer.layers
-                        if layer.metadata.get("lineageTree")
+                        if layer.metadata.get("LineageTree")
                     }
                 ),  # min is important if the dataset does not start from 0.
             ] + list(camera_pan[1:])
@@ -289,7 +289,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         if active_layer is None:
             return
         if len(self.viewer.layers.selection) == 1:
-            self.lT: lineageTree = self.get_lT()
+            self.lT: LineageTree = self.get_lT()
             if self.lT:
                 self.labels = self.lT.labels
                 self.roots = [
@@ -315,7 +315,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
             return
         to_remove = int(self.w_lineedit.placeholderText().split()[3])
         self.lT.labels.pop(to_remove)
-        active_layer.metadata["lineageTree"].labels.pop(to_remove)
+        active_layer.metadata["LineageTree"].labels.pop(to_remove)
         self.Progeny_diagram_loader()
 
     def show_all_labels(self):
@@ -352,7 +352,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
 
-        self.lT: lineageTree = self.get_lT()
+        self.lT: LineageTree = self.get_lT()
         if self.lT:
             self.graph_slider = QSlider()
             self.graph_slider.setOrientation(Qt.Orientation.Horizontal)

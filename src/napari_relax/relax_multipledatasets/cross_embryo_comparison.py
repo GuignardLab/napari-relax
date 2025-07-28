@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import mplcursors
 import numpy as np
 import seaborn as sns
-from LineageTree.tree_approximation import tree_style
+from lineagetree.tree_approximation import tree_style
 from magicgui import widgets
 from matplotlib.backends.backend_qtagg import (
     FigureCanvasQTAgg as FigureCanvas,
@@ -217,7 +217,7 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
 
     def reset_graph(self, cell, index, lineagetree_name):
         layer = self.layers[lineagetree_name]
-        lt = layer.metadata["lineageTree"]
+        lt = layer.metadata["LineageTree"]
         if cell in layer.metadata["graphs"][0][index]:
             prev, after = (
                 lt.get_node_chain(cell)[0],
@@ -283,7 +283,7 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
         }
         self.viewer.layers.selection.active = self.layers[lineagetree_name]
         active_layer = viewer.layers.selection.active
-        lT = active_layer.metadata["lineageTree"]
+        lT = active_layer.metadata["LineageTree"]
         active_layer.selected_data.add(
             active_layer.metadata["lT2napari"][node]
         )

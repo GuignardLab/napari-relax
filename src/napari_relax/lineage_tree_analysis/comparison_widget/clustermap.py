@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import mplcursors
 import numpy as np
 import seaborn as sns
-from LineageTree.tree_approximation import tree_style
+from lineagetree.tree_approximation import tree_style
 from magicgui import widgets
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,

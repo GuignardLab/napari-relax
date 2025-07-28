@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from LineageTree import lineageTree
+from lineagetree import LineageTree
 from matplotlib.backends.backend_qtagg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
@@ -46,7 +46,7 @@ class single_tree_progeny(FigureCanvas):
         figure,
         ax,
         root=None,
-        lT: lineageTree = None,
+        lT: LineageTree = None,
         lnks_tms=None,
         hier: dict | None = None,
         do_super=True,
@@ -168,7 +168,7 @@ class single_tree_progeny(FigureCanvas):
         figure,
         ax,
         root=None,
-        lT: lineageTree = None,
+        lT: LineageTree = None,
         lnks_tms=None,
         hier=None,
         change=False,

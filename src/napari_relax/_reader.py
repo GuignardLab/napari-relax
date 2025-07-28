@@ -9,14 +9,14 @@ https://napari.org/stable/plugins/guides.html?#readers
 from pathlib import Path
 
 import numpy as np
-from LineageTree import (
-    lineageTree,
+from lineagetree import (
+    LineageTree,
     read_from_ASTEC,
     read_from_mamut_xml,
     read_from_mastodon,
     read_from_tgmm_xml,
-    utils,
 )
+from lineagetree._basics import utils
 from napari.utils import colormaps
 
 from ._util_classes import loading_dialog, time_res_dialog
@@ -85,9 +85,9 @@ def reader_function(path: str):
         "tgmm": read_from_tgmm_xml,
     }
     if isinstance(path, list):
-        lT = lineageTree(file_format=path, file_type="mastodon")
+        lT = LineageTree(file_format=path, file_type="mastodon")
     elif path.lower().endswith(".lt"):
-        lT = lineageTree.load(path)
+        lT = LineageTree.load(path)
     elif path.lower().endswith(".mastodon"):
         lT = read_from_mastodon(path)
     elif path.lower().endswith(".xml"):
@@ -98,7 +98,7 @@ def reader_function(path: str):
             raise Warning("Please select one type.")
         lT = loaders[file_type](
             path
-        )  # lineageTree(file_format=path, file_type=file_type)
+        )  # LineageTree(file_format=path, file_type=file_type)
     if not hasattr(lT, "time_resolution") or lT.time_resolution == 0:
         t_res = time_res_dialog()
         t_res.exec_()
@@ -108,7 +108,7 @@ def reader_function(path: str):
     return layer_preparation(lT, path)
 
 
-def layer_preparation(lT: lineageTree, path: str = ""):
+def layer_preparation(lT: LineageTree, path: str = ""):
     tracks = lT.all_chains
     first_c_to_track = {}
     last_c_of_track = {}
@@ -169,7 +169,7 @@ def layer_preparation(lT: lineageTree, path: str = ""):
             "Selection": np.zeros_like(clone),
         },
         "metadata": {
-            "lineageTree": lT,
+            "LineageTree": lT,
             "lT2napari": lT_to_here,
             "napari2lT": here_to_lT,
             "clone2": clone2,
