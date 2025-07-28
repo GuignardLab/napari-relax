@@ -12,7 +12,7 @@ For this plugin the [Points Layer] (https://napari.org/stable/howtos/layers/poin
 
 ![viewer](./viewer.png)
 
-## Important Napari Viewer controls panel: 
+## Important Napari Viewer controls panel:
 
 1. **Napari Terminal**: Turn the Napari integrated terminal on or off. This terminal can prove extremely useful for small modifications of the dataset (rotation, translation, scaling), and can also be used as a Jupyter notebook with the correct configuration.
 Sample code to manipulate the dataset:
@@ -23,5 +23,4 @@ Sample code to manipulate the dataset:
     - Drag Left Click: Rotate the dataset.
     - Shift Left Click: Move the dataset
     - Scroll: Zoom in and out
-    - **Shift Right Click**: Select a node. The selected node can be used by the progeny selection module.
-
+    - **Shift Right Click**: Select one node. When a node is selected the Lineage Viewer will also show the correspnding lineage. 

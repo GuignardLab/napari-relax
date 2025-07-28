@@ -2,7 +2,7 @@
 
 <p style="text-align: justify;">
 
-This napari plugin extends the functionality of the <a href="https://guignardlab.github.io/LineageTree/" target="_blank">LineageTree</a> project by providing a comprehensive Graphical User Interface (GUI). Leveraging napari’s interactive visualization capabilities and Qt’s flexible framework, it enables users to import and explore tracking datasets, called **lineagetrees** from now on, directly into the napari viewer. With this plugin, users can intuitively navigate spatial and temporal tracking data. Beyond data exploration, it also offers features such as:
+This napari plugin extends the functionality of the <a href="https://guignardlab.github.io/LineageTree/" target="_blank">LineageTree</a> project by providing a comprehensive Graphical User Interface (GUI). Leveraging napari’s interactive visualization capabilities and Qt’s flexible framework, it enables users to import and explore tracking datasets, called <b>lineagetrees</b> from now on, directly into the napari viewer. With this plugin, users can intuitively navigate spatial and temporal tracking data. Beyond data exploration, it also offers features such as:
 </p>
 
 - **Node Recoloring**: Customize node colors based on lineage attributes for better insights into the embryo.
@@ -13,7 +13,6 @@ This napari plugin extends the functionality of the <a href="https://guignardlab
 
 This integration enhances lineage analysis by combining the powerful visualization of Napari with quantitative comparison tools in an interactive environment.
 
-
 ## What does this combination of LineageTree and Napari offer
 
 - **Viewer**: The 3-D positional data are loaded into the napari viewer and can be interacted with.
@@ -22,6 +21,6 @@ This integration enhances lineage analysis by combining the powerful visualizati
 
 This plugin consists of 4 components:
 
-- [Explore and Relabel](./explore_relabel.md): Explore the lineages with its interactive **Lineage Viewer**, relabel lineages of interest. 
+- [Explore and Relabel](./explore_relabel.md): Explore the lineages with its interactive **Lineage Viewer**, relabel lineages of interest.
 - [Attribute recoloring](./attribute.md): Recolor nodes on both the **Lineage Viewer** and the **Napari standard Viewer**, using the distance or precomputed attributes.
 - [Distance Calculation](./distance.md): Calculate UTED and see their result on the **Napari Standard Viewer**.
