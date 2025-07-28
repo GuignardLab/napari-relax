@@ -198,6 +198,9 @@ class HistTemplate(QWidget):
         self.hist_ax.clear()
         time = int(self.slider.value)
         if self.lT is None:
+            self.hist_ax.set_title(
+                f"Time: {self.times[int(self.slider.value)]}"
+            )
             comparisons = self.comparisons[time]
         else:
             comparisons = self.filter_roots()
