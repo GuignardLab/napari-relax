@@ -171,6 +171,9 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
                         active_layer.metadata["graphs"][1][val],
                     )
                     self.canvas.draw_graph()
+                else:
+                    self.canvas.ax.clear()
+                    self.canvas.draw()
 
     def Progeny_diagram_loader(self):
         """

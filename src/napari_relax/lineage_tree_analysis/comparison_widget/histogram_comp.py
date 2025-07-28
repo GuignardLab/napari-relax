@@ -67,7 +67,6 @@ def get_all_ancestors_of_node(lT, n: int) -> set:
         ancestor = lT._predecessor[ancestor][0]
         if ancestor:
             ancestor_list.add(ancestor)
-
     return ancestor_list
 
 
@@ -142,15 +141,6 @@ class HistTemplate(QWidget):
 
             case (True, False):
                 for key in list_of_comparisons:
-                    print(
-                        get_all_ancestors_of_node(
-                            self.lT, self.naming[time][key[0]][0]
-                        ).intersection(self.specific_roots),
-                        get_all_ancestors_of_node(
-                            self.lT, self.naming[time][key[1]][1]
-                        ).intersection(self.specific_roots),
-                    )
-
                     if (
                         self.naming[time][key[0]][1] in self.specific_roots
                         and self.naming[time][key[1]][1] in self.specific_roots
@@ -165,7 +155,6 @@ class HistTemplate(QWidget):
                             )
                         )
                     ):
-                        print("ftanw edw")
                         new_c[key] = comparisons[key]
                         self.hist_ax.set_title(
                             f"Time: {self.times[int(self.slider.value)]} only outgroup"
