@@ -61,14 +61,12 @@ class pop_up(QDialog):
 
 
 def get_all_ancestors_of_node(lT, n: int) -> set:
-
-    if n not in lT.nodes:
-        return -1
     ancestor = n
-    ancestor_list = set()
+    ancestor_list = {n}
     while lT._predecessor[ancestor]:
-        ancestor_list.add(ancestor)
         ancestor = lT._predecessor[ancestor][0]
+        if ancestor:
+            ancestor_list.add(ancestor)
 
     return ancestor_list
 
@@ -144,20 +142,30 @@ class HistTemplate(QWidget):
 
             case (True, False):
                 for key in list_of_comparisons:
+                    print(
+                        get_all_ancestors_of_node(
+                            self.lT, self.naming[time][key[0]][0]
+                        ).intersection(self.specific_roots),
+                        get_all_ancestors_of_node(
+                            self.lT, self.naming[time][key[1]][1]
+                        ).intersection(self.specific_roots),
+                    )
+
                     if (
                         self.naming[time][key[0]][1] in self.specific_roots
                         and self.naming[time][key[1]][1] in self.specific_roots
                         and (
                             get_all_ancestors_of_node(
-                                self.lT, self.naming[time][key[0]][1]
+                                self.lT, self.naming[time][key[0]][0]
                             ).intersection(self.specific_roots)
                             != (
                                 get_all_ancestors_of_node(
-                                    self.lT, self.naming[time][key[1]][1]
+                                    self.lT, self.naming[time][key[1]][0]
                                 ).intersection(self.specific_roots)
                             )
                         )
                     ):
+                        print("ftanw edw")
                         new_c[key] = comparisons[key]
                         self.hist_ax.set_title(
                             f"Time: {self.times[int(self.slider.value)]} only outgroup"
@@ -170,11 +178,11 @@ class HistTemplate(QWidget):
                         and self.naming[time][key[1]][1] in self.specific_roots
                         and (
                             get_all_ancestors_of_node(
-                                self.lT, self.naming[time][key[0]][1]
+                                self.lT, self.naming[time][key[0]][0]
                             ).intersection(self.specific_roots)
                             == (
                                 get_all_ancestors_of_node(
-                                    self.lT, self.naming[time][key[1]][1]
+                                    self.lT, self.naming[time][key[1]][0]
                                 ).intersection(self.specific_roots)
                             )
                         )
