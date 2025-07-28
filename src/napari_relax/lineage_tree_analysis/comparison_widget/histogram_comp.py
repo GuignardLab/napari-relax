@@ -29,7 +29,7 @@ class pop_up(QDialog):
         self.list_widget = QListWidget()
         self.list_widget.setSelectionMode(QListWidget.MultiSelection)
         self.list_items = [
-            f"{l[1]} - {labels[l[1]]}" for l in roots[0].values()
+            f"{root[1]} - {labels[root[1]]}" for root in roots[0].values()
         ]
         self.list_widget.addItems(self.list_items)
         self.in_group_check = QCheckBox("In-group comparisons")
@@ -77,7 +77,12 @@ class HistTemplate(QWidget):
 
     kill_signal = Signal(object)
 
-    def __init__(self, specific_roots=..., in_group=True, out_group=True):
+    def __init__(
+        self,
+        specific_roots=...,
+        in_group=True,
+        out_group=True,
+    ):
         super().__init__()
         self.lT = None
         self.specific_roots = specific_roots
@@ -187,12 +192,14 @@ class HistTemplate(QWidget):
                     )
                 )
             self.hist_ax.hist(hist_values)
+        self.hist_ax.set_title(f"Time: {self.times[int(self.slider.value)]}")
         self.canvas.draw()
 
-    def update_values(self, product, labels={}):
+    def update_values(self, product, labels={}, times=...):
         self.comparisons, self.naming, self.norms = product
         self.labels = labels
         self.slider.max = len(self.comparisons) - 1
+        self.times = times
 
 
 class HistogramWidget(QScrollArea):
@@ -201,8 +208,10 @@ class HistogramWidget(QScrollArea):
         self.comparisons, self.naming, self.norms = data_from_clustermap
         self.layer_change()
         self.main_hist.slider.max = len(self.comparisons) - 1
-        self.main_hist.update_values(data_from_clustermap, self.labels)
-        self.main_hist.title.value = f"Roots: {','.join(str(self.labels.get(l[1],l[1])) for l in self.naming[0].values())}"
+        self.main_hist.update_values(
+            data_from_clustermap, self.labels, self.times
+        )
+        self.main_hist.title.value = f"Roots: {','.join(str(self.labels.get(label[1],label[1])) for label in self.naming[0].values())}"
         self.main_hist.plot_hist()
 
     def add_hist(self):
@@ -211,7 +220,9 @@ class HistogramWidget(QScrollArea):
         hist = popup.hist
         self.all_histograms.add(hist)
         hist.update_values(
-            (self.comparisons, self.naming, self.norms), self.labels
+            (self.comparisons, self.naming, self.norms),
+            self.labels,
+            self.times,
         )
         hist.lT = self.lT
         hist.plot_hist()
@@ -229,8 +240,9 @@ class HistogramWidget(QScrollArea):
             self.remove_hist(hist)
         self.main_hist.hist_ax.clear()
 
-    def reeceive_labels(self, labels):
+    def receive_labels_and_times(self, labels, times):
         self.labels = labels
+        self.times = times
 
     def __init__(self, lT):
         super().__init__()
