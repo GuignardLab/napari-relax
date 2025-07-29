@@ -13,8 +13,8 @@ import numpy as np
 from magicgui import widgets
 from napari.layers import Points
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QSlider, QVBoxLayout
-
+from qtpy.QtWidgets import QSlider, QVBoxLayout, QPushButton
+from pathlib import Path
 from .._util_classes import (
     Layer_corrector_Tree_Producer,
     containerize,
@@ -83,6 +83,12 @@ class CellSize(Layer_corrector_Tree_Producer):
             else:
                 self.see_all_layers()
 
+    def write_embryo(self):
+        lT = self.get_lT()
+        if lT:
+            txt = Path(self.save_widget.value)
+            lT.write(str(txt))
+
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
         event_filt = delayedtooltipeventfilter()
@@ -111,11 +117,20 @@ class CellSize(Layer_corrector_Tree_Producer):
             labels=False,
         )
         all_container.tooltip = "Change the size of all layers instead of only changing the size of only one layer."
+        self.save_widget = widgets.FileEdit(
+            mode="w", value=Path(".").absolute(), filter="*.lT"
+        )
+        self.save_button = QPushButton("Save Manager")
+        self.save_button.native = self.save_button
+        self.save_container = containerize(
+            [self.save_widget.native, self.save_button.native]
+        )
+        self.save_button.clicked.connect(self.write_embryo)
         self.slider = QSlider()
         self.slider.setOrientation(Qt.Orientation.Horizontal)
         self.slider.setTickInterval(1)
         self.slider.setMinimum(0)
-        self.slider.setMaximum(2000)
+        self.slider.setMaximum(1000)
         self.slider.setValue(200)
         track_button = widgets.PushButton(text="Add Tracks")
         self.count = widgets.Label(value="Size of spheres.")
@@ -137,5 +152,6 @@ class CellSize(Layer_corrector_Tree_Producer):
         )
 
         self.layout().addWidget(self.tracks_and_vis_cont)
+        self.layout().addWidget(self.save_container)
         track_button.clicked.connect(self.add_tracks)
         self.viewer.layers.selection.events.connect(self.layer_change)

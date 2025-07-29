@@ -227,18 +227,19 @@ class HistogramWidget(QScrollArea):
     def add_hist(self):
         popup = pop_up(self.naming, self.labels)
         popup.exec_()
-        hist = popup.hist
-        self.all_histograms.add(hist)
-        hist.update_values(
-            (self.comparisons, self.naming, self.norms),
-            self.labels,
-            self.times,
-        )
-        hist.lT = self.lT
-        hist.plot_hist()
-        hist.kill_signal.connect(self.remove_hist)
-        hist.title.value = f"Roots: {','.join(str(self.labels.get(r,r)) for r in hist.specific_roots)}"
-        self.layout.insertWidget(self.layout.count() - 2, hist)
+        if hasattr(popup, "hist"):
+            hist = popup.hist
+            self.all_histograms.add(hist)
+            hist.update_values(
+                (self.comparisons, self.naming, self.norms),
+                self.labels,
+                self.times,
+            )
+            hist.lT = self.lT
+            hist.plot_hist()
+            hist.kill_signal.connect(self.remove_hist)
+            hist.title.value = f"Roots: {','.join(str(self.labels.get(r,r)) for r in hist.specific_roots)}"
+            self.layout.insertWidget(self.layout.count() - 2, hist)
 
     def remove_hist(self, obj: QWidget):
         self.layout.removeWidget(obj)
