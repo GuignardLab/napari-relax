@@ -203,6 +203,7 @@ class HistTemplate(QWidget):
                     )
                 )
             self.hist_ax.hist(hist_values)
+            self.hist_ax.set_xlim(0, 1)
         self.canvas.draw()
 
     def update_values(self, product, labels={}, times=...):
