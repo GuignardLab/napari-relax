@@ -17,6 +17,7 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from ..._util_classes import containerize
 
 
 class pop_up(QDialog):
@@ -82,6 +83,7 @@ class HistTemplate(QWidget):
     ):
         super().__init__()
         self.lT = None
+        self.bins = "auto"
         self.specific_roots = specific_roots
         self.in_group = in_group
         self.out_group = out_group
@@ -90,7 +92,7 @@ class HistTemplate(QWidget):
         self.kill_button.setFixedSize(20, 20)
         self.figure = Figure(figsize=(3, 2), constrained_layout=True)
         self.canvas = FigureCanvas(figure=self.figure)
-        self.range = 1  # for now
+        self.range = 0
         self.norm_combo = widgets.ComboBox(
             value="max",
             choices=["max", "sum", "None"],
@@ -127,6 +129,7 @@ class HistTemplate(QWidget):
         comparisons = self.comparisons[time]
         list_of_comparisons = list(comparisons.keys())
         new_c = {}
+        hist_values = []
         match (self.out_group, self.in_group):
             case (True, True):
                 for key in list_of_comparisons:
@@ -138,6 +141,14 @@ class HistTemplate(QWidget):
                         self.hist_ax.set_title(
                             f"Time: {self.times[int(self.slider.value)]}"
                         )
+                        if len(new_c) > 0:
+                            for keys, values in new_c:
+                                hist_values.append(
+                                    new_c[keys, values]
+                                    / self.norm_dict[
+                                        str(self.norm_combo.value)
+                                    ](self.norms[time][keys, values])
+                                )
 
             case (True, False):
                 for key in list_of_comparisons:
@@ -159,6 +170,14 @@ class HistTemplate(QWidget):
                         self.hist_ax.set_title(
                             f"Time: {self.times[int(self.slider.value)]} only outgroup"
                         )
+                        if len(new_c) > 0:
+                            for keys, values in new_c:
+                                hist_values.append(
+                                    new_c[keys, values]
+                                    / self.norm_dict[
+                                        str(self.norm_combo.value)
+                                    ](self.norms[time][keys, values])
+                                )
 
             case (False, True):
                 for key in list_of_comparisons:
@@ -180,8 +199,15 @@ class HistTemplate(QWidget):
                         self.hist_ax.set_title(
                             f"Time: {self.times[int(self.slider.value)]} only ingroup"
                         )
-
-        return new_c
+                        if len(new_c) > 0:
+                            for keys, values in new_c:
+                                hist_values.append(
+                                    new_c[keys, values]
+                                    / self.norm_dict[
+                                        str(self.norm_combo.value)
+                                    ](self.norms[time][keys, values])
+                                )
+        return hist_values
 
     def plot_hist(self):
         self.hist_ax.clear()
@@ -191,37 +217,53 @@ class HistTemplate(QWidget):
                 f"Time: {self.times[int(self.slider.value)]}"
             )
             comparisons = self.comparisons[time]
-        else:
-            comparisons = self.filter_roots()
-        hist_values = []
-        if len(comparisons) > 0:
-            for keys, values in comparisons:
-                hist_values.append(
-                    comparisons[keys, values]
-                    / self.norm_dict[str(self.norm_combo.value)](
-                        self.norms[time][keys, values]
+            hist_values = []
+            if len(comparisons) > 0:
+                for keys, values in comparisons:
+                    hist_values.append(
+                        comparisons[keys, values]
+                        / self.norm_dict[str(self.norm_combo.value)](
+                            self.norms[time][keys, values]
+                        )
                     )
+                _, leng, _ = self.hist_ax.hist(
+                    hist_values, bins=self.bins, range=(0, 1)
                 )
-            self.hist_ax.hist(hist_values)
-            self.hist_ax.set_xlim(0, 1)
+                self.bin_length = len(leng) - 1
+                # self.hist_ax.set_xlim(0, 1)
+                self.hist_ax.set_ylabel("# pairwise comparisons")
+                self.hist_ax.set_xlabel("Tree edit distance")
+        else:
+            hist_values = self.filter_roots()
+            _, leng, _ = self.hist_ax.hist(
+                hist_values, bins=self.bins, range=(0, 1)
+            )
+            self.bin_length = len(leng) - 1
+            # self.hist_ax.set_xlim(0, 1)
+            self.hist_ax.set_ylabel("# pairwise comparisons")
+            self.hist_ax.set_xlabel("Tree edit distance")
         self.canvas.draw()
 
-    def update_values(self, product, labels={}, times=...):
+    def update_values(
+        self, product: tuple[dict, dict, dict], labels: dict, times: list
+    ):
         self.comparisons, self.naming, self.norms = product
         self.labels = labels
         self.slider.max = len(self.comparisons) - 1
         self.times = times
 
 
-class HistogramWidget(QScrollArea):
+class HistogramWidget(QWidget):
 
     def receive_values(self, data_from_clustermap: tuple[dict, dict, dict]):
         self.comparisons, self.naming, self.norms = data_from_clustermap
         self.layer_change()
         self.main_hist.slider.max = len(self.comparisons) - 1
+        self.master_slider.max = len(self.comparisons) - 1
         self.main_hist.update_values(
             data_from_clustermap, self.labels, self.times
         )
+        self.main_hist.bins = self.master_binsizer.value
         self.main_hist.title.value = f"Roots: {','.join(str(self.labels.get(label[1],label[1])) for label in self.naming[0].values())}"
         self.main_hist.plot_hist()
 
@@ -236,15 +278,44 @@ class HistogramWidget(QScrollArea):
             self.times,
         )
         hist.lT = self.lT
+        if self.master_binsizer.value in ["auto", "fd"]:
+            hist.bins = self.main_hist.bin_length
+        else:
+            hist.bins = self.master_binsizer.value
         hist.plot_hist()
         hist.kill_signal.connect(self.remove_hist)
         hist.title.value = f"Roots: {','.join(str(self.labels.get(r,r)) for r in hist.specific_roots)}"
-        self.layout.insertWidget(self.layout.count() - 2, hist)
+        self.container.layout().insertWidget(
+            self.container.layout().count() - 2, hist
+        )
+
+    def control_sliders(self):
+        self.main_hist.slider.value = self.master_slider.value
+        self.main_hist.plot_hist()
+        for hist in self.all_histograms:
+            if self.master_binsizer.value in ["auto", "fd"]:
+                hist.bins = self.main_hist.bin_length
+            else:
+                hist.bins = self.master_binsizer.value
+            hist.slider.value = self.master_slider.value
+            hist.plot_hist()
+
+    def control_bins(self):
+        self.main_hist.bins = self.master_binsizer.value
+        self.main_hist.plot_hist()
+        for hist in self.all_histograms:
+            if self.master_binsizer.value in ["auto", "fd"]:
+                print(self.main_hist.bin_length)
+                hist.bins = self.main_hist.bin_length
+            else:
+                hist.bins = self.master_binsizer.value
+            hist.plot_hist()
 
     def remove_hist(self, obj: QWidget):
-        self.layout.removeWidget(obj)
+        self.container.layout().removeWidget(obj)
         obj.setParent(None)
         obj.deleteLater()
+        self.all_histograms.remove(obj)
 
     def layer_change(self):
         for hist in self.all_histograms:
@@ -263,6 +334,8 @@ class HistogramWidget(QScrollArea):
         self.norms = {}
         self.labels = {}
         self.all_histograms = set()
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
         self.main_hist = HistTemplate()
         self.main_hist.layout().removeWidget(self.main_hist.kill_button)
         self.main_hist.kill_button.setParent(None)
@@ -270,21 +343,47 @@ class HistogramWidget(QScrollArea):
         self.add_button.setFixedSize(20, 20)
         self.container = QWidget()
         self.container.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        self.layout = QVBoxLayout(self.container)
-        self.setWidget(self.container)
+        self.container.setLayout(QVBoxLayout(self.container))
+        self.scroll_area.setWidget(self.container)
         self.spacer = QSpacerItem(
             20, 20, QSizePolicy.Minimum, QSizePolicy.Expanding
         )
+        self.master_binsizer = widgets.ComboBox(
+            value="auto", choices=["auto", "fd"] + list(range(2, 41))[::3]
+        )
+        self.master_binsizer.changed.connect(self.control_bins)
+        bins_cont = containerize(
+            [
+                widgets.Label(value="Master bins").native,
+                self.master_binsizer.native,
+            ]
+        )
 
-        self.setWidget(self.container)
-        self.setWidgetResizable(True)
-        self.layout.addWidget(self.main_hist)
-        self.layout.addWidget(self.add_button)
-        self.layout.addItem(self.spacer)
+        self.master_slider = widgets.Slider(value=0, min=0, max=0)
+        self.master_slider.changed.connect(self.control_sliders)
+        m_slid_label = widgets.Label(value="Master Control")
+        slid_cont = containerize(
+            [m_slid_label.native, self.master_slider.native]
+        )
+        self.container.setContentsMargins(0, 0, 0, 0)
+
+        self.container.layout().addWidget(self.main_hist)
+        self.container.layout().addWidget(self.add_button)
+        self.container.layout().addItem(self.spacer)
+
+        outer_layout = QVBoxLayout(self)
+        slid_cont.setContentsMargins(0, 0, 0, 0)
+        bins_cont.setContentsMargins(0, 0, 0, 0)
+
+        outer_layout.layout().addWidget(slid_cont)
+        outer_layout.layout().addWidget(bins_cont)
+        outer_layout.setSpacing(0)
+        outer_layout.setContentsMargins(0, 0, 0, 0)
+        outer_layout.addWidget(self.scroll_area)
+        self.setLayout(outer_layout)
         self.add_button.clicked.connect(self.add_hist)
 
 
 ######TODO######
-# Synchronous sliders (EAsy)
 # Merge Graphs(maybe easy)
 # cross (easy)
