@@ -17,6 +17,7 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from itertools import combinations
 from ..._util_classes import containerize
 
 
@@ -33,6 +34,8 @@ class pop_up(QDialog):
             f"{root[1]} - {labels[root[1]]}" for root in roots[0].values()
         ]
         self.list_widget.addItems(self.list_items)
+        self.separate_check = QCheckBox("Separate labels")
+        self.separate_check.setChecked(False)
         self.in_group_check = QCheckBox("In-group comparisons")
         self.in_group_check.setChecked(True)
         self.out_group_check = QCheckBox("Out-group comparisons")
@@ -41,6 +44,7 @@ class pop_up(QDialog):
         layout.addWidget(self.list_widget)
         layout.addWidget(self.in_group_check)
         layout.addWidget(self.out_group_check)
+        layout.addWidget(self.separate_check)
         layout.addWidget(self.accept_button)
         self.setLayout(layout)
         self.accept_button.clicked.connect(self.accept_parameters)
@@ -57,6 +61,7 @@ class pop_up(QDialog):
                 specific_roots=lista,
                 in_group=self.in_group_check.isChecked(),
                 out_group=self.out_group_check.isChecked(),
+                separate=self.separate_check.isChecked(),
             )
             self.accept()
 
@@ -77,9 +82,10 @@ class HistTemplate(QWidget):
 
     def __init__(
         self,
-        specific_roots=...,
+        specific_roots: set | None = None,
         in_group=True,
         out_group=True,
+        separate=False,
     ):
         super().__init__()
         self.lT = None
@@ -87,6 +93,7 @@ class HistTemplate(QWidget):
         self.specific_roots = specific_roots
         self.in_group = in_group
         self.out_group = out_group
+        self.separate = separate
         self.title = widgets.Label(value="")
         self.kill_button = QPushButton("X")
         self.kill_button.setFixedSize(20, 20)
@@ -128,8 +135,8 @@ class HistTemplate(QWidget):
         time = int(self.slider.value)
         comparisons = self.comparisons[time]
         list_of_comparisons = list(comparisons.keys())
-        new_c = {}
         hist_values = []
+        labels = []
         match (self.out_group, self.in_group):
             case (True, True):
                 for key in list_of_comparisons:
@@ -137,77 +144,118 @@ class HistTemplate(QWidget):
                         self.naming[time][key[0]][1] in self.specific_roots
                         and self.naming[time][key[1]][1] in self.specific_roots
                     ):
-                        new_c[key] = comparisons[key]
+                        hist_values.append(
+                            comparisons[key]
+                            / self.norm_dict[str(self.norm_combo.value)](
+                                self.norms[time][key]
+                            )
+                        )
                         self.hist_ax.set_title(
                             f"Time: {self.times[int(self.slider.value)]}"
                         )
-                        if len(new_c) > 0:
-                            for keys, values in new_c:
-                                hist_values.append(
-                                    new_c[keys, values]
-                                    / self.norm_dict[
-                                        str(self.norm_combo.value)
-                                    ](self.norms[time][keys, values])
-                                )
 
             case (True, False):
+                combs = list(combinations(self.specific_roots, 2))
+                specific_combs = {(i, j): [] for i, j in combs}
                 for key in list_of_comparisons:
+                    root1 = get_all_ancestors_of_node(
+                        self.lT, self.naming[time][key[0]][0]
+                    ).intersection(self.specific_roots)
+                    root2 = get_all_ancestors_of_node(
+                        self.lT, self.naming[time][key[1]][0]
+                    ).intersection(self.specific_roots)
+
                     if (
                         self.naming[time][key[0]][1] in self.specific_roots
                         and self.naming[time][key[1]][1] in self.specific_roots
-                        and (
-                            get_all_ancestors_of_node(
-                                self.lT, self.naming[time][key[0]][0]
-                            ).intersection(self.specific_roots)
-                            != (
-                                get_all_ancestors_of_node(
-                                    self.lT, self.naming[time][key[1]][0]
-                                ).intersection(self.specific_roots)
-                            )
-                        )
+                        and (root1 != root2)
                     ):
-                        new_c[key] = comparisons[key]
-                        self.hist_ax.set_title(
-                            f"Time: {self.times[int(self.slider.value)]} only outgroup"
-                        )
-                        if len(new_c) > 0:
-                            for keys, values in new_c:
-                                hist_values.append(
-                                    new_c[keys, values]
+
+                        if self.separate:
+                            if (
+                                next(iter(root1)),
+                                next(iter(root2)),
+                            ) in specific_combs:
+                                specific_combs[
+                                    next(iter(root1)), next(iter(root2))
+                                ].append(
+                                    comparisons[key]
                                     / self.norm_dict[
                                         str(self.norm_combo.value)
-                                    ](self.norms[time][keys, values])
+                                    ](self.norms[time][key])
                                 )
+                            else:
+                                specific_combs[
+                                    next(iter(root2)), next(iter(root1))
+                                ].append(
+                                    comparisons[key]
+                                    / self.norm_dict[
+                                        str(self.norm_combo.value)
+                                    ](self.norms[time][key])
+                                )
+                            self.hist_ax.set_title(
+                                f"Time: {self.times[int(self.slider.value)]} only outgroup"
+                            )
+                            hist_values = [
+                                list(li) for li in specific_combs.values()
+                            ]
+                            labels = [
+                                f"{self.lT.labels.get(root1, root1)} - {self.lT.labels.get(root2,root2)}"
+                                for root1, root2 in combs
+                            ]
+                        else:
+
+                            hist_values.append(
+                                comparisons[key]
+                                / self.norm_dict[str(self.norm_combo.value)](
+                                    self.norms[time][key]
+                                )
+                            )
 
             case (False, True):
+                sp_root_dict = {root: [] for root in self.specific_roots}
                 for key in list_of_comparisons:
+                    root1 = get_all_ancestors_of_node(
+                        self.lT, self.naming[time][key[0]][0]
+                    ).intersection(self.specific_roots)
+                    root2 = get_all_ancestors_of_node(
+                        self.lT, self.naming[time][key[1]][0]
+                    ).intersection(self.specific_roots)
                     if (
                         self.naming[time][key[0]][1] in self.specific_roots
                         and self.naming[time][key[1]][1] in self.specific_roots
-                        and (
-                            get_all_ancestors_of_node(
-                                self.lT, self.naming[time][key[0]][0]
-                            ).intersection(self.specific_roots)
-                            == (
-                                get_all_ancestors_of_node(
-                                    self.lT, self.naming[time][key[1]][0]
-                                ).intersection(self.specific_roots)
-                            )
-                        )
+                        and (root1 == root2)
+                        and root1
                     ):
-                        new_c[key] = comparisons[key]
-                        self.hist_ax.set_title(
-                            f"Time: {self.times[int(self.slider.value)]} only ingroup"
-                        )
-                        if len(new_c) > 0:
-                            for keys, values in new_c:
-                                hist_values.append(
-                                    new_c[keys, values]
-                                    / self.norm_dict[
-                                        str(self.norm_combo.value)
-                                    ](self.norms[time][keys, values])
+                        if self.separate:
+                            sp_root_dict[next(iter(root1))].append(
+                                comparisons[key]
+                                / self.norm_dict[str(self.norm_combo.value)](
+                                    self.norms[time][key]
                                 )
-        return hist_values
+                            )
+                            hist_values = [
+                                list(val) for val in sp_root_dict.values()
+                            ]
+                            self.hist_ax.set_title(
+                                f"Time: {self.times[int(self.slider.value)]} only ingroup"
+                            )
+                            labels = [
+                                self.lT.labels.get(root, root)
+                                for root in self.specific_roots
+                            ]
+                        else:
+
+                            hist_values.append(
+                                comparisons[key]
+                                / self.norm_dict[str(self.norm_combo.value)](
+                                    self.norms[time][key]
+                                )
+                            )
+                            self.hist_ax.set_title(
+                                f"Time: {self.times[int(self.slider.value)]} only ingroup"
+                            )
+        return hist_values, labels
 
     def plot_hist(self):
         self.hist_ax.clear()
@@ -234,10 +282,20 @@ class HistTemplate(QWidget):
                 self.hist_ax.set_ylabel("# pairwise comparisons")
                 self.hist_ax.set_xlabel("Tree edit distance")
         else:
-            hist_values = self.filter_roots()
-            _, leng, _ = self.hist_ax.hist(
-                hist_values, bins=self.bins, range=(0, 1)
-            )
+            hist_values, labels = self.filter_roots()
+            if labels == []:
+                _, leng, _ = self.hist_ax.hist(
+                    hist_values, bins=self.bins, range=(0, 1)
+                )
+            else:
+                _, leng, _ = self.hist_ax.hist(
+                    hist_values,
+                    bins=self.bins,
+                    range=(0, 1),
+                    label=labels,
+                    alpha=0.7,
+                )
+                self.hist_ax.legend()
             self.bin_length = len(leng) - 1
             # self.hist_ax.set_xlim(0, 1)
             self.hist_ax.set_ylabel("# pairwise comparisons")
