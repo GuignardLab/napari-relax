@@ -39,7 +39,6 @@ from ..._util_classes import (
     tooltip_button,
 )
 from ..._utils import _select_correct_layer
-from .histogram_comp import HistogramWidget
 
 
 class Online_clustermap(Layer_corrector_Tree_Producer):
@@ -315,8 +314,6 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
             return
         self.pbr = progress(self.times)
         self.worker.yielded.connect(self.update_dictionary)
-        self.worker.yielded.connect(self.tab3.receive_values)
-        self.tab3.receive_labels_and_times(self.lT.labels, self.times)
         self.worker.start()
         self.runbutton.setChecked(True)
         self.stopbutton.setChecked(False)
@@ -479,7 +476,6 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         ]
         self.list_widget.addItems([s for k, s in self.list_of_selected_nodes])
         self.list_widget.update()
-        self.tab3.receive_labels_and_times(self.lT.labels, self.times)
 
     def c_layer_change(self, event):
         """Handles the layer change event.
@@ -496,9 +492,6 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
             self.label_update()
             self.tab1.layout().update()
             self.layout().update()
-            self.tab3.lT = self.lT
-            self.tab3.layer_change()
-            self.tab3.receive_labels_and_times(self.lT.labels, self.times)
 
     def update_tree_style(self):
         self.downsampling_widget.visible = False
@@ -741,14 +734,12 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         self.tab2.layout().addWidget(self.time_slider.native)
         self.tab2.layout().addWidget(container.native)
 
-        self.tab3 = HistogramWidget(self.lT)
         # Rest Layout
         layout = QVBoxLayout()
         self.tabs = QTabWidget()
 
         self.tabs.addTab(self.tab1, "Configuration Options")
         self.tabs.addTab(self.tab2, "Tree Plots")
-        self.tabs.addTab(self.tab3, "Histograms")
 
         self.setLayout(layout)
         self.layout().addWidget(self.tabs)
