@@ -270,24 +270,25 @@ class HistogramWidget(QWidget):
     def add_hist(self):
         popup = pop_up(self.naming, self.labels)
         popup.exec_()
-        hist = popup.hist
-        self.all_histograms.add(hist)
-        hist.update_values(
-            (self.comparisons, self.naming, self.norms),
-            self.labels,
-            self.times,
-        )
-        hist.lT = self.lT
-        if self.master_binsizer.value in ["auto", "fd"]:
-            hist.bins = self.main_hist.bin_length
-        else:
-            hist.bins = self.master_binsizer.value
-        hist.plot_hist()
-        hist.kill_signal.connect(self.remove_hist)
-        hist.title.value = f"Roots: {','.join(str(self.labels.get(r,r)) for r in hist.specific_roots)}"
-        self.container.layout().insertWidget(
-            self.container.layout().count() - 2, hist
-        )
+        if hasattr(popup, "hist"):
+            hist = popup.hist
+            self.all_histograms.add(hist)
+            hist.update_values(
+                (self.comparisons, self.naming, self.norms),
+                self.labels,
+                self.times,
+            )
+            hist.lT = self.lT
+            if self.master_binsizer.value in ["auto", "fd"]:
+                hist.bins = self.main_hist.bin_length
+            else:
+                hist.bins = self.master_binsizer.value
+            hist.plot_hist()
+            hist.kill_signal.connect(self.remove_hist)
+            hist.title.value = f"Roots: {','.join(str(self.labels.get(r,r)) for r in hist.specific_roots)}"
+            self.container.layout().insertWidget(
+                self.container.layout().count() - 2, hist
+            )
 
     def control_sliders(self):
         self.main_hist.slider.value = self.master_slider.value
@@ -340,7 +341,7 @@ class HistogramWidget(QWidget):
         self.main_hist.layout().removeWidget(self.main_hist.kill_button)
         self.main_hist.kill_button.setParent(None)
         self.add_button = QPushButton("+")
-        self.add_button.setFixedSize(20, 20)
+        # self.add_button.setFixedSize(20, 20)
         self.container = QWidget()
         self.container.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.container.setLayout(QVBoxLayout(self.container))
@@ -368,7 +369,9 @@ class HistogramWidget(QWidget):
         self.container.setContentsMargins(0, 0, 0, 0)
 
         self.container.layout().addWidget(self.main_hist)
-        self.container.layout().addWidget(self.add_button)
+        self.container.layout().addWidget(
+            self.add_button, alignment=Qt.AlignCenter
+        )
         self.container.layout().addItem(self.spacer)
 
         outer_layout = QVBoxLayout(self)
