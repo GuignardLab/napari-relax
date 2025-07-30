@@ -330,6 +330,36 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         )
         msg.exec_()
 
+    def show_all(self):
+        active_layer = _select_correct_layer(self, Points)
+        if active_layer is None:
+            return
+        active_layer.shown = [True] * len(active_layer.data)
+
+    def hide_all(self):
+        active_layer = _select_correct_layer(self, Points)
+        if active_layer is None:
+            return
+        active_layer.shown = [False] * len(active_layer.data)
+
+    def hide_lineage(self):
+        active_layer = _select_correct_layer(self, Points)
+        if active_layer is None:
+            return
+        active_layer.shown = [
+            False if i in active_layer.selected_data else sh
+            for i, sh in enumerate(active_layer.shown)
+        ]
+
+    def show_lineage(self):
+        active_layer = _select_correct_layer(self, Points)
+        if active_layer is None:
+            return
+        active_layer.shown = [
+            True if i in active_layer.selected_data else sh
+            for i, sh in enumerate(active_layer.shown)
+        ]
+
     signal = Signal(dict)
 
     def resizeEvent(self, event):
@@ -465,6 +495,19 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         self.layout().addWidget(w2.native)
         self.layout().addWidget(containerize([cutoff2.native, cutoff3.native]))
         self.layout().addWidget(w.native)
+
+        show_all = QPushButton("Show all")
+        show_all.clicked.connect(self.show_all)
+        hide_all = QPushButton("Hide all")
+        hide_all.clicked.connect(self.hide_all)
+        hide_lin = QPushButton("Hide Lineage")
+        hide_lin.clicked.connect(self.hide_lineage)
+        show_lin = QPushButton("Show Lineage")
+        show_lin.clicked.connect(self.show_lineage)
+
+        shown_cont = containerize([hide_lin, show_lin, hide_all, show_all])
+        self.layout().addWidget(shown_cont)
+
         self.viewer.mouse_drag_callbacks.append(self.point_click)
         self.viewer.layers.selection.events.connect(self.layer_change)
         self.canvas.node_signal.connect(self._click_on_tree_graph)

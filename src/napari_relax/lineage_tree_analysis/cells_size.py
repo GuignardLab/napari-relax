@@ -95,7 +95,8 @@ class CellSize(Layer_corrector_Tree_Producer):
         self.installEventFilter(event_filt)
         self.viewer = napari_viewer
         layout = QVBoxLayout()
-        layout.addStretch(1)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
         self.setLayout(layout)
         self.vis_button = widgets.CheckBox(value=False)
         vis_container = widgets.Container(
@@ -106,6 +107,7 @@ class CellSize(Layer_corrector_Tree_Producer):
             layout="horizontal",
             labels=False,
         )
+        vis_container.native.layout().setContentsMargins(0, 0, 0, 0)
         self.toggle_all = widgets.Checkbox(value=False)
 
         all_container = widgets.Container(
@@ -125,33 +127,39 @@ class CellSize(Layer_corrector_Tree_Producer):
         self.save_container = containerize(
             [self.save_widget.native, self.save_button.native]
         )
-        self.save_button.clicked.connect(self.write_embryo)
         self.slider = QSlider()
         self.slider.setOrientation(Qt.Orientation.Horizontal)
         self.slider.setTickInterval(1)
         self.slider.setMinimum(0)
         self.slider.setMaximum(1000)
         self.slider.setValue(200)
+        self.slider.setContentsMargins(0, 0, 0, 0)
         track_button = widgets.PushButton(text="Add Tracks")
         self.count = widgets.Label(value="Size of spheres.")
-        self.slider.valueChanged.connect(self._changes)
         self.slider.setToolTip(
             f"Change the size of the spheres on the viewer. Current size {self.slider.value()}"
         )
-        self.vis_button.clicked.connect(self.layer_change)
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
-        self.layout().addWidget(
-            containerize(
-                [self.count.native, self.slider, all_container.native]
-            )
+        cont = containerize(
+            [self.count.native, self.slider, all_container.native]
         )
 
         self.tracks_and_vis_cont = containerize(
             [vis_container.native, track_button.native]
         )
 
+        cont.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().addWidget(cont)
+        self.tracks_and_vis_cont.layout().setContentsMargins(0, 0, 0, 0)
+        self.tracks_and_vis_cont.layout().setSpacing(0)
         self.layout().addWidget(self.tracks_and_vis_cont)
+        self.save_container.layout().setContentsMargins(0, 15, 0, 0)
+        self.save_container.layout().setSpacing(0)
         self.layout().addWidget(self.save_container)
+
         track_button.clicked.connect(self.add_tracks)
+        self.vis_button.clicked.connect(self.layer_change)
         self.viewer.layers.selection.events.connect(self.layer_change)
+        self.save_button.clicked.connect(self.write_embryo)
+        self.slider.valueChanged.connect(self._changes)
