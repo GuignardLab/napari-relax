@@ -7,14 +7,15 @@ see: https://napari.org/stable/plugins/guides.html?#widgets
 Replace code below according to your needs.
 """
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
 from magicgui import widgets
 from napari.layers import Points
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QSlider, QVBoxLayout, QPushButton
-from pathlib import Path
+from qtpy.QtWidgets import QPushButton, QSlider, QVBoxLayout
+
 from .._util_classes import (
     Layer_corrector_Tree_Producer,
     containerize,

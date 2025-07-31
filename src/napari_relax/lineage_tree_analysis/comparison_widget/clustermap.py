@@ -16,7 +16,7 @@ from matplotlib.backends.backend_qt5agg import (
 from matplotlib.figure import Figure
 from napari._qt.qthreading import thread_worker
 from napari.layers import Points
-from napari.utils import progress, notifications
+from napari.utils import notifications, progress
 from qtpy.QtCore import QRegExp
 from qtpy.QtGui import QIntValidator, QRegExpValidator
 from qtpy.QtWidgets import (
@@ -398,7 +398,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
                 notifications.show_error(
                     "Starting timepoint cannot be smaller than the first timepoint of the dataset."
                 )
-                self.runbutton.setChecked(False)
+                self.kill_thread()
                 return []
             if step == 0 or start == stop:
                 self.times = [start]

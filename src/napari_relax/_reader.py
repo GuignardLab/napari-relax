@@ -8,7 +8,6 @@ https://napari.org/stable/plugins/guides.html?#readers
 
 from pathlib import Path
 
-from napari.utils.notifications import show_warning
 import numpy as np
 from lineagetree import (
     LineageTree,
@@ -19,6 +18,7 @@ from lineagetree import (
 )
 from lineagetree._basics import utils
 from napari.utils import colormaps
+from napari.utils.notifications import show_warning
 
 from ._util_classes import loading_dialog, time_res_dialog
 

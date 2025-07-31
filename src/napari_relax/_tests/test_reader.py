@@ -3,4 +3,5 @@ def test_reader(tmp_path):
     """An example of how you might test your plugin."""
 
 
-def test_get_reader_pass(): ...
+def test_get_reader_pass():
+    ...
