@@ -16,7 +16,7 @@ from matplotlib.backends.backend_qt5agg import (
 from matplotlib.figure import Figure
 from napari._qt.qthreading import thread_worker
 from napari.layers import Points
-from napari.utils import progress
+from napari.utils import progress, notifications
 from qtpy.QtCore import QRegExp
 from qtpy.QtGui import QIntValidator, QRegExpValidator
 from qtpy.QtWidgets import (
@@ -394,6 +394,12 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
             start = self.time_slicer.value.start
             stop = self.time_slicer.value.stop
             step = self.time_slicer.value.step
+            if start < self.lT.t_b:
+                notifications.show_error(
+                    "Starting timepoint cannot be smaller than the first timepoint of the dataset."
+                )
+                self.runbutton.setChecked(False)
+                return []
             if step == 0 or start == stop:
                 self.times = [start]
             else:
@@ -485,6 +491,14 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         """
         if event.value:
             self.lT = self.get_lT()
+            if self.lT:
+                start = self.lT.t_b
+                stop = self.lT.t_b + 30
+            else:
+                start = 0
+                stop = 30
+            self.time_slicer.start.value = start
+            self.time_slicer.stop.value = stop
             self.labels = self.lT.labels
             self.range = 1
             self.names_of_nodes = None
@@ -662,7 +676,13 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         label_for_style = widgets.Label(
             value="Select approximation for tree comparison.\n"
         )
-        self.time_slicer = widgets.SliceEdit(0, 30, 5, min=0)
+        if self.lT:
+            start = self.lT.t_b
+            stop = self.lT.t_b + 30
+        else:
+            start = 0
+            stop = 30
+        self.time_slicer = widgets.SliceEdit(start, stop, 5, min=0)
         self.time_slicer_check = QCheckBox(
             "Select a range of timepoints for comparison"
         )

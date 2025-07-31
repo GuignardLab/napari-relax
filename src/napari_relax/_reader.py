@@ -132,6 +132,7 @@ def layer_preparation(lT: LineageTree, path: str = ""):
             c_id += 1
     here_to_lT = {v: k for k, v in lT_to_here.items()}
     data = np.array(data, dtype=float)
+    data[:, 2:] -= data[:, 2:].mean(axis=0)
 
     clone = np.zeros(len(data))
     roots = lT.roots
