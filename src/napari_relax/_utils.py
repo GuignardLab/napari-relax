@@ -9,6 +9,16 @@ from qtpy.QtWidgets import (
 )
 
 
+def get_all_ancestors_of_node(lT, n: int) -> set:
+    ancestor = n
+    ancestor_list = {n}
+    while lT._predecessor[ancestor]:
+        ancestor = lT._predecessor[ancestor][0]
+        if ancestor:
+            ancestor_list.add(ancestor)
+    return ancestor_list
+
+
 def _select_correct_layer(self, layer_type):
     """
     Swaps Layers of the same origin, using the metadata property called "link".
