@@ -288,13 +288,23 @@ class HistTemplate(QWidget):
                     hist_values, bins=self.bins, range=(0, 1)
                 )
             else:
-                _, leng, _ = self.hist_ax.hist(
-                    hist_values,
-                    bins=self.bins,
-                    range=(0, 1),
-                    label=labels,
-                    alpha=0.7,
-                )
+                if hist_values and isinstance(hist_values[0], list):
+                    for hist_val, lab in zip(hist_values, labels):
+                        _, leng, _ = self.hist_ax.hist(
+                            hist_val,
+                            bins=self.bins,
+                            range=(0, 1),
+                            label=lab,
+                            alpha=0.7,
+                        )
+                else:
+                    _, leng, _ = self.hist_ax.hist(
+                        hist_values,
+                        bins=self.bins,
+                        range=(0, 1),
+                        label=labels,
+                        alpha=0.7,
+                    )
                 self.hist_ax.legend()
             self.bin_length = len(leng) - 1
             # self.hist_ax.set_xlim(0, 1)
