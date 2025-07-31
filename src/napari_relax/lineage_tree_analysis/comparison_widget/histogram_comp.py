@@ -1,3 +1,5 @@
+from itertools import combinations
+
 from magicgui import widgets
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
@@ -17,12 +19,11 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from itertools import combinations
+
 from ..._util_classes import containerize
 
 
 class pop_up(QDialog):
-
     def __init__(self, roots, labels):
         super().__init__()
 
@@ -77,7 +78,6 @@ def get_all_ancestors_of_node(lT, n: int) -> set:
 
 
 class HistTemplate(QWidget):
-
     kill_signal = Signal(object)
 
     def __init__(
@@ -170,7 +170,6 @@ class HistTemplate(QWidget):
                         and self.naming[time][key[1]][1] in self.specific_roots
                         and (root1 != root2)
                     ):
-
                         if self.separate:
                             if (
                                 next(iter(root1)),
@@ -204,7 +203,6 @@ class HistTemplate(QWidget):
                                 for root1, root2 in combs
                             ]
                         else:
-
                             hist_values.append(
                                 comparisons[key]
                                 / self.norm_dict[str(self.norm_combo.value)](
@@ -245,7 +243,6 @@ class HistTemplate(QWidget):
                                 for root in self.specific_roots
                             ]
                         else:
-
                             hist_values.append(
                                 comparisons[key]
                                 / self.norm_dict[str(self.norm_combo.value)](
@@ -289,7 +286,7 @@ class HistTemplate(QWidget):
                 )
             else:
                 if hist_values and isinstance(hist_values[0], list):
-                    for hist_val, lab in zip(hist_values, labels):
+                    for hist_val, lab in zip(hist_values, labels, strict=False):
                         _, leng, _ = self.hist_ax.hist(
                             hist_val,
                             bins=self.bins,
@@ -322,7 +319,6 @@ class HistTemplate(QWidget):
 
 
 class HistogramWidget(QWidget):
-
     def receive_values(self, data_from_clustermap: tuple[dict, dict, dict]):
         self.comparisons, self.naming, self.norms = data_from_clustermap
         self.layer_change()
