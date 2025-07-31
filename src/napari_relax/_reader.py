@@ -8,6 +8,7 @@ https://napari.org/stable/plugins/guides.html?#readers
 
 from pathlib import Path
 
+from napari.utils.notifications import show_warning
 import numpy as np
 from lineagetree import (
     LineageTree,
@@ -151,6 +152,9 @@ def layer_preparation(lT: LineageTree, path: str = ""):
             for root in lT.roots
             if len(lT.get_subtree_nodes(root)) > (lT.t_e - lT.t_b) / 4
         }
+    )
+    show_warning(
+        "Only lineages with height larger than 1/4 of the total timepoints will be shown on the lineage Viewer."
     )
     pos = {
         i: utils.hierarchical_pos(
