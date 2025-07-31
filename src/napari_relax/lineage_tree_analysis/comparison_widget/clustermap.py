@@ -307,8 +307,17 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         self.naming = []
         self.norms = []
         self.worker = self.thread_worker()
-
         self.times_selector()
+        if (
+            max([self.lT.time[root] for root in self.specific_roots])
+            > self.times[0]
+        ):
+            self.kill_thread()
+            self.runbutton.setChecked(False)
+            notifications.show_error(
+                "Dont use a starting point before the roots"
+            )
+            return
         if not self.times:
             self.worker.quit()
             return
