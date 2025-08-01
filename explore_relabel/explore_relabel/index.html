@@ -511,8 +511,9 @@
 
 <p>The core parts of this Exploration and Relabeling are:</p>
 <ul>
-<li>The interactive <strong>Lineage Viewer</strong> and its combination with the napari standard viewer</li>
-<li><strong>Relabel</strong> any chain lineage or sublineage</li>
+<li>The interactive <strong>Lineage Viewer</strong></li>
+<li><strong>Relabel</strong> any chain in a lineage</li>
+<li><strong>Combine</strong> the <strong>Lineage Viewer</strong> with the <strong>Napari standard Viewer</strong></li>
 </ul>
 <p>This component contains features for navigating the lineages using both the Lineage Viewer and the Napari viewer and renaming lineages.</p>
 <p>The Lineage Viewer is the plugin's first component, enabling lineage exploration, relabeling, and navigation through the viewer's time data.</p>
@@ -529,8 +530,9 @@
 <p><em>Controls of the viewer:</em></p>
 <ul>
 <li><strong>Left click</strong>: Using the left click, the user will select a subtree on the plot and the corresponding Points on the napari viewer.</li>
+<li><strong>Double Left click</strong>: Clicking twice on a node on the Lineage Viewer will show the first timepoint this clicked cell started existing on the <a href="../../viewer/viewer/">Napari Viewer</a>.</li>
 <li><strong>Mouse wheel</strong>: Using the mouse wheel, the user can zoom in on the graph to observe specific details. If the user zooms in enough, the labels of each node will be shown on screen.</li>
-<li><strong>Left click</strong> and <strong>drag</strong>: Edge pan to see different segments of the lineage if the plot is zoomed in.</li>
+<li><strong>Right click</strong> and <strong>drag</strong>: Edge pan to see different segments of the lineage if the plot is zoomed in.</li>
 <li><strong>Z</strong>: Reset the view regardless of panning or zoom.</li>
 </ul>
 </li>
@@ -539,14 +541,16 @@
 </li>
 <li><strong>Label manipulation</strong>: Change a label by entering a name, show all labels, or remove an existing label.</li>
 <li><strong>Select Lineage/Sublineage</strong>: After the user has selected a point on the napari viewer, they may decide to select the whole lineage this node belongs to or the subtree by pressing the corresponding button. This will also update the plot. The user may also decide to change the colors of all nodes selected. Using panel 1 of. layer controls</li>
-<li><strong>Points Layer resizer</strong>: Change the size of all the Points on a selected layer or all layers. The same value will be applied across all points modified.</li>
+<li><strong>Show/Hide Lineages</strong>: The user can hide/show selected lineages. or even all lineages. Lineages that are hidden may be selected using the Lineage viewer.</li>
 <li><strong>General helping buttons</strong>: <ul>
-<li><strong>Left</strong>: Toggle the visibility of other layers; this button may serve as a shortcut.</li>
-<li><strong>Right</strong>: Add a tracks layer to the Points layer for visualization purposes.</li>
+<li><strong>Top</strong>: Change the size of all the Points on a selected layer or all layers. The same value will be applied across all points modified.</li>
+<li><strong>Middle</strong> <strong>Left</strong>: Toggle the visibility of other layers; this button may serve as a shortcut.</li>
+<li><strong>Middle</strong> <strong>Right</strong>: Add a tracks layer to the Points layer for visualization purposes.</li>
+<li><strong>Bottom</strong>: Save the LineageTree.
+An example of a Tracks Layer:</li>
 </ul>
 </li>
 </ol>
-<p>An example of a Tracks Layer:</p>
 <p><img alt="tracks" src="../tracks.png" /></p>
 
 
