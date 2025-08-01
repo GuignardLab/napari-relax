@@ -29,6 +29,8 @@ class HistogramWidget(QWidget):
 
     def add_hist(self):
         print(self.naming[0])
+        if not self.naming:
+            return
         popup = pop_up(self.naming, self.labels)
         print(self.naming[0])
         popup.exec_()
@@ -99,6 +101,8 @@ class HistogramWidget(QWidget):
         self.labels = {}
         self.all_histograms = set()
         self.scroll_area = QScrollArea()
+        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+
         self.scroll_area.setWidgetResizable(True)
         self.main_hist = HistTemplate()
         self.main_hist.layout().removeWidget(self.main_hist.kill_button)
