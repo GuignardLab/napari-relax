@@ -21,18 +21,20 @@ The Lineage Viewer is the plugin's first component, enabling lineage exploration
     *Controls of the viewer:*
 
     - **Left click**: Using the left click, the user will select a subtree on the plot and the corresponding Points on the napari viewer.
+    - **Double Left click**: Clicking twice on a node on the Lineage Viewer will show the first timepoint this clicked cell started existing on the [Napari Viewer](../viewer/viewer.md).
     - **Mouse wheel**: Using the mouse wheel, the user can zoom in on the graph to observe specific details. If the user zooms in enough, the labels of each node will be shown on screen.
-    - **Left click** and **drag**: Edge pan to see different segments of the lineage if the plot is zoomed in.
+    - **Right click** and **drag**: Edge pan to see different segments of the lineage if the plot is zoomed in.
     - **Z**: Reset the view regardless of panning or zoom.
 
 - **The Lineage Viewer slider**: Using this slider, the user may inspect different lineages that exist in the dataset
 - **Label manipulation**: Change a label by entering a name, show all labels, or remove an existing label.
 - **Select Lineage/Sublineage**: After the user has selected a point on the napari viewer, they may decide to select the whole lineage this node belongs to or the subtree by pressing the corresponding button. This will also update the plot. The user may also decide to change the colors of all nodes selected. Using panel 1 of. layer controls
-- **Points Layer resizer**: Change the size of all the Points on a selected layer or all layers. The same value will be applied across all points modified.
+- **Show/Hide Lineages**: The user can hide/show selected lineages. or even all lineages. Lineages that are hidden may be selected using the Lineage viewer.
 - **General helping buttons**: 
-    - **Left**: Toggle the visibility of other layers; this button may serve as a shortcut.
-    - **Right**: Add a tracks layer to the Points layer for visualization purposes.
-
+    - **Top**: Change the size of all the Points on a selected layer or all layers. The same value will be applied across all points modified.
+    - **Middle** **Left**: Toggle the visibility of other layers; this button may serve as a shortcut.
+    - **Middle** **Right**: Add a tracks layer to the Points layer for visualization purposes.
+    - **Bottom**: Save the LineageTree.
 An example of a Tracks Layer:
 
 ![tracks](./tracks.png)

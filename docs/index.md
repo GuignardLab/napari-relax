@@ -23,4 +23,4 @@ This plugin consists of 4 components:
 
 - [Explore and Relabel](./explore_relabel.md): Explore the lineages with its interactive **Lineage Viewer**, relabel lineages of interest.
 - [Attribute recoloring](./attribute.md): Recolor nodes on both the **Lineage Viewer** and the **Napari standard Viewer**, using the distance or precomputed attributes.
-- [Distance Calculation](./distance.md): Calculate UTED and see their result on the **Napari Standard Viewer**.
+- [Distance Calculation](./distance.md): Calculate the unordered tree edit distance, inspect the distances on  the **Napari Standard Viewer** and create histograms to compare lineages through their sublineages.

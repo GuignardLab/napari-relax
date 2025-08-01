@@ -23,4 +23,6 @@ Sample code to manipulate the dataset:
     - Drag Left Click: Rotate the dataset.
     - Shift Left Click: Move the dataset
     - Scroll: Zoom in and out
-    - **Shift Right Click**: Select one node. When a node is selected the Lineage Viewer will also show the correspnding lineage. 
+    - **Shift Right Click**: Select one node. When a node is selected the Lineage Viewer will also show the correspnding lineage on the [Lineage Viewer](../explore_relabel/explore_relabel.md). 
+
+Using the time slider on the Napari Viewer will also show the corresponding timepoint on the viewer. 
