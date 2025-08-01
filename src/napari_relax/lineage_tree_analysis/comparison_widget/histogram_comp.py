@@ -68,7 +68,6 @@ class HistogramWidget(QWidget):
         self.main_hist.plot_hist()
         for hist in self.all_histograms:
             if self.master_binsizer.value in ["auto", "fd"]:
-                print(self.main_hist.bin_length)
                 hist.bins = self.main_hist.bin_length
             else:
                 hist.bins = self.master_binsizer.value
@@ -77,7 +76,9 @@ class HistogramWidget(QWidget):
     def remove_hist(self, obj: QWidget):
         self.container.layout().removeWidget(obj)
         obj.setParent(None)
+        self.all_histograms.remove(obj)
         obj.deleteLater()
+        self.container.update()
 
     def layer_change(self):
         for hist in self.all_histograms:
