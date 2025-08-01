@@ -290,7 +290,7 @@ class single_tree_progeny(FigureCanvas):
                         + "\n"
                         + "ID: "
                         + str(node),
-                        fontsize=6,
+                        fontsize=self.fontsize,
                         rotation=34,
                     )
             self.labels = True
