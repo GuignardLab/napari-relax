@@ -7,11 +7,14 @@ from qtpy.QtWidgets import (
 )
 
 from .histogramtemplate import HistTemplate
+from napari.qt import get_current_stylesheet
+from napari.settings import get_settings
 
 
 class pop_up(QDialog):
     def __init__(self, roots, labels):
         super().__init__()
+        self.setStyleSheet(get_current_stylesheet())
 
         layout = QVBoxLayout()
         self.setWindowTitle("Create new Histogram")
