@@ -1,0 +1,1 @@
+This section is focused on quick guides on usual tasks the users may want to do using this plugin.
