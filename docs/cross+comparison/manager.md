@@ -1,0 +1,1 @@
+If a user want to compare multiple embryos, there are multiple parameters they have to take into account like time resolution testing if they are the same lineage ... Thus, we created this manager to import multiple embryos and allow sures to compare embryos without them trying to fix weird time resolutions configurations.
