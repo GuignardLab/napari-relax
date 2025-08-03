@@ -54,4 +54,4 @@ nav:
   - Cross_dataset_Distances: 
     - Manager: manager.md
     - Distance Calculation: distance_cross.md
-  - Guides: guides.md
+  - Guides: ./guides/guides.md
