@@ -26,6 +26,6 @@ To import a new dataset can ***drag and drop*** any [supported format](https://g
 There is also a demo dataset easily accessible from ***File>Open Sample>demo lineageTree dataset***. 
 Other datasets will also be available in [citation].
 
-The demo dataset contains 3 descendants of Er lineage across the first 100 timepoints of its development.
+The demo dataset contains 3 descendants of Er lineage of *Parhyale hawaiensis* across the first 100 timepoints of their development.
 
 ![demo_dataset](./demo_dataset_import.png)
