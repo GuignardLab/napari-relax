@@ -123,7 +123,7 @@ class CellSize(Layer_corrector_Tree_Producer):
         self.save_widget = widgets.FileEdit(
             mode="w", value=Path(".").absolute(), filter="*.lT"
         )
-        self.save_button = QPushButton("Save Manager")
+        self.save_button = QPushButton("Save LineageTree")
         self.save_button.native = self.save_button
         self.save_container = containerize(
             [self.save_widget.native, self.save_button.native]
