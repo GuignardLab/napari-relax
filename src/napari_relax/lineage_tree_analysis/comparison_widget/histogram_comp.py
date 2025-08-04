@@ -24,15 +24,13 @@ class HistogramWidget(QWidget):
             data_from_clustermap, self.labels, self.times
         )
         self.main_hist.bins = self.master_binsizer.value
-        self.main_hist.title.value = f"Roots: {','.join(str(self.labels.get(label[0],label[0])) for label in self.naming[0].values())}"
+        self.main_hist.title.value = f"Roots: {','.join(str(self.labels.get(self.lT.get_labelled_ancestor(label[0]),label[0])) for label in self.naming[0].values())}"
         self.main_hist.plot_hist()
 
     def add_hist(self):
-        print(self.naming[0])
         if not self.naming:
             return
-        popup = pop_up(self.naming, self.labels)
-        print(self.naming[0])
+        popup = pop_up(self.naming, self.labels, self.lT)
         popup.exec_()
         if hasattr(popup, "hist"):
             hist = popup.hist
@@ -49,7 +47,7 @@ class HistogramWidget(QWidget):
                 hist.bins = self.master_binsizer.value
             hist.plot_hist()
             hist.kill_signal.connect(self.remove_hist)
-            hist.title.value = f"Roots: {','.join(str(self.labels.get(r,r)) for r in hist.specific_roots)}"
+            hist.title.value = f"Roots: {','.join(str(self.labels.get(self.lT.get_labelled_ancestor(r),r)) for r in hist.specific_roots)}"
             self.container.layout().insertWidget(
                 self.container.layout().count() - 2, hist
             )

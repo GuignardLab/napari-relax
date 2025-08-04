@@ -12,7 +12,7 @@ from napari.settings import get_settings
 
 
 class pop_up(QDialog):
-    def __init__(self, roots, labels):
+    def __init__(self, roots, labels, lT):
         super().__init__()
         self.setStyleSheet(get_current_stylesheet())
 
@@ -21,7 +21,7 @@ class pop_up(QDialog):
         self.list_widget = QListWidget()
         self.list_widget.setSelectionMode(QListWidget.MultiSelection)
         self.list_items = [
-            f"{root[0]} - {labels.get(root[0], root[0])}"
+            f"{root[0]} - {labels.get(lT.get_labelled_ancestor(root[0]), root[0])}"
             for root in roots[0].values()
         ]
         self.list_widget.addItems(self.list_items)
