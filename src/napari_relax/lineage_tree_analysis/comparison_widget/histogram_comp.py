@@ -16,16 +16,17 @@ from .popup_for_hist import pop_up
 
 class HistogramWidget(QWidget):
     def receive_values(self, data_from_clustermap: tuple[dict, dict, dict]):
-        self.comparisons, self.naming, self.norms = data_from_clustermap
-        self.layer_change()
-        self.main_hist.slider.max = len(self.comparisons) - 1
-        self.master_slider.max = len(self.comparisons) - 1
-        self.main_hist.update_values(
-            data_from_clustermap, self.labels, self.times
-        )
-        self.main_hist.bins = self.master_binsizer.value
-        self.main_hist.title.value = f"Roots: {','.join(str(self.labels.get(self.lT.get_labelled_ancestor(label[0]),label[0])) for label in self.naming[0].values())}"
-        self.main_hist.plot_hist()
+        if data_from_clustermap is not None:
+            self.comparisons, self.naming, self.norms = data_from_clustermap
+            self.layer_change()
+            self.main_hist.slider.max = len(self.comparisons) - 1
+            self.master_slider.max = len(self.comparisons) - 1
+            self.main_hist.update_values(
+                data_from_clustermap, self.labels, self.times
+            )
+            self.main_hist.bins = self.master_binsizer.value
+            self.main_hist.title.value = f"Roots: {','.join(str(self.labels.get(self.lT.get_labelled_ancestor(label[0]),label[0])) for label in self.naming[0].values())}"
+            self.main_hist.plot_hist()
 
     def add_hist(self):
         if not self.naming:
@@ -105,8 +106,7 @@ class HistogramWidget(QWidget):
         self.main_hist = HistTemplate()
         self.main_hist.layout().removeWidget(self.main_hist.kill_button)
         self.main_hist.kill_button.setParent(None)
-        self.add_button = QPushButton("+")
-        # self.add_button.setFixedSize(20, 20)
+        self.add_button = QPushButton("Add new Histogram")
         self.container = QWidget()
         self.container.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.container.setLayout(QVBoxLayout(self.container))

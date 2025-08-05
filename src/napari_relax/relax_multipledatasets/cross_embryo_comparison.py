@@ -684,12 +684,14 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
         layout_1 = QVBoxLayout()
         layout_1.addStretch(1)
         self.tab1.setLayout(layout_1)
-        self.tab1.layout().addWidget(label_for_style.native)
-        self.tab1.layout().addWidget(self.styl_combobox)
         self.tab1.layout().addWidget(self.lineagetree_list)
         self.tab1.layout().addWidget(self.root_tabs)
+        self.tab1.layout().addWidget(
+            containerize(
+                [label_for_style.native, self.styl_combobox], align=True
+            )
+        )
         self.tab_maker()
-
         self.tab2 = QWidget()
         layout_2 = QVBoxLayout()
         layout_2.addStretch(1)

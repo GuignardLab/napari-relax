@@ -146,6 +146,10 @@ class tab_template(QWidget):
 
         layout = QVBoxLayout()
         self.setLayout(layout)
+        layout.addWidget(
+            widgets.Label(value="Select the desired roots.").native
+        )
+        layout.addWidget(self.root_list)
         layout.addWidget(time_slice)
         layout.addWidget(times_list)
         layout.addWidget(
@@ -158,4 +162,3 @@ class tab_template(QWidget):
                 ]
             )
         )
-        layout.addWidget(self.root_list)

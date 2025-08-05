@@ -1,3 +1,4 @@
+from napari.qt import get_current_stylesheet
 from qtpy.QtWidgets import (
     QCheckBox,
     QDialog,
@@ -7,8 +8,6 @@ from qtpy.QtWidgets import (
 )
 
 from .histogramtemplate import HistTemplate
-from napari.qt import get_current_stylesheet
-from napari.settings import get_settings
 
 
 class pop_up(QDialog):

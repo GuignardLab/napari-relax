@@ -293,11 +293,12 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         Args:
             product [list]: [pairwise comparisons: name for each comparison]
         """
-        self.comps, self.naming, self.norms = product
-        self.time_slider.max = len(self.comps) - 1
-        self._clustermap_creator()
-        if self.pbr:
-            self.pbr.update()
+        if product is not None:
+            self.comps, self.naming, self.norms = product
+            self.time_slider.max = len(self.comps) - 1
+            self._clustermap_creator()
+            if self.pbr:
+                self.pbr.update()
 
     def thread_handler(self):
         """
@@ -341,6 +342,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
                 for node in self.specific_roots
                 if local_lT.time[node] <= t
             ]
+            print(tmp_roots, "tmp_roots")
             if not tmp_roots:
                 self.times.remove(t)
                 continue
@@ -352,6 +354,8 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
                 )
                 for node in local_lT.nodes_at_t(r=list(tmp_roots), t=t)
             }
+            print(tmp_name, "tmp_name")
+
             name = dict(enumerate(tmp_name))
             comparison = {}
             norms = {}
@@ -370,7 +374,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
                     return_norms=True,
                 )
                 if sleep_timer % 5 == 0:
-                    sleep(0.1)
+                    sleep(0.01)
 
             all_comps.append(comparison)
             all_names.append(name)
@@ -698,6 +702,15 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         self.tab1 = QWidget()
         layout1 = QVBoxLayout()
         self.tab1.setLayout(layout1)
+        self.tab1.layout().addWidget(
+            widgets.Label(value="Select the desired roots.").native
+        )
+        self.tab1.layout().addWidget(self.list_widget)
+
+        self.tab1.layout().addWidget(
+            widgets.Label(value="\nSelect roots to be compared:").native
+        )
+
         self.tab1.layout().addWidget(time_slice)
         self.tab1.layout().addWidget(time_list)
         self.tab1.layout().addWidget(
@@ -710,13 +723,9 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
                 ]
             )
         )
-        self.tab1.layout().addWidget(label_for_style.native)
-        self.tab1.layout().addWidget(self.styl_combobox)
         self.tab1.layout().addWidget(
-            widgets.Label(value="\nSelect roots to be compared:").native
+            containerize([label_for_style.native, self.styl_combobox])
         )
-        self.tab1.layout().addWidget(self.list_widget)
-
         self.colorbar = None
 
         # Layout of 2nd tab
