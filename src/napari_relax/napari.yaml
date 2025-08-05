@@ -24,9 +24,14 @@ contributions:
       accepts_directories: false
       filename_patterns: ["*.lT", "*.lt", "*.LT", "*.mastodon", "*.xml"]
 
+  writers:
+    - command: napari-relax.get_writer
+      layer_types: ["points"]
+      filename_extensions: [".lt", ".lT", ".LT"]
+
   sample_data:
     - command: napari-relax.load_demo
-      display_name: demo LineageTree dataset
+      display_name: demo lineageTree dataset
       key: unique_id.6
 
   widgets:
