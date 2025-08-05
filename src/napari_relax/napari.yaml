@@ -9,6 +9,9 @@ contributions:
     - id: napari-relax.get_reader
       python_name: napari_relax._reader:napari_get_reader
       title: LineageTree reader
+    - id: napari-relax.get_writer
+      python_name: napari_relax._writer:write_single_image
+      title: LineageTree writer
     - id: napari-relax.lineage_tree_analysis
       python_name: napari_relax._widgets:LineageTreeAnalysisWidget
       title: Lineage tree analysis
