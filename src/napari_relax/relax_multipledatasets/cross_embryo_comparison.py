@@ -1,10 +1,12 @@
 import copy
 from functools import partial
 from itertools import combinations
+from pathlib import Path
 from time import sleep
 
 import matplotlib.pyplot as plt
 import mplcursors
+import pickle
 import numpy as np
 import seaborn as sns
 from lineagetree.tree_approximation import tree_style
@@ -307,6 +309,7 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
                 self.labels_node[int(event.ydata + 0.5)],
             ]
             colors = [[1, 128 / 255, 1, 1], [0, 1, 1, 1]]
+            print(nodes, layers)
             for i, (node, lT) in enumerate(zip(nodes, layers, strict=False)):
                 self.sub_points_painter(node, lT, self.viewers[i], colors[i])
                 self.tree_painter(node, lT, colors[i], self.axes[i])
@@ -404,19 +407,15 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
             hover=2,  # Transient
             annotation_kwargs={
                 "bbox": {
-                    "boxstyle": "square,pad=0.3",
+                    "boxstyle": "square,pad=0.2",
                     "facecolor": "white",
+                    "alpha": 0.2,
                     "edgecolor": "#ddd",
-                    "linewidth": 0.5,
-                    "path_effects": [
-                        withSimplePatchShadow(offset=(1.5, -1.5))
-                    ],
+                    "linewidth": 0.3,
                 },
-                "linespacing": 1.5,
+                "linespacing": 1,
                 "arrowprops": None,
             },
-            highlight=False,
-            highlight_kwargs={"linewidth": 2},
         )
         cursor.connect(
             "add",
@@ -425,6 +424,26 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
             ),
         )
         self.canvas.draw()
+
+    def save_dictionary(self):
+        roots = {}
+        times = {}
+        end_times = {}
+        for tab in self.tab_dictionary:
+            roots[tab] = self.tab_dictionary[tab].show_roots()
+            times[tab] = self.tab_dictionary[tab].ret_times()
+            end_times[tab] = self.tab_dictionary[tab].time_crop
+
+        data = {
+            "roots": roots,
+            "times": times,
+            "end_times": end_times,
+            "comparisons": self.comparisons,
+            "norms": self.norms,
+            "names": self.names,
+        }
+        with open(str(self.save_pkl.value), "wb") as f:
+            pickle.dump(data, f)
 
     @thread_worker
     def roots_selector(self):
@@ -725,3 +744,16 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
         self.stopbutton.released.connect(self.kill_thread)
         self.stopbutton.setChecked(True)
         self.figure.canvas.mpl_connect("button_press_event", self._click)
+        self.save_pkl = widgets.FileEdit(
+            mode="w", value=Path(".").absolute(), filter="*.pkl*"
+        )
+        self.save_button = QPushButton("Save Comparisons")
+        self.save_button.native = self.save_button
+        self.save_button.name = "save_button"
+        self.save_button.pressed.connect(self.save_dictionary)
+        container = widgets.Container(
+            widgets=[self.save_pkl, self.save_button],
+            layout="horizontal",
+            labels=False,
+        )
+        self.tab2.layout().addWidget(container.native)
