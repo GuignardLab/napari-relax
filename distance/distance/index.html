@@ -12,7 +12,7 @@
         <link rel="prev" href="../../attribute/attribute/">
       
       
-        <link rel="next" href="../../manager/">
+        <link rel="next" href="../../cross%2Bcomparison/manager/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -469,7 +469,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../manager/" class="md-nav__link">
+      <a href="../../cross%2Bcomparison/manager/" class="md-nav__link">
         
   
   
@@ -492,7 +492,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../distance_cross/" class="md-nav__link">
+      <a href="../../cross%2Bcomparison/distance_cross/" class="md-nav__link">
         
   
   
@@ -522,7 +522,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides.md" class="md-nav__link">
+      <a href="../../guides/guides/" class="md-nav__link">
         
   
   
@@ -612,21 +612,25 @@
 <p>Using this component the user can calculate the unordered tree edit distance for any lineage or sublineage and the sublineages spawned by their ancestors.</p>
 <p><img alt="config" src="../config_uted_celegans.png" style="height:500px;" /></p>
 <ol>
-<li><strong>Levels of comparison selected</strong>: Levels of comparison selected: For every selected lineage, their subtrees can also be compared. This setting allows users to specify subtrees rooted at a specific timepoint. The top section lets users choose a timepoint range, while the bottom section allows manual entry of specific timepoints. For example, if two lineages begin at timepoint 0 and both divide before or at timepoint 5, selecting comparisons at timepoint 5 results in four sublineages to be compared. The user may choose manual or a range of distances by using the corresponding checkboxes.</li>
+<li>
+<p><strong>Subtree selection</strong>: Specific lineages may be selected to compare. Some subtrees might begin later in the dataset due to tracking or imaging issues; they can still be included if they exist at the selected timepoint.</p>
+</li>
+<li>
+<p><strong>Levels of comparison selected</strong>: Levels of comparison selected: For every selected lineage, their subtrees can also be compared. This setting allows users to specify subtrees rooted at a specific timepoint. The top section lets users choose a timepoint range, while the bottom section allows manual entry of specific timepoints. For example, if two lineages begin at timepoint 0 and both divide before or at timepoint 5, selecting comparisons at timepoint 5 results in four sublineages to be compared. The user may choose manual or a range of distances by using the corresponding checkboxes.</p>
+</li>
 <li><strong>Time crop</strong>: The last timepoint to be included in the analysis.</li>
-<li><a href="https://guignardlab.github.io/LineageTree/uted/#different-tree-approximations"><strong>Approximation/Style selection</strong></a>: The approximation to be used in the analysis. CAUTION: Different algorithms have different uses, for more information visit (https://guignardlab.github.io/LineageTree/uted/#different-tree-approximations)</li>
-<li><strong>Subtree selection</strong>: The user may select the subtrees they want to compare. Some trees may start later in the dataset, due to tracking or imaging errors; however, they can still be selected and compared with subtrees that begin at the timepoint they exist.</li>
-<li><strong>Start/stop Comparisons</strong>: The user can start the comparison, which will be run in a thread, meaning that the viewer will remain interactive during the calculations. At any point, the user may decide to stop the processing by clicking <code>Stop Processing</code>.</li>
+<li><strong>Start/stop Comparisons</strong>: The user can start calculating the comparisons. While the comparisons are being run the rest of the plugin and napari remain responsive. At any point, the user may decide to stop the processing by clicking <code>Stop Processing</code>.</li>
+<li><a href="https://guignardlab.github.io/LineageTree/uted/#different-tree-approximations"><strong>Approximation/Style selection</strong></a>: The approximation to be used in the analysis. CAUTION: Different algorithms have different uses, for more information visit <a href="https://guignardlab.github.io/LineageTree/uted/#different-tree-approximations">LineageTree Tree approximatons</a></li>
 </ol>
 <h2 id="clustermap">Clustermap<a class="headerlink" href="#clustermap" title="Permanent link">&para;</a></h2>
 <p>The comparisons that are being calculated are shown on a clustermap. This clustermap is interactive and allows user to click on it to inspect the morphology of the compared lineages.</p>
 <p><img alt="clustermap" src="../clustermap_analysis_celegans.png" /></p>
 <ol>
 <li>
-<p><strong>Tree plots</strong>: Plots of the trees that are currently being interacted with through the clustermap, with their subtrees colored according to the colors of the viewer.</p>
+<p><strong>Tree plots</strong>: Displays the trees that are currently being interacted with through the clustermap, with their subtrees colored according to the colors of the viewer.</p>
 </li>
 <li>
-<p><strong>Clustermap Configuration</strong>: Clustermap configuration: using the first combobox, the user may select their preferred way of normalization, according to the analysis they want to perform, the second is focused on providing different color gradients for recoloring the clustermap.</p>
+<p><strong>Clustermap Configuration</strong>: Using the left combobox, the user may select their preferred way of normalization, according to the analysis they want to perform, the right is focused on providing different color gradients for recoloring the clustermap.</p>
 </li>
 <li><strong>Clustermap</strong>: The clustermap was produced by the systematic comparisons. There is a clustermap for each and every timepoint selected in 1 of the configuration components. This clustermap is normalized by 2. Interaction with the clustermap is done by using Left click on any element on the plot to create the tree graphs in 3, and recolor the selected embryo according to the compared sublineages</li>
 </ol>
@@ -634,8 +638,10 @@
 <p>When analyzing multiple lineages, clustermaps can become large and difficult to interpret. This component allows users to generate and filter histograms to make the data more manageable.</p>
 <p><img alt="histogram" src="../histograms_celegans.png" style="height:500px;" /></p>
 <ol>
-<li><strong>Master Controls</strong>: <ul>
-<li><strong>Top</strong>: A slider which is able to load the same timepoint on all the histograms simultaneously.</li>
+<li>
+<p><strong>Master Controls</strong>:</p>
+<ul>
+<li><strong>Top</strong>: The global slider that changes all histograms in sync.</li>
 <li><strong>Bottom</strong>: The bins controller is used to define the number of bins on the histograms. All the histograms will have the same number of bins as the master histogram (2.) even if it is set on <code>auto</code>.</li>
 </ul>
 </li>
