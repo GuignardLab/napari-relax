@@ -309,7 +309,6 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
                 self.labels_node[int(event.ydata + 0.5)],
             ]
             colors = [[1, 128 / 255, 1, 1], [0, 1, 1, 1]]
-            print(nodes, layers)
             for i, (node, lT) in enumerate(zip(nodes, layers, strict=False)):
                 self.sub_points_painter(node, lT, self.viewers[i], colors[i])
                 self.tree_painter(node, lT, colors[i], self.axes[i])
