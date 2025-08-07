@@ -52,6 +52,6 @@ nav:
   - Attribute Recoloring: ./attribute/attribute.md
   - Distance Calculation:  ./distance/distance.md
   - Cross_dataset_Distances: 
-    - Manager: manager.md
-    - Distance Calculation: distance_cross.md
+    - Manager: ./cross+comparison/manager.md
+    - Distance Calculation: ./cross+comparison/distance_cross.md
   - Guides: ./guides/guides.md
