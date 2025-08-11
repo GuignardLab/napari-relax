@@ -17,7 +17,7 @@ from .coloring import Coloring
 
 
 class DisplayDistances(Layer_corrector_Tree_Producer):
-    name = "Attribute Recoloring"
+    name = "Attribute Based Recoloring"
 
     def point_click(self, viewer, event):
         active_layer = _select_correct_layer(self, Points)

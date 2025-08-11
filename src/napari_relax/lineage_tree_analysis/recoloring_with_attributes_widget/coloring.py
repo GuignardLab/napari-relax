@@ -1,8 +1,11 @@
 from numbers import Number
 from typing import TYPE_CHECKING
 from warnings import warn
-
+from napari._qt.layer_controls.qt_colormap_combobox import QtColormapComboBox
+from napari.utils.colormaps import AVAILABLE_COLORMAPS
 import numpy as np
+from qtpy.QtGui import QPixmap, QIcon, QImage
+from qtpy.QtWidgets import QApplication, QLabel
 from magicgui import widgets
 from matplotlib.pyplot import colormaps
 from napari.layers import Points
@@ -21,7 +24,8 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
+import matplotlib.pyplot as plt
+from .colorboxlabel import ColorBoxLabel
 from ..._util_classes import (
     Layer_corrector_Tree_Producer,
     containerize,
@@ -156,36 +160,33 @@ class missing_data(QWidget):
 class Quantitative(Layer_corrector_Tree_Producer):
     color_signal = Signal(dict)
 
+    # def change_color_label(self):
+    #     n_samples = 256
+    #     height = self.combobox_continuous.height()
+    #     gradient = np.tile(np.linspace(0, 1, n_samples), (height, 1))
+    #     cmap = AVAILABLE_COLORMAPS[self.combobox_continuous.currentData()]
+    #     colors = (cmap.map(gradient) * 255).astype(np.uint8)
+    #     h, w, ch = colors.shape
+    #     qimage = QImage(colors.data, w, height, ch * w, QImage.Format_RGBA8888)
+    #     pixmap = QPixmap.fromImage(qimage)
+    #     icon = QIcon(pixmap)
+    #     self.color_label.setIcon(icon)
+    #     self.color_label.setIconSize(pixmap.size())
+
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
-        self.combobox_continuous = widgets.ComboBox(
-            value="Blues",
-            choices=[
-                "viridis",
-                "plasma",
-                "inferno",
-                "magma",
-                "cividis",
-                "Greys",
-                "Purples",
-                "Blues",
-                "Greens",
-                "Oranges",
-                "Reds",
-                "YlOrBr",
-                "YlOrRd",
-                "OrRd",
-                "PuRd",
-                "RdPu",
-                "BuPu",
-                "GnBu",
-                "PuBu",
-                "YlGnBu",
-                "PuBuGn",
-                "BuGn",
-                "YlGn",
-            ],
-        )
+        # self.combobox_continuous = QtColormapComboBox(self)
+        # self.combobox_continuous.setObjectName("colormapcombobox")
+        # for name, cm in AVAILABLE_COLORMAPS.items():
+        #     self.combobox_continuous.addItem(cm._display_name, name)
+        # self.color_label = QPushButton(self)
+        # self.combobox_continuous.currentTextChanged.connect(
+        #     self.change_color_label
+        # )
+        # self.color_label.clicked.connect(self.combobox_continuous.showPopup)
+        # color_cont = containerize([self.color_label, self.combobox_continuous])
+        self.colorbox = ColorBoxLabel(self)
+        self.combobox_continuous = self.colorbox.combobox_continuous
         self.lT = self.get_lT()
         self.selected_attribute = QComboBox()
         if self.lT:
@@ -198,12 +199,14 @@ class Quantitative(Layer_corrector_Tree_Producer):
         layout = QVBoxLayout()
         layout.addWidget(self.selected_attribute)
         self.miss_data = missing_data()
-        color_button = QPushButton("Color Nodes")
+        color_button = QPushButton("Recolor Dataset")
         color_button.pressed.connect(self.generate_colors)
-        reset_color_button = QPushButton("Reset color Nodes")
+        reset_color_button = QPushButton("Reset Color of Dataset")
         reset_color_button.pressed.connect(self.reset_button_pr)
         cont = containerize([color_button, reset_color_button])
-        layout.addWidget(self.combobox_continuous.native)
+        layout.addWidget(
+            containerize([QLabel("Select Colormap"), self.colorbox])
+        )
         layout.addWidget(self.miss_data)
         layout.addWidget(cont)
         self.setLayout(layout)
@@ -212,7 +215,8 @@ class Quantitative(Layer_corrector_Tree_Producer):
     def generate_colors(self):
         cell_color = {}
         selected_method = self.miss_data.selected()
-        cmap = colormaps[self.combobox_continuous.value]
+        _cmap = AVAILABLE_COLORMAPS[self.combobox_continuous.currentData()]
+        cmap = lambda x: _cmap.map(x)[0]
         attr = self.selected_attribute.currentText()
         if attr == "None":
             warn("Please select a valid attribute", stacklevel=2)
