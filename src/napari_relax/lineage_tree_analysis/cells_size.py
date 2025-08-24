@@ -20,11 +20,16 @@ from .._util_classes import (
     containerize,
     delayedtooltipeventfilter,
 )
-from .._utils import _select_correct_layer
-
-if TYPE_CHECKING:
-    pass
-
+from .._utils import (
+    _select_correct_layer,
+    _transform_float_value_to_slider_int,
+    _transform_slider_int_value_to_float,
+    _infer_point_size
+)
+    
+DEFAULT_MIN_POINT_SIZE = 1
+DEFAULT_MAX_POINT_SIZE = 2000
+DEFAULT_OPTIMAL_POINT_SIZE = 200
 
 class CellSize(Layer_corrector_Tree_Producer):
     """
@@ -43,24 +48,61 @@ class CellSize(Layer_corrector_Tree_Producer):
                 np.array(active.metadata["data"]),
                 **data,
             )
+    
+    def _get_lT_from_layer(self):
+        print("Getting lT from layer...")
+        point_layer = _select_correct_layer(self, Points)
+        print(f"Selected layer: {point_layer.name if point_layer else 'None'}")
+        if point_layer and hasattr(point_layer, "metadata") and "lineageTree" in point_layer.metadata:
+            return point_layer.metadata["lineageTree"]
+        return None
+    
+    def update_slider(self):
+        """Update the slider values after the update button has been pushed.
+        The Points layer holding the lineageTree is used to infer the values.
+        """
+        lT = self._get_lT_from_layer()
+        if lT:
+            min_size, optimal_size, max_size = _infer_point_size(lT)
+            self.slider_float_range = (min_size, max_size)
+        else:
+            self.slider_float_range = (
+                DEFAULT_MIN_POINT_SIZE,
+                DEFAULT_MAX_POINT_SIZE,
+            )
+            optimal_size = _transform_slider_int_value_to_float(
+                self.slider.value(), *self.slider_float_range
+            )
+        self._changes(None, value=optimal_size)
 
-    def _changes(self, event):
+    def _changes(self, event, value=None):
         """
         Changes the size of one or more Points layer.
         """
+        if value:
+            new_size = value
+        else:
+            new_size = _transform_slider_int_value_to_float(
+                self.slider.value(), *self.slider_float_range
+            )
+
         if self.toggle_all.value:
             for layer in self.viewer.layers:
                 if isinstance(layer, Points):
-                    new_size = self.slider.value()  # type: ignore
                     layer.size = new_size
         else:
             active_layer = _select_correct_layer(self, Points)
             if active_layer is None:
                 return
-            new_size = self.slider.value()  # type: ignore
             active_layer.size = new_size
+        if value:
+            self.slider.setValue(
+                _transform_float_value_to_slider_int(
+                    new_size, *self.slider_float_range
+                )
+            )
         self.slider.setToolTip(
-            f"Change the size of the spheres on the viewer. Current size {self.slider.value()}"
+            f"Change the size of the spheres on the viewer. Current size {new_size}"
         )
 
     def see_one_layer(self):
@@ -91,15 +133,26 @@ class CellSize(Layer_corrector_Tree_Producer):
         layout = QVBoxLayout()
         layout.addStretch(1)
         self.setLayout(layout)
-        self.vis_button = widgets.CheckBox(value=False)
-        vis_container = widgets.Container(
-            widgets=[
-                widgets.Label(value="Toggle visibility of other layers"),
-                self.vis_button,
-            ],
-            layout="horizontal",
-            labels=False,
+        
+        # Slider: Change size of spheres
+        self.count = widgets.Label(value="Size of spheres.")
+        self.slider = QSlider()
+        self.slider.setOrientation(Qt.Orientation.Horizontal)
+        self.slider.setTickInterval(1)
+        self.slider.valueChanged.connect(self._changes)
+        self.slider.setMinimum(1)
+        self.slider.setMaximum(100)
+        self.slider.setValue(20)
+        self.slider_float_range = (
+            DEFAULT_MIN_POINT_SIZE,
+            DEFAULT_MAX_POINT_SIZE,
         )
+
+        # Button: update slider values according to current layer
+        update_button = widgets.PushButton(text="Update slider")
+        update_button.clicked.connect(self.update_slider)
+
+        # Checkbox: Change size of all layers or only one
         self.toggle_all = widgets.Checkbox(value=False)
 
         all_container = widgets.Container(
@@ -111,24 +164,28 @@ class CellSize(Layer_corrector_Tree_Producer):
             labels=False,
         )
         all_container.tooltip = "Change the size of all layers instead of only changing the size of only one layer."
-        self.slider = QSlider()
-        self.slider.setOrientation(Qt.Orientation.Horizontal)
-        self.slider.setTickInterval(1)
-        self.slider.setMinimum(0)
-        self.slider.setMaximum(2000)
-        self.slider.setValue(200)
-        track_button = widgets.PushButton(text="Add Tracks")
-        self.count = widgets.Label(value="Size of spheres.")
-        self.slider.valueChanged.connect(self._changes)
-        self.slider.setToolTip(
-            f"Change the size of the spheres on the viewer. Current size {self.slider.value()}"
+
+        # Button: Toggle visibility of other layers
+        self.vis_button = widgets.CheckBox(value=False)
+        vis_container = widgets.Container(
+            widgets=[
+                widgets.Label(value="Toggle visibility of other layers"),
+                self.vis_button,
+            ],
+            layout="horizontal",
+            labels=False,
         )
         self.vis_button.clicked.connect(self.layer_change)
+
+        # Button: Add tracks layer
+        track_button = widgets.PushButton(text="Add Tracks")
+
+        # Assembly
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
         self.layout().addWidget(
             containerize(
-                [self.count.native, self.slider, all_container.native]
+                [self.count.native, self.slider, update_button.native, all_container.native]
             )
         )
 
@@ -139,3 +196,6 @@ class CellSize(Layer_corrector_Tree_Producer):
         self.layout().addWidget(self.tracks_and_vis_cont)
         track_button.clicked.connect(self.add_tracks)
         self.viewer.layers.selection.events.connect(self.layer_change)
+
+        self.update_slider()
+
