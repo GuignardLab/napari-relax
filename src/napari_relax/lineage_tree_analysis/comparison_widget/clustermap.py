@@ -484,13 +484,15 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         """
         if event.value:
             self.lT = self.get_lT()
-            self.labels = self.lT.labels
-            self.range = 1
-            self.names_of_nodes = None
-            self.names_of_roots = None
-            self.label_update()
-            self.tab1.layout().update()
-            self.layout().update()
+            
+            if self.lT:
+                self.labels = self.lT.labels
+                self.range = 1
+                self.names_of_nodes = None
+                self.names_of_roots = None
+                self.label_update()
+                self.tab1.layout().update()
+                self.layout().update()
 
     def update_tree_style(self):
         self.downsampling_widget.visible = False
