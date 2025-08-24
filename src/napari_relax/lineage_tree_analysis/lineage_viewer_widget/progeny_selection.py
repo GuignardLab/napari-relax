@@ -194,8 +194,9 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         self.canvas.setFocusPolicy(Qt.WheelFocus)
         self.canvas.setFocus()
         if self.lT is not None:
+            root_id = self.roots[int(self.graph_slider.value())]
             self.w_lineedit.setPlaceholderText(
-                f"ID of root: {self.roots[int(self.graph_slider.value())]} - Label: {self.lT.labels[self.roots[int(self.graph_slider.value())]]}"
+                f"ID of root: {root_id} - Label: {self.lT.labels[root_id]}"
             )
         self.w_lineedit.clear()
         self.w_lineedit.update()
