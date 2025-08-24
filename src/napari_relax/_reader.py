@@ -15,6 +15,7 @@ from LineageTree import (
     read_from_mamut_xml,
     read_from_mastodon,
     read_from_tgmm_xml,
+    read_from_bmf,
     utils,
 )
 from napari.utils import colormaps
@@ -49,6 +50,7 @@ def napari_get_reader(path):
         or path.lower().endswith(".mastodon")
         or path.lower().endswith(".xml")
         or path.lower().endswith(".csv")
+        or path.lower().endswith(".bmf")
     ):
         return reader_function
 
@@ -99,6 +101,8 @@ def reader_function(path: str):
         lT = loaders[file_type](
             path
         )  # lineageTree(file_format=path, file_type=file_type)
+    elif path.lower().endswith(".bmf"):
+        lT = read_from_bmf(path, store_meshes=True)
     if not hasattr(lT, "time_resolution") or lT.time_resolution == 0:
         t_res = time_res_dialog()
         t_res.exec_()
@@ -106,6 +110,76 @@ def reader_function(path: str):
         if t_res.check_resave:
             lT.write(path)
     return layer_preparation(lT, path)
+
+
+def _extract_napari_surface_from_lT(lT: lineageTree):
+    all_points = np.zeros((0, 4))
+    all_triangles = np.zeros((0, 3), dtype=int)
+
+    values = []
+
+    root_nodes_ids = lT.roots
+    dict_roots_to_successors = {
+        root: lT.get_successors(root) for root in root_nodes_ids
+    }
+
+    dict_successors_to_roots = {
+        successor: root for root, successors in dict_roots_to_successors.items()
+        for successor in successors
+    }
+
+    dict_roots_to_rand = {
+        root: np.random.rand() for root in root_nodes_ids
+    }
+
+    # iterate over all nodes in the lineage tree
+    for node in lT.nodes:
+        root_of_node = dict_successors_to_roots.get(node, node)
+
+        points, triangles = lT.mesh[node].vertices, lT.mesh[node].faces
+        points = points[:, ::-1]  # reverse the order of coordinates to match napari's convention
+
+        time = lT.time[node]
+
+        points = np.hstack((np.full(points.shape[0], time).reshape(-1, 1), points))
+
+        values.append(dict_roots_to_rand[root_of_node] * np.ones(points.shape[0]))
+
+        all_points = np.vstack((all_points, points))
+        all_triangles = np.vstack((all_triangles, triangles + all_points.shape[0] - points.shape[0]))
+
+    values = np.concatenate(values)
+
+    return all_points, all_triangles, values
+    
+
+def _infer_point_size(lT: lineageTree):
+    """
+    Infer a point size based on nearest neighbor distances.
+    Current heuristic is to return the minimum median nearest neighbor distance
+    across all time points in the lineage tree.
+    If no points are found, return a default size of 100.
+    """
+    from time import time
+    t0 = time()
+
+    min_dist = float("inf")
+
+    for t in lT.time_nodes:
+        nodes = lT.nodes_at_t(t)
+        if 1 < len(nodes):
+            idx3d, nodes = lT.get_idx3d(t)
+            min_dist = min(
+                min_dist,
+                np.median(idx3d.query(idx3d.data, k=2)[0][:, 1])
+            )
+
+    print(f"Time to compute points size: {time() - t0:.2f} seconds")
+
+    if min_dist == float("inf"):
+        return 100
+    else:
+        return min_dist
 
 
 def layer_preparation(lT: lineageTree, path: str = ""):
@@ -162,8 +236,13 @@ def layer_preparation(lT: lineageTree, path: str = ""):
     for t, c in last_c_of_track.items():
         for di in lT.successor.get(c, []):
             graph.setdefault(first_c_to_track[di], []).append(t)
+
+    # deduce optimal point size for display based on a heuristic
+    # on nearest neighbor distances
+    size = _infer_point_size(lT)
+
     add_kwargs_point = {
-        "size": 100,
+        "size": size,
         "properties": {
             "clone": clone,
             "Selection": np.zeros_like(clone),
@@ -189,6 +268,44 @@ def layer_preparation(lT: lineageTree, path: str = ""):
         "shading": "spherical",
     }
 
-    return [
-        (data[:, 1:], add_kwargs_point, "points"),
-    ]
+    if not hasattr(lT, "mesh"):
+        return [
+            (data[:, 1:], add_kwargs_point, "points"),
+        ]
+    else:
+        napari_surface = _extract_napari_surface_from_lT(lT)
+
+        root_nodes_ids = lT.roots
+        dict_roots_to_successors = {
+            root: lT.get_successors(root) for root in root_nodes_ids
+        }
+
+        dict_successors_to_roots = {
+            successor: root for root, successors in dict_roots_to_successors.items()
+            for successor in successors
+        }
+
+        vertex_colors = []
+
+        for node_id, mesh in lT.mesh.items():
+            root_node_id = dict_successors_to_roots.get(node_id, node_id)
+            root_index = list(roots).index(root_node_id) + 1
+            vertex_colors.extend(
+                [cmap.map(root_index)] * mesh.vertices.shape[0]
+            )
+
+        napari_surface = (
+            napari_surface[0],
+            napari_surface[1],
+        )
+
+        add_kwargs_surface = {
+            "name": f"{path}_mesh",
+            "vertex_colors": np.array(vertex_colors),
+            "opacity": 0.2,
+        }
+
+        return [
+            (data[:, 1:], add_kwargs_point, "points"),
+            (napari_surface, add_kwargs_surface, "surface"),
+        ]
