@@ -27,7 +27,7 @@ def _select_correct_layer(self, layer_type):
         else:
             for layer in self.viewer.layers:
                 if "link" in layer.metadata:
-                    return active_layer.metadata["link"]
+                    return layer.metadata["link"]
 
 
 def error_image_selection():
