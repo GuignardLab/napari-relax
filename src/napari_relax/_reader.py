@@ -161,20 +161,29 @@ def _infer_point_size(lT: lineageTree):
     If no points are found, return a default size of 100.
     """
     from time import time
+    from tqdm import tqdm
     t0 = time()
+    t1 = 0
+    t2 = 0
 
     min_dist = float("inf")
 
-    for t in lT.time_nodes:
+    for t in tqdm(lT.time_nodes):
+        t1_0 = time()
         nodes = lT.nodes_at_t(t)
+        t1 += time() - t1_0
         if 1 < len(nodes):
+            t2_0 = time()
             idx3d, nodes = lT.get_idx3d(t)
+            t2 += time() - t2_0
             min_dist = min(
                 min_dist,
                 np.median(idx3d.query(idx3d.data, k=2)[0][:, 1])
             )
 
     print(f"Time to compute points size: {time() - t0:.2f} seconds")
+    print(f"  of which {t1:.2f} seconds in getting nodes at time t")
+    print(f"  of which {t2:.2f} seconds in creating/querying idx3d")
 
     if min_dist == float("inf"):
         return 100
@@ -302,7 +311,8 @@ def layer_preparation(lT: lineageTree, path: str = ""):
         add_kwargs_surface = {
             "name": f"{path}_mesh",
             "vertex_colors": np.array(vertex_colors),
-            "opacity": 0.2,
+            "opacity": 0.25,
+            "shading": "smooth",
         }
 
         return [
