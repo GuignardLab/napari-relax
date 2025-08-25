@@ -63,7 +63,7 @@ class CellSize(Layer_corrector_Tree_Producer):
         if lT:
             min_size, optimal_size, max_size = _infer_point_size(lT)
             self.slider_float_range = (min_size, max_size)
-        else:
+        else: # reset to default values
             self.slider_float_range = (
                 DEFAULT_MIN_POINT_SIZE,
                 DEFAULT_MAX_POINT_SIZE,
@@ -77,28 +77,32 @@ class CellSize(Layer_corrector_Tree_Producer):
         """
         Changes the size of one or more Points layer.
         """
-        if value:
-            new_size = value
-        else:
-            new_size = _transform_slider_int_value_to_float(
-                self.slider.value(), *self.slider_float_range
-            )
+        # Determine the new size using a more pythonic approach
+        new_size = value or _transform_slider_int_value_to_float(
+            self.slider.value(), *self.slider_float_range
+        )
 
+        # Apply size changes based on toggle state
         if self.toggle_all.value:
             for layer in self.viewer.layers:
                 if isinstance(layer, Points):
                     layer.size = new_size
         else:
+            # Update only the active layer
             active_layer = _select_correct_layer(self, Points)
             if active_layer is None:
                 return
             active_layer.size = new_size
-        if value:
+        
+        # Update slider position if value was provided externally
+        if value is not None:
             self.slider.setValue(
                 _transform_float_value_to_slider_int(
                     new_size, *self.slider_float_range
                 )
             )
+        
+        # Update tooltip with current size
         self.slider.setToolTip(
             f"Change the size of the spheres on the viewer. Current size {new_size}"
         )
