@@ -30,15 +30,15 @@ def _infer_point_size(lT: "lineageTree"):
 
             nn_dists = idx3d.query(idx3d.data, k=2)[0][:, 1]
 
-            optimal_dist = np.nanmin(
+            optimal_dist = np.nanmin([
                 optimal_dist,
                 np.nanmedian(nn_dists) / 2
-            )
+            ])
 
-            maximal_dist = np.nanmax(
+            maximal_dist = np.nanmax([
                 maximal_dist,
                 np.nanmax(nn_dists) / 2
-            )
+            ])
 
     if optimal_dist == float("inf"):
         optimal_dist = 100

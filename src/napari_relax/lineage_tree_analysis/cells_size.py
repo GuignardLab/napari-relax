@@ -141,7 +141,6 @@ class CellSize(Layer_corrector_Tree_Producer):
         self.slider = QSlider()
         self.slider.setOrientation(Qt.Orientation.Horizontal)
         self.slider.setTickInterval(1)
-        self.slider.valueChanged.connect(self._changes)
         self.slider.setMinimum(1)
         self.slider.setMaximum(100)
         self.slider.setValue(20)
@@ -149,6 +148,7 @@ class CellSize(Layer_corrector_Tree_Producer):
             DEFAULT_MIN_POINT_SIZE,
             DEFAULT_MAX_POINT_SIZE,
         )
+        self.slider.valueChanged.connect(self._changes)
 
         # Button: update slider values according to current layer
         update_button = widgets.PushButton(text="Update slider")
