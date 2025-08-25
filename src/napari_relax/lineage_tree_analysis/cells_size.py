@@ -141,9 +141,14 @@ class CellSize(Layer_corrector_Tree_Producer):
         self.slider = QSlider()
         self.slider.setOrientation(Qt.Orientation.Horizontal)
         self.slider.setTickInterval(1)
+
+        # The slider always has values between 1 and 100, but these values
+        # are mapped to a float range that can be changed according to the
+        # heuristics on the nearest neighbor distances of the lineageTree
         self.slider.setMinimum(1)
         self.slider.setMaximum(100)
         self.slider.setValue(20)
+        # slider_float_range is used to store the actual float range
         self.slider_float_range = (
             DEFAULT_MIN_POINT_SIZE,
             DEFAULT_MAX_POINT_SIZE,
