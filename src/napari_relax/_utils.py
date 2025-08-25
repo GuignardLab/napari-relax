@@ -24,7 +24,7 @@ def _infer_point_size(lT: "lineageTree"):
     maximal_dist = 0
 
     for t in lT.time_nodes:
-        nodes = lT.nodes_at_t(t)
+        nodes = lT.time_nodes[t]
         if 1 < len(nodes):
             idx3d, nodes = lT.get_idx3d(t)
 
