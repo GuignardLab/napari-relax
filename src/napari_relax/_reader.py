@@ -112,21 +112,13 @@ def reader_function(path: str):
     return layer_preparation(lT, path)
 
 
-def _extract_napari_surface_from_lT(lT: lineageTree):
+def _extract_napari_surface_from_lT(lT: lineageTree, dict_successors_to_roots: dict):
     all_points = np.zeros((0, 4))
     all_triangles = np.zeros((0, 3), dtype=int)
 
     values = []
 
     root_nodes_ids = lT.roots
-    dict_roots_to_successors = {
-        root: lT.get_successors(root) for root in root_nodes_ids
-    }
-
-    dict_successors_to_roots = {
-        successor: root for root, successors in dict_roots_to_successors.items()
-        for successor in successors
-    }
 
     dict_roots_to_rand = {
         root: np.random.rand() for root in root_nodes_ids
@@ -170,7 +162,7 @@ def _infer_point_size(lT: lineageTree):
 
     for t in tqdm(lT.time_nodes):
         t1_0 = time()
-        nodes = lT.nodes_at_t(t)
+        nodes = lT.time_nodes[t]
         t1 += time() - t1_0
         if 1 < len(nodes):
             t2_0 = time()
@@ -282,17 +274,16 @@ def layer_preparation(lT: lineageTree, path: str = ""):
             (data[:, 1:], add_kwargs_point, "points"),
         ]
     else:
-        napari_surface = _extract_napari_surface_from_lT(lT)
-
         root_nodes_ids = lT.roots
         dict_roots_to_successors = {
-            root: lT.get_successors(root) for root in root_nodes_ids
+            root: sum(lT.get_all_chains_of_subtree(root), []) for root in root_nodes_ids
         }
 
         dict_successors_to_roots = {
             successor: root for root, successors in dict_roots_to_successors.items()
             for successor in successors
         }
+        napari_surface = _extract_napari_surface_from_lT(lT, dict_successors_to_roots)
 
         vertex_colors = []
 
