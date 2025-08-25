@@ -50,9 +50,7 @@ class CellSize(Layer_corrector_Tree_Producer):
             )
     
     def _get_lT_from_layer(self):
-        print("Getting lT from layer...")
         point_layer = _select_correct_layer(self, Points)
-        print(f"Selected layer: {point_layer.name if point_layer else 'None'}")
         if point_layer and hasattr(point_layer, "metadata") and "lineageTree" in point_layer.metadata:
             return point_layer.metadata["lineageTree"]
         return None
