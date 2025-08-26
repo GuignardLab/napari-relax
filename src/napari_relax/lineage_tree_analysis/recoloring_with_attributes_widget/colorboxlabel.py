@@ -27,8 +27,8 @@ from qtpy.QtWidgets import (
 )
 import matplotlib.pyplot as plt
 from ..._util_classes import (
-    Layer_corrector_Tree_Producer,
-    containerize,
+    LayerCorrectorTreeProducer,
+    Containerize,
 )
 from ..._utils import _select_correct_layer
 
@@ -49,7 +49,7 @@ class ColorBoxLabel(QWidget):
             self.change_color_label
         )
         self.color_label.clicked.connect(self.combobox_continuous.showPopup)
-        color_cont = containerize([self.color_label, self.combobox_continuous])
+        color_cont = Containerize([self.color_label, self.combobox_continuous])
         self.setLayout(QVBoxLayout())
         self.change_color_label()
         self.layout().addWidget(color_cont)

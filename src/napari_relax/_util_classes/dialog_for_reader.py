@@ -2,10 +2,10 @@ from magicgui import widgets
 from napari.qt import get_current_stylesheet
 from qtpy.QtWidgets import QCheckBox, QDialog, QLabel, QPushButton, QVBoxLayout
 
-from .._util_classes import containerize
+from .._util_classes import Containerize
 
 
-class loading_dialog(QDialog):
+class LoadingDialog(QDialog):
     def __init__(self):
         super().__init__()
         layout = QVBoxLayout()
@@ -35,7 +35,7 @@ class loading_dialog(QDialog):
         self.accept()
 
 
-class big_dataset_names_dialog(QDialog):
+class BigDatasetNamesDialog(QDialog):
     """Dialog box to ask the user if they want to continue using big names."""
 
     def __init__(self) -> None:
@@ -53,7 +53,7 @@ class big_dataset_names_dialog(QDialog):
         self.no_but = QPushButton("No")
         self.yes_but.pressed.connect(self.continue_comps)
         self.no_but.pressed.connect(self.stop_comps)
-        self.layout().addWidget(containerize([self.no_but, self.yes_but]))
+        self.layout().addWidget(Containerize([self.no_but, self.yes_but]))
         self.setStyleSheet(get_current_stylesheet())
 
     def stop_comps(self):
@@ -65,7 +65,7 @@ class big_dataset_names_dialog(QDialog):
         self.accept()
 
 
-class time_res_dialog(QDialog):
+class TimeResDialog(QDialog):
     def __init__(self, current=None):
         super().__init__()
         layout = QVBoxLayout()
@@ -82,7 +82,7 @@ class time_res_dialog(QDialog):
         ok_but = widgets.PushButton(text="Ok")
         self.setLayout(layout)
         self.layout().addWidget(
-            containerize([self.tr_edit.native, QLabel("mins")])
+            Containerize([self.tr_edit.native, QLabel("mins")])
         )
         self.layout().addWidget(ok_but.native)
         self.layout().addWidget(self.check_resave)

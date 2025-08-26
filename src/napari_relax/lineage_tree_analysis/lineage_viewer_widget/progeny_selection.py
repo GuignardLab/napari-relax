@@ -20,20 +20,20 @@ from qtpy.QtWidgets import (
 from scipy.spatial import KDTree
 
 from ..._util_classes import (
-    Layer_corrector_Tree_Producer,
-    containerize,
-    delayedtooltipeventfilter,
+    LayerCorrectorTreeProducer,
+    Containerize,
+    DelayedTooltipEventFilter,
     popable_window_for_tree_graph,
-    tooltip_button,
+    TooltipButton,
 )
 from ..._utils import _select_correct_layer
-from .canvas_for_progeny import single_tree_progeny
+from .canvas_for_progeny import SingleTreeProgeny
 
 if TYPE_CHECKING:
     from lineagetree import LineageTree
 
 
-class ProgenySelection(Layer_corrector_Tree_Producer):
+class ProgenySelection(LayerCorrectorTreeProducer):
     # your QWidget.__init__ can optionally request the napari viewer instance
     # in one of two ways:
     # 1. use a parameter called `napari_viewer`, as done here
@@ -429,7 +429,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         )
         cutoff2 = widgets.Button(text="Select Lineage")
         cutoff2.tooltip = "Select the lineage that spawns this node"
-        event_filt = delayedtooltipeventfilter()
+        event_filt = DelayedTooltipEventFilter()
         self.installEventFilter(event_filt)
         cutoff2.clicked.connect(self.points_selector)
         cutoff3 = widgets.Button(text="Select Sub-Lineage")
@@ -441,7 +441,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         self.setLayout(layout)
         self.figure = Figure(figsize=(1, 3), frameon=False)
         self.ax_for_tree_graph = self.figure.add_subplot(111)
-        self.canvas = single_tree_progeny(self.figure, self.ax_for_tree_graph)
+        self.canvas = SingleTreeProgeny(self.figure, self.ax_for_tree_graph)
         label1 = widgets.Label(
             value="""<span style="font-family: Arial; font-size: 20px; color: white;">Lineage Viewer</span>"""
         ).native
@@ -453,7 +453,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
             encoding="utf-8",
         ) as f:
             txt = f.read()
-        self.tooltip = tooltip_button(txt)
+        self.tooltip = TooltipButton(txt)
         self.tooltip.setParent(self)
         self.tooltip.move(int(self.width() - self.tooltip.width()), 0)
         label1.move(int(self.width() / 2) + 10, 0)
@@ -464,7 +464,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         self.config_settings.setIcon(
             QIcon(str(Path(__file__).parent / "gear-bold.svg"))
         )
-        self.pop_win = popable_window_for_tree_graph.setup(self.canvas)
+        self.pop_win = popable_window_for_tree_graph.Setup(self.canvas)
         self.config_settings.clicked.connect(lambda x: self.pop_win.exec_())
         self.config_settings.setFixedSize(30, 30)
 
@@ -476,7 +476,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         self.graph_slider.setToolTip(
             f"Currently {self.range+1} lineages present."
         )
-        self.slider_box = containerize(
+        self.slider_box = Containerize(
             [
                 widgets.Label(value="Lineage slider").native,
                 self.graph_slider,
@@ -484,12 +484,12 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         )
         self.layout().addWidget(self.slider_box)
         self.layout().addWidget(
-            containerize(
+            Containerize(
                 [self.w_lineedit, show_labels.native, remove_label.native]
             )
         )
         self.layout().addWidget(w2.native)
-        self.layout().addWidget(containerize([cutoff2.native, cutoff3.native]))
+        self.layout().addWidget(Containerize([cutoff2.native, cutoff3.native]))
         self.layout().addWidget(w.native)
 
         show_all = QPushButton("Show all")
@@ -501,7 +501,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         show_lin = QPushButton("Show Lineage")
         show_lin.clicked.connect(self.show_lineage)
 
-        shown_cont = containerize([hide_lin, show_lin, hide_all, show_all])
+        shown_cont = Containerize([hide_lin, show_lin, hide_all, show_all])
         self.layout().addWidget(shown_cont)
 
         self.viewer.mouse_drag_callbacks.append(self.point_click)

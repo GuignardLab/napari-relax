@@ -20,7 +20,7 @@ from lineagetree._core import utils
 from napari.utils import colormaps
 from napari.utils.notifications import show_warning
 
-from ._util_classes import loading_dialog, time_res_dialog
+from ._util_classes import LoadingDialog, TimeResDialog
 
 
 def napari_get_reader(path):
@@ -92,7 +92,7 @@ def reader_function(path: str):
     elif path.lower().endswith(".mastodon"):
         lT = read_from_mastodon(path)
     elif path.lower().endswith(".xml"):
-        selector = loading_dialog()
+        selector = LoadingDialog()
         selector.exec_()
         file_type = selector.value_selected
         if file_type is None:
@@ -101,7 +101,7 @@ def reader_function(path: str):
             path
         )  # LineageTree(file_format=path, file_type=file_type)
     if not hasattr(lT, "time_resolution") or lT.time_resolution == 0:
-        t_res = time_res_dialog()
+        t_res = TimeResDialog()
         t_res.exec_()
         lT.time_resolution = t_res.value_selected
         if t_res.check_resave:

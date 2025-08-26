@@ -23,8 +23,8 @@ from qtpy.QtWidgets import (
 )
 
 from ..._util_classes import (
-    Layer_corrector_Tree_Producer,
-    containerize,
+    LayerCorrectorTreeProducer,
+    Containerize,
 )
 from ..._utils import _select_correct_layer
 from .colorboxlabel import ColorBoxLabel
@@ -59,7 +59,7 @@ def filter_dicts_of_objects_by_values(
     return attributes
 
 
-class lineedit_checkbox(QCheckBox):
+class LineeditCheckbox(QCheckBox):
     def __init__(self, parent=None):
         super().__init__("Custom value", parent)
         self.lineedit = QLineEdit()
@@ -79,7 +79,7 @@ class lineedit_checkbox(QCheckBox):
         self.lineedit.setText(str(value))
 
 
-class missing_data(QWidget):
+class MissingData(QWidget):
     def __init__(
         self,
         parent: QWidget | None = None,
@@ -100,7 +100,7 @@ class missing_data(QWidget):
 
         self.buttongroup_default = QButtonGroup()
         self.buttongroup_default.setExclusive(True)
-        self.custom = lineedit_checkbox(self)
+        self.custom = LineeditCheckbox(self)
         self.mean = QCheckBox("Mean", self)
         self.median = QCheckBox("Median", self)
         self.min = QCheckBox("Min", self)
@@ -154,7 +154,7 @@ class missing_data(QWidget):
             return None
 
 
-class Quantitative(Layer_corrector_Tree_Producer):
+class Quantitative(LayerCorrectorTreeProducer):
     color_signal = Signal(dict)
 
     # def change_color_label(self):
@@ -181,7 +181,7 @@ class Quantitative(Layer_corrector_Tree_Producer):
         #     self.change_color_label
         # )
         # self.color_label.clicked.connect(self.combobox_continuous.showPopup)
-        # color_cont = containerize([self.color_label, self.combobox_continuous])
+        # color_cont = Containerize([self.color_label, self.combobox_continuous])
         self.colorbox = ColorBoxLabel(self)
         self.combobox_continuous = self.colorbox.combobox_continuous
         self.lT = self.get_lT()
@@ -195,14 +195,14 @@ class Quantitative(Layer_corrector_Tree_Producer):
             self.selected_attribute.addItem("None")
         layout = QVBoxLayout()
         layout.addWidget(self.selected_attribute)
-        self.miss_data = missing_data()
+        self.miss_data = MissingData()
         color_button = QPushButton("Recolor Dataset")
         color_button.pressed.connect(self.generate_colors)
         reset_color_button = QPushButton("Reset Color of Dataset")
         reset_color_button.pressed.connect(self.reset_button_pr)
-        cont = containerize([color_button, reset_color_button])
+        cont = Containerize([color_button, reset_color_button])
         layout.addWidget(
-            containerize([QLabel("Select Colormap"), self.colorbox])
+            Containerize([QLabel("Select Colormap"), self.colorbox])
         )
         layout.addWidget(self.miss_data)
         layout.addWidget(cont)
@@ -348,7 +348,7 @@ class Quantitative(Layer_corrector_Tree_Producer):
 class Qualitative(QWidget): ...
 
 
-class Coloring(Layer_corrector_Tree_Producer):
+class Coloring(LayerCorrectorTreeProducer):
     name = "coloring"
 
     def __init__(self, napari_viewer):

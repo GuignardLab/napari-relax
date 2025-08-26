@@ -8,7 +8,7 @@ from psygnal import Signal
 from scipy.spatial import KDTree
 
 
-class single_tree_progeny(FigureCanvas):
+class SingleTreeProgeny(FigureCanvas):
     node_signal = Signal(dict)
     color_of_nodes = "black"
     color_of_edges = "black"

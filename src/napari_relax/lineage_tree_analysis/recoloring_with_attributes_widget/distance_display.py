@@ -11,12 +11,12 @@ from qtpy.QtWidgets import (
 )
 from scipy.spatial import KDTree
 
-from ..._util_classes import Layer_corrector_Tree_Producer
+from ..._util_classes import LayerCorrectorTreeProducer
 from ..._utils import _select_correct_layer
 from .coloring import Coloring
 
 
-class DisplayDistances(Layer_corrector_Tree_Producer):
+class DisplayDistances(LayerCorrectorTreeProducer):
     name = "Attribute Based Recoloring"
 
     def point_click(self, viewer, event):

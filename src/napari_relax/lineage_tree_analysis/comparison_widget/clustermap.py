@@ -33,15 +33,15 @@ from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
 
 from ..._util_classes import (
-    Layer_corrector_Tree_Producer,
-    containerize,
-    delayedtooltipeventfilter,
-    tooltip_button,
+    LayerCorrectorTreeProducer,
+    Containerize,
+    DelayedTooltipEventFilter,
+    TooltipButton,
 )
 from ..._utils import _select_correct_layer
 
 
-class Online_clustermap(Layer_corrector_Tree_Producer):
+class OnlineClustermap(LayerCorrectorTreeProducer):
     """
     Widget to produce and load comparisons between lineages, which are used to
     plot Clustermaps and letting the user select respective Lineages.
@@ -531,7 +531,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         """
         super().__init__(napari_viewer)
         self.comps = []
-        event_filt = delayedtooltipeventfilter()
+        event_filt = DelayedTooltipEventFilter()
         self.installEventFilter(event_filt)
         self.pbr = None
         self.times = []
@@ -557,7 +557,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
             txt = f.read()
         self.tree_style_combobox.tooltip = txt
         self.tree_style_combobox.changed.connect(self.update_tree_style)
-        self.styl_combobox = containerize(
+        self.styl_combobox = Containerize(
             [self.tree_style_combobox.native, self.downsampling_widget.native]
         )
         self.downsampling_widget.visible = False
@@ -625,7 +625,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
                 "YlGn",
             ],
         )
-        self.norm_color_cont = containerize(
+        self.norm_color_cont = Containerize(
             [self.norm_combo.native, self.colormap.native]
         )
         self.colormap.changed.connect(self._clustermap_creator)
@@ -695,7 +695,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         self.time_slicer_check = QCheckBox(
             "Select a range of timepoints for comparison"
         )
-        time_slice = containerize(
+        time_slice = Containerize(
             [self.time_slicer_check, self.time_slicer.native], horizontal=False
         )
         self.time_slicer_check.setChecked(True)
@@ -704,7 +704,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         self.time_list_check = QCheckBox(
             "Select the timepoints for comparison"
         )
-        time_list = containerize(
+        time_list = Containerize(
             [self.time_list_check, self.time_list], horizontal=False
         )
         regex = QRegExp(r"^\s*-?\d+\s*(,\s*-?\d+\s*)*$")
@@ -723,7 +723,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         self.tab1.layout().addWidget(time_slice)
         self.tab1.layout().addWidget(time_list)
         self.tab1.layout().addWidget(
-            containerize(
+            Containerize(
                 [
                     widgets.Label(
                         value="Final timepoint of lineagetree"
@@ -751,7 +751,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         self.tab2.layout().setContentsMargins(2, 1, 2, 0)
         self.tab2.layout().addWidget(self.tree_canvas)
         self.tab2.layout().addWidget(
-            containerize(
+            Containerize(
                 [
                     self.reset_colors,
                     self.time_mover_box.native,
@@ -787,7 +787,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
             os.path.join(current_dir, "clustermap.html"), encoding="utf-8"
         ) as f:
             txt2 = f.read()
-        self.tooltip = tooltip_button(txt2)
+        self.tooltip = TooltipButton(txt2)
         self.tooltip.setParent(self)
         self.tooltip.move(int(self.width() - self.tooltip.width()), 0)
         with open(

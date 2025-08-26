@@ -12,18 +12,12 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
 )
 
-from .._util_classes import containerize
+from .._util_classes import Containerize
 from ..lineage_tree_analysis.lineage_viewer_widget.canvas_for_progeny import (
-    single_tree_progeny,
+    SingleTreeProgeny,
 )
 
-if TYPE_CHECKING:
-    from ..lineage_tree_analysis.lineage_viewer_widget.canvas_for_progeny import (
-        single_tree_progeny,
-    )
-
-
-class colored_push_button(QPushButton):
+class ColoredPushButton(QPushButton):
     color_change = Signal(str)
 
     def __init__(self, text="", parent=None, color="magenta"):
@@ -41,10 +35,10 @@ class colored_push_button(QPushButton):
             self.color = color.name()
 
 
-class setup(QDialog):
+class Setup(QDialog):
     sig = Signal(dict)
 
-    def __init__(self, canvas: single_tree_progeny):
+    def __init__(self, canvas: SingleTreeProgeny):
         super().__init__()
         self.setStyleSheet(get_current_stylesheet())
         self.setWindowTitle("Config Tree graph")
@@ -63,13 +57,13 @@ class setup(QDialog):
         apply_but.pressed.connect(self.apply)
 
         label_col_nod = QLabel("Node Color:")
-        edit_col_nod = colored_push_button(
+        edit_col_nod = ColoredPushButton(
             color=self.color_of_nodes,
         )
         edit_col_nod.color_change.connect(
             lambda event: setattr(self, "color_of_nodes", event)
         )
-        col_nod_cont = containerize([label_col_nod, edit_col_nod])
+        col_nod_cont = Containerize([label_col_nod, edit_col_nod])
 
         label_node_size = QLabel("Node Size:")
         self.edit_node_size = QLineEdit(
@@ -78,9 +72,9 @@ class setup(QDialog):
         )  # type: ignore
         self.edit_node_size.setText(self.node_size)
         self.edit_node_size.setValidator(double_validator)
-        nod_size_cont = containerize([label_node_size, self.edit_node_size])
+        nod_size_cont = Containerize([label_node_size, self.edit_node_size])
 
-        edit_col_edg = colored_push_button(color=self.color_of_edges)
+        edit_col_edg = ColoredPushButton(color=self.color_of_edges)
         edit_col_edg.color_change.connect(
             lambda event: setattr(self, "color_of_nodes", event)
         )
@@ -93,7 +87,7 @@ class setup(QDialog):
         self.edit_edge_size.setText(self.lw)
         self.edit_edge_size.setValidator(double_validator)
 
-        edge_size_cont = containerize([label_edge_size, self.edit_edge_size])
+        edge_size_cont = Containerize([label_edge_size, self.edit_edge_size])
 
         label_fontsize_size = QLabel("Fontsize for labels:")
         self.edit_fontsize_size = QLineEdit(
@@ -103,16 +97,16 @@ class setup(QDialog):
         self.edit_fontsize_size.setText(self.fontsize)
         self.edit_fontsize_size.setValidator(double_validator)
 
-        fontsize_cont = containerize(
+        fontsize_cont = Containerize(
             [label_fontsize_size, self.edit_fontsize_size]
         )
 
         label_color_selection = QLabel("Selected Subtrees Color:")
-        edit_color_sel = colored_push_button(color=self.color_of_selection)
+        edit_color_sel = ColoredPushButton(color=self.color_of_selection)
         edit_color_sel.color_change.connect(
             lambda event: setattr(self, "color_of_selection", event)
         )
-        color_of_sel_cont = containerize(
+        color_of_sel_cont = Containerize(
             [label_color_selection, edit_color_sel]
         )
         self.setLayout(layout)
@@ -121,7 +115,7 @@ class setup(QDialog):
         self.layout().addWidget(edge_size_cont)
         self.layout().addWidget(fontsize_cont)
         self.layout().addWidget(color_of_sel_cont)
-        self.layout().addWidget(containerize([reset_but, apply_but]))
+        self.layout().addWidget(Containerize([reset_but, apply_but]))
 
     def reset(self):
         """Resets the colors of the tree graph."""

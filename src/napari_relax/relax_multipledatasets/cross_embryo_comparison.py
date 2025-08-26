@@ -36,16 +36,16 @@ from scipy.spatial.distance import squareform
 
 from .._reader import layer_preparation
 from .._util_classes import (
-    Layer_corrector_Tree_Producer,
+    LayerCorrectorTreeProducer,
     QtViewerWrap,
-    big_dataset_names_dialog,
-    containerize,
-    delayedtooltipeventfilter,
+    BigDatasetNamesDialog,
+    Containerize,
+    DelayedTooltipEventFilter,
     tab_template,
 )
 
 
-class minimal_cell_size(Layer_corrector_Tree_Producer):
+class MinimalCellSize(LayerCorrectorTreeProducer):
     def change(
         self,
         viewer: QtViewerWrap,
@@ -75,7 +75,7 @@ class minimal_cell_size(Layer_corrector_Tree_Producer):
 
     def __init__(self, napari_viewer, napari_viewer_1, napari_viewer_2):
         super().__init__(napari_viewer)
-        event_filt = delayedtooltipeventfilter()
+        event_filt = DelayedTooltipEventFilter()
         self.installEventFilter(event_filt)
         self.viewer_1 = napari_viewer_1
         self.viewer_2 = napari_viewer_2
@@ -127,7 +127,7 @@ class minimal_cell_size(Layer_corrector_Tree_Producer):
         )
         self.slider_1.valueChanged.connect(self.change_size_1)
 
-        slid_container = containerize(
+        slid_container = Containerize(
             [self.slider_1, self.slider_2], horizontal=False
         )
         slid_container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -139,7 +139,7 @@ class minimal_cell_size(Layer_corrector_Tree_Producer):
         self.layout().addWidget(toggle_container.native)
 
 
-class Embryo_comparisons(Layer_corrector_Tree_Producer):
+class Embryo_comparisons(LayerCorrectorTreeProducer):
     name = "Embryo comparisons"
 
     def get_lt_manager(self, signal):
@@ -238,7 +238,7 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
             ax (ax object): Matplotlib object where the tree will be graphed.
         """
         lT = self.manager.lineagetrees[lineagetree_name]
-        index = Layer_corrector_Tree_Producer(self.viewer).val_finder(
+        index = LayerCorrectorTreeProducer(self.viewer).val_finder(
             node, lT, self.layers[lineagetree_name].metadata["graphs"][0]
         )
         ax.clear()
@@ -533,7 +533,7 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
         self.norms = []
         for lineagetree in self.manager.lineagetrees:
             if len(lineagetree) > 6:
-                continue_comps = big_dataset_names_dialog()
+                continue_comps = BigDatasetNamesDialog()
                 continue_comps.exec_()
                 continue_comps = continue_comps.continue_proccess
                 break
@@ -595,7 +595,7 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
         viewer_splitter = QSplitter()
         viewer_splitter.setOrientation(Qt.Vertical)
         viewer_splitter.addWidget(self.qt_viewer1)
-        sliders = minimal_cell_size(
+        sliders = MinimalCellSize(
             napari_viewer, self.viewer_model1, self.viewer_model2
         )
         self.norm_combo = widgets.ComboBox(
@@ -659,7 +659,7 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
         self.tree_style_combobox = widgets.ComboBox(
             value="simple", choices=self.possible_styles
         )
-        self.styl_combobox = containerize(
+        self.styl_combobox = Containerize(
             [self.tree_style_combobox.native, self.downsampling_widget]
         )
         self.tree_style_combobox.changed.connect(self.update_tree_style)
@@ -719,7 +719,7 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
         self.tab2.layout().addWidget(self.tree_canvas)
 
         self.tab2.layout().addWidget(
-            containerize([self.norm_combo.native, self.colormap.native])
+            Containerize([self.norm_combo.native, self.colormap.native])
         )
         self.tab2.layout().addWidget(self.time_mover_box.native)
         self.tab2.layout().addWidget(self.time_mover_box.native)

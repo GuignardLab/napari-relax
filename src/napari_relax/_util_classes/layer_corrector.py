@@ -7,7 +7,7 @@ from qtpy.QtWidgets import (
 from .._utils import _select_correct_layer
 
 
-class Layer_corrector_Tree_Producer(QWidget):
+class LayerCorrectorTreeProducer(QWidget):
     """
     Parent Class that is called inside the plugin, it produces no interface.
     Contains functions that are useful for the used Widgets inside the plugin:

@@ -13,13 +13,13 @@ from qtpy.QtWidgets import (
 
 from .._reader import layer_preparation
 from .._util_classes import (
-    Layer_corrector_Tree_Producer,
-    containerize,
-    time_res_dialog,
+    LayerCorrectorTreeProducer,
+    Containerize,
+    TimeResDialog,
 )
 
 
-class cross_embryo(Layer_corrector_Tree_Producer):
+class CrossEmbryo(LayerCorrectorTreeProducer):
     name = "Manager Manipulation"
 
     send_manager_to_classes = Signal(LineageTreeManager)
@@ -152,7 +152,7 @@ class cross_embryo(Layer_corrector_Tree_Producer):
 
     def change_time_resolution(self, source, pos: QtCore.QPoint):
         lt = self.manager.lineagetrees[source.itemAt(pos).text()]
-        t_res = time_res_dialog(lt.time_resolution)
+        t_res = TimeResDialog(lt.time_resolution)
         t_res.exec_()
         lt.time_resolution = t_res.value_selected
 
@@ -169,7 +169,7 @@ class cross_embryo(Layer_corrector_Tree_Producer):
         )
         self.save_manager_button = QPushButton("Save Manager")
         self.save_manager_button.native = self.save_manager_button
-        self.save_ltm_container = containerize(
+        self.save_ltm_container = Containerize(
             [self.save_manager_widget.native, self.save_manager_button.native]
         )
         self.load_ltm_file = widgets.FileEdit(
@@ -177,7 +177,7 @@ class cross_embryo(Layer_corrector_Tree_Producer):
         )
         self.load_manager = QPushButton("Load a Manager")
         self.load_manager.native = self.load_manager
-        self.loading_cont = containerize(
+        self.loading_cont = Containerize(
             [self.load_ltm_file.native, self.load_manager.native]
         )
         self.create_manager = QPushButton(
@@ -189,7 +189,7 @@ class cross_embryo(Layer_corrector_Tree_Producer):
         )
         self.add_emb = QPushButton("Add LineageTrees")
         self.add_emb.native = self.add_emb
-        self.add_emb_container = containerize(
+        self.add_emb_container = Containerize(
             [self.add_lT_to_manager.native, self.add_emb.native]
         )
         self.add_layer = QPushButton("Add selected lineageTrees to viewer")

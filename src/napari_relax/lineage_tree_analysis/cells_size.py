@@ -17,9 +17,9 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QPushButton, QSlider, QVBoxLayout
 
 from .._util_classes import (
-    Layer_corrector_Tree_Producer,
-    containerize,
-    delayedtooltipeventfilter,
+    LayerCorrectorTreeProducer,
+    Containerize,
+    DelayedTooltipEventFilter,
 )
 from .._utils import _select_correct_layer
 
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     pass
 
 
-class CellSize(Layer_corrector_Tree_Producer):
+class CellSize(LayerCorrectorTreeProducer):
     """
     Changes the size of the Points in Point layer.
     It's added on to all widgets.
@@ -92,7 +92,7 @@ class CellSize(Layer_corrector_Tree_Producer):
 
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
-        event_filt = delayedtooltipeventfilter()
+        event_filt = DelayedTooltipEventFilter()
         self.installEventFilter(event_filt)
         self.viewer = napari_viewer
         layout = QVBoxLayout()
@@ -125,7 +125,7 @@ class CellSize(Layer_corrector_Tree_Producer):
         )
         self.save_button = QPushButton("Save LineageTree")
         self.save_button.native = self.save_button
-        self.save_container = containerize(
+        self.save_container = Containerize(
             [self.save_widget.native, self.save_button.native]
         )
         self.slider = QSlider()
@@ -142,11 +142,11 @@ class CellSize(Layer_corrector_Tree_Producer):
         )
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
-        cont = containerize(
+        cont = Containerize(
             [self.count.native, self.slider, all_container.native]
         )
 
-        self.tracks_and_vis_cont = containerize(
+        self.tracks_and_vis_cont = Containerize(
             [vis_container.native, track_button.native]
         )
 
