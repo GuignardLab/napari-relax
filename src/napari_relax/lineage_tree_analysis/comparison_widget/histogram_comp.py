@@ -21,6 +21,8 @@ class HistogramWidget(QWidget):
             self.layer_change()
             self.main_hist.slider.max = len(self.comparisons) - 1
             self.master_slider.max = len(self.comparisons) - 1
+            self.master_slider.value = 0
+            self.main_hist.slider.value = 0
             self.main_hist.update_values(
                 data_from_clustermap, self.labels, self.times
             )
@@ -77,7 +79,6 @@ class HistogramWidget(QWidget):
     def remove_hist(self, obj: QWidget):
         self.container.layout().removeWidget(obj)
         obj.setParent(None)
-        self.all_histograms.remove(obj)
         obj.deleteLater()
         self.container.update()
 
