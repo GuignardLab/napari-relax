@@ -8,14 +8,14 @@ from .eventfilter_for_delayed_tooltip import (
     DelayedTooltipEventFilter,
 )
 from .layer_corrector import LayerCorrectorTreeProducer
-from .tab_template import tab_template
+from .tab_template import TabTemplate
 from .tooltip import TooltipButton
 from .viewer_wrapper import QtViewerWrap
 
 __all__ = (
     "Containerize",
     "LayerCorrectorTreeProducer",
-    "tab_template",
+    "TabTemplate",
     "QtViewerWrap",
     "single_tree",
     "LoadingDialog",

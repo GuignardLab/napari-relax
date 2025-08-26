@@ -41,7 +41,7 @@ from .._util_classes import (
     BigDatasetNamesDialog,
     Containerize,
     DelayedTooltipEventFilter,
-    tab_template,
+    TabTemplate,
 )
 
 
@@ -171,7 +171,7 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
             self.root_tabs.addTab(default_tab, "Empty Layout")
         else:
             for item in selected_items:
-                self.tab_dictionary[item.text()] = tab_template(
+                self.tab_dictionary[item.text()] = TabTemplate(
                     self.manager.lineagetrees[item.text()], item.text()
                 )
                 self.root_tabs.addTab(
