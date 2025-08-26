@@ -52,7 +52,7 @@ class DisplayDistances(LayerCorrectorTreeProducer):
                 min_t = lT.t_b
                 max_t = lT.t_e
                 times = sorted(set(lT.time.values()))
-                nb_cells = np.array([len(lT.nodes_at_t(t=t)) for t in times])
+                nb_cells = np.array([len(lT.time_nodes[t]) for t in times])
                 last_change = {min_t: min_t}
                 last_time_change = min_t
                 for t, change in zip(
