@@ -222,15 +222,15 @@ class CellSize(LayerCorrectorTreeProducer):
         cont = Containerize(
             [self.count.native, self.slider, all_container.native]
         )
+        cont.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().addWidget(cont)
 
         self.tracks_and_vis_cont = Containerize(
             [vis_container.native, track_button.native]
         )
-
-        cont.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().addWidget(cont)
         self.tracks_and_vis_cont.layout().setContentsMargins(0, 0, 0, 0)
         self.tracks_and_vis_cont.layout().setSpacing(0)
+
         self.layout().addWidget(self.tracks_and_vis_cont)
         self.layout().addWidget(self.save_container)
 
