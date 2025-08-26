@@ -2,7 +2,7 @@ from collections.abc import Iterable
 
 import matplotlib.pyplot as plt
 import numpy as np
-from LineageTree import lineageTree
+from lineagetree import LineageTree
 from napari.qt import get_current_stylesheet
 from qtpy.QtWidgets import (
     QMessageBox,
@@ -138,8 +138,8 @@ def error_cell_selection():
     msg.exec_()
 
 
-def extract_lineage(main_lT: lineageTree, roots: int | list | set):
-    new_lT = lineageTree()
+def extract_lineage(main_lT: LineageTree, roots: int | list | set):
+    new_lT = LineageTree()
     if not isinstance(roots, Iterable):
         roots = [roots]
     for r in roots:
@@ -172,7 +172,7 @@ def extract_lineage(main_lT: lineageTree, roots: int | list | set):
 
 
 def inject_lineage(
-    main_lineageTree: lineageTree, extracted_lineageTree: lineageTree
+    main_lineageTree: LineageTree, extracted_lineageTree: LineageTree
 ):
     main_lineageTree.nodes.update(extracted_lineageTree.nodes)
     main_lineageTree.predecessor.update(extracted_lineageTree.predecessor)
@@ -210,7 +210,7 @@ def rotate_3d(
     return R
 
 
-def create_links_and_chains(lT: lineageTree, roots: list | set | int):
+def create_links_and_chains(lT: LineageTree, roots: list | set | int):
     """Generates a dictionary containing the links and the lengths of each chain.
     Similar to simple tree, mainly used for tree manip app.
 

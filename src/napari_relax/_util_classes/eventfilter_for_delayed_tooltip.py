@@ -2,9 +2,9 @@ from qtpy.QtCore import QEvent, QObject, QTimer
 from qtpy.QtWidgets import QToolTip
 
 
-class delayedtooltipeventfilter(QObject):
+class DelayedTooltipEventFilter(QObject):
     """Event filter for showing a tooltip with a delay
-    Easily installable in any QObject by QObject.installEventFilter(delayedtooltipeventfilter)
+    Easily installable in any QObject by QObject.installEventFilter(DelayedTooltipEventFilter)
 
     """
 

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import mplcursors
 import numpy as np
 import seaborn as sns
-from LineageTree.tree_approximation import tree_style
+from lineagetree.tree_approximation import tree_style
 from magicgui import widgets
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
@@ -16,7 +16,7 @@ from matplotlib.backends.backend_qt5agg import (
 from matplotlib.figure import Figure
 from napari._qt.qthreading import thread_worker
 from napari.layers import Points
-from napari.utils import progress
+from napari.utils import notifications, progress
 from qtpy.QtCore import QRegExp
 from qtpy.QtGui import QIntValidator, QRegExpValidator
 from qtpy.QtWidgets import (
@@ -33,15 +33,15 @@ from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
 
 from ..._util_classes import (
-    Layer_corrector_Tree_Producer,
-    containerize,
-    delayedtooltipeventfilter,
-    tooltip_button,
+    LayerCorrectorTreeProducer,
+    Containerize,
+    DelayedTooltipEventFilter,
+    TooltipButton,
 )
 from ..._utils import _select_correct_layer
 
 
-class Online_clustermap(Layer_corrector_Tree_Producer):
+class OnlineClustermap(LayerCorrectorTreeProducer):
     """
     Widget to produce and load comparisons between lineages, which are used to
     plot Clustermaps and letting the user select respective Lineages.
@@ -161,7 +161,6 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
                 self.tree_canvas.draw()
                 active_layer.selected_data.clear()
             active_layer.refresh()
-            # self.figure.tight_layout()
             if self.time_mover.value:
                 camera_pan = self.viewer.dims.current_step
                 self.viewer.dims.current_step = (
@@ -308,8 +307,17 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         self.naming = []
         self.norms = []
         self.worker = self.thread_worker()
-
         self.times_selector()
+        # if (
+        #     max([self.lT.time[root] for root in self.specific_roots])
+        #     > self.times[0]
+        # ):
+        #     self.kill_thread()
+        #     self.runbutton.setChecked(False)
+        #     notifications.show_error(
+        #         "Do not use a starting point before the roots"
+        #     )
+        #     return
         if not self.times:
             self.worker.quit()
             return
@@ -395,6 +403,12 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
             start = self.time_slicer.value.start
             stop = self.time_slicer.value.stop
             step = self.time_slicer.value.step
+            if start < self.lT.t_b:
+                notifications.show_error(
+                    "Starting timepoint cannot be smaller than the first timepoint of the dataset."
+                )
+                self.kill_thread()
+                return
             if step == 0 or start == stop:
                 self.times = [start]
             else:
@@ -422,6 +436,8 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
             self.specific_roots.append(
                 self.list_of_selected_nodes[index.row()][0]
             )
+        if self.specific_roots == []:
+            self.specific_roots = self.lT.time_nodes[self.lT.t_b]
 
     def save_dictionary(self):
         """
@@ -484,6 +500,14 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         """
         if event.value:
             self.lT = self.get_lT()
+            if self.lT:
+                start = self.lT.t_b
+                stop = self.lT.t_b + 30
+            else:
+                start = 0
+                stop = 30
+            self.time_slicer.start.value = start
+            self.time_slicer.stop.value = stop
             self.labels = self.lT.labels
             self.range = 1
             self.names_of_nodes = None
@@ -507,13 +531,14 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         """
         super().__init__(napari_viewer)
         self.comps = []
-        event_filt = delayedtooltipeventfilter()
+        event_filt = DelayedTooltipEventFilter()
         self.installEventFilter(event_filt)
         self.pbr = None
         self.times = []
         self.viewer = napari_viewer
         self.lT = self.get_lT()
         if self.lT:
+            self.specific_roots = self.lT.time_nodes[self.lT.t_b]
             self.labels = self.lT.labels
         self.time = 1
         self.crop = None
@@ -532,7 +557,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
             txt = f.read()
         self.tree_style_combobox.tooltip = txt
         self.tree_style_combobox.changed.connect(self.update_tree_style)
-        self.styl_combobox = containerize(
+        self.styl_combobox = Containerize(
             [self.tree_style_combobox.native, self.downsampling_widget.native]
         )
         self.downsampling_widget.visible = False
@@ -600,7 +625,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
                 "YlGn",
             ],
         )
-        self.norm_color_cont = containerize(
+        self.norm_color_cont = Containerize(
             [self.norm_combo.native, self.colormap.native]
         )
         self.colormap.changed.connect(self._clustermap_creator)
@@ -615,6 +640,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         self.list_widget = QListWidget()
         self.list_widget.setSelectionMode(QListWidget.MultiSelection)
         if self.lT:
+            self.specific_roots = self.lT.time_nodes[self.lT.t_b]
             selected_nodes = []
             already_used_nodes = set()
             for node, label in self.lT.labels.items():
@@ -659,11 +685,17 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         label_for_style = widgets.Label(
             value="Select approximation for tree comparison.\n"
         )
-        self.time_slicer = widgets.SliceEdit(0, 30, 5, min=0)
+        if self.lT:
+            start = self.lT.t_b
+            stop = self.lT.t_b + 30
+        else:
+            start = 0
+            stop = 30
+        self.time_slicer = widgets.SliceEdit(start, stop, 5, min=0)
         self.time_slicer_check = QCheckBox(
             "Select a range of timepoints for comparison"
         )
-        time_slice = containerize(
+        time_slice = Containerize(
             [self.time_slicer_check, self.time_slicer.native], horizontal=False
         )
         self.time_slicer_check.setChecked(True)
@@ -672,7 +704,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         self.time_list_check = QCheckBox(
             "Select the timepoints for comparison"
         )
-        time_list = containerize(
+        time_list = Containerize(
             [self.time_list_check, self.time_list], horizontal=False
         )
         regex = QRegExp(r"^\s*-?\d+\s*(,\s*-?\d+\s*)*$")
@@ -691,7 +723,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         self.tab1.layout().addWidget(time_slice)
         self.tab1.layout().addWidget(time_list)
         self.tab1.layout().addWidget(
-            containerize(
+            Containerize(
                 [
                     widgets.Label(
                         value="Final timepoint of lineagetree"
@@ -719,7 +751,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         self.tab2.layout().setContentsMargins(2, 1, 2, 0)
         self.tab2.layout().addWidget(self.tree_canvas)
         self.tab2.layout().addWidget(
-            containerize(
+            Containerize(
                 [
                     self.reset_colors,
                     self.time_mover_box.native,
@@ -737,6 +769,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
 
         self.tabs.addTab(self.tab1, "Configuration Options")
         self.tabs.addTab(self.tab2, "Tree Plots")
+
         self.setLayout(layout)
         self.layout().addWidget(self.tabs)
         self.layout().addWidget(self.button_container.native)
@@ -754,7 +787,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
             os.path.join(current_dir, "clustermap.html"), encoding="utf-8"
         ) as f:
             txt2 = f.read()
-        self.tooltip = tooltip_button(txt2)
+        self.tooltip = TooltipButton(txt2)
         self.tooltip.setParent(self)
         self.tooltip.move(int(self.width() - self.tooltip.width()), 0)
         with open(

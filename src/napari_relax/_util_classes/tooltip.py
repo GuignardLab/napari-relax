@@ -1,7 +1,7 @@
 from qtpy.QtWidgets import QPushButton
 
 
-class tooltip_button(QPushButton):
+class TooltipButton(QPushButton):
     def __init__(self, tooltip=""):
         super().__init__()
         self.setText("?")

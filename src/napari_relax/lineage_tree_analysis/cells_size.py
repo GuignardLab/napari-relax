@@ -7,18 +7,19 @@ see: https://napari.org/stable/plugins/guides.html?#widgets
 Replace code below according to your needs.
 """
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
 from magicgui import widgets
 from napari.layers import Points
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QSlider, QVBoxLayout
+from qtpy.QtWidgets import QPushButton, QSlider, QVBoxLayout
 
 from .._util_classes import (
-    Layer_corrector_Tree_Producer,
-    containerize,
-    delayedtooltipeventfilter,
+    LayerCorrectorTreeProducer,
+    Containerize,
+    DelayedTooltipEventFilter,
 )
 from .._utils import (
     _select_correct_layer,
@@ -31,14 +32,14 @@ DEFAULT_MIN_POINT_SIZE = 1
 DEFAULT_MAX_POINT_SIZE = 2000
 DEFAULT_OPTIMAL_POINT_SIZE = 200
 
-class CellSize(Layer_corrector_Tree_Producer):
+class CellSize(LayerCorrectorTreeProducer):
     """
     Changes the size of the Points in Point layer.
     It's added on to all widgets.
     """
 
     def add_tracks(self, event):
-        "Adds the tracks layer of a specific lineageTree points layer."
+        "Adds the tracks layer of a specific LineageTree points layer."
         active = _select_correct_layer(self, Points)
         if active:
             data = active.metadata["graph_to_create_tracks"]
@@ -127,13 +128,20 @@ class CellSize(Layer_corrector_Tree_Producer):
             else:
                 self.see_all_layers()
 
+    def write_embryo(self):
+        lT = self.get_lT()
+        if lT:
+            txt = Path(self.save_widget.value)
+            lT.write(str(txt))
+
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
-        event_filt = delayedtooltipeventfilter()
+        event_filt = DelayedTooltipEventFilter()
         self.installEventFilter(event_filt)
         self.viewer = napari_viewer
         layout = QVBoxLayout()
-        layout.addStretch(1)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
         self.setLayout(layout)
         
         # Slider: Change size of spheres
@@ -141,6 +149,7 @@ class CellSize(Layer_corrector_Tree_Producer):
         self.slider = QSlider()
         self.slider.setOrientation(Qt.Orientation.Horizontal)
         self.slider.setTickInterval(1)
+        self.slider.setContentsMargins(0, 0, 0, 0)
 
         # The slider always has values between 1 and 100, but these values
         # are mapped to a float range that can be changed according to the
@@ -182,6 +191,7 @@ class CellSize(Layer_corrector_Tree_Producer):
             layout="horizontal",
             labels=False,
         )
+        vis_container.native.layout().setContentsMargins(0, 0, 0, 0)
         self.vis_button.clicked.connect(self.layer_change)
 
         # Button: Add tracks layer
@@ -191,18 +201,40 @@ class CellSize(Layer_corrector_Tree_Producer):
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
         self.layout().addWidget(
-            containerize(
+            Containerize(
                 [self.count.native, self.slider, update_button.native, all_container.native]
             )
         )
 
-        self.tracks_and_vis_cont = containerize(
+        # Save LineageTree widget
+        self.save_widget = widgets.FileEdit(
+            mode="w", value=Path(".").absolute(), filter="*.lT"
+        )
+        self.save_button = QPushButton("Save LineageTree")
+        self.save_button.native = self.save_button
+        self.save_container = Containerize(
+            [self.save_widget.native, self.save_button.native]
+        )
+        self.save_button.clicked.connect(self.write_embryo)
+        self.save_container.layout().setContentsMargins(0, 15, 0, 0)
+        self.save_container.layout().setSpacing(0)
+
+        cont = Containerize(
+            [self.count.native, self.slider, all_container.native]
+        )
+
+        self.tracks_and_vis_cont = Containerize(
             [vis_container.native, track_button.native]
         )
 
+        cont.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().addWidget(cont)
+        self.tracks_and_vis_cont.layout().setContentsMargins(0, 0, 0, 0)
+        self.tracks_and_vis_cont.layout().setSpacing(0)
         self.layout().addWidget(self.tracks_and_vis_cont)
+        self.layout().addWidget(self.save_container)
+
         track_button.clicked.connect(self.add_tracks)
         self.viewer.layers.selection.events.connect(self.layer_change)
 
         self.update_slider()
-
