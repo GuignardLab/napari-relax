@@ -33,7 +33,7 @@ dependencies = [
     "magicgui",
     "qtpy",
     "matplotlib",
-    "LineageTree",
+    "lineagetree>=3.0.0",
     "mplcursors",
     "seaborn",
 ]

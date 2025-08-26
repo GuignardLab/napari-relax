@@ -1,13 +1,15 @@
 import copy
 from functools import partial
 from itertools import combinations
+from pathlib import Path
 from time import sleep
 
 import matplotlib.pyplot as plt
 import mplcursors
+import pickle
 import numpy as np
 import seaborn as sns
-from LineageTree.tree_approximation import tree_style
+from lineagetree.tree_approximation import tree_style
 from magicgui import widgets
 from matplotlib.backends.backend_qtagg import (
     FigureCanvasQTAgg as FigureCanvas,
@@ -34,16 +36,16 @@ from scipy.spatial.distance import squareform
 
 from .._reader import layer_preparation
 from .._util_classes import (
-    Layer_corrector_Tree_Producer,
+    LayerCorrectorTreeProducer,
     QtViewerWrap,
-    big_dataset_names_dialog,
-    containerize,
-    delayedtooltipeventfilter,
-    tab_template,
+    BigDatasetNamesDialog,
+    Containerize,
+    DelayedTooltipEventFilter,
+    TabTemplate,
 )
 
 
-class minimal_cell_size(Layer_corrector_Tree_Producer):
+class MinimalCellSize(LayerCorrectorTreeProducer):
     def change(
         self,
         viewer: QtViewerWrap,
@@ -73,7 +75,7 @@ class minimal_cell_size(Layer_corrector_Tree_Producer):
 
     def __init__(self, napari_viewer, napari_viewer_1, napari_viewer_2):
         super().__init__(napari_viewer)
-        event_filt = delayedtooltipeventfilter()
+        event_filt = DelayedTooltipEventFilter()
         self.installEventFilter(event_filt)
         self.viewer_1 = napari_viewer_1
         self.viewer_2 = napari_viewer_2
@@ -125,7 +127,7 @@ class minimal_cell_size(Layer_corrector_Tree_Producer):
         )
         self.slider_1.valueChanged.connect(self.change_size_1)
 
-        slid_container = containerize(
+        slid_container = Containerize(
             [self.slider_1, self.slider_2], horizontal=False
         )
         slid_container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -137,7 +139,7 @@ class minimal_cell_size(Layer_corrector_Tree_Producer):
         self.layout().addWidget(toggle_container.native)
 
 
-class Embryo_comparisons(Layer_corrector_Tree_Producer):
+class Embryo_comparisons(LayerCorrectorTreeProducer):
     name = "Embryo comparisons"
 
     def get_lt_manager(self, signal):
@@ -169,7 +171,7 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
             self.root_tabs.addTab(default_tab, "Empty Layout")
         else:
             for item in selected_items:
-                self.tab_dictionary[item.text()] = tab_template(
+                self.tab_dictionary[item.text()] = TabTemplate(
                     self.manager.lineagetrees[item.text()], item.text()
                 )
                 self.root_tabs.addTab(
@@ -217,7 +219,7 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
 
     def reset_graph(self, cell, index, lineagetree_name):
         layer = self.layers[lineagetree_name]
-        lt = layer.metadata["lineageTree"]
+        lt = layer.metadata["LineageTree"]
         if cell in layer.metadata["graphs"][0][index]:
             prev, after = (
                 lt.get_node_chain(cell)[0],
@@ -236,7 +238,7 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
             ax (ax object): Matplotlib object where the tree will be graphed.
         """
         lT = self.manager.lineagetrees[lineagetree_name]
-        index = Layer_corrector_Tree_Producer(self.viewer).val_finder(
+        index = LayerCorrectorTreeProducer(self.viewer).val_finder(
             node, lT, self.layers[lineagetree_name].metadata["graphs"][0]
         )
         ax.clear()
@@ -283,7 +285,7 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
         }
         self.viewer.layers.selection.active = self.layers[lineagetree_name]
         active_layer = viewer.layers.selection.active
-        lT = active_layer.metadata["lineageTree"]
+        lT = active_layer.metadata["LineageTree"]
         active_layer.selected_data.add(
             active_layer.metadata["lT2napari"][node]
         )
@@ -404,19 +406,15 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
             hover=2,  # Transient
             annotation_kwargs={
                 "bbox": {
-                    "boxstyle": "square,pad=0.3",
+                    "boxstyle": "square,pad=0.2",
                     "facecolor": "white",
+                    "alpha": 0.2,
                     "edgecolor": "#ddd",
-                    "linewidth": 0.5,
-                    "path_effects": [
-                        withSimplePatchShadow(offset=(1.5, -1.5))
-                    ],
+                    "linewidth": 0.3,
                 },
-                "linespacing": 1.5,
+                "linespacing": 1,
                 "arrowprops": None,
             },
-            highlight=False,
-            highlight_kwargs={"linewidth": 2},
         )
         cursor.connect(
             "add",
@@ -425,6 +423,26 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
             ),
         )
         self.canvas.draw()
+
+    def save_dictionary(self):
+        roots = {}
+        times = {}
+        end_times = {}
+        for tab in self.tab_dictionary:
+            roots[tab] = self.tab_dictionary[tab].show_roots()
+            times[tab] = self.tab_dictionary[tab].ret_times()
+            end_times[tab] = self.tab_dictionary[tab].time_crop
+
+        data = {
+            "roots": roots,
+            "times": times,
+            "end_times": end_times,
+            "comparisons": self.comparisons,
+            "norms": self.norms,
+            "names": self.names,
+        }
+        with open(str(self.save_pkl.value), "wb") as f:
+            pickle.dump(data, f)
 
     @thread_worker
     def roots_selector(self):
@@ -515,7 +533,7 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
         self.norms = []
         for lineagetree in self.manager.lineagetrees:
             if len(lineagetree) > 6:
-                continue_comps = big_dataset_names_dialog()
+                continue_comps = BigDatasetNamesDialog()
                 continue_comps.exec_()
                 continue_comps = continue_comps.continue_proccess
                 break
@@ -577,7 +595,7 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
         viewer_splitter = QSplitter()
         viewer_splitter.setOrientation(Qt.Vertical)
         viewer_splitter.addWidget(self.qt_viewer1)
-        sliders = minimal_cell_size(
+        sliders = MinimalCellSize(
             napari_viewer, self.viewer_model1, self.viewer_model2
         )
         self.norm_combo = widgets.ComboBox(
@@ -641,7 +659,7 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
         self.tree_style_combobox = widgets.ComboBox(
             value="simple", choices=self.possible_styles
         )
-        self.styl_combobox = containerize(
+        self.styl_combobox = Containerize(
             [self.tree_style_combobox.native, self.downsampling_widget]
         )
         self.tree_style_combobox.changed.connect(self.update_tree_style)
@@ -701,7 +719,7 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
         self.tab2.layout().addWidget(self.tree_canvas)
 
         self.tab2.layout().addWidget(
-            containerize([self.norm_combo.native, self.colormap.native])
+            Containerize([self.norm_combo.native, self.colormap.native])
         )
         self.tab2.layout().addWidget(self.time_mover_box.native)
         self.tab2.layout().addWidget(self.time_mover_box.native)
@@ -725,3 +743,16 @@ class Embryo_comparisons(Layer_corrector_Tree_Producer):
         self.stopbutton.released.connect(self.kill_thread)
         self.stopbutton.setChecked(True)
         self.figure.canvas.mpl_connect("button_press_event", self._click)
+        self.save_pkl = widgets.FileEdit(
+            mode="w", value=Path(".").absolute(), filter="*.pkl*"
+        )
+        self.save_button = QPushButton("Save Comparisons")
+        self.save_button.native = self.save_button
+        self.save_button.name = "save_button"
+        self.save_button.pressed.connect(self.save_dictionary)
+        container = widgets.Container(
+            widgets=[self.save_pkl, self.save_button],
+            layout="horizontal",
+            labels=False,
+        )
+        self.tab2.layout().addWidget(container.native)

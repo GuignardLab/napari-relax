@@ -5,7 +5,7 @@ from qtpy.QtWidgets import (
 )
 
 
-class containerize(QWidget):
+class Containerize(QWidget):
     """
     Places a list of widgets on horizontal/vertical containers.
     """
