@@ -103,7 +103,7 @@ def reader_function(path: str):
         t_res = time_res_dialog()
         t_res.exec_()
         lT.time_resolution = t_res.value_selected
-        if t_res.check_resave:
+        if t_res.check_resave.isChecked():
             lT.write(path)
     return layer_preparation(lT, path)
 
