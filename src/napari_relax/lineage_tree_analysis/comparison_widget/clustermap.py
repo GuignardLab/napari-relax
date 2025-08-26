@@ -308,16 +308,16 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
         self.norms = []
         self.worker = self.thread_worker()
         self.times_selector()
-        if (
-            max([self.lT.time[root] for root in self.specific_roots])
-            > self.times[0]
-        ):
-            self.kill_thread()
-            self.runbutton.setChecked(False)
-            notifications.show_error(
-                "Dont use a starting point before the roots"
-            )
-            return
+        # if (
+        #     max([self.lT.time[root] for root in self.specific_roots])
+        #     > self.times[0]
+        # ):
+        #     self.kill_thread()
+        #     self.runbutton.setChecked(False)
+        #     notifications.show_error(
+        #         "Do not use a starting point before the roots"
+        #     )
+        #     return
         if not self.times:
             self.worker.quit()
             return
@@ -408,7 +408,7 @@ class Online_clustermap(Layer_corrector_Tree_Producer):
                     "Starting timepoint cannot be smaller than the first timepoint of the dataset."
                 )
                 self.kill_thread()
-                return []
+                return
             if step == 0 or start == stop:
                 self.times = [start]
             else:

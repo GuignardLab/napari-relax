@@ -16,7 +16,7 @@ from lineagetree import (
     read_from_mastodon,
     read_from_tgmm_xml,
 )
-from lineagetree._basics import utils
+from lineagetree._core import utils
 from napari.utils import colormaps
 from napari.utils.notifications import show_warning
 

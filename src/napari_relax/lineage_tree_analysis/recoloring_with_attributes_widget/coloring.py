@@ -1,14 +1,10 @@
 from numbers import Number
 from typing import TYPE_CHECKING
 from warnings import warn
-from napari._qt.layer_controls.qt_colormap_combobox import QtColormapComboBox
-from napari.utils.colormaps import AVAILABLE_COLORMAPS
+
 import numpy as np
-from qtpy.QtGui import QPixmap, QIcon, QImage
-from qtpy.QtWidgets import QApplication, QLabel
-from magicgui import widgets
-from matplotlib.pyplot import colormaps
 from napari.layers import Points
+from napari.utils.colormaps import AVAILABLE_COLORMAPS
 from psygnal import Signal
 from qtpy.QtGui import QDoubleValidator
 from qtpy.QtWidgets import (
@@ -16,6 +12,7 @@ from qtpy.QtWidgets import (
     QCheckBox,
     QComboBox,
     QHBoxLayout,
+    QLabel,
     QLineEdit,
     QPushButton,
     QSizePolicy,
@@ -24,13 +21,13 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-import matplotlib.pyplot as plt
-from .colorboxlabel import ColorBoxLabel
+
 from ..._util_classes import (
     Layer_corrector_Tree_Producer,
     containerize,
 )
 from ..._utils import _select_correct_layer
+from .colorboxlabel import ColorBoxLabel
 
 if TYPE_CHECKING:
     pass
@@ -216,7 +213,10 @@ class Quantitative(Layer_corrector_Tree_Producer):
         cell_color = {}
         selected_method = self.miss_data.selected()
         _cmap = AVAILABLE_COLORMAPS[self.combobox_continuous.currentData()]
-        cmap = lambda x: _cmap.map(x)[0]
+
+        def cmap(x):
+            _cmap.map(x)[0]
+
         attr = self.selected_attribute.currentText()
         if attr == "None":
             warn("Please select a valid attribute", stacklevel=2)

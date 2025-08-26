@@ -334,31 +334,27 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         active_layer = _select_correct_layer(self, Points)
         if active_layer is None:
             return
-        active_layer.shown = [True] * len(active_layer.data)
+        active_layer.shown = True
 
     def hide_all(self):
         active_layer = _select_correct_layer(self, Points)
         if active_layer is None:
             return
-        active_layer.shown = [False] * len(active_layer.data)
+        active_layer.shown = False
 
     def hide_lineage(self):
         active_layer = _select_correct_layer(self, Points)
         if active_layer is None:
             return
-        active_layer.shown = [
-            False if i in active_layer.selected_data else sh
-            for i, sh in enumerate(active_layer.shown)
-        ]
+        active_layer.shown[list(active_layer.selected_data)] = False
+        active_layer.refresh()
 
     def show_lineage(self):
         active_layer = _select_correct_layer(self, Points)
         if active_layer is None:
             return
-        active_layer.shown = [
-            True if i in active_layer.selected_data else sh
-            for i, sh in enumerate(active_layer.shown)
-        ]
+        active_layer.shown[list(active_layer.selected_data)] = False
+        active_layer.refresh()
 
     signal = Signal(dict)
 
