@@ -20,11 +20,11 @@ from qtpy.QtWidgets import (
 from scipy.spatial import KDTree
 
 from ..._util_classes import (
-    LayerCorrectorTreeProducer,
     Containerize,
     DelayedTooltipEventFilter,
-    popable_window_for_tree_graph,
+    LayerCorrectorTreeProducer,
     TooltipButton,
+    popable_window_for_tree_graph,
 )
 from ..._utils import _select_correct_layer
 from .canvas_for_progeny import SingleTreeProgeny
@@ -353,7 +353,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         active_layer = _select_correct_layer(self, Points)
         if active_layer is None:
             return
-        active_layer.shown[list(active_layer.selected_data)] = False
+        active_layer.shown[list(active_layer.selected_data)] = True
         active_layer.refresh()
 
     signal = Signal(dict)
