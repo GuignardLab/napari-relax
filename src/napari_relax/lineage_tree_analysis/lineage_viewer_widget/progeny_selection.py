@@ -24,7 +24,7 @@ from ..._util_classes import (
     DelayedTooltipEventFilter,
     LayerCorrectorTreeProducer,
     TooltipButton,
-    popable_window_for_tree_graph,
+    Setup,
 )
 from ..._utils import _select_correct_layer
 from .canvas_for_progeny import SingleTreeProgeny
@@ -464,7 +464,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.config_settings.setIcon(
             QIcon(str(Path(__file__).parent / "gear-bold.svg"))
         )
-        self.pop_win = popable_window_for_tree_graph.Setup(self.canvas)
+        self.pop_win = Setup(self.canvas)
         self.config_settings.clicked.connect(lambda x: self.pop_win.exec_())
         self.config_settings.setFixedSize(30, 30)
 

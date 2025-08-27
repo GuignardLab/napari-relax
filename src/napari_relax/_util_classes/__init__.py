@@ -8,6 +8,7 @@ from .eventfilter_for_delayed_tooltip import (
     DelayedTooltipEventFilter,
 )
 from .layer_corrector import LayerCorrectorTreeProducer
+from .popable_window_for_tree_graph import Setup
 from .tab_template import TabTemplate
 from .tooltip import TooltipButton
 from .viewer_wrapper import QtViewerWrap
@@ -17,7 +18,6 @@ __all__ = (
     "LayerCorrectorTreeProducer",
     "TabTemplate",
     "QtViewerWrap",
-    "single_tree",
     "LoadingDialog",
     "TimeResDialog",
     "DelayedTooltipEventFilter",
