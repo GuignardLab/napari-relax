@@ -24,8 +24,8 @@ from ..._util_classes import (
     DelayedTooltipEventFilter,
     LayerCorrectorTreeProducer,
     TooltipButton,
-    Setup,
 )
+from ..._util_classes.popable_window_for_tree_graph import Setup
 from ..._utils import _select_correct_layer
 from .canvas_for_progeny import SingleTreeProgeny
 
