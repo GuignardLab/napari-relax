@@ -20,20 +20,20 @@ from qtpy.QtWidgets import (
 from scipy.spatial import KDTree
 
 from ..._util_classes import (
-    Layer_corrector_Tree_Producer,
-    containerize,
-    delayedtooltipeventfilter,
-    popable_window_for_tree_graph,
-    tooltip_button,
+    Containerize,
+    DelayedTooltipEventFilter,
+    LayerCorrectorTreeProducer,
+    TooltipButton,
 )
+from ..._util_classes.popable_window_for_tree_graph import Setup
 from ..._utils import _select_correct_layer
-from .canvas_for_progeny import single_tree_progeny
+from .canvas_for_progeny import SingleTreeProgeny
 
 if TYPE_CHECKING:
-    from LineageTree import lineageTree
+    from lineagetree import LineageTree
 
 
-class ProgenySelection(Layer_corrector_Tree_Producer):
+class ProgenySelection(LayerCorrectorTreeProducer):
     # your QWidget.__init__ can optionally request the napari viewer instance
     # in one of two ways:
     # 1. use a parameter called `napari_viewer`, as done here
@@ -123,7 +123,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         if (
             "Shift" in event.modifiers
             and event.button == 2
-            and "lineageTree" in active_layer.metadata
+            and "LineageTree" in active_layer.metadata
             and active_layer
         ):
             for layer in viewer.layers:
@@ -171,6 +171,9 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
                         active_layer.metadata["graphs"][1][val],
                     )
                     self.canvas.draw_graph()
+                else:
+                    self.canvas.ax.clear()
+                    self.canvas.draw()
 
     def Progeny_diagram_loader(self):
         """
@@ -232,9 +235,9 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
                 self.lT.time[cell_id]
                 - min(
                     {
-                        layer.metadata.get("lineageTree").t_b
+                        layer.metadata.get("LineageTree").t_b
                         for layer in self.viewer.layers
-                        if layer.metadata.get("lineageTree")
+                        if layer.metadata.get("LineageTree")
                     }
                 ),  # min is important if the dataset does not start from 0.
             ] + list(camera_pan[1:])
@@ -256,7 +259,6 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
                     active_layer.metadata["napari2lT"][cell]
                 )[0]
             )
-            self.ax_for_tree_graph.clear()
             self.graph_slider.setValue(val)
             self.ax_for_tree_graph.clear()
             self.canvas.change_lineage(
@@ -291,7 +293,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         if active_layer is None:
             return
         if len(self.viewer.layers.selection) == 1:
-            self.lT: lineageTree = self.get_lT()
+            self.lT: LineageTree = self.get_lT()
             if self.lT:
                 self.labels = self.lT.labels
                 self.roots = [
@@ -317,7 +319,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
             return
         to_remove = int(self.w_lineedit.placeholderText().split()[3])
         self.lT.labels.pop(to_remove)
-        active_layer.metadata["lineageTree"].labels.pop(to_remove)
+        active_layer.metadata["LineageTree"].labels.pop(to_remove)
         self.Progeny_diagram_loader()
 
     def show_all_labels(self):
@@ -328,6 +330,32 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
             "\n".join(f"{k}:{v}" for k, v in self.lT.labels.items())
         )
         msg.exec_()
+
+    def show_all(self):
+        active_layer = _select_correct_layer(self, Points)
+        if active_layer is None:
+            return
+        active_layer.shown = True
+
+    def hide_all(self):
+        active_layer = _select_correct_layer(self, Points)
+        if active_layer is None:
+            return
+        active_layer.shown = False
+
+    def hide_lineage(self):
+        active_layer = _select_correct_layer(self, Points)
+        if active_layer is None:
+            return
+        active_layer.shown[list(active_layer.selected_data)] = False
+        active_layer.refresh()
+
+    def show_lineage(self):
+        active_layer = _select_correct_layer(self, Points)
+        if active_layer is None:
+            return
+        active_layer.shown[list(active_layer.selected_data)] = True
+        active_layer.refresh()
 
     signal = Signal(dict)
 
@@ -354,7 +382,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
 
-        self.lT: lineageTree = self.get_lT()
+        self.lT: LineageTree = self.get_lT()
         if self.lT:
             self.graph_slider = QSlider()
             self.graph_slider.setOrientation(Qt.Orientation.Horizontal)
@@ -402,7 +430,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         )
         cutoff2 = widgets.Button(text="Select Lineage")
         cutoff2.tooltip = "Select the lineage that spawns this node"
-        event_filt = delayedtooltipeventfilter()
+        event_filt = DelayedTooltipEventFilter()
         self.installEventFilter(event_filt)
         cutoff2.clicked.connect(self.points_selector)
         cutoff3 = widgets.Button(text="Select Sub-Lineage")
@@ -414,7 +442,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         self.setLayout(layout)
         self.figure = Figure(figsize=(1, 3), frameon=False)
         self.ax_for_tree_graph = self.figure.add_subplot(111)
-        self.canvas = single_tree_progeny(self.figure, self.ax_for_tree_graph)
+        self.canvas = SingleTreeProgeny(self.figure, self.ax_for_tree_graph)
         label1 = widgets.Label(
             value="""<span style="font-family: Arial; font-size: 20px; color: white;">Lineage Viewer</span>"""
         ).native
@@ -426,7 +454,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
             encoding="utf-8",
         ) as f:
             txt = f.read()
-        self.tooltip = tooltip_button(txt)
+        self.tooltip = TooltipButton(txt)
         self.tooltip.setParent(self)
         self.tooltip.move(int(self.width() - self.tooltip.width()), 0)
         label1.move(int(self.width() / 2) + 10, 0)
@@ -437,7 +465,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         self.config_settings.setIcon(
             QIcon(str(Path(__file__).parent / "gear-bold.svg"))
         )
-        self.pop_win = popable_window_for_tree_graph.setup(self.canvas)
+        self.pop_win = Setup(self.canvas)
         self.config_settings.clicked.connect(lambda x: self.pop_win.exec_())
         self.config_settings.setFixedSize(30, 30)
 
@@ -449,7 +477,7 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         self.graph_slider.setToolTip(
             f"Currently {self.range+1} lineages present."
         )
-        self.slider_box = containerize(
+        self.slider_box = Containerize(
             [
                 widgets.Label(value="Lineage slider").native,
                 self.graph_slider,
@@ -457,13 +485,26 @@ class ProgenySelection(Layer_corrector_Tree_Producer):
         )
         self.layout().addWidget(self.slider_box)
         self.layout().addWidget(
-            containerize(
+            Containerize(
                 [self.w_lineedit, show_labels.native, remove_label.native]
             )
         )
         self.layout().addWidget(w2.native)
-        self.layout().addWidget(containerize([cutoff2.native, cutoff3.native]))
+        self.layout().addWidget(Containerize([cutoff2.native, cutoff3.native]))
         self.layout().addWidget(w.native)
+
+        show_all = QPushButton("Show all")
+        show_all.clicked.connect(self.show_all)
+        hide_all = QPushButton("Hide all")
+        hide_all.clicked.connect(self.hide_all)
+        hide_lin = QPushButton("Hide Lineage")
+        hide_lin.clicked.connect(self.hide_lineage)
+        show_lin = QPushButton("Show Lineage")
+        show_lin.clicked.connect(self.show_lineage)
+
+        shown_cont = Containerize([hide_lin, show_lin, hide_all, show_all])
+        self.layout().addWidget(shown_cont)
+
         self.viewer.mouse_drag_callbacks.append(self.point_click)
         self.viewer.layers.selection.events.connect(self.layer_change)
         self.canvas.node_signal.connect(self._click_on_tree_graph)

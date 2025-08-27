@@ -9,18 +9,19 @@ https://napari.org/stable/plugins/guides.html?#readers
 from pathlib import Path
 
 import numpy as np
-from LineageTree import (
-    lineageTree,
+from lineagetree import (
+    LineageTree,
     read_from_ASTEC,
     read_from_mamut_xml,
     read_from_mastodon,
     read_from_tgmm_xml,
     read_from_bmf,
-    utils,
 )
+from lineagetree._core import utils
 from napari.utils import colormaps
+from napari.utils.notifications import show_warning
 
-from ._util_classes import loading_dialog, time_res_dialog
+from ._util_classes import LoadingDialog, TimeResDialog
 
 
 def napari_get_reader(path):
@@ -87,32 +88,32 @@ def reader_function(path: str):
         "tgmm": read_from_tgmm_xml,
     }
     if isinstance(path, list):
-        lT = lineageTree(file_format=path, file_type="mastodon")
+        lT = LineageTree(file_format=path, file_type="mastodon")
     elif path.lower().endswith(".lt"):
-        lT = lineageTree.load(path)
+        lT = LineageTree.load(path)
     elif path.lower().endswith(".mastodon"):
         lT = read_from_mastodon(path)
     elif path.lower().endswith(".xml"):
-        selector = loading_dialog()
+        selector = LoadingDialog()
         selector.exec_()
         file_type = selector.value_selected
         if file_type is None:
             raise Warning("Please select one type.")
         lT = loaders[file_type](
             path
-        )  # lineageTree(file_format=path, file_type=file_type)
+        )  # LineageTree(file_format=path, file_type=file_type)
     elif path.lower().endswith(".bmf"):
         lT = read_from_bmf(path, store_meshes=True)
     if not hasattr(lT, "time_resolution") or lT.time_resolution == 0:
-        t_res = time_res_dialog()
+        t_res = TimeResDialog()
         t_res.exec_()
         lT.time_resolution = t_res.value_selected
-        if t_res.check_resave:
+        if t_res.check_resave.isChecked():
             lT.write(path)
     return layer_preparation(lT, path)
 
 
-def _extract_napari_surface_from_lT(lT: lineageTree, dict_successors_to_roots: dict):
+def _extract_napari_surface_from_lT(lT: LineageTree, dict_successors_to_roots: dict):
     all_points = np.zeros((0, 4))
     all_triangles = np.zeros((0, 3), dtype=int)
 
@@ -145,7 +146,7 @@ def _extract_napari_surface_from_lT(lT: lineageTree, dict_successors_to_roots: d
     return all_points, all_triangles, values
     
 
-def _infer_point_size(lT: lineageTree):
+def _infer_point_size(lT: LineageTree):
     """
     Infer a point size based on nearest neighbor distances.
     Current heuristic is to return the minimum median nearest neighbor distance
@@ -183,7 +184,7 @@ def _infer_point_size(lT: lineageTree):
         return min_dist
 
 
-def layer_preparation(lT: lineageTree, path: str = ""):
+def layer_preparation(lT: LineageTree, path: str = ""):
     tracks = lT.all_chains
     first_c_to_track = {}
     last_c_of_track = {}
@@ -206,6 +207,7 @@ def layer_preparation(lT: lineageTree, path: str = ""):
             c_id += 1
     here_to_lT = {v: k for k, v in lT_to_here.items()}
     data = np.array(data, dtype=float)
+    data[:, 2:] -= data[:, 2:].mean(axis=0)
 
     clone = np.zeros(len(data))
     roots = lT.roots
@@ -226,6 +228,9 @@ def layer_preparation(lT: lineageTree, path: str = ""):
             for root in lT.roots
             if len(lT.get_subtree_nodes(root)) > (lT.t_e - lT.t_b) / 4
         }
+    )
+    show_warning(
+        "Only lineages with height larger than 1/4 of the total timepoints will be shown on the lineage Viewer."
     )
     pos = {
         i: utils.hierarchical_pos(
@@ -249,7 +254,7 @@ def layer_preparation(lT: lineageTree, path: str = ""):
             "Selection": np.zeros_like(clone),
         },
         "metadata": {
-            "lineageTree": lT,
+            "LineageTree": lT,
             "lT2napari": lT_to_here,
             "napari2lT": here_to_lT,
             "clone2": clone2,
