@@ -8,7 +8,7 @@ from qtpy.QtWidgets import (
     QMessageBox,
 )
 
-def _infer_point_size(lT: "lineageTree"):
+def _infer_point_size(lT: "LineageTree"):
     """
     Infer a point size based on nearest neighbor distances.
 
