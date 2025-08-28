@@ -153,10 +153,9 @@ class CellSize(LayerCorrectorTreeProducer):
         return isinstance(layer, Points) and hasattr(layer, "metadata") and "LineageTree" in layer.metadata
     
     def _update_layer_slider_range(self, layer: Points):
-        if self.is_lt_layer(layer):
-            lT = layer.metadata["LineageTree"]
-            min_size, _, max_size = _infer_point_size(lT)
-            layer.metadata["slider_float_range"] = (min_size, max_size)
+        lT = layer.metadata["LineageTree"]
+        min_size, _, max_size = _infer_point_size(lT)
+        layer.metadata["slider_float_range"] = (min_size, max_size)
 
 
     def force_viewer_select_if_lt_layer(self, event):
@@ -166,7 +165,7 @@ class CellSize(LayerCorrectorTreeProducer):
             self._update_layer_slider_range(layer)
             
             self.viewer.layers.selection.active = layer
-            self.update_slider()
+            # self.update_slider()
 
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
@@ -268,6 +267,7 @@ class CellSize(LayerCorrectorTreeProducer):
         self.layout().addWidget(self.save_container)
 
         self.viewer.layers.selection.events.connect(self.layer_change)
+        self.viewer.layers.selection.events.connect(lambda event: print("selection changed"))
         
         for layer in self.viewer.layers:
             if self.is_lt_layer(layer):
