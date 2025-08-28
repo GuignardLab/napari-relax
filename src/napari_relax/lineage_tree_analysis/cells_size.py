@@ -57,64 +57,60 @@ class CellSize(LayerCorrectorTreeProducer):
             return point_layer.metadata["LineageTree"]
         return None
     
-    def update_slider(self):
+    def update_slider(self, value=None):
         """Update the slider values after the update button has been pushed.
         The Points layer holding the lineageTree is used to infer the values.
         """
-        lT = self.lt_layer.metadata["LineageTree"] if self.lt_layer else None
+        lT = self._get_lT_from_layer()
         if lT:
-            min_size, optimal_size, max_size = _infer_point_size(lT)
-            self.slider_float_range = (min_size, max_size)
-        else: # reset to default values
-            self.slider_float_range = (
-                DEFAULT_MIN_POINT_SIZE,
-                DEFAULT_MAX_POINT_SIZE,
-            )
-            optimal_size = _transform_slider_int_value_to_float(
-                self.slider.value(), *self.slider_float_range
-            )
-        self._changes(None, value=optimal_size)
-
-    def update_lt_layer_status(self, select_layer: bool = False):
-        for layer in self.viewer.layers:
-            if isinstance(layer, Points) and hasattr(layer, "metadata") and "LineageTree" in layer.metadata:
-                if not(self.lt_layer is layer):
-                    self.lt_layer = layer
-                    if select_layer:
-                        self.viewer.layers.selection.active = layer
-                    self.update_slider()
-                return
-        if self.lt_layer is not None:
-            self.lt_layer = None
-            self.update_slider()
+            if value is None:
+                _, optimal_size, _ = _infer_point_size(lT)
+            else:
+                optimal_size = value
+            self._changes(None, value=optimal_size)
 
     def _changes(self, event, value=None):
         """
         Changes the size of one or more Points layer.
+        Note that value must be given in Points layer unit.
         """
-        # Determine the new size using a more pythonic approach
-        new_size = value or _transform_slider_int_value_to_float(
-            self.slider.value(), *self.slider_float_range
-        )
 
-        # Apply size changes based on toggle state
-        if self.toggle_all.value:
-            for layer in self.viewer.layers:
-                if isinstance(layer, Points):
-                    layer.size = new_size
+        new_size = None
+        active_layer = _select_correct_layer(self, Points)
+
+        if value is None:
+            layers_to_update = []
+            
+            if self.toggle_all.value:
+                for layer in self.viewer.layers:
+                    if isinstance(layer, Points):
+                        if self.is_lt_layer(layer):
+                            layers_to_update.append(layer)
+            else:
+                # Update only the active layer
+                if active_layer and self.is_lt_layer(active_layer):
+                    layers_to_update.append(active_layer)
+                
+            for layer in layers_to_update:
+                if hasattr(layer, "metadata") and "slider_float_range" in layer.metadata:
+                    slider_float_range = layer.metadata["slider_float_range"]
+                    value = _transform_slider_int_value_to_float(
+                        self.slider.value(), *slider_float_range
+                    )
+                    layer.size = value
+
+                    if layer is active_layer:
+                        new_size = value
+
         else:
+            new_size = value
             # Update only the active layer
-            active_layer = self.viewer.layers.selection.active
-            active_layer = active_layer if isinstance(active_layer, Points) else None
-            if active_layer is None:
-                return
-            active_layer.size = new_size
-        
-        # Update slider position if value was provided externally
-        if value is not None:
+            if active_layer and self.is_lt_layer(active_layer):
+                active_layer.size = new_size
+
             self.slider.setValue(
                 _transform_float_value_to_slider_int(
-                    new_size, *self.slider_float_range
+                    new_size, *active_layer.metadata["slider_float_range"]
                 )
             )
         
@@ -140,6 +136,10 @@ class CellSize(LayerCorrectorTreeProducer):
         if len(self.viewer.layers.selection) == 1:
             if self.vis_button.value:
                 self.see_one_layer()
+                # Update the slider values according to the new active layer
+                active_layer = _select_correct_layer(self, Points)
+                if active_layer and self.is_lt_layer(active_layer):
+                    self.update_slider(value=active_layer.size)
             else:
                 self.see_all_layers()
 
@@ -149,10 +149,29 @@ class CellSize(LayerCorrectorTreeProducer):
             txt = Path(self.save_widget.value)
             lT.write(str(txt))
 
+    def is_lt_layer(self, layer):
+        return isinstance(layer, Points) and hasattr(layer, "metadata") and "LineageTree" in layer.metadata
+    
+    def _update_layer_slider_range(self, layer: Points):
+        if self.is_lt_layer(layer):
+            lT = layer.metadata["LineageTree"]
+            min_size, _, max_size = _infer_point_size(lT)
+            layer.metadata["slider_float_range"] = (min_size, max_size)
+
+
+    def force_viewer_select_if_lt_layer(self, event):
+        layer = event.value
+        if self.is_lt_layer(layer):
+
+            self._update_layer_slider_range(layer)
+            
+            self.viewer.layers.selection.active = layer
+            self.update_slider()
+
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
 
-        self.lt_layer = None
+        # self.lt_layer = None
 
         event_filt = DelayedTooltipEventFilter()
         self.installEventFilter(event_filt)
@@ -184,7 +203,7 @@ class CellSize(LayerCorrectorTreeProducer):
 
         ### Button: update slider values according to current layer
         update_button = widgets.PushButton(text="Update slider")
-        update_button.clicked.connect(self.update_slider)
+        update_button.clicked.connect(lambda event: self.update_slider())
 
         ### Checkbox: Change size of all layers or only one
         self.toggle_all = widgets.Checkbox(value=False)
@@ -222,16 +241,12 @@ class CellSize(LayerCorrectorTreeProducer):
         )
         self.save_button = QPushButton("Save LineageTree")
         self.save_button.native = self.save_button
-        self.save_container = Containerize(
-            [self.save_widget.native, self.save_button.native]
-        )
         self.save_button.clicked.connect(self.write_embryo)
-        self.save_container.layout().setContentsMargins(0, 15, 0, 0)
-        self.save_container.layout().setSpacing(0)
 
         # Final assembly
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
+
         cont = Containerize(
             [self.count.native, self.slider, update_button.native, all_container.native]
         )
@@ -243,20 +258,25 @@ class CellSize(LayerCorrectorTreeProducer):
         )
         self.tracks_and_vis_cont.layout().setContentsMargins(0, 0, 0, 0)
         self.tracks_and_vis_cont.layout().setSpacing(0)
-
         self.layout().addWidget(self.tracks_and_vis_cont)
+
+        self.save_container = Containerize(
+            [self.save_widget.native, self.save_button.native]
+        )
+        self.save_container.layout().setContentsMargins(0, 15, 0, 0)
+        self.save_container.layout().setSpacing(0)
         self.layout().addWidget(self.save_container)
 
-
         self.viewer.layers.selection.events.connect(self.layer_change)
-        self.update_slider()
-        self.update_lt_layer_status()
+        
+        for layer in self.viewer.layers:
+            if self.is_lt_layer(layer):
+                self._update_layer_slider_range(layer)
 
         self.viewer.layers.events.inserted.connect(
-            partial(self.update_lt_layer_status, select_layer=True)
+            self.force_viewer_select_if_lt_layer
         )
-        self.viewer.layers.events.removed.connect(
-            self.update_lt_layer_status
-        )
+
+        self.update_slider()
 
     
