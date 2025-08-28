@@ -27,6 +27,7 @@ from .._utils import (
     _transform_slider_int_value_to_float,
     _infer_point_size
 )
+from functools import partial
     
 DEFAULT_MIN_POINT_SIZE = 1
 DEFAULT_MAX_POINT_SIZE = 2000
@@ -52,15 +53,15 @@ class CellSize(LayerCorrectorTreeProducer):
     
     def _get_lT_from_layer(self):
         point_layer = _select_correct_layer(self, Points)
-        if point_layer and hasattr(point_layer, "metadata") and "lineageTree" in point_layer.metadata:
-            return point_layer.metadata["lineageTree"]
+        if point_layer and hasattr(point_layer, "metadata") and "LineageTree" in point_layer.metadata:
+            return point_layer.metadata["LineageTree"]
         return None
     
     def update_slider(self):
         """Update the slider values after the update button has been pushed.
         The Points layer holding the lineageTree is used to infer the values.
         """
-        lT = self._get_lT_from_layer()
+        lT = self.lt_layer.metadata["LineageTree"] if self.lt_layer else None
         if lT:
             min_size, optimal_size, max_size = _infer_point_size(lT)
             self.slider_float_range = (min_size, max_size)
@@ -73,6 +74,19 @@ class CellSize(LayerCorrectorTreeProducer):
                 self.slider.value(), *self.slider_float_range
             )
         self._changes(None, value=optimal_size)
+
+    def update_lt_layer_status(self, select_layer: bool = False):
+        for layer in self.viewer.layers:
+            if isinstance(layer, Points) and hasattr(layer, "metadata") and "LineageTree" in layer.metadata:
+                if not(self.lt_layer is layer):
+                    self.lt_layer = layer
+                    if select_layer:
+                        self.viewer.layers.selection.active = layer
+                    self.update_slider()
+                return
+        if self.lt_layer is not None:
+            self.lt_layer = None
+            self.update_slider()
 
     def _changes(self, event, value=None):
         """
@@ -90,7 +104,8 @@ class CellSize(LayerCorrectorTreeProducer):
                     layer.size = new_size
         else:
             # Update only the active layer
-            active_layer = _select_correct_layer(self, Points)
+            active_layer = self.viewer.layers.selection.active
+            active_layer = active_layer if isinstance(active_layer, Points) else None
             if active_layer is None:
                 return
             active_layer.size = new_size
@@ -136,6 +151,9 @@ class CellSize(LayerCorrectorTreeProducer):
 
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
+
+        self.lt_layer = None
+
         event_filt = DelayedTooltipEventFilter()
         self.installEventFilter(event_filt)
         self.viewer = napari_viewer
@@ -144,31 +162,31 @@ class CellSize(LayerCorrectorTreeProducer):
         layout.setSpacing(0)
         self.setLayout(layout)
         
-        # Slider: Change size of spheres
+        ### Slider: Change size of spheres
         self.count = widgets.Label(value="Size of spheres.")
         self.slider = QSlider()
         self.slider.setOrientation(Qt.Orientation.Horizontal)
         self.slider.setTickInterval(1)
         self.slider.setContentsMargins(0, 0, 0, 0)
 
-        # The slider always has values between 1 and 100, but these values
-        # are mapped to a float range that can be changed according to the
-        # heuristics on the nearest neighbor distances of the lineageTree
+            # The slider always has values between 1 and 100, but these values
+            # are mapped to a float range that can be changed according to the
+            # heuristics on the nearest neighbor distances of the lineageTree
         self.slider.setMinimum(1)
         self.slider.setMaximum(100)
         self.slider.setValue(20)
-        # slider_float_range is used to store the actual float range
+            # slider_float_range is used to store the actual float range
         self.slider_float_range = (
             DEFAULT_MIN_POINT_SIZE,
             DEFAULT_MAX_POINT_SIZE,
         )
         self.slider.valueChanged.connect(self._changes)
 
-        # Button: update slider values according to current layer
+        ### Button: update slider values according to current layer
         update_button = widgets.PushButton(text="Update slider")
         update_button.clicked.connect(self.update_slider)
 
-        # Checkbox: Change size of all layers or only one
+        ### Checkbox: Change size of all layers or only one
         self.toggle_all = widgets.Checkbox(value=False)
 
         all_container = widgets.Container(
@@ -181,7 +199,7 @@ class CellSize(LayerCorrectorTreeProducer):
         )
         all_container.tooltip = "Change the size of all layers instead of only changing the size of only one layer."
 
-        # Button: Toggle visibility of other layers
+        ### Button: Toggle visibility of other layers
         self.vis_button = widgets.CheckBox(value=False)
         vis_container = widgets.Container(
             widgets=[
@@ -194,19 +212,11 @@ class CellSize(LayerCorrectorTreeProducer):
         vis_container.native.layout().setContentsMargins(0, 0, 0, 0)
         self.vis_button.clicked.connect(self.layer_change)
 
-        # Button: Add tracks layer
+        ### Button: Add tracks layer
         track_button = widgets.PushButton(text="Add Tracks")
+        track_button.clicked.connect(self.add_tracks)
 
-        # Assembly
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().setSpacing(0)
-        self.layout().addWidget(
-            Containerize(
-                [self.count.native, self.slider, update_button.native, all_container.native]
-            )
-        )
-
-        # Save LineageTree widget
+        ### Save LineageTree widget
         self.save_widget = widgets.FileEdit(
             mode="w", value=Path(".").absolute(), filter="*.lT"
         )
@@ -219,8 +229,11 @@ class CellSize(LayerCorrectorTreeProducer):
         self.save_container.layout().setContentsMargins(0, 15, 0, 0)
         self.save_container.layout().setSpacing(0)
 
+        # Final assembly
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().setSpacing(0)
         cont = Containerize(
-            [self.count.native, self.slider, all_container.native]
+            [self.count.native, self.slider, update_button.native, all_container.native]
         )
         cont.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().addWidget(cont)
@@ -234,7 +247,16 @@ class CellSize(LayerCorrectorTreeProducer):
         self.layout().addWidget(self.tracks_and_vis_cont)
         self.layout().addWidget(self.save_container)
 
-        track_button.clicked.connect(self.add_tracks)
-        self.viewer.layers.selection.events.connect(self.layer_change)
 
+        self.viewer.layers.selection.events.connect(self.layer_change)
         self.update_slider()
+        self.update_lt_layer_status()
+
+        self.viewer.layers.events.inserted.connect(
+            partial(self.update_lt_layer_status, select_layer=True)
+        )
+        self.viewer.layers.events.removed.connect(
+            self.update_lt_layer_status
+        )
+
+    
