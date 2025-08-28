@@ -17,7 +17,6 @@ __all__ = (
     "LayerCorrectorTreeProducer",
     "TabTemplate",
     "QtViewerWrap",
-    "single_tree",
     "LoadingDialog",
     "TimeResDialog",
     "DelayedTooltipEventFilter",
