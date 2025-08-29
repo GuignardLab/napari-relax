@@ -24,11 +24,12 @@ Datasets are configured in `_datasets.py`:
 DEMO_DATASETS = {
     "demo": {
         "filename": "demo.lT",
-        "url": None,  # Set after uploading to Zenodo
+        "url": "https://zenodo.org/records/XXXXX/files/demo.lT",  # Set after uploading to Zenodo
         "md5": "d601b8b9e0ebf92e2bb3f9a81915bc5f", 
         "description": "Demo lineage tree dataset",
         "size_mb": 1.09
     }
+    # ... other datasets ...
 }
 ```
 
