@@ -215,7 +215,7 @@ class Quantitative(LayerCorrectorTreeProducer):
         _cmap = AVAILABLE_COLORMAPS[self.combobox_continuous.currentData()]
 
         def cmap(x):
-            _cmap.map(x)[0]
+            return _cmap.map(x)[0]
 
         attr = self.selected_attribute.currentText()
         if attr == "None":
