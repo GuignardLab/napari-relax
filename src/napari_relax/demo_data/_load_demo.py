@@ -21,18 +21,3 @@ def load_demo():
     demo_data.time_resolution = 1
     data = layer_preparation(demo_data, "Demo")
     return data
-
-
-def load_c_elegans():
-    """
-    Adds the C. elegans lineage tree to the viewer.
-    
-    This function will automatically download C. elegans demo data if it's not available locally.
-    The download is performed only once and the data is cached for future use.
-    """
-    # Ensure C. elegans demo data is available (will download if needed)
-    demo_file_path = ensure_demo_data("c_elegans")
-    demo_data = LineageTree.load(str(demo_file_path))
-    demo_data.time_resolution = 1
-    data = layer_preparation(demo_data, "C. elegans Demo")
-    return data

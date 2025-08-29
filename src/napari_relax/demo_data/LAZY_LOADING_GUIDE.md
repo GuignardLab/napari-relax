@@ -7,13 +7,10 @@ The system features automatic downloads with progress indicators when users requ
 ## Quick Start
 
 ```python
-from napari_relax.demo_data import load_demo, load_c_elegans
+from napari_relax.demo_data import load_demo
 
 # Load demo dataset (downloads automatically if needed)
 data = load_demo()
-
-# Load C. elegans dataset  
-data = load_c_elegans()
 ```
 
 ## Configuration
@@ -46,7 +43,7 @@ DEMO_DATASETS = {
    - Handles network errors gracefully
 
 3. **`_load_demo.py`** - Demo loading functions
-   - Provides dataset loading functions (e.g., `load_demo()`, `load_c_elegans()`)
+   - Provides dataset loading functions (e.g., `load_demo()`)
    - Uses lazy loading with automatic download
    - Integrates seamlessly with napari's sample data interface
 
