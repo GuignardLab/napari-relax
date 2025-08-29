@@ -2,7 +2,6 @@
 Utilities for downloading demo data from remote repositories (Zenodo, etc.)
 """
 
-import os
 import hashlib
 from pathlib import Path
 from typing import Optional, Dict, Any
