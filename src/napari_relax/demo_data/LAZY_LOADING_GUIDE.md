@@ -86,9 +86,14 @@ clear_cache()
 
 2. **Calculate file information**:
    ```bash
-   # Place your file in the demo_data directory temporarily
+   # Scan demo directory and show configuration status
    python setup_demo_config.py
    ```
+   This will:
+   - Show information about files already configured in `_datasets.py`
+   - Detect any .lT files not yet configured 
+   - Propose configuration entries for new files
+   - Check for mismatches between actual and configured MD5/size values
 
 3. **Add dataset configuration** to `_datasets.py`:
    ```python
@@ -197,9 +202,15 @@ python -c "from napari_relax.demo_data import get_cached_datasets; print(get_cac
 
 ### **Configuration Helper**
 ```bash
-# Calculate MD5 hashes for new datasets
+# Scan demo directory for files and check configuration status
 python src/napari_relax/demo_data/setup_demo_config.py
 ```
+
+This helper script will:
+- Scan for .lT files in the demo directory
+- Show information about already configured files
+- Propose configuration entries for unconfigured files
+- Detect mismatches between actual and configured file properties
 
 ## 🌐 **Available Hosting Platforms Ideas**
 
