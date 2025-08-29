@@ -213,6 +213,6 @@ This helper script will:
 ## 🌐 **Available Hosting Platforms Ideas**
 
 The system works with any platform that provides direct download URLs:
-- **[Zenodo](https://zenodo.org/)** (recommended for research data)
+- **[Zenodo](https://zenodo.org/)**
 - **[Figshare](https://figshare.com/)** 
 - **[GitHub Releases](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases)**
