@@ -97,9 +97,9 @@ clear_cache()
        "my_new_dataset": {
            "filename": "[CHOSE A NAME].lT",
            "url": "https://zenodo.org/records/XXXXX/files/my_data.lT",
-           "md5": "[CALCULATED MD5 HASH]",
+           "md5": "[CALCULATED MD5 HASH]", # can be set to None
            "description": "Description of my dataset",
-           "size_mb": 2.5
+           "size_mb": [SIZE IN MB] # can be set to None
        }
    }
    ```
