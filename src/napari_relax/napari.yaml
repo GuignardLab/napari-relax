@@ -21,6 +21,9 @@ contributions:
     - id: napari-relax.load_demo
       python_name: napari_relax.demo_data:load_demo
       title: Load data
+    - id: napari-relax.load_c_elegans
+      python_name: napari_relax.demo_data:load_c_elegans
+      title: Load C. elegans data
 
   readers:
     - command: napari-relax.get_reader
@@ -36,6 +39,9 @@ contributions:
     - command: napari-relax.load_demo
       display_name: demo lineageTree dataset
       key: unique_id.6
+    - command: napari-relax.load_c_elegans
+      display_name: C. elegans lineageTree dataset
+      key: unique_id.7
 
   widgets:
     - command: napari-relax.lineage_tree_analysis
