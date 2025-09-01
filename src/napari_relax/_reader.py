@@ -153,30 +153,17 @@ def _infer_point_size(lT: LineageTree):
     across all time points in the lineage tree.
     If no points are found, return a default size of 100.
     """
-    from time import time
-    from tqdm import tqdm
-    t0 = time()
-    t1 = 0
-    t2 = 0
-
+    #TODO: remove before merging
     min_dist = float("inf")
 
-    for t in tqdm(lT.time_nodes):
-        t1_0 = time()
+    for t in lT.time_nodes:
         nodes = lT.time_nodes[t]
-        t1 += time() - t1_0
         if 1 < len(nodes):
-            t2_0 = time()
             idx3d, nodes = lT.get_idx3d(t)
-            t2 += time() - t2_0
             min_dist = min(
                 min_dist,
                 np.median(idx3d.query(idx3d.data, k=2)[0][:, 1])
             )
-
-    print(f"Time to compute points size: {time() - t0:.2f} seconds")
-    print(f"  of which {t1:.2f} seconds in getting nodes at time t")
-    print(f"  of which {t2:.2f} seconds in creating/querying idx3d")
 
     if min_dist == float("inf"):
         return 100
@@ -291,12 +278,20 @@ def layer_preparation(lT: LineageTree, path: str = ""):
         napari_surface = _extract_napari_surface_from_lT(lT, dict_successors_to_roots)
 
         vertex_colors = []
+        node_to_vertex_range = {}  # Track vertex ranges for each node
+        vertex_offset = 0
 
         for node_id, mesh in lT.mesh.items():
             root_node_id = dict_successors_to_roots.get(node_id, node_id)
             root_index = list(roots).index(root_node_id) + 1
+            num_vertices = mesh.vertices.shape[0]
+            
+            # Store vertex range for this node
+            node_to_vertex_range[node_id] = (vertex_offset, vertex_offset + num_vertices)
+            vertex_offset += num_vertices
+            
             vertex_colors.extend(
-                [cmap.map(root_index)] * mesh.vertices.shape[0]
+                [cmap.map(root_index)] * num_vertices
             )
 
         napari_surface = (
@@ -309,6 +304,12 @@ def layer_preparation(lT: LineageTree, path: str = ""):
             "vertex_colors": np.array(vertex_colors),
             "opacity": 0.25,
             "shading": "smooth",
+            "metadata": {
+                "LineageTree": lT,
+                "lT2napari": lT_to_here,
+                "napari2lT": here_to_lT,
+                "node_to_vertex_range": node_to_vertex_range,
+            },
         }
 
         return [
