@@ -1,0 +1,483 @@
+"""
+Simple interaction bridge for coordinating multi-layer lineage interactions.
+
+This module provides a lightweight system for coordinating interactions between
+Points, Surface, Labels, and Tracks layers in napari-relax.
+"""
+
+from typing import Dict, List, Optional, Set, Any
+import numpy as np
+from abc import ABC, abstractmethod
+
+
+class LayerAdapter(ABC):
+    """Abstract adapter for layer-specific interactions."""
+    
+    def __init__(self, layer, node_to_napari: Dict[int, Any], napari_to_node: Dict[Any, int]):
+        """
+        Initialize adapter with mappings between LineageTree nodes and napari indices.
+        
+        Parameters
+        ----------
+        layer : napari.layers.Layer
+            The napari layer to adapt
+        node_to_napari : dict
+            Mapping from LineageTree node_id to napari indices
+        napari_to_node : dict
+            Mapping from napari indices to LineageTree node_id
+        """
+        self.layer = layer
+        self.node_to_napari = node_to_napari
+        self.napari_to_node = napari_to_node
+        self._store_original_state()
+    
+    def _store_original_state(self):
+        """Store original layer state for reset functionality."""
+        self.original_state = {}
+        # Store common properties that might be modified
+        for prop in ['size', 'face_color', 'vertex_colors', 'opacity', 'shown', 'blending']:
+            if hasattr(self.layer, prop):
+                value = getattr(self.layer, prop)
+                if hasattr(value, 'copy'):
+                    self.original_state[prop] = value.copy()
+                else:
+                    self.original_state[prop] = value
+    
+    @abstractmethod
+    def show_only_nodes(self, node_ids: List[int]) -> None:
+        """Show only the specified nodes, hide all others."""
+        pass
+    
+    @abstractmethod
+    def reset_visibility(self) -> None:
+        """Reset all nodes to be visible."""
+        pass
+    
+    def get_node_at_position(self, position: np.ndarray, time: int) -> Optional[int]:
+        """
+        Get the node ID at the given position and time.
+        Default implementation returns None - override for clickable layers.
+        """
+        return None
+
+
+class PointsAdapter(LayerAdapter):
+    """Adapter for Points layers."""
+    
+    def show_only_nodes(self, node_ids: List[int]) -> None:
+        """Hide unselected lineages by setting their size to 0."""
+        if not hasattr(self.layer, 'size') or not hasattr(self.layer, 'data'):
+            return
+            
+        # Get napari indices for visible nodes
+        visible_indices = set()
+        for node_id in node_ids:
+            if node_id in self.node_to_napari:
+                visible_indices.add(self.node_to_napari[node_id])
+        
+        # Set sizes: visible nodes keep original size, others get size 0
+        sizes = self.layer.size.copy() if hasattr(self.layer.size, 'copy') else np.array(self.layer.size)
+        
+        # If all current sizes are 0 (after "Hide all"), use original sizes as reference
+        original_sizes = self.original_state.get('size', sizes)
+        
+        for i in range(len(sizes)):
+            if i in visible_indices:
+                # Restore original size for visible nodes
+                sizes[i] = original_sizes[i] if i < len(original_sizes) else 1
+            else:
+                # Hide non-visible nodes
+                sizes[i] = 0
+        
+        self.layer.size = sizes
+        self.layer.selected_data = visible_indices
+    
+    def reset_visibility(self) -> None:
+        """Restore original sizes and clear selection."""
+        if 'size' in self.original_state:
+            self.layer.size = self.original_state['size'].copy()
+        self.layer.selected_data = set()
+    
+    def select_nodes(self, node_ids: List[int]) -> None:
+        """Select nodes without hiding others."""
+        # Get napari indices for the nodes to select
+        selected_indices = set()
+        for node_id in node_ids:
+            if node_id in self.node_to_napari:
+                selected_indices.add(self.node_to_napari[node_id])
+        
+        # Set selection without modifying visibility
+        self.layer.selected_data = selected_indices
+    
+    def get_node_at_position(self, position: np.ndarray, time: int) -> Optional[int]:
+        """Find the node at the clicked position."""
+        from scipy.spatial import KDTree
+        
+        # Get points at the specified time
+        if not hasattr(self.layer, 'data'):
+            return None
+            
+        time_mask = np.isclose(self.layer.data[:, 0], time)
+        if not np.any(time_mask):
+            return None
+            
+        points_at_time = self.layer.data[time_mask]
+        indices_at_time = np.where(time_mask)[0]
+        
+        if len(points_at_time) == 0:
+            return None
+        
+        # Find closest point using KDTree
+        spatial_coords = points_at_time[:, 1:]  # Skip time dimension
+        tree = KDTree(spatial_coords)
+        
+        # Query for the closest point
+        distances, closest_idx = tree.query(position[1:], k=1)  # Skip time dimension
+        
+        if distances < 50:  # Distance threshold for clicking
+            napari_idx = indices_at_time[closest_idx]
+            return self.napari_to_node.get(napari_idx)
+        
+        return None
+    
+    def get_node_at_3d_position(self, position: np.ndarray, view_direction: np.ndarray, dims_displayed: np.ndarray) -> Optional[int]:
+        """Find the node at the clicked position using 3D ray intersection."""
+        from scipy.spatial import KDTree
+        
+        if not hasattr(self.layer, 'data'):
+            return None
+            
+        time = position[0]
+        
+        # Get ray intersections from the layer
+        near_point, far_point = self.layer.get_ray_intersections(
+            np.array(position), view_direction, dims_displayed
+        )
+        
+        if near_point is None or far_point is None:
+            return None
+            
+        # Sample points along the ray
+        ray_points = np.linspace(near_point, far_point, 30, endpoint=True)
+        
+        # Get points at the current time
+        time_mask = np.isclose(self.layer.data[:, 0], time)
+        if not np.any(time_mask):
+            return None
+            
+        points_at_time = self.layer.data[time_mask]
+        indices_at_time = np.where(time_mask)[0]
+        
+        if len(points_at_time) == 0:
+            return None
+            
+        # Find closest point along the ray
+        spatial_coords = points_at_time[:, 1:]  # Skip time dimension
+        tree = KDTree(spatial_coords)
+        
+        # Query for closest points along the ray (skip time dimension)
+        ray_spatial = ray_points[:, 1:] if ray_points.shape[1] > spatial_coords.shape[1] else ray_points
+        
+        # Ensure dimensions match
+        if ray_spatial.shape[1] != spatial_coords.shape[1]:
+            # Adjust dimensions to match
+            min_dims = min(ray_spatial.shape[1], spatial_coords.shape[1])
+            ray_spatial = ray_spatial[:, :min_dims]
+            if spatial_coords.shape[1] > min_dims:
+                spatial_coords = spatial_coords[:, :min_dims]
+                tree = KDTree(spatial_coords)
+        
+        distances, idx = tree.query(ray_spatial)
+        
+        # Find the closest intersection
+        min_dist_idx = np.argmin(distances)
+        if distances[min_dist_idx] < 10:  # Tighter threshold for 3D clicking
+            napari_idx = indices_at_time[idx[min_dist_idx]]
+            return self.napari_to_node.get(napari_idx)
+            
+        return None
+
+
+class SurfaceAdapter(LayerAdapter):
+    """Adapter for Surface layers."""
+    
+    def __init__(self, layer, node_to_napari: Dict[int, Any], napari_to_node: Dict[Any, int], 
+                 node_to_vertex_range: Dict[int, tuple]):
+        """
+        Initialize surface adapter with vertex range mappings.
+        
+        Parameters
+        ----------
+        node_to_vertex_range : dict
+            Mapping from node_id to (start_vertex_idx, end_vertex_idx) in surface data
+        """
+        super().__init__(layer, node_to_napari, napari_to_node)
+        self.node_to_vertex_range = node_to_vertex_range
+    
+    def show_only_nodes(self, node_ids: List[int]) -> None:
+        """Hide unselected lineages by setting their alpha to 0."""
+        if not hasattr(self.layer, 'vertex_colors'):
+            return
+        
+        # Store current blending if not already stored
+        if 'blending' not in self.original_state and hasattr(self.layer, 'blending'):
+            self.original_state['blending'] = self.layer.blending
+            
+        # Switch to translucent_no_depth to prevent depth sorting issues
+        if hasattr(self.layer, 'blending'):
+            self.layer.blending = 'translucent_no_depth'
+            
+        # Ensure we have vertex colors and alpha channel
+        vertex_colors = self.layer.vertex_colors
+        if vertex_colors is None:
+            # Create default colors (white) for all vertices
+            num_vertices = len(self.layer.data[0])  # data[0] is vertices
+            vertex_colors = np.ones((num_vertices, 4))  # RGBA
+        elif vertex_colors.shape[1] == 3:
+            # Add alpha channel
+            alpha = np.ones((vertex_colors.shape[0], 1))
+            vertex_colors = np.hstack([vertex_colors, alpha])
+            
+        vertex_colors = vertex_colors.copy()
+        
+        # Get vertex ranges for visible nodes
+        visible_vertex_indices = set()
+        for node_id in node_ids:
+            if node_id in self.node_to_vertex_range:
+                start_idx, end_idx = self.node_to_vertex_range[node_id]
+                visible_vertex_indices.update(range(start_idx, end_idx))
+        
+        # Set alpha: visible vertices = 1.0, others = 0.0
+        for i in range(vertex_colors.shape[0]):
+            vertex_colors[i, 3] = 1.0 if i in visible_vertex_indices else 0.0
+        
+        self.layer.vertex_colors = vertex_colors
+    
+    def reset_visibility(self) -> None:
+        """Restore original vertex colors and blending."""
+        if 'vertex_colors' in self.original_state:
+            if self.original_state['vertex_colors'] is None:
+                self.layer.vertex_colors = None
+            else:
+                self.layer.vertex_colors = self.original_state['vertex_colors'].copy()
+        elif hasattr(self.layer, 'vertex_colors') and self.layer.vertex_colors is not None and self.layer.vertex_colors.shape[1] >= 4:
+            # Set all alpha to 1.0
+            vertex_colors = self.layer.vertex_colors.copy()
+            vertex_colors[:, 3] = 1.0
+            self.layer.vertex_colors = vertex_colors
+            
+        # Restore original blending mode
+        if 'blending' in self.original_state and hasattr(self.layer, 'blending'):
+            self.layer.blending = self.original_state['blending']
+
+
+class TracksAdapter(LayerAdapter):
+    """Adapter for Tracks layers."""
+    
+    def show_only_nodes(self, node_ids: List[int]) -> None:
+        """Show only specified tracks."""
+        # For tracks, we can use the layer's shown property if available
+        if hasattr(self.layer, 'shown'):
+            # Get track IDs for visible nodes
+            visible_track_ids = set()
+            for node_id in node_ids:
+                if node_id in self.node_to_napari:
+                    visible_track_ids.add(self.node_to_napari[node_id])
+            
+            # Set visibility for all tracks
+            shown = np.zeros_like(self.layer.shown, dtype=bool)
+            for track_id in visible_track_ids:
+                if track_id < len(shown):
+                    shown[track_id] = True
+            
+            self.layer.shown = shown
+        else:
+            # Fallback: adjust opacity
+            self.layer.opacity = 0.8 if node_ids else 0.1
+    
+    def reset_visibility(self) -> None:
+        """Restore original track visibility."""
+        if 'shown' in self.original_state:
+            self.layer.shown = self.original_state['shown'].copy()
+        elif hasattr(self.layer, 'shown'):
+            # Show all tracks
+            self.layer.shown = np.ones_like(self.layer.shown, dtype=bool)
+        
+        if 'opacity' in self.original_state:
+            self.layer.opacity = self.original_state['opacity']
+
+
+class InteractionBridge:
+    """
+    Simple coordinator for multi-layer lineage interactions.
+    
+    This class discovers related layers through shared metadata and coordinates
+    interactions between them without complex coupling mechanisms.
+    """
+    
+    def __init__(self, viewer=None, primary_points=None):
+        self.adapters: Dict[str, LayerAdapter] = {}
+        self.metadata_key = "lineage_bridge_metadata"
+        self.viewer = viewer
+        self.primary_points = primary_points
+        
+        # If viewer is provided, set up automatic rediscovery
+        if self.viewer:
+            self.discover_layers(self.viewer, primary_points)
+            # Connect to layer events to automatically rediscover when layers change
+            self.viewer.layers.events.inserted.connect(self._on_layers_changed)
+            self.viewer.layers.events.removed.connect(self._on_layers_changed)
+    
+    def _on_layers_changed(self, event):
+        """Handle layer list changes by rediscovering layers."""
+        if self.viewer:
+            self.discover_layers(self.viewer, self.primary_points)
+    
+    def discover_layers(self, viewer, primary_points=None) -> bool:
+        """
+        Discover and register related layers in the viewer.
+        
+        Parameters
+        ----------
+        viewer : napari.Viewer
+            The napari viewer instance
+        primary_points : napari.layers.Points, optional
+            Specific Points layer to use. If None, finds the first one with LineageTree metadata.
+        
+        Returns
+        -------
+        bool
+            True if any compatible layers were found
+        """
+        from napari.layers import Points, Surface, Tracks
+        
+        self.adapters.clear()
+        
+        # Find the primary Points layer with LineageTree metadata
+        if primary_points is None:
+            for layer in viewer.layers:
+                if (isinstance(layer, Points) and 
+                    hasattr(layer, 'metadata') and 
+                    'LineageTree' in layer.metadata):
+                    primary_points = layer
+                    break
+        
+        if not primary_points or not isinstance(primary_points, Points):
+            return False
+        
+        # Extract mappings from Points layer
+        node_to_napari = primary_points.metadata.get('lT2napari', {})
+        napari_to_node = primary_points.metadata.get('napari2lT', {})
+        
+        if not node_to_napari or not napari_to_node:
+            return False
+        
+        # Register Points adapter
+        self.adapters['points'] = PointsAdapter(primary_points, node_to_napari, napari_to_node)
+        
+        # Get the LineageTree identifier for matching
+        primary_lineage_tree = primary_points.metadata.get('LineageTree')
+        
+        # Look for related Surface layers
+        for layer in viewer.layers:
+            if (isinstance(layer, Surface) and 
+                hasattr(layer, 'metadata') and
+                'node_to_vertex_range' in layer.metadata):
+                
+                # Check if this surface belongs to the same LineageTree
+                surface_lineage_tree = layer.metadata.get('LineageTree')
+                surface_node_to_napari = layer.metadata.get('lT2napari', {})
+                
+                # Match by LineageTree ID or by mapping compatibility
+                is_same_lineage = (
+                    (primary_lineage_tree is not None and surface_lineage_tree == primary_lineage_tree) or
+                    (surface_node_to_napari == node_to_napari)
+                )
+                
+                if is_same_lineage:
+                    adapter = SurfaceAdapter(
+                        layer, node_to_napari, napari_to_node,
+                        layer.metadata['node_to_vertex_range']
+                    )
+                    self.adapters['surface'] = adapter
+                    break
+        
+        # Look for related Tracks layers
+        for layer in viewer.layers:
+            if (isinstance(layer, Tracks) and 
+                hasattr(layer, 'metadata') and 
+                'link' in layer.metadata and 
+                layer.metadata['link'] == primary_points):
+                
+                adapter = TracksAdapter(layer, node_to_napari, napari_to_node)
+                self.adapters['tracks'] = adapter
+                break
+        
+        return len(self.adapters) > 0
+    
+    def show_only_lineages(self, node_ids: List[int]) -> None:
+        """Show only the specified lineages across all registered layers."""
+        for adapter in self.adapters.values():
+            adapter.show_only_nodes(node_ids)
+    
+    def show_only_nodes(self, node_ids: List[int]) -> None:
+        """Show only the specified nodes across all registered layers."""
+        for adapter in self.adapters.values():
+            adapter.show_only_nodes(node_ids)
+    
+    def hide_lineages(self, node_ids_to_hide: List[int]) -> None:
+        """Hide specific lineages while showing all others."""
+        # Get all available node IDs from the Points layer
+        if 'points' in self.adapters:
+            points_adapter = self.adapters['points']
+            all_node_ids = set(points_adapter.napari_to_node.values())
+            # Show everything except the specified lineages
+            visible_node_ids = list(all_node_ids - set(node_ids_to_hide))
+            self.show_only_nodes(visible_node_ids)
+    
+    def highlight_lineages(self, node_ids: List[int]) -> None:
+        """Highlight the specified lineages. For Points, this selects them without hiding others."""
+        for layer_type, adapter in self.adapters.items():
+            if layer_type == 'points':
+                # For Points layer, just select the nodes without hiding others
+                adapter.select_nodes(node_ids)
+            else:
+                # For other layers, use the normal show_only behavior
+                adapter.show_only_nodes(node_ids)
+    
+    def reset_visibility(self) -> None:
+        """Reset visibility across all registered layers."""
+        for adapter in self.adapters.values():
+            adapter.reset_visibility()
+    
+    def reset_all_visibility(self) -> None:
+        """Reset visibility across all registered layers."""
+        for adapter in self.adapters.values():
+            adapter.reset_visibility()
+    
+    def find_node_at_position(self, position: np.ndarray, view_direction: np.ndarray, dims_displayed: np.ndarray) -> Optional[tuple]:
+        """
+        Find a node at the given position across all clickable layers.
+        
+        Returns tuple of (layer, node_idx, node_id) if found, None otherwise.
+        Prioritizes: Points > Surface > Tracks
+        """
+        time = position[0]  # Extract time from position
+        
+        for layer_type in ['points', 'surface', 'tracks']:
+            if layer_type in self.adapters:
+                adapter = self.adapters[layer_type]
+                # For 3D interaction, we need to handle ray intersections
+                if hasattr(adapter, 'get_node_at_3d_position'):
+                    result = adapter.get_node_at_3d_position(position, view_direction, dims_displayed)
+                else:
+                    # Fallback to 2D position method
+                    result = adapter.get_node_at_position(position, time)
+                
+                if result is not None:
+                    return (adapter.layer, result, result)  # (layer, node_idx, node_id)
+        return None
+    
+    def get_registered_layers(self) -> List[str]:
+        """Get list of registered layer types."""
+        return list(self.adapters.keys())
