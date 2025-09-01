@@ -27,6 +27,7 @@ from ..._util_classes import (
 )
 from ..._util_classes.popable_window_for_tree_graph import Setup
 from ..._utils import _select_correct_layer
+from ..._interaction_bridge import InteractionBridge
 from .canvas_for_progeny import SingleTreeProgeny
 
 if TYPE_CHECKING:
@@ -64,7 +65,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             score[c] = 1
         return score
 
-    def points_selector(self):
+    def select_the_lineage(self):
         """
         If a Point is selected it selects the whole Lineage.
         """
@@ -78,11 +79,20 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         scores = self.get_sublineage(
             active_layer.metadata["napari2lT"][cell], self.lT
         )
-        for key in scores:
-            active_layer.selected_data.add(
-                active_layer.metadata["lT2napari"][key]
-            )
-        active_layer.refresh()
+        
+        # Get node IDs for the selected lineage
+        selected_node_ids = list(scores.keys())
+        
+        # Use interaction bridge for coordinated multi-layer selection
+        if hasattr(self, 'bridge') and self.bridge.adapters:
+            self.bridge.highlight_lineages(selected_node_ids)
+        else:
+            # Fallback to original Points-only behavior
+            for key in scores:
+                active_layer.selected_data.add(
+                    active_layer.metadata["lT2napari"][key]
+                )
+            active_layer.refresh()
         val = self.val_finder(
             active_layer.metadata["napari2lT"][cell],
             self.lT,
@@ -111,55 +121,34 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             )
 
     def point_click(self, viewer, event):
-        """Function for clicking on the viewer to select a Point from the Points layer.
+        """Function for clicking on the viewer to select a node from any supported layer type.
 
         Args:
             viewer (napari_viewer): The viewer of napari.
             event : The event signal that contains the spatial information of the action taken.
         """
-        active_layer = _select_correct_layer(self, Points)
-        if not active_layer:
-            return
         if (
             "Shift" in event.modifiers
             and event.button == 2
-            and "LineageTree" in active_layer.metadata
-            and active_layer
         ):
-            for layer in viewer.layers:
-                with contextlib.suppress(Exception):
-                    layer.selected_data.clear()
-            current_position = event.position
-            time = current_position[0]
-            near_point, far_point = active_layer.get_ray_intersections(
-                np.array(event.position),
-                event.view_direction,
-                np.array(event.dims_displayed),
-            )
-            if (near_point is not None) and (far_point is not None):
-                ray_points = np.linspace(
-                    near_point, far_point, 30, endpoint=True
-                )
-                indexes_of_slice = np.where(active_layer.data[:, 0] == time)
-                data_in_slice = active_layer.data[indexes_of_slice][:, 1:]
-                kdtree = KDTree(data_in_slice)
-                dists, idx = kdtree.query(ray_points[:, 1:])
-                active_layer.selected_data.add(
-                    indexes_of_slice[0][idx[np.argmin(dists)]]
-                )
-                color = active_layer.face_color[
-                    indexes_of_slice[0][idx[np.argmin(dists)]]
-                ]
-                active_layer._face.current_color = color
-                self.Progeny_diagram_loader()
-                active_layer.refresh()
-                cell = active_layer.selected_data.pop()
-                active_layer.selected_data = {cell}
+            # Use InteractionBridge to find node in any layer
+            result = self.bridge.find_node_at_position(event.position, event.view_direction, event.dims_displayed)
+            
+            if result:
+                layer, node_idx, node_id = result
+                
+                # Clear selections in all layers
+                for viewer_layer in viewer.layers:
+                    with contextlib.suppress(Exception):
+                        viewer_layer.selected_data.clear()
+                
+                # Find the graph value for this node
                 val = self.val_finder(
-                    active_layer.metadata["napari2lT"][cell],
+                    node_id,
                     self.lT,
-                    active_layer.metadata["graphs"][0],
+                    layer.metadata["graphs"][0],
                 )
+                
                 if val is not None:
                     self.graph_slider.setValue(int(val))
                     self.canvas.change_lineage(
@@ -167,13 +156,16 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                         self.ax_for_tree_graph,
                         val,
                         self.lT,
-                        active_layer.metadata["graphs"][0][val],
-                        active_layer.metadata["graphs"][1][val],
+                        layer.metadata["graphs"][0][val],
+                        layer.metadata["graphs"][1][val],
                     )
                     self.canvas.draw_graph()
                 else:
                     self.canvas.ax.clear()
                     self.canvas.draw()
+                
+                # Update the progeny diagram
+                self.Progeny_diagram_loader()
 
     def Progeny_diagram_loader(self):
         """
@@ -211,19 +203,37 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         Args:
             event : The signal that contains the spatial information of the graph click.
         """
-        active_layer = _select_correct_layer(self, Points)
-        if not active_layer:
+        # Get the Points layer through the bridge for consistent behavior
+        if 'points' not in self.bridge.adapters:
             return
-        active_layer.selected_data.clear()
+        points_layer = self.bridge.adapters['points'].layer
+        if not points_layer:
+            return
+        
+        points_layer.selected_data.clear()
         if not event:
-            active_layer.refresh()
+            points_layer.refresh()
             return
         cell_id = event["value"]
-        cell = active_layer.metadata["lT2napari"][cell_id]
-        color = active_layer.face_color[cell]
-        active_layer._face.current_color = color
-        active_layer.selected_data.add(cell)
-        self.sub_points_selector()
+        cell = points_layer.metadata["lT2napari"][cell_id]
+        color = points_layer.face_color[cell]
+        points_layer._face.current_color = color
+        points_layer.selected_data.add(cell)
+        
+        # Get the sublineage for the clicked node
+        selected_node_ids = self.lT.get_subtree_nodes(cell_id)
+        
+        # Use interaction bridge for coordinated multi-layer selection
+        if hasattr(self, 'bridge') and self.bridge.adapters:
+            self.bridge.highlight_lineages(selected_node_ids)
+        else:
+            # Fallback: update Points layer directly
+            for node_id in selected_node_ids:
+                if node_id in points_layer.metadata.get("lT2napari", {}):
+                    points_layer.selected_data.add(
+                        points_layer.metadata["lT2napari"][node_id]
+                    )
+            points_layer.refresh()
 
         normal_label = "Unlabeled"
         self.w_lineedit.setPlaceholderText(
@@ -272,7 +282,19 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             self.canvas.selected_subtree = set(selected_cells)
             self.canvas.draw_graph()
             active_layer.selected_data = {cell}
-            self.sub_points_selector()
+            
+            # Use interaction bridge for coordinated selection of the subtree
+            if hasattr(self, 'bridge') and self.bridge.adapters:
+                self.bridge.highlight_lineages(selected_cells)
+            else:
+                # Fallback: update Points layer directly
+                for node_id in selected_cells:
+                    if node_id in active_layer.metadata.get("lT2napari", {}):
+                        active_layer.selected_data.add(
+                            active_layer.metadata["lT2napari"][node_id]
+                        )
+                active_layer.refresh()
+                
             lT_cell = self.lT.get_chain_of_node(
                 active_layer.metadata["napari2lT"][cell]
             )[0]
@@ -282,6 +304,10 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             )
         else:
             raise Warning("Selected cell is not part of an important lineage.")
+
+    def points_selector(self):
+        """Select the entire lineage that contains the selected node."""
+        self.select_the_lineage()
 
     def layer_change(self, event):
         """
@@ -332,30 +358,46 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         msg.exec_()
 
     def show_all(self):
-        active_layer = _select_correct_layer(self, Points)
-        if active_layer is None:
-            return
-        active_layer.shown = True
+        """Show all nodes across all layer types."""
+        self.bridge.reset_visibility()
 
     def hide_all(self):
-        active_layer = _select_correct_layer(self, Points)
-        if active_layer is None:
-            return
-        active_layer.shown = False
+        """Hide all nodes across all layer types.""" 
+        self.bridge.show_only_nodes([])
 
     def hide_lineage(self):
-        active_layer = _select_correct_layer(self, Points)
-        if active_layer is None:
-            return
-        active_layer.shown[list(active_layer.selected_data)] = False
-        active_layer.refresh()
+        """Hide the currently selected lineage across all layer types."""
+        if hasattr(self, 'canvas') and hasattr(self.canvas, 'selected_subtree'):
+            # Use the currently selected subtree from the graph
+            selected_node_ids = list(self.canvas.selected_subtree)
+            if selected_node_ids:
+                self.bridge.hide_lineages(selected_node_ids)
+        else:
+            # Fallback: use Points layer selected data
+            active_layer = _select_correct_layer(self, Points)
+            if active_layer and active_layer.selected_data:
+                active_layer.shown[list(active_layer.selected_data)] = False
+                active_layer.refresh()
 
     def show_lineage(self):
-        active_layer = _select_correct_layer(self, Points)
-        if active_layer is None:
-            return
-        active_layer.shown[list(active_layer.selected_data)] = True
-        active_layer.refresh()
+        """Show only the currently selected lineage across all layer types.""" 
+        if hasattr(self, 'canvas') and hasattr(self.canvas, 'selected_subtree'):
+            # Use the currently selected subtree from the graph
+            selected_node_ids = list(self.canvas.selected_subtree)
+            if selected_node_ids:
+                # Show only the selected lineage across all layers (including hiding other points)
+                self.bridge.show_only_lineages(selected_node_ids)
+        else:
+            # Fallback: use Points layer selected data
+            active_layer = _select_correct_layer(self, Points)
+            if active_layer and active_layer.selected_data:
+                active_layer.shown[list(active_layer.selected_data)] = True
+                active_layer.refresh()
+            # Fallback: use Points layer selected data
+            active_layer = _select_correct_layer(self, Points)
+            if active_layer and active_layer.selected_data:
+                active_layer.shown[list(active_layer.selected_data)] = True
+                active_layer.refresh()
 
     signal = Signal(dict)
 
@@ -381,6 +423,14 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
+
+        # Get the specific Points layer for this widget
+        from napari.layers import Points
+        from ..._util_classes.layer_corrector import _select_correct_layer
+        points_layer = _select_correct_layer(self, Points)
+        
+        # Initialize multi-layer interaction bridge with specific Points layer
+        self.bridge = InteractionBridge(napari_viewer, points_layer)
 
         self.lT: LineageTree = self.get_lT()
         if self.lT:
