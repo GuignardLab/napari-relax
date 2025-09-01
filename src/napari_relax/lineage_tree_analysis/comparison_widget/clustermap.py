@@ -471,26 +471,27 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         self.list_widget.clear()
         selected_nodes = []
         already_used_nodes = set()
-        for node, label in self.lT.labels.items():
-            node_to_add = node
-            chain = self.lT.get_chain_of_node(node)
-            for node2 in chain:
-                if node in self.lT.labels:
-                    node_to_add = node2
-                    break
-            if node not in already_used_nodes:
-                selected_nodes.append([node_to_add, label])
-            already_used_nodes.update(chain)
+        if self.lT:
+            for node, label in self.lT.labels.items():
+                node_to_add = node
+                chain = self.lT.get_chain_of_node(node)
+                for node2 in chain:
+                    if node in self.lT.labels:
+                        node_to_add = node2
+                        break
+                if node not in already_used_nodes:
+                    selected_nodes.append([node_to_add, label])
+                already_used_nodes.update(chain)
 
-        self.list_of_selected_nodes = [
-            (k, f"{v} - {k} starts from {self.lT.time[k]} timepoint")
-            for k, v in sorted(
-                selected_nodes,
-                key=lambda x: self.lT.time[x[0]],
-            )
-        ]
-        self.list_widget.addItems([s for k, s in self.list_of_selected_nodes])
-        self.list_widget.update()
+            self.list_of_selected_nodes = [
+                (k, f"{v} - {k} starts from {self.lT.time[k]} timepoint")
+                for k, v in sorted(
+                    selected_nodes,
+                    key=lambda x: self.lT.time[x[0]],
+                )
+            ]
+            self.list_widget.addItems([s for k, s in self.list_of_selected_nodes])
+            self.list_widget.update()
 
     def c_layer_change(self, event):
         """Handles the layer change event.
@@ -503,12 +504,12 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
             if self.lT:
                 start = self.lT.t_b
                 stop = self.lT.t_b + 30
+                self.labels = self.lT.labels
             else:
                 start = 0
                 stop = 30
             self.time_slicer.start.value = start
             self.time_slicer.stop.value = stop
-            self.labels = self.lT.labels
             self.range = 1
             self.names_of_nodes = None
             self.names_of_roots = None
