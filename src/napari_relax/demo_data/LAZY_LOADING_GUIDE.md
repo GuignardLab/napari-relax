@@ -53,13 +53,9 @@ DEMO_DATASETS = {
 
 ### Utility Scripts
 
-1. `setup_demo_config.py` - Configuration helper
+1. `_setup_demo_config.py` - Configuration helper
    - Calculates MD5 hashes for dataset files
    - Helps prepare configuration for new datasets
-
-2. `test_multi_datasets.py` - Test suite
-   - Verifies system functionality
-   - Tests download mechanisms and error handling
 
 ## Cache Management
 
@@ -85,8 +81,8 @@ clear_cache()
 2. **Calculate file information**:
 
    ```bash
-   # Scan demo directory and show configuration status
-   python setup_demo_config.py
+   # Type the following command to scan demo directory and show configuration status
+   napari-relax-setup-demo-config
    ```
 
    This will:
