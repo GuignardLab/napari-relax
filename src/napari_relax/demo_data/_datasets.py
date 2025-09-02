@@ -1,10 +1,18 @@
 # Configuration for demo datasets
-DEMO_DATASETS = {
-    "demo": {
-        "filename": "demo.lT",
-        "url": None,  # To be set when you upload to Zenodo
-        "md5": "d601b8b9e0ebf92e2bb3f9a81915bc5f",  # Calculated from current file
-        "description": "Demo lineage tree dataset",
-        "size_mb": 1.09,  # Actual size from current file
-    }
-}
+import json
+from pathlib import Path
+
+def load_demo_datasets():
+    """Load demo datasets configuration from JSON file."""
+    datasets_file = Path(__file__).parent / "datasets.json"
+    with open(datasets_file, 'r') as f:
+        return json.load(f)
+
+def save_demo_datasets(datasets):
+    """Save demo datasets configuration to JSON file."""
+    datasets_file = Path(__file__).parent / "datasets.json"
+    with open(datasets_file, 'w') as f:
+        json.dump(datasets, f, indent=2)
+
+# Load the datasets
+DEMO_DATASETS = load_demo_datasets()

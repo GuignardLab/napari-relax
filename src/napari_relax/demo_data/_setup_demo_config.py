@@ -14,7 +14,7 @@ Usage:
 from pathlib import Path
 
 # Import the actual configuration
-from ._datasets import DEMO_DATASETS
+from ._datasets import DEMO_DATASETS, save_demo_datasets, load_demo_datasets
 from ._download_utils import calculate_md5
 
 
@@ -113,11 +113,11 @@ def propose_configurations(unconfigured_files):
 
         print(f"\nFile: {info['filename']}")
         print(f"Suggested dataset name: '{suggested_name}'")
-        print("Proposed configuration to add to _datasets.py:")
+        print("Proposed configuration:")
         print(f'    "{suggested_name}": {{')
         print(f'        "filename": "{info["filename"]}",')
         print(
-            '        "url": None,  # Set after uploading to hosting platform'
+            '        "url": null,  # Set after uploading to hosting platform'
         )
         print(f'        "md5": "{info["md5"]}",')
         print(
@@ -125,6 +125,74 @@ def propose_configurations(unconfigured_files):
         )
         print(f'        "size_mb": {info["size_mb"]}')
         print("    }},")
+
+    return [
+        {
+            "name": filepath.stem.replace("_demo", "").replace("-", "_").lower(),
+            "config": {
+                "filename": calculate_file_info(filepath)["filename"],
+                "url": None,
+                "md5": calculate_file_info(filepath)["md5"],
+                "description": "Demo dataset",
+                "size_mb": calculate_file_info(filepath)["size_mb"]
+            }
+        }
+        for filepath in unconfigured_files
+    ]
+
+
+def add_datasets_interactively(proposed_datasets):
+    """Interactively add new datasets to configuration."""
+    if not proposed_datasets:
+        return
+
+    print(f"\n{'='*60}")
+    print("INTERACTIVE DATASET ADDITION")
+    print(f"{'='*60}")
+    
+    datasets = load_demo_datasets()
+    added_count = 0
+    
+    for proposal in proposed_datasets:
+        print(f"\nDataset: '{proposal['name']}'")
+        print(f"File: {proposal['config']['filename']}")
+        print(f"MD5: {proposal['config']['md5']}")
+        print(f"Size: {proposal['config']['size_mb']} MB")
+        
+        while True:
+            choice = input("\nAdd this dataset? (y/n/e=edit name): ").lower().strip()
+            
+            if choice == 'y':
+                datasets[proposal['name']] = proposal['config']
+                print(f"✅ Added dataset '{proposal['name']}'")
+                added_count += 1
+                break
+            elif choice == 'n':
+                print(f"⏭️  Skipped dataset '{proposal['name']}'")
+                break
+            elif choice == 'e':
+                new_name = input(f"Enter new name (current: {proposal['name']}): ").strip()
+                if new_name and new_name not in datasets:
+                    proposal['name'] = new_name
+                    print(f"📝 Name updated to '{new_name}'")
+                elif new_name in datasets:
+                    print(f"❌ Name '{new_name}' already exists. Try again.")
+                else:
+                    print("❌ Invalid name. Try again.")
+            else:
+                print("Please enter 'y', 'n', or 'e'")
+    
+    if added_count > 0:
+        save_demo_datasets(datasets)
+        print(f"\n🎉 Successfully added {added_count} dataset(s) to configuration!")
+        print("💡 Remember to:")
+        print("   1. Update descriptions in datasets.json")
+        print("   2. Upload files to hosting platforms")
+        print("   3. Update URLs in datasets.json")
+        print("   4. Create loading functions in _load_demo.py")
+        print("   5. Register with napari in napari.yaml")
+    else:
+        print("\n📝 No datasets were added.")
 
 
 def setup_demo_config():
@@ -143,7 +211,7 @@ def setup_demo_config():
     show_configured_files(configured_files)
 
     # Propose configurations for unconfigured files
-    propose_configurations(unconfigured_files)
+    proposed_datasets = propose_configurations(unconfigured_files)
 
     print("\n" + "=" * 60)
     print("SUMMARY")
@@ -152,19 +220,25 @@ def setup_demo_config():
     print(f"Unconfigured files: {len(unconfigured_files)}")
 
     if unconfigured_files:
-        print("\nTo add unconfigured files:")
-        print("1. Copy the proposed configuration above")
-        print("2. Add it to the DEMO_DATASETS dictionary in _datasets.py")
-        print("3. Update the description field with meaningful text")
-        print("4. Create a loading function in _load_demo.py")
-        print("5. Register with napari in napari.yaml")
+        print(f"\nFound {len(unconfigured_files)} unconfigured file(s).")
+        
+        choice = input("Would you like to add them interactively? (y/n): ").lower().strip()
+        if choice == 'y':
+            add_datasets_interactively(proposed_datasets)
+        else:
+            print("\nTo add unconfigured files manually:")
+            print("1. Copy the proposed configuration above")
+            print("2. Add it to datasets.json")
+            print("3. Update the description field with meaningful text")
+            print("4. Create a loading function in _load_demo.py")
+            print("5. Register with napari in napari.yaml")
 
     if configured_files:
         print("\nConfigured files are ready for upload to hosting platforms.")
         print(
-            "Remember to update the 'url' field in _datasets.py after upload."
+            "Remember to update the 'url' field in datasets.json after upload."
         )
 
 
 if __name__ == "__main__":
-    main()
+    setup_demo_config()

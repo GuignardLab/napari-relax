@@ -15,28 +15,31 @@ data = load_demo()
 
 ## Configuration
 
-Datasets are configured in `_datasets.py`:
+Datasets are configured in `datasets.json`:
 
-```python
-DEMO_DATASETS = {
-    "demo": {
-        "filename": "demo.lT",
-        "url": "https://zenodo.org/records/XXXXX/files/demo.lT",  # Set after uploading to Zenodo
-        "md5": "d601b8b9e0ebf92e2bb3f9a81915bc5f", 
-        "description": "Demo lineage tree dataset",
-        "size_mb": 1.09
-    }
-    # ... other datasets ...
+```json
+{
+  "demo": {
+    "filename": "demo.lT",
+    "url": "https://zenodo.org/records/XXXXX/files/demo.lT",
+    "md5": "d601b8b9e0ebf92e2bb3f9a81915bc5f", 
+    "description": "Demo lineage tree dataset",
+    "size_mb": 1.09
+  }
 }
 ```
 
 ### Core Components
 
-1. `_datasets.py` - Dataset configuration registry
+1. `datasets.json` - Dataset configuration registry
    - Central configuration for all available datasets
    - Includes URLs, MD5 hashes, descriptions, and metadata
 
-2. `_download_utils.py` - Core download and caching system
+2. `_datasets.py` - Configuration loader
+   - Loads datasets.json and provides Python interface
+   - Provides functions to save/load dataset configurations
+
+3. `_download_utils.py` - Core download and caching system
    - Downloads data from remote repositories on-demand
    - Verifies file integrity with MD5 hashes
    - Implements local caching with automatic cleanup
@@ -86,23 +89,22 @@ clear_cache()
    ```
 
    This will:
-   - Show information about files already configured in `_datasets.py`
+   - Show information about files already configured in `datasets.json`
    - Detect any .lT files not yet configured
    - Propose configuration entries for new files
    - Check for mismatches between actual and configured MD5/size values
 
-3. **Add dataset configuration** to `_datasets.py`:
+3. **Add dataset configuration** to `datasets.json`:
 
-   ```python
-   DEMO_DATASETS = {
-       # ... existing datasets ...
-       "my_new_dataset": {
-           "filename": "[CHOSE A NAME].lT",
-           "url": "https://zenodo.org/records/XXXXX/files/my_data.lT",
-           "md5": "[CALCULATED MD5 HASH]", # can be set to None
-           "description": "Description of my dataset",
-           "size_mb": [SIZE IN MB] # can be set to None
-       }
+   ```json
+   {
+     "my_new_dataset": {
+       "filename": "[CHOSE A NAME].lT",
+       "url": "https://zenodo.org/records/XXXXX/files/my_data.lT",
+       "md5": "[CALCULATED MD5 HASH]",
+       "description": "Description of my dataset",
+       "size_mb": 2.5
+     }
    }
    ```
 
@@ -143,7 +145,7 @@ clear_cache()
 
 ### Removing a Dataset
 
-1. **Remove from** `_datasets.py`: Delete the dataset entry from `DEMO_DATASETS`
+1. **Remove from** `datasets.json`: Delete the dataset entry from the JSON configuration
 
 2. **Remove loading function**: Delete the corresponding function from `_load_demo.py`
 
@@ -160,7 +162,7 @@ clear_cache()
 
 ### Updating Dataset URLs or Metadata
 
-Simply edit the corresponding entry in `_datasets.py`. The system will automatically use the new configuration for future downloads.
+Simply edit the corresponding entry in `datasets.json`. The system will automatically use the new configuration for future downloads.
 
 ## How It Works
 

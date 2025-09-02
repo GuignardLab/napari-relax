@@ -1,4 +1,4 @@
-from ._datasets import DEMO_DATASETS
+from ._datasets import DEMO_DATASETS, save_demo_datasets, load_demo_datasets
 from ._download_utils import (
     clear_cache,
     ensure_demo_data,
@@ -14,4 +14,6 @@ __all__ = [
     "clear_cache",
     "setup_demo_config",
     "DEMO_DATASETS",
+    "save_demo_datasets",
+    "load_demo_datasets",
 ]
