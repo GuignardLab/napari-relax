@@ -1,6 +1,6 @@
 # Lazy Demo Data Implementation Guide
 
-This implementation provides a comprehensive lazy loading system for napari-relax demo data that automatically downloads datasets on-demand from remote repositories like Zenodo. 
+This implementation provides a comprehensive lazy loading system for napari-relax demo data that automatically downloads datasets on-demand from remote repositories like Zenodo.
 
 The system features automatic downloads with progress indicators when users request demo data, ensuring datasets are only downloaded when needed and cached locally to prevent re-downloading. File integrity is verified through MD5 hash validation, with corrupted files automatically re-downloaded, while network issues are handled gracefully with clear error messages and fallback mechanisms when possible. The architecture supports multiple datasets with individual configuration for sources and metadata, seamlessly integrating with napari's "Open Sample" menu without requiring changes to existing user workflows.
 
