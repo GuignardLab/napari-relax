@@ -30,34 +30,34 @@ DEMO_DATASETS = {
 }
 ```
 
-### 📁 **Core Components**
+### Core Components
 
-1. **`_datasets.py`** - Dataset configuration registry
+1. `_datasets.py` - Dataset configuration registry
    - Central configuration for all available datasets
    - Includes URLs, MD5 hashes, descriptions, and metadata
 
-2. **`_download_utils.py`** - Core download and caching system
+2. `_download_utils.py` - Core download and caching system
    - Downloads data from remote repositories on-demand
    - Verifies file integrity with MD5 hashes
    - Implements local caching with automatic cleanup
    - Handles network errors gracefully
 
-3. **`_load_demo.py`** - Demo loading functions
+3. `_load_demo.py` - Demo loading functions
    - Provides dataset loading functions (e.g., `load_demo()`)
    - Uses lazy loading with automatic download
    - Integrates seamlessly with napari's sample data interface
 
-4. **`.gitignore`** - Version control exclusions
+4. `.gitignore` - Version control exclusions
    - Excludes downloaded files from git tracking
    - Keeps repository size minimal
 
-### 🛠️ **Utility Scripts**
+### Utility Scripts
 
-5. **`setup_demo_config.py`** - Configuration helper
+5. `setup_demo_config.py` - Configuration helper
    - Calculates MD5 hashes for dataset files
    - Helps prepare configuration for new datasets
 
-6. **`test_multi_datasets.py`** - Test suite
+6. `test_multi_datasets.py` - Test suite
    - Verifies system functionality
    - Tests download mechanisms and error handling
 
@@ -76,9 +76,9 @@ clear_cache("demo")
 clear_cache()
 ```
 
-## 📋 **Managing Datasets**
+## Managing Datasets
 
-### **Adding a New Dataset**
+### Adding a New Dataset
 
 1. **Prepare the dataset file** and upload to a hosting service (Zenodo, etc.)
 
@@ -139,9 +139,9 @@ clear_cache()
    ]
    ```
 
-### **Removing a Dataset**
+### Removing a Dataset
 
-1. **Remove from `_datasets.py`**: Delete the dataset entry from `DEMO_DATASETS`
+1. **Remove from** `_datasets.py`: Delete the dataset entry from `DEMO_DATASETS`
 
 2. **Remove loading function**: Delete the corresponding function from `_load_demo.py`
 
@@ -155,11 +155,11 @@ clear_cache()
    clear_cache("dataset_name")
    ```
 
-### **Updating Dataset URLs or Metadata**
+### Updating Dataset URLs or Metadata
 
 Simply edit the corresponding entry in `_datasets.py`. The system will automatically use the new configuration for future downloads.
 
-## � **How It Works**
+## How It Works
 
 1. User selects a sample dataset in napari ("Open Sample" menu)
 2. System checks if the dataset file exists locally
@@ -170,49 +170,10 @@ Simply edit the corresponding entry in `_datasets.py`. The system will automatic
 
 The system is backward compatible - existing users with cached data won't notice any difference, while new users get automatic downloads.
 
-## 🎯 **Use Cases**
-
-### **Package Maintainers**
-- Reduce package size by removing bundled data
-- Update datasets without releasing new package versions
-- Add/remove datasets easily through configuration
-
-### **Users**
-- Automatic download of demo data when needed
-- No manual download steps required
-- Reliable data integrity verification
-
-### **Researchers**
-- Host datasets on professional platforms (Zenodo) with DOIs
-- Version control for datasets
-- Citation-ready data hosting
-
-## �️ **Development Tools**
-
-### **Testing**
-```bash
-# Test the multi-dataset system
-python src/napari_relax/demo_data/test_multi_datasets.py
-
-# Check dataset status
-python -c "from napari_relax.demo_data import get_cached_datasets; print(get_cached_datasets())"
-```
-
-### **Configuration Helper**
-```bash
-# Scan demo directory for files and check configuration status
-python src/napari_relax/demo_data/setup_demo_config.py
-```
-
-This helper script will:
-- Scan for .lT files in the demo directory
-- Show information about already configured files
-- Propose configuration entries for unconfigured files
-- Detect mismatches between actual and configured file properties
-
-## 🌐 **Available Hosting Platforms Ideas**
+## Available Hosting Platforms Ideas
 
 The system works with any platform that provides direct download URLs:
-- **[Zenodo](https://zenodo.org/)**
-- **[Figshare](https://figshare.com/)** 
-- **[GitHub Releases](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases)**
+
+- [Zenodo](https://zenodo.org/)
+- [Figshare](https://figshare.com/)
+- [GitHub Releases](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases)
