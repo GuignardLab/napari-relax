@@ -305,10 +305,10 @@ def layer_preparation(lT: LineageTree, path: str = ""):
             "opacity": 0.25,
             "shading": "smooth",
             "metadata": {
-                "LineageTree": lT,
                 "lT2napari": lT_to_here,
                 "napari2lT": here_to_lT,
                 "node_to_vertex_range": node_to_vertex_range,
+                "points_layer_name": path,  # Reference to find the Points layer
             },
         }
 

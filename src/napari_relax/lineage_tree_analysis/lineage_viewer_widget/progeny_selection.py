@@ -421,6 +421,31 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.signal.emit(self.labels)
         self.canvas.draw_graph()
 
+    def _establish_layer_links(self, points_layer):
+        """Establish links from companion layers to the Points layer."""
+        from napari.layers import Surface, Tracks
+        
+        if not points_layer:
+            return
+            
+        points_name = points_layer.name
+        
+        # Find and link Surface layers
+        for layer in self.viewer.layers:
+            if isinstance(layer, Surface):
+                if (hasattr(layer, 'metadata') and 
+                    'points_layer_name' in layer.metadata and
+                    layer.metadata['points_layer_name'] == points_name):
+                    layer.metadata['link'] = points_layer
+            elif isinstance(layer, Tracks):
+                # For Tracks layers, we can also establish links if they have matching metadata
+                if (hasattr(layer, 'metadata') and 
+                    'lT2napari' in layer.metadata and
+                    hasattr(points_layer, 'metadata') and
+                    'lT2napari' in points_layer.metadata and
+                    layer.metadata['lT2napari'] == points_layer.metadata['lT2napari']):
+                    layer.metadata['link'] = points_layer
+
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
 
@@ -431,6 +456,9 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         
         # Initialize multi-layer interaction bridge with specific Points layer
         self.bridge = InteractionBridge(napari_viewer, points_layer)
+        
+        # Establish links from companion layers to the Points layer
+        self._establish_layer_links(points_layer)
 
         self.lT: LineageTree = self.get_lT()
         if self.lT:

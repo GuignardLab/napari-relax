@@ -158,7 +158,7 @@ class PointsAdapter(LayerAdapter):
             return None
             
         # Sample points along the ray
-        ray_points = np.linspace(near_point, far_point, 30, endpoint=True)
+        ray_points = np.linspace(near_point, far_point, 1000, endpoint=True)
         
         # Get points at the current time
         time_mask = np.isclose(self.layer.data[:, 0], time)
@@ -375,32 +375,20 @@ class InteractionBridge:
         # Register Points adapter
         self.adapters['points'] = PointsAdapter(primary_points, node_to_napari, napari_to_node)
         
-        # Get the LineageTree identifier for matching
-        primary_lineage_tree = primary_points.metadata.get('LineageTree')
-        
-        # Look for related Surface layers
+        # Look for related Surface layers using the "link" metadata
         for layer in viewer.layers:
             if (isinstance(layer, Surface) and 
                 hasattr(layer, 'metadata') and
+                'link' in layer.metadata and
+                layer.metadata['link'] == primary_points and
                 'node_to_vertex_range' in layer.metadata):
                 
-                # Check if this surface belongs to the same LineageTree
-                surface_lineage_tree = layer.metadata.get('LineageTree')
-                surface_node_to_napari = layer.metadata.get('lT2napari', {})
-                
-                # Match by LineageTree ID or by mapping compatibility
-                is_same_lineage = (
-                    (primary_lineage_tree is not None and surface_lineage_tree == primary_lineage_tree) or
-                    (surface_node_to_napari == node_to_napari)
+                adapter = SurfaceAdapter(
+                    layer, node_to_napari, napari_to_node,
+                    layer.metadata['node_to_vertex_range']
                 )
-                
-                if is_same_lineage:
-                    adapter = SurfaceAdapter(
-                        layer, node_to_napari, napari_to_node,
-                        layer.metadata['node_to_vertex_range']
-                    )
-                    self.adapters['surface'] = adapter
-                    break
+                self.adapters['surface'] = adapter
+                break
         
         # Look for related Tracks layers
         for layer in viewer.layers:

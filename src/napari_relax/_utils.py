@@ -13,7 +13,7 @@ def _select_correct_layer(self, layer_type):
     """
     Finds the correct layer of the specified type that corresponds to the currently active layer.
     If the active layer is already of the correct type, returns it.
-    Otherwise, finds a layer of the correct type that belongs to the same LineageTree.
+    Otherwise, looks for a "link" metadata in the active layer pointing to the correct layer.
 
     Args:
         layer_type (Points/Tracks): The layer the script needs to use.
@@ -25,19 +25,11 @@ def _select_correct_layer(self, layer_type):
         if isinstance(active_layer, layer_type):
             return active_layer
         else:
-            # If active layer has a direct "link" metadata, use it
-            if hasattr(active_layer, 'metadata') and "link" in active_layer.metadata:
+            # Look for a "link" metadata in the active layer
+            if (hasattr(active_layer, 'metadata') and 
+                "link" in active_layer.metadata and
+                isinstance(active_layer.metadata["link"], layer_type)):
                 return active_layer.metadata["link"]
-            
-            # Find a layer of the correct type that belongs to the same LineageTree
-            if hasattr(active_layer, 'metadata') and 'LineageTree' in active_layer.metadata:
-                active_lineage_tree = active_layer.metadata['LineageTree']
-                for layer in self.viewer.layers:
-                    if (isinstance(layer, layer_type) and 
-                        hasattr(layer, 'metadata') and 
-                        'LineageTree' in layer.metadata and
-                        layer.metadata['LineageTree'] is active_lineage_tree):
-                        return layer
     
     # Fallback: return None if no matching layer found
     return None
