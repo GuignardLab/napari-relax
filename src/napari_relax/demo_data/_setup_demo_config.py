@@ -127,7 +127,7 @@ def propose_configurations(unconfigured_files):
         print("    }},")
 
 
-def main():
+def setup_demo_config():
     print("napari-relax Demo Data Configuration Helper")
     print("=" * 50)
     print()
