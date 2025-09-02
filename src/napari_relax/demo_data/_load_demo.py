@@ -11,7 +11,7 @@ directory = os.path.dirname(__file__)
 def load_demo():
     """
     Adds the lineage tree to the viewer.
-    
+
     This function will automatically download demo data if it's not available locally.
     The download is performed only once and the data is cached for future use.
     """

@@ -53,11 +53,11 @@ DEMO_DATASETS = {
 
 ### Utility Scripts
 
-5. `setup_demo_config.py` - Configuration helper
+1. `setup_demo_config.py` - Configuration helper
    - Calculates MD5 hashes for dataset files
    - Helps prepare configuration for new datasets
 
-6. `test_multi_datasets.py` - Test suite
+2. `test_multi_datasets.py` - Test suite
    - Verifies system functionality
    - Tests download mechanisms and error handling
 
@@ -83,17 +83,20 @@ clear_cache()
 1. **Prepare the dataset file** and upload to a hosting service (Zenodo, etc.)
 
 2. **Calculate file information**:
+
    ```bash
    # Scan demo directory and show configuration status
    python setup_demo_config.py
    ```
+
    This will:
    - Show information about files already configured in `_datasets.py`
-   - Detect any .lT files not yet configured 
+   - Detect any .lT files not yet configured
    - Propose configuration entries for new files
    - Check for mismatches between actual and configured MD5/size values
 
 3. **Add dataset configuration** to `_datasets.py`:
+
    ```python
    DEMO_DATASETS = {
        # ... existing datasets ...
@@ -108,6 +111,7 @@ clear_cache()
    ```
 
 4. **Create a loading function** in `_load_demo.py`:
+
    ```python
    def load_my_new_dataset():
        """Load my new dataset."""
@@ -119,6 +123,7 @@ clear_cache()
    ```
 
 5. **Register with napari** in `napari.yaml`:
+
    ```yaml
    commands:
      - id: napari-relax.load_my_new_dataset
@@ -132,6 +137,7 @@ clear_cache()
    ```
 
 6. **Export the function** in `__init__.py`:
+
    ```python
    __all__ = [
        # ... existing exports ...
@@ -150,6 +156,7 @@ clear_cache()
 4. **Update exports**: Remove from `__init__.py`
 
 5. **Clear cached files** (optional):
+
    ```python
    from napari_relax.demo_data import clear_cache
    clear_cache("dataset_name")
