@@ -106,13 +106,13 @@ class LineageTreeAnalysisWidget(ReLAXWidget):
         ].w_lineedit.returnPressed.connect(
             self.widget_dictionary["Distance Calculation"].label_update
         )
-        self.widget_dictionary[
-            "Attribute Based Recoloring"
-        ].coloring_widget.quant.color_signal.connect(
-            self.widget_dictionary[
-                "Explore and Relabel"
-            ].canvas.change_attributes
-        )
+        # self.widget_dictionary[
+        #     "Attribute Based Recoloring"
+        # ].coloring_widget.quant.color_signal.connect(
+        #     self.widget_dictionary[
+        #         "Explore and Relabel"
+        #     ].canvas.change_attributes
+        # )
 
 
 class CrossEmbryoComparisonWidget(ReLAXWidget):
