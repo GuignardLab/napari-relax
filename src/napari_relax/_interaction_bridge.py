@@ -201,16 +201,26 @@ class PointsAdapter(LayerAdapter):
 class SurfaceAdapter(LayerAdapter):
     """Adapter for Surface layers."""
     
-    def __init__(self, layer, node_to_napari: Dict[int, Any], napari_to_node: Dict[Any, int], 
-                 node_to_vertex_range: Dict[int, tuple]):
+    def __init__(self, layer, node_to_vertex_range: Dict[int, tuple]):
         """
         Initialize surface adapter with vertex range mappings.
+        Gets node mappings from the linked Points layer.
         
         Parameters
         ----------
+        layer : napari.layers.Surface
+            The Surface layer to adapt
         node_to_vertex_range : dict
             Mapping from node_id to (start_vertex_idx, end_vertex_idx) in surface data
         """
+        # Get mappings from the linked Points layer
+        if 'link' in layer.metadata and hasattr(layer.metadata['link'], 'metadata'):
+            points_metadata = layer.metadata['link'].metadata
+            node_to_napari = points_metadata.get('lT2napari', {})
+            napari_to_node = points_metadata.get('napari2lT', {})
+        else:
+            raise ValueError("Surface layer must have a 'link' to a Points layer with node mappings")
+        
         super().__init__(layer, node_to_napari, napari_to_node)
         self.node_to_vertex_range = node_to_vertex_range
     
@@ -274,6 +284,26 @@ class SurfaceAdapter(LayerAdapter):
 class TracksAdapter(LayerAdapter):
     """Adapter for Tracks layers."""
     
+    def __init__(self, layer):
+        """
+        Initialize tracks adapter.
+        Gets node mappings from the linked Points layer.
+        
+        Parameters
+        ----------
+        layer : napari.layers.Tracks
+            The Tracks layer to adapt
+        """
+        # Get mappings from the linked Points layer
+        if 'link' in layer.metadata and hasattr(layer.metadata['link'], 'metadata'):
+            points_metadata = layer.metadata['link'].metadata
+            node_to_napari = points_metadata.get('lT2napari', {})
+            napari_to_node = points_metadata.get('napari2lT', {})
+        else:
+            raise ValueError("Tracks layer must have a 'link' to a Points layer with node mappings")
+        
+        super().__init__(layer, node_to_napari, napari_to_node)
+    
     def show_only_nodes(self, node_ids: List[int]) -> None:
         """Show only specified tracks."""
         # For tracks, we can use the layer's shown property if available
@@ -309,10 +339,10 @@ class TracksAdapter(LayerAdapter):
 
 class InteractionBridge:
     """
-    Simple coordinator for multi-layer lineage interactions.
+    Coordinator for multi-layer lineage interactions with state management.
     
-    This class discovers related layers through shared metadata and coordinates
-    interactions between them without complex coupling mechanisms.
+    This class discovers related layers through shared metadata, coordinates
+    interactions between them, and maintains state for a specific lineage tree.
     """
     
     def __init__(self, viewer=None, primary_points=None):
@@ -321,8 +351,20 @@ class InteractionBridge:
         self.viewer = viewer
         self.primary_points = primary_points
         
+        # State storage for this specific lineage tree
+        self.state = {
+            'graph_slider_value': 0,
+            'selected_lineage': None,
+            'selected_subtree': set(),
+            'canvas_state': None,
+            'visibility_state': 'all_visible'  # 'all_visible', 'lineage_hidden', 'lineage_only'
+        }
+        
         # If viewer is provided, set up automatic rediscovery
         if self.viewer:
+            # Establish links for companion layers first
+            self._establish_layer_links()
+            # Then discover layers
             self.discover_layers(self.viewer, primary_points)
             # Connect to layer events to automatically rediscover when layers change
             self.viewer.layers.events.inserted.connect(self._on_layers_changed)
@@ -331,8 +373,47 @@ class InteractionBridge:
     def _on_layers_changed(self, event):
         """Handle layer list changes by rediscovering layers."""
         if self.viewer:
+            # First establish links for any new companion layers
+            self._establish_layer_links()
+            # Then rediscover layers (which will now find the newly linked layers)
             self.discover_layers(self.viewer, self.primary_points)
     
+    def _establish_layer_links(self):
+        """Establish links from companion layers to the primary Points layer."""
+        if not self.viewer or not self.primary_points:
+            return
+            
+        from napari.layers import Surface, Tracks
+        
+        # Get the unique lineage tree ID from the primary Points layer
+        if not hasattr(self.primary_points, 'metadata') or 'lineage_tree_id' not in self.primary_points.metadata:
+            return  # Cannot establish links without unique ID
+        
+        lineage_tree_id = self.primary_points.metadata['lineage_tree_id']
+        points_name = self.primary_points.name
+        
+        # Find and link Surface layers using unique ID
+        for layer in self.viewer.layers:
+            if isinstance(layer, Surface):
+                if (hasattr(layer, 'metadata') and 
+                    'lineage_tree_id' in layer.metadata and
+                    layer.metadata['lineage_tree_id'] == lineage_tree_id and
+                    'link' not in layer.metadata):  # Only link if not already linked
+                    layer.metadata['link'] = self.primary_points
+            elif isinstance(layer, Tracks):
+                # For Tracks layers, establish links based on naming convention
+                # or if they already have a link metadata pointing to the same Points layer
+                if (hasattr(layer, 'metadata') and 
+                    'link' in layer.metadata and
+                    layer.metadata['link'] == self.primary_points):
+                    # Link already exists, nothing to do
+                    pass
+                elif (layer.name.startswith(points_name) or f"_{points_name}_" in layer.name) and \
+                     (not hasattr(layer, 'metadata') or 'link' not in layer.metadata):
+                    if not hasattr(layer, 'metadata'):
+                        layer.metadata = {}
+                    layer.metadata['link'] = self.primary_points
+
     def discover_layers(self, viewer, primary_points=None) -> bool:
         """
         Discover and register related layers in the viewer.
@@ -384,8 +465,7 @@ class InteractionBridge:
                 'node_to_vertex_range' in layer.metadata):
                 
                 adapter = SurfaceAdapter(
-                    layer, node_to_napari, napari_to_node,
-                    layer.metadata['node_to_vertex_range']
+                    layer, layer.metadata['node_to_vertex_range']
                 )
                 self.adapters['surface'] = adapter
                 break
@@ -397,7 +477,7 @@ class InteractionBridge:
                 'link' in layer.metadata and 
                 layer.metadata['link'] == primary_points):
                 
-                adapter = TracksAdapter(layer, node_to_napari, napari_to_node)
+                adapter = TracksAdapter(layer)
                 self.adapters['tracks'] = adapter
                 break
         
@@ -469,3 +549,59 @@ class InteractionBridge:
     def get_registered_layers(self) -> List[str]:
         """Get list of registered layer types."""
         return list(self.adapters.keys())
+    
+    def save_state(self, **kwargs) -> None:
+        """Save state parameters for this lineage tree."""
+        self.state.update(kwargs)
+    
+    def get_state(self, key: str = None):
+        """Get state value(s) for this lineage tree."""
+        if key is None:
+            return self.state.copy()
+        return self.state.get(key)
+    
+    def restore_state(self, widget) -> None:
+        """Restore widget visibility state from saved state."""
+        # Note: graph_slider_value and canvas state are restored in the widget's layer_change method
+        
+        # Restore visibility state
+        visibility_state = self.state.get('visibility_state', 'all_visible')
+        if visibility_state == 'all_visible':
+            self.reset_visibility()
+        elif visibility_state == 'lineage_only' and self.state.get('visible_lineage'):
+            self.show_only_lineages(list(self.state['visible_lineage']))
+        elif visibility_state == 'lineage_hidden' and self.state.get('hidden_lineage'):
+            self.hide_lineages(list(self.state['hidden_lineage']))
+        elif visibility_state == 'all_hidden':
+            self.show_only_nodes([])
+    
+    @classmethod
+    def get_bridge_for_layer(cls, layer):
+        """Get the InteractionBridge associated with a layer."""
+        # For Points layers, get bridge directly from metadata
+        if hasattr(layer, 'metadata') and 'interaction_bridge' in layer.metadata:
+            return layer.metadata['interaction_bridge']
+        
+        # For companion layers, follow the link to get the bridge
+        if (hasattr(layer, 'metadata') and 
+            'link' in layer.metadata and 
+            hasattr(layer.metadata['link'], 'metadata') and
+            'interaction_bridge' in layer.metadata['link'].metadata):
+            return layer.metadata['link'].metadata['interaction_bridge']
+        
+        return None
+    
+    @classmethod
+    def create_bridge_for_points_layer(cls, viewer, points_layer):
+        """Create and store an InteractionBridge in a Points layer's metadata."""
+        bridge = cls(viewer, points_layer)
+        points_layer.metadata['interaction_bridge'] = bridge
+        
+        # Initialize with default state
+        bridge.save_state(
+            graph_slider_value=0,
+            selected_subtree=set(),
+            visibility_state='all_visible'
+        )
+        
+        return bridge

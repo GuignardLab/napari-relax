@@ -38,7 +38,13 @@ class SingleTreeProgeny(FigureCanvas):
         if self.all_selected is True:
             self.selected_subtree = signal["selected_nodes"]
         else:
-            self.selected_subtree.clear()
+            # Ensure selected_subtree exists before trying to clear it
+            if hasattr(self, 'selected_subtree') and self.selected_subtree is not None:
+                self.selected_subtree.clear()
+            else:
+                self.selected_subtree = set()
+        
+        # draw_graph now handles its own canvas initialization checks
         self.draw_graph()
 
     def __init__(
@@ -218,6 +224,7 @@ class SingleTreeProgeny(FigureCanvas):
             if not self.all_selected:
                 self.selected_subtree = set(self.lT.get_subtree_nodes(cell))
             self.draw_graph()
+            foo = 'bar'
 
     def reset(self, event):
         if event.key == "z":
@@ -301,6 +308,10 @@ class SingleTreeProgeny(FigureCanvas):
         self.draw()
 
     def draw_graph(self, reset=False):
+        # Safety check: Don't draw if canvas is not properly initialized
+        if not hasattr(self, 'ax') or self.ax is None:
+            return
+        
         if not reset:
             xlim = self.ax.get_xlim()
             ylim = self.ax.get_ylim()
