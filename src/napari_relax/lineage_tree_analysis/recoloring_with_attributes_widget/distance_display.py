@@ -21,6 +21,10 @@ class DisplayDistances(LayerCorrectorTreeProducer):
 
     def point_click(self, viewer, event):
         active_layer = _select_correct_layer(self, Points)
+        
+        # Check if we found a valid active layer
+        if active_layer is None:
+            return
 
         # Get LineageTree from active layer or its linked layer
         lineage_tree = None
