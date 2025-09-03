@@ -1,6 +1,4 @@
-from lineagetree import LineageTree
-from napari.layers import Points
-from typing import TYPE_CHECKING, Any, Union
+from typing import Any
 from napari.utils.notifications import show_error
 
 import os
