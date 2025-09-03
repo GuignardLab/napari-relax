@@ -7,6 +7,7 @@ https://napari.org/stable/plugins/guides.html?#readers
 """
 
 from pathlib import Path
+import uuid
 
 import numpy as np
 from lineagetree import (
@@ -171,7 +172,7 @@ def _infer_point_size(lT: LineageTree):
         return min_dist
 
 
-def layer_preparation(lT: LineageTree, path: str = ""):
+def layer_preparation(lT: LineageTree, points_layer_name: str = ""):
     tracks = lT.all_chains
     first_c_to_track = {}
     last_c_of_track = {}
@@ -194,7 +195,8 @@ def layer_preparation(lT: LineageTree, path: str = ""):
             c_id += 1
     here_to_lT = {v: k for k, v in lT_to_here.items()}
     data = np.array(data, dtype=float)
-    data[:, 2:] -= data[:, 2:].mean(axis=0)
+    barycenter = data[:, 2:].mean(axis=0)
+    data[:, 2:] -= barycenter
 
     clone = np.zeros(len(data))
     roots = lT.roots
@@ -207,8 +209,12 @@ def layer_preparation(lT: LineageTree, path: str = ""):
             clone[lT_to_here[cell]] = i
             clone2[lT_to_here[cell], :] = color
 
-    if Path(path).stem:
-        path = Path(path).stem
+    if Path(points_layer_name).stem:
+        points_layer_name = Path(points_layer_name).stem
+    
+    # Create a unique identifier for this lineage tree to link Points and Surface layers
+    lineage_tree_id = str(uuid.uuid4())
+    
     graphs = lT._create_dict_of_plots(
         {
             root
@@ -246,8 +252,9 @@ def layer_preparation(lT: LineageTree, path: str = ""):
             "napari2lT": here_to_lT,
             "clone2": clone2,
             "graphs": (graphs, pos),
-            "name_for_manager": path,
+            "name_for_manager": points_layer_name,
             "data": data,
+            "lineage_tree_id": lineage_tree_id,  # Unique identifier for linking companion layers
             "graph_to_create_tracks": {
                 "graph": graph,
                 "properties": {
@@ -256,7 +263,7 @@ def layer_preparation(lT: LineageTree, path: str = ""):
                 },
             },
         },
-        "name": path,
+        "name": points_layer_name,
         "face_color": clone2,
         "shading": "spherical",
     }
@@ -275,7 +282,6 @@ def layer_preparation(lT: LineageTree, path: str = ""):
             successor: root for root, successors in dict_roots_to_successors.items()
             for successor in successors
         }
-        napari_surface = _extract_napari_surface_from_lT(lT, dict_successors_to_roots)
 
         vertex_colors = []
         node_to_vertex_range = {}  # Track vertex ranges for each node
@@ -294,21 +300,23 @@ def layer_preparation(lT: LineageTree, path: str = ""):
                 [cmap.map(root_index)] * num_vertices
             )
 
+        all_points, all_triangles, values = _extract_napari_surface_from_lT(lT, dict_successors_to_roots)
+        
+        all_points[:, 1:] -= barycenter #TODO think about barycenter
+
         napari_surface = (
-            napari_surface[0],
-            napari_surface[1],
+            all_points,
+            all_triangles
         )
 
         add_kwargs_surface = {
-            "name": f"{path}_mesh",
+            "name": f"{points_layer_name}_mesh",
             "vertex_colors": np.array(vertex_colors),
             "opacity": 0.25,
             "shading": "smooth",
             "metadata": {
-                "lT2napari": lT_to_here,
-                "napari2lT": here_to_lT,
                 "node_to_vertex_range": node_to_vertex_range,
-                "points_layer_name": path,  # Reference to find the Points layer
+                "lineage_tree_id": lineage_tree_id,  # Unique identifier for linking to Points layer
             },
         }
 
