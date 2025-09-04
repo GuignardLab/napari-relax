@@ -261,6 +261,9 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         
         points_layer.selected_data.clear()
         if not event:
+            # Background click - unselect everything and reset all companion layer visibility
+            if hasattr(self, 'bridge') and self.bridge.adapters:
+                self.bridge.reset_visibility()
             points_layer.refresh()
             return
         cell_id = event["value"]
