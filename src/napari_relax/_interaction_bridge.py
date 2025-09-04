@@ -518,11 +518,6 @@ class InteractionBridge:
         for adapter in self.adapters.values():
             adapter.reset_visibility()
     
-    def reset_all_visibility(self) -> None:
-        """Reset visibility across all registered layers."""
-        for adapter in self.adapters.values():
-            adapter.reset_visibility()
-    
     def find_node_at_position(self, position: np.ndarray, view_direction: np.ndarray, dims_displayed: np.ndarray) -> Optional[tuple]:
         """
         Find a node at the given position across all clickable layers.
