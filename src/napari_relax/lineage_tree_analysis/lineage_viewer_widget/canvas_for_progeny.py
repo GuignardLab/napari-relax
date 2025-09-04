@@ -224,7 +224,6 @@ class SingleTreeProgeny(FigureCanvas):
             if not self.all_selected:
                 self.selected_subtree = set(self.lT.get_subtree_nodes(cell))
             self.draw_graph()
-            foo = 'bar'
 
     def reset(self, event):
         if event.key == "z":
