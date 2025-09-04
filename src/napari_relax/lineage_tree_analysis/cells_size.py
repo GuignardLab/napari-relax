@@ -81,8 +81,13 @@ class CellSize(LayerCorrectorTreeProducer):
         if len(self.viewer.layers.selection) == 1:
             if self.vis_button.value:
                 self.see_one_layer()
-            else:
-                self.see_all_layers()
+
+            # I don't think the lines below are useful, because
+            # if vis_button is not pressed in the first place, 
+            # there is no reason to make invisible layers visible again.
+            
+            # else:
+            #     self.see_all_layers()
 
     def write_embryo(self):
         lT = self.get_lT()
