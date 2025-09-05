@@ -1,36 +1,18 @@
-from numbers import Number
 from typing import TYPE_CHECKING
-from warnings import warn
-from PyQt5.QtCore import Qt
+
+import numpy as np
 from napari._qt.layer_controls.qt_colormap_combobox import QtColormapComboBox
 from napari.utils.colormaps import AVAILABLE_COLORMAPS
-import numpy as np
-from qtpy.QtGui import QPixmap, QIcon, QImage
-from qtpy.QtWidgets import QApplication, QLabel
-from magicgui import widgets
-from matplotlib.pyplot import colormaps
-from napari.layers import Points
-from psygnal import Signal
-from qtpy.QtGui import QDoubleValidator
+from qtpy.QtGui import QIcon, QImage, QPixmap
 from qtpy.QtWidgets import (
-    QButtonGroup,
-    QCheckBox,
-    QComboBox,
-    QHBoxLayout,
-    QLineEdit,
     QPushButton,
-    QSizePolicy,
-    QSpacerItem,
-    QStackedWidget,
     QVBoxLayout,
     QWidget,
 )
-import matplotlib.pyplot as plt
+
 from ..._util_classes import (
-    LayerCorrectorTreeProducer,
     Containerize,
 )
-from ..._utils import _select_correct_layer
 
 if TYPE_CHECKING:
     pass

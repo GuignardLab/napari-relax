@@ -33,9 +33,9 @@ from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
 
 from ..._util_classes import (
-    LayerCorrectorTreeProducer,
     Containerize,
     DelayedTooltipEventFilter,
+    LayerCorrectorTreeProducer,
     TooltipButton,
 )
 from ..._utils import _select_correct_layer

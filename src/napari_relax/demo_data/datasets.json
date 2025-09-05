@@ -1,0 +1,16 @@
+{
+  "demo": {
+    "filename": "demo.lT",
+    "url": null,
+    "md5": "d601b8b9e0ebf92e2bb3f9a81915bc5f",
+    "description": "Demo lineage tree dataset",
+    "size_mb": 1.09
+  },
+  "C.elegans": {
+    "filename": "c.elegans.smoothed.lT",
+    "url": "https://zenodo.org/records/17061487/files/c.elegans.smoothed.lT?download=1",
+    "md5": "d5575e4f287253ba85c6aca387df932c",
+    "description": "C. elegans dataset with lineage tree and gene expression",
+    "size_mb": 41.6
+  }
+}

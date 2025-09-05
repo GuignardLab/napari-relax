@@ -23,8 +23,8 @@ from qtpy.QtWidgets import (
 )
 
 from ..._util_classes import (
-    LayerCorrectorTreeProducer,
     Containerize,
+    LayerCorrectorTreeProducer,
 )
 from ..._utils import _select_correct_layer
 from .colorboxlabel import ColorBoxLabel
@@ -215,7 +215,7 @@ class Quantitative(LayerCorrectorTreeProducer):
         _cmap = AVAILABLE_COLORMAPS[self.combobox_continuous.currentData()]
 
         def cmap(x):
-            _cmap.map(x)[0]
+            return _cmap.map(x)[0]
 
         attr = self.selected_attribute.currentText()
         if attr == "None":

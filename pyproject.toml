@@ -53,6 +53,9 @@ testing = [
 [project.entry-points."napari.manifest"]
 napari-relax = "napari_relax:napari.yaml"
 
+[project.scripts]
+napari-relax-setup-demo-config = "napari_relax.demo_data:setup_demo_config"
+
 [project.urls]
 "Bug Tracker" = "https://github.com/guignardlab/napari-relax/issues"
 "Documentation" = "https://github.com/guignardlab/napari-relax#README.md"

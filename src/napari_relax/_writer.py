@@ -1,7 +1,7 @@
-from typing import Any
-from napari.utils.notifications import show_error
-
 import os
+from typing import Any
+
+from napari.utils.notifications import show_error
 
 
 def write_single_image(path: str, data: Any, meta: dict) -> list[str]:
