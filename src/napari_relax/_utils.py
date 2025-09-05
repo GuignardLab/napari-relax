@@ -23,7 +23,15 @@ def _infer_point_size(lT: "LineageTree"):
     optimal_dist = float("inf")
     maximal_dist = 0
 
-    for t in lT.time_nodes:
+    timepoints = list(lT.time_nodes.keys())
+    if len(timepoints) > 100:
+        # Sample evenly across the timeline
+        step = len(timepoints) // 10
+        sampled_timepoints = timepoints[::step]
+    else:
+        sampled_timepoints = timepoints
+
+    for t in sampled_timepoints:
         nodes = lT.time_nodes[t]
         if 1 < len(nodes):
             idx3d, nodes = lT.get_idx3d(t)

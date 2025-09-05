@@ -162,39 +162,6 @@ def _extract_napari_surface_from_lT(lT: LineageTree):
 
     return all_points, all_triangles    
 
-def _infer_point_size(lT: LineageTree):
-    """
-    Infer a point size based on nearest neighbor distances.
-    Current heuristic is to return the minimum median nearest neighbor distance
-    across sampled time points in the lineage tree.
-    If no points are found, return a default size of 100.
-    """
-    #TODO: remove before merging
-    min_dist = float("inf")
-    
-    timepoints = list(lT.time_nodes.keys())
-    if len(timepoints) > 100:
-        # Sample evenly across the timeline
-        step = len(timepoints) // 10
-        sampled_timepoints = timepoints[::step]
-    else:
-        sampled_timepoints = timepoints
-
-    for t in sampled_timepoints:
-        nodes = lT.time_nodes[t]
-        if 1 < len(nodes):
-            idx3d, nodes = lT.get_idx3d(t)
-            min_dist = min(
-                min_dist,
-                np.median(idx3d.query(idx3d.data, k=2)[0][:, 1])
-            )
-
-    if min_dist == float("inf"):
-        return 100
-    else:
-        return min_dist
-
-
 def layer_preparation(lT: LineageTree, points_layer_name: str = ""):
     tracks = lT.all_chains
     first_c_to_track = {}
