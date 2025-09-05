@@ -128,14 +128,16 @@ def propose_configurations(unconfigured_files):
 
     return [
         {
-            "name": filepath.stem.replace("_demo", "").replace("-", "_").lower(),
+            "name": filepath.stem.replace("_demo", "")
+            .replace("-", "_")
+            .lower(),
             "config": {
                 "filename": calculate_file_info(filepath)["filename"],
                 "url": None,
                 "md5": calculate_file_info(filepath)["md5"],
                 "description": "Demo dataset",
-                "size_mb": calculate_file_info(filepath)["size_mb"]
-            }
+                "size_mb": calculate_file_info(filepath)["size_mb"],
+            },
         }
         for filepath in unconfigured_files
     ]
@@ -160,20 +162,26 @@ def add_datasets_interactively(proposed_datasets):
         print(f"Size: {proposal['config']['size_mb']} MB")
 
         while True:
-            choice = input("\nAdd this dataset? (y/n/e=edit name): ").lower().strip()
+            choice = (
+                input("\nAdd this dataset? (y/n/e=edit name): ")
+                .lower()
+                .strip()
+            )
 
-            if choice == 'y':
-                datasets[proposal['name']] = proposal['config']
+            if choice == "y":
+                datasets[proposal["name"]] = proposal["config"]
                 print(f"✅ Added dataset '{proposal['name']}'")
                 added_count += 1
                 break
-            elif choice == 'n':
+            elif choice == "n":
                 print(f"⏭️  Skipped dataset '{proposal['name']}'")
                 break
-            elif choice == 'e':
-                new_name = input(f"Enter new name (current: {proposal['name']}): ").strip()
+            elif choice == "e":
+                new_name = input(
+                    f"Enter new name (current: {proposal['name']}): "
+                ).strip()
                 if new_name and new_name not in datasets:
-                    proposal['name'] = new_name
+                    proposal["name"] = new_name
                     print(f"📝 Name updated to '{new_name}'")
                 elif new_name in datasets:
                     print(f"❌ Name '{new_name}' already exists. Try again.")
@@ -184,7 +192,9 @@ def add_datasets_interactively(proposed_datasets):
 
     if added_count > 0:
         save_demo_datasets(datasets)
-        print(f"\n🎉 Successfully added {added_count} dataset(s) to configuration!")
+        print(
+            f"\n🎉 Successfully added {added_count} dataset(s) to configuration!"
+        )
         print("💡 Remember to:")
         print("   1. Update descriptions in datasets.json")
         print("   2. Upload files to hosting platforms")
@@ -222,8 +232,12 @@ def setup_demo_config():
     if unconfigured_files:
         print(f"\nFound {len(unconfigured_files)} unconfigured file(s).")
 
-        choice = input("Would you like to add them interactively? (y/n): ").lower().strip()
-        if choice == 'y':
+        choice = (
+            input("Would you like to add them interactively? (y/n): ")
+            .lower()
+            .strip()
+        )
+        if choice == "y":
             add_datasets_interactively(proposed_datasets)
         else:
             print("\nTo add unconfigured files manually:")
@@ -231,7 +245,8 @@ def setup_demo_config():
             print("2. Add it to datasets.json")
             print("3. Update the description field with meaningful text")
             print("4. Create a loading function in _load_demo.py")
-            print("5. Register with napari in napari.yaml")
+            print("5. Add your function in demo_data/__init__.py")
+            print("6. Register with napari in napari.yaml")
 
     if configured_files:
         print("\nConfigured files are ready for upload to hosting platforms.")
