@@ -45,12 +45,12 @@ Datasets are configured in `datasets.json`:
    - Implements local caching with automatic cleanup
    - Handles network errors gracefully
 
-3. `_load_demo.py` - Demo loading functions
+4. `_load_demo.py` - Demo loading functions
    - Provides dataset loading functions (e.g., `load_demo()`)
    - Uses lazy loading with automatic download
    - Integrates seamlessly with napari's sample data interface
 
-4. `.gitignore` - Version control exclusions
+5. `.gitignore` - Version control exclusions
    - Excludes downloaded files from git tracking
    - Keeps repository size minimal
 
