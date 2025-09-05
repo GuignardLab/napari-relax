@@ -20,6 +20,7 @@ from lineagetree._core import utils
 from napari.utils import colormaps
 from napari.utils.notifications import show_warning
 
+from ._utils import _infer_point_size
 from ._util_classes import LoadingDialog, TimeResDialog
 
 
@@ -167,8 +168,12 @@ def layer_preparation(lT: LineageTree, path: str = ""):
     for t, c in last_c_of_track.items():
         for di in lT.successor.get(c, []):
             graph.setdefault(first_c_to_track[di], []).append(t)
+
+    # optimal point size infered from heuristics on nearest neighbor distances
+    _, optimal_size, _ = _infer_point_size(lT)
+
     add_kwargs_point = {
-        "size": 100,
+        "size": optimal_size,
         "properties": {
             "clone": clone,
             "Selection": np.zeros_like(clone),
