@@ -14,7 +14,7 @@ Usage:
 from pathlib import Path
 
 # Import the actual configuration
-from ._datasets import DEMO_DATASETS, save_demo_datasets, load_demo_datasets
+from ._datasets import DEMO_DATASETS, load_demo_datasets, save_demo_datasets
 from ._download_utils import calculate_md5
 
 
@@ -149,19 +149,19 @@ def add_datasets_interactively(proposed_datasets):
     print(f"\n{'='*60}")
     print("INTERACTIVE DATASET ADDITION")
     print(f"{'='*60}")
-    
+
     datasets = load_demo_datasets()
     added_count = 0
-    
+
     for proposal in proposed_datasets:
         print(f"\nDataset: '{proposal['name']}'")
         print(f"File: {proposal['config']['filename']}")
         print(f"MD5: {proposal['config']['md5']}")
         print(f"Size: {proposal['config']['size_mb']} MB")
-        
+
         while True:
             choice = input("\nAdd this dataset? (y/n/e=edit name): ").lower().strip()
-            
+
             if choice == 'y':
                 datasets[proposal['name']] = proposal['config']
                 print(f"✅ Added dataset '{proposal['name']}'")
@@ -181,7 +181,7 @@ def add_datasets_interactively(proposed_datasets):
                     print("❌ Invalid name. Try again.")
             else:
                 print("Please enter 'y', 'n', or 'e'")
-    
+
     if added_count > 0:
         save_demo_datasets(datasets)
         print(f"\n🎉 Successfully added {added_count} dataset(s) to configuration!")
@@ -221,7 +221,7 @@ def setup_demo_config():
 
     if unconfigured_files:
         print(f"\nFound {len(unconfigured_files)} unconfigured file(s).")
-        
+
         choice = input("Would you like to add them interactively? (y/n): ").lower().strip()
         if choice == 'y':
             add_datasets_interactively(proposed_datasets)

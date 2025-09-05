@@ -23,8 +23,8 @@ from qtpy.QtWidgets import (
 )
 
 from ..._util_classes import (
-    LayerCorrectorTreeProducer,
     Containerize,
+    LayerCorrectorTreeProducer,
 )
 from ..._utils import _select_correct_layer
 from .colorboxlabel import ColorBoxLabel

@@ -13,8 +13,8 @@ from qtpy.QtWidgets import (
 
 from .._reader import layer_preparation
 from .._util_classes import (
-    LayerCorrectorTreeProducer,
     Containerize,
+    LayerCorrectorTreeProducer,
     TimeResDialog,
 )
 

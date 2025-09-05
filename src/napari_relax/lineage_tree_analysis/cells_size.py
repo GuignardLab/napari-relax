@@ -17,9 +17,9 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QPushButton, QSlider, QVBoxLayout
 
 from .._util_classes import (
-    LayerCorrectorTreeProducer,
     Containerize,
     DelayedTooltipEventFilter,
+    LayerCorrectorTreeProducer,
 )
 from .._utils import _select_correct_layer
 
