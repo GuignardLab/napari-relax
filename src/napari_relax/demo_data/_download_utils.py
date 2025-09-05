@@ -157,7 +157,7 @@ def ensure_demo_data(dataset_name: str = "demo") -> Path:
     # Update cache info
     cache_info = load_cache_info()
     cache_info[dataset_name] = {
-        "downloaded_at": str(Path.ctime(filepath)),
+        "downloaded_at": str(filepath.stat().st_ctime),
         "size_bytes": filepath.stat().st_size,
         "md5": (
             calculate_md5(filepath)
