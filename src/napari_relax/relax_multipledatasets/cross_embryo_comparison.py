@@ -1,4 +1,5 @@
 import copy
+import pickle
 from functools import partial
 from itertools import combinations
 from pathlib import Path
@@ -6,7 +7,6 @@ from time import sleep
 
 import matplotlib.pyplot as plt
 import mplcursors
-import pickle
 import numpy as np
 import seaborn as sns
 from lineagetree.tree_approximation import tree_style
@@ -15,7 +15,6 @@ from matplotlib.backends.backend_qtagg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
 from matplotlib.figure import Figure
-from matplotlib.patheffects import withSimplePatchShadow
 from napari._qt.qthreading import thread_worker
 from napari.components.viewer_model import ViewerModel
 from qtpy.QtCore import Qt
@@ -36,11 +35,11 @@ from scipy.spatial.distance import squareform
 
 from .._reader import layer_preparation
 from .._util_classes import (
-    LayerCorrectorTreeProducer,
-    QtViewerWrap,
     BigDatasetNamesDialog,
     Containerize,
     DelayedTooltipEventFilter,
+    LayerCorrectorTreeProducer,
+    QtViewerWrap,
     TabTemplate,
 )
 

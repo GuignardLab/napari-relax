@@ -1,9 +1,7 @@
-from lineagetree import LineageTree
-from napari.layers import Points
-from typing import TYPE_CHECKING, Any, Union
-from napari.utils.notifications import show_error
-
 import os
+from typing import Any
+
+from napari.utils.notifications import show_error
 
 
 def write_single_image(path: str, data: Any, meta: dict) -> list[str]:

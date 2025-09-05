@@ -1,0 +1,10 @@
+# Downloaded demo data (will be fetched on demand)
+*.lT
+*.lt
+*.LT
+
+# Download cache information
+.download_cache.json
+
+# Keep the setup script
+!setup_demo_config.py

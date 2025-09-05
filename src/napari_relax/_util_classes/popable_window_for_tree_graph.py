@@ -1,4 +1,3 @@
-from typing import TYPE_CHECKING
 
 from napari.qt import get_current_stylesheet
 from psygnal import Signal
@@ -16,6 +15,7 @@ from .._util_classes import Containerize
 from ..lineage_tree_analysis.lineage_viewer_widget.canvas_for_progeny import (
     SingleTreeProgeny,
 )
+
 
 class ColoredPushButton(QPushButton):
     color_change = Signal(str)
