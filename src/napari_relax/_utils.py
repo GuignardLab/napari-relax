@@ -55,8 +55,6 @@ def _infer_point_size(lT: "LineageTree"):
 
     minimal_dist = 0.01 * optimal_dist
 
-    print(f"Inferred point sizes: {minimal_dist:.2f}, {optimal_dist:.2f}, {maximal_dist:.2f}")
-    
     return minimal_dist, optimal_dist, maximal_dist
 
 def _transform_slider_int_value_to_float(int_value, min_float_value, max_float_value):
