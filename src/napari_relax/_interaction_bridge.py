@@ -506,12 +506,9 @@ class InteractionBridge:
     def highlight_lineages(self, node_ids: List[int]) -> None:
         """Highlight the specified lineages. For Points, this selects them without hiding others."""
         for layer_type, adapter in self.adapters.items():
-            if layer_type == 'points':
-                # For Points layer, just select the nodes without hiding others
+            if hasattr(adapter, 'select_nodes'):
+                # For layers that support selection, select the nodes
                 adapter.select_nodes(node_ids)
-            else:
-                # For other layers, use the normal show_only behavior
-                adapter.show_only_nodes(node_ids)
     
     def reset_visibility(self) -> None:
         """Reset visibility across all registered layers."""
