@@ -659,13 +659,13 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.layout().addWidget(self.slider_box)
         
         # Add cell ID selection spinbox
+        self.cell_id_spinbox = QSpinBox()
         if self.lT:
             # Get all cell IDs in the lineage tree
             all_cell_ids = list(self.lT.nodes)
             min_cell_id = min(all_cell_ids)
             max_cell_id = max(all_cell_ids)
             
-            self.cell_id_spinbox = QSpinBox()
             self.cell_id_spinbox.setMinimum(min_cell_id)
             self.cell_id_spinbox.setMaximum(max_cell_id)
             self.cell_id_spinbox.setValue(min_cell_id)
@@ -674,25 +674,17 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             # Connect signals immediately if tree is already loaded
             self.cell_id_spinbox.valueChanged.connect(self.cell_id_selector)
             self.cell_id_spinbox.editingFinished.connect(self.cell_id_selector)
-            
-            self.cell_id_box = Containerize(
-                [
-                    widgets.Label(value="Cell ID selector").native,
-                    self.cell_id_spinbox,
-                ]
-            )
         else:
             # Create disabled spinbox when no lineage tree is loaded
-            self.cell_id_spinbox = QSpinBox()
             self.cell_id_spinbox.setEnabled(False)
             self.cell_id_spinbox.setToolTip("Load a lineage tree to enable cell ID selection")
             
-            self.cell_id_box = Containerize(
-                [
-                    widgets.Label(value="Cell ID selector").native,
-                    self.cell_id_spinbox,
-                ]
-            )
+        self.cell_id_box = Containerize(
+            [
+                widgets.Label(value="Cell ID selector").native,
+                self.cell_id_spinbox,
+            ]
+        )
         
         self.layout().addWidget(self.cell_id_box)
         self.layout().addWidget(
