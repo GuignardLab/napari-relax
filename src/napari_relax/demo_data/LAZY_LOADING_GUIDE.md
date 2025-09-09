@@ -79,7 +79,7 @@ clear_cache()
 
 ### Adding a New Dataset
 
-1. **Prepare the dataset file** and upload to a hosting service (Zenodo, etc.)
+1. **Move the dataset file** to the /demo_data directory
 
 2. **Calculate file information**:
 
@@ -91,22 +91,22 @@ clear_cache()
    This will:
    - Show information about files already configured in `datasets.json`
    - Detect any .lT files not yet configured
-   - Propose configuration entries for new files
-   - Check for mismatches between actual and configured MD5/size values
-
-3. **Add dataset configuration** to `datasets.json`:
+   - Print configuration entries for new files
+   - Add dataset configuration to `datasets.json`:
 
    ```json
    {
      "my_new_dataset": {
        "filename": "[CHOSE A NAME].lT",
-       "url": "https://zenodo.org/records/XXXXX/files/my_data.lT",
+       "url": null,
        "md5": "[CALCULATED MD5 HASH]",
        "description": "Description of my dataset",
-       "size_mb": 2.5
+       "size_mb": [CALCULATED SIZE IN MB]
      }
    }
    ```
+
+3. **Upload the dataset** to a hosting platform (e.g., Zenodo, Figshare) and get a direct download URL. Update the `url` field in `datasets.json`.
 
 4. **Create a loading function** in `_load_demo.py`:
 
@@ -159,6 +159,8 @@ clear_cache()
    from napari_relax.demo_data import clear_cache
    clear_cache("dataset_name")
    ```
+
+6. **Commit changes** to version control
 
 ### Updating Dataset URLs or Metadata
 
