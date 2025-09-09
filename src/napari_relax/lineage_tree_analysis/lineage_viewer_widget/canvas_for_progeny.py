@@ -441,7 +441,7 @@ class SingleTreeProgeny(FigureCanvas):
             self.ax.scatter(
                 marker_pos[0], 
                 marker_pos[1],
-                s=self.node_size * 15,  # Size in points^2, adjust as needed
+                s=float(self.node_size) * 15,  # Size in points^2, adjust as needed
                 facecolors='none',  # No fill
                 edgecolors=self.color_of_selection_nodes,  # Border color
                 linewidths=2.0,
@@ -450,77 +450,44 @@ class SingleTreeProgeny(FigureCanvas):
             )
 
     def _calculate_cell_position_on_edge(self, cell_id, cell_time):
-        """Calculate the position of a cell along an edge based on its time.
-        
-        This method finds the lineage path the cell belongs to and interpolates
-        its position based on time between the nearest positioned nodes.
-        """
-        # Try to find the nearest ancestor and descendant nodes that have positions
-        ancestor_id = None
-        ancestor_pos = None
-        ancestor_time = None
-        
-        descendant_id = None
-        descendant_pos = None
-        descendant_time = None
-        
-        # Look for ancestor with position
+        """Simplified version using direct lineage traversal"""
+    
+        # Find positioned ancestor by walking up the direct lineage
+        ancestor_pos, ancestor_time = None, None
         current = cell_id
-        while current is not None:
-            predecessors = self.lT.predecessor.get(current, [])
+        while current in self.lT.predecessor:
+            predecessors = self.lT.predecessor[current]
             if not predecessors:
                 break
-            current = predecessors[0]
+            current = predecessors[0]  # Follow main lineage
             if current in self.pos:
-                ancestor_id = current
                 ancestor_pos = self.pos[current]
                 ancestor_time = self.lT.time[current]
                 break
-        
-        # Look for descendant with position
-        current_nodes = [cell_id]
-        max_depth = 20  # Prevent infinite loops
-        depth = 0
-        
-        while current_nodes and descendant_pos is None and depth < max_depth:
-            next_nodes = []
-            for node in current_nodes:
-                children = self.lT.successor.get(node, [])
-                for child in children:
-                    if child in self.pos:
-                        descendant_id = child
-                        descendant_pos = self.pos[child]
-                        descendant_time = self.lT.time[child]
-                        break
-                    else:
-                        next_nodes.append(child)
-                if descendant_pos is not None:
-                    break
-            current_nodes = next_nodes
-            depth += 1
-        
-        # If we found both ancestor and descendant, interpolate
-        if (ancestor_pos is not None and descendant_pos is not None and 
-            ancestor_time != descendant_time):
-            
-            # Calculate time ratio
+    
+        # Find positioned descendant by walking down the direct lineage
+        descendant_pos, descendant_time = None, None
+        current = cell_id
+        while current in self.lT.successor:
+            successors = self.lT.successor[current]
+            if not successors:
+                break
+            # For simplicity, follow the first successor (main branch)
+            current = successors[0]
+            if current in self.pos:
+                descendant_pos = self.pos[current]
+                descendant_time = self.lT.time[current]
+                break
+    
+        # Interpolate if we have both endpoints
+        if ancestor_pos and descendant_pos and ancestor_time != descendant_time:
             time_ratio = (cell_time - ancestor_time) / (descendant_time - ancestor_time)
-            
-            # Clamp ratio to [0, 1] range
             time_ratio = max(0, min(1, time_ratio))
             
-            # Interpolate position
-            marker_x = ancestor_pos[0] + time_ratio * (descendant_pos[0] - ancestor_pos[0])
-            marker_y = ancestor_pos[1] + time_ratio * (descendant_pos[1] - ancestor_pos[1])
-            
-            return (marker_x, marker_y)
-        
-        # Fallback: if we only have ancestor, use its position
-        elif ancestor_pos is not None:
-            return ancestor_pos
-            
-        # Fallback: if we only have descendant, use its position
-        elif descendant_pos is not None:
-            return descendant_pos
-        
-        return None
+            return (
+                ancestor_pos[0] + time_ratio * (descendant_pos[0] - ancestor_pos[0]),
+                ancestor_pos[1] + time_ratio * (descendant_pos[1] - ancestor_pos[1])
+            )
+    
+        # Fallback to nearest positioned node
+        return ancestor_pos or descendant_pos
