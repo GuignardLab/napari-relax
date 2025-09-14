@@ -117,8 +117,7 @@ def reader_function(path: str):
 
 def _extract_napari_surface_from_lT(lT: LineageTree):
     """
-    Optimized version: Pre-allocate arrays and use list concatenation instead of vstack.
-    This approach is 10-100x faster for large datasets.
+    Pre-allocate arrays and use list concatenation instead of vstack.
     """
     # First pass: count total vertices and faces to pre-allocate arrays
     total_vertices = 0
@@ -127,12 +126,12 @@ def _extract_napari_surface_from_lT(lT: LineageTree):
     for node in lT.nodes:
         if node in lT.mesh:
             mesh = lT.mesh[node]
-            total_vertices += mesh.vertices.shape[0]
-            total_faces += mesh.faces.shape[0]
+            total_vertices += mesh["vertices"].shape[0]
+            total_faces += mesh["faces"].shape[0]
     
     # Pre-allocate arrays
-    all_points = np.zeros((total_vertices, 4))
-    all_triangles = np.zeros((total_faces, 3), dtype=int)
+    all_vertices = np.zeros((total_vertices, 4))
+    all_faces = np.zeros((total_faces, 3), dtype=int)
     
     # Fill arrays efficiently
     vertex_offset = 0
@@ -143,24 +142,24 @@ def _extract_napari_surface_from_lT(lT: LineageTree):
             continue
             
         mesh = lT.mesh[node]
-        points = mesh.vertices[:, ::-1]  # reverse coordinates for napari convention
-        triangles = mesh.faces
+        points = mesh["vertices"][:, ::-1]  # reverse coordinates for napari convention
+        triangles = mesh["faces"]
         node_time = lT.time[node]
         
         num_vertices = points.shape[0]
         num_faces = triangles.shape[0]
         
         # Add time dimension and fill points
-        all_points[vertex_offset:vertex_offset + num_vertices, 0] = node_time
-        all_points[vertex_offset:vertex_offset + num_vertices, 1:] = points
+        all_vertices[vertex_offset:vertex_offset + num_vertices, 0] = node_time
+        all_vertices[vertex_offset:vertex_offset + num_vertices, 1:] = points
         
         # Adjust triangle indices and fill triangles
-        all_triangles[face_offset:face_offset + num_faces] = triangles + vertex_offset
+        all_faces[face_offset:face_offset + num_faces] = triangles + vertex_offset
         
         vertex_offset += num_vertices
         face_offset += num_faces
 
-    return all_points, all_triangles    
+    return all_vertices, all_faces    
 
 def layer_preparation(lT: LineageTree, points_layer_name: str = ""):
     tracks = lT.all_chains
@@ -279,7 +278,7 @@ def layer_preparation(lT: LineageTree, points_layer_name: str = ""):
         }
 
         # Pre-calculate total vertices for efficient vertex_colors allocation
-        total_vertices = sum(mesh.vertices.shape[0] for mesh in lT.mesh.values())
+        total_vertices = sum(mesh["vertices"].shape[0] for mesh in lT.mesh.values())
         vertex_colors = np.zeros((total_vertices, 4))  # Pre-allocate RGBA array
         node_to_vertex_range = {}  # Track vertex ranges for each node
         vertex_offset = 0
@@ -287,7 +286,7 @@ def layer_preparation(lT: LineageTree, points_layer_name: str = ""):
         for node_id, mesh in lT.mesh.items():
             root_node_id = dict_successors_to_roots.get(node_id, node_id)
             root_index = list(roots).index(root_node_id) + 1
-            num_vertices = mesh.vertices.shape[0]
+            num_vertices = mesh["vertices"].shape[0]
             
             # Store vertex range for this node
             node_to_vertex_range[node_id] = (vertex_offset, vertex_offset + num_vertices)
@@ -298,13 +297,13 @@ def layer_preparation(lT: LineageTree, points_layer_name: str = ""):
             
             vertex_offset += num_vertices
 
-        all_points, all_triangles = _extract_napari_surface_from_lT(lT)
+        all_vertices, all_faces = _extract_napari_surface_from_lT(lT)
         
-        all_points[:, 1:] -= barycenter #TODO think about barycenter
+        all_vertices[:, 1:] -= barycenter #TODO think about barycenter
 
         napari_surface = (
-            all_points,
-            all_triangles
+            all_vertices,
+            all_faces
         )
 
         add_kwargs_surface = {
