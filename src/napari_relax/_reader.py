@@ -262,11 +262,12 @@ def layer_preparation(lT: LineageTree, points_layer_name: str = ""):
         "shading": "spherical",
     }
 
-    if not hasattr(lT, "mesh"):
-        return [
-            (data[:, 1:], add_kwargs_point, "points"),
-        ]
-    else:
+    napari_layers = [
+        (data[:, 1:], add_kwargs_point, "points"),
+    ]
+
+    if hasattr(lT, "mesh"):
+    
         root_nodes_ids = lT.roots
         dict_roots_to_successors = {
             root: sum(lT.get_all_chains_of_subtree(root), []) for root in root_nodes_ids
@@ -317,7 +318,9 @@ def layer_preparation(lT: LineageTree, points_layer_name: str = ""):
             },
         }
 
-        return [
-            (data[:, 1:], add_kwargs_point, "points"),
-            (napari_surface, add_kwargs_surface, "surface"),
-        ]
+        
+        napari_layers.append(
+            (napari_surface, add_kwargs_surface, "surface")
+        )
+        
+    return napari_layers
