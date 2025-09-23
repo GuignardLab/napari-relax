@@ -296,7 +296,7 @@ def layer_preparation(lT: LineageTree, points_layer_name: str = ""):
 
         all_vertices, all_faces = _extract_napari_surface_from_lT(lT)
         
-        all_vertices[:, 1:] -= barycenter #TODO think about barycenter
+        # all_vertices[:, 1:] -= barycenter #TODO think about barycenter
 
         napari_surface = (
             all_vertices,
