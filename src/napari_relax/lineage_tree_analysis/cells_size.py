@@ -148,7 +148,6 @@ class CellSize(LayerCorrectorTreeProducer):
             # there is no reason to make invisible layers visible again.
             # else:
             #     self.see_all_layers()
-
             
             # Update the slider values according to the new active layer
             active_layer = _select_correct_layer(self, Points)
@@ -176,7 +175,6 @@ class CellSize(LayerCorrectorTreeProducer):
     def force_viewer_select_if_lt_layer(self, event):
         layer = event.value
         if self.is_lt_layer(layer):
-
             self._update_layer_slider_range(layer)
             self.viewer.layers.selection.active = layer
             # self.reset_slider()

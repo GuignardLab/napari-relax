@@ -106,6 +106,10 @@ class LineageTreeAnalysisWidget(ReLAXWidget):
         ].w_lineedit.returnPressed.connect(
             self.widget_dictionary["Distance Calculation"].label_update
         )
+
+        # commenting for now because the event/signal is unclear
+        # and breaking some features 
+
         # self.widget_dictionary[
         #     "Attribute Based Recoloring"
         # ].coloring_widget.quant.color_signal.connect(

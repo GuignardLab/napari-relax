@@ -33,7 +33,7 @@ dependencies = [
     "magicgui",
     "qtpy",
     "matplotlib",
-    "lineagetree>=3.0.0",
+    "lineagetree>=3.0.0", #TODO: update now that mesh_handling has been merged
     "mplcursors",
     "seaborn",
 ]
