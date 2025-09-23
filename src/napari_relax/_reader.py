@@ -116,9 +116,6 @@ def reader_function(path: str):
 
 
 def _extract_napari_surface_from_lT(lT: LineageTree):
-    """
-    Pre-allocate arrays and use list concatenation instead of vstack.
-    """
     # First pass: count total vertices and faces to pre-allocate arrays
     total_vertices = 0
     total_faces = 0
@@ -133,7 +130,6 @@ def _extract_napari_surface_from_lT(lT: LineageTree):
     all_vertices = np.zeros((total_vertices, 4))
     all_faces = np.zeros((total_faces, 3), dtype=int)
     
-    # Fill arrays efficiently
     vertex_offset = 0
     face_offset = 0
     
