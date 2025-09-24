@@ -85,7 +85,6 @@ def reader_function(path: str):
             selector = LoadingDialog(options.keys())
             selector.exec_()
             value_selected = selector.value_selected
-            print(value_selected, type(value_selected))
             if value_selected:
                 loader = options[selector.value_selected]
             else:
