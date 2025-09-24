@@ -9,7 +9,7 @@ class LoadingDialog(QDialog):
     def __init__(self, options):
         super().__init__()
         layout = QVBoxLayout()
-        self.setWindowTitle("Data type selection.")
+        self.setWindowTitle("lineagetree data type selection.")
         self.value_selected = ""
         label = QLabel("Please select the method used to produce the dataset.")
 
