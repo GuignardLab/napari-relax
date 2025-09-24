@@ -85,9 +85,11 @@ def reader_function(path: str):
             selector = LoadingDialog(options.keys())
             selector.exec_()
             value_selected = selector.value_selected
-            if value_selected is None:
-                raise Warning("Please select one type.")
-            loader = options[selector.value_selected]
+            print(value_selected, type(value_selected))
+            if value_selected:
+                loader = options[selector.value_selected]
+            else:
+                raise Warning("Please select one reader function.")
         else:
             loader = options.values[0]
 
