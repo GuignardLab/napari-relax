@@ -6,28 +6,20 @@ from .._util_classes import Containerize
 
 
 class LoadingDialog(QDialog):
-    def __init__(self):
+    def __init__(self, options):
         super().__init__()
         layout = QVBoxLayout()
-        self.setWindowTitle("Data type selection.")
+        self.setWindowTitle("lineagetree data type selection.")
         self.value_selected = ""
-        label = QLabel("Please select the method the dataset was produced.")
-        self.checkbox_for_mamut = QCheckBox("mamut/trackmate", self)
-        self.checkbox_for_astec = QCheckBox("ASTEC", self)
-        self.checkbox_for_tgmm = QCheckBox("TGMM", self)
-        self.match = {
-            self.checkbox_for_mamut: "mamut",
-            self.checkbox_for_astec: "ASTEC",
-            self.checkbox_for_tgmm: "tgmm",
-        }
+        label = QLabel("Please select the method used to produce the dataset.")
+
+        checkboxes = [QCheckBox(opt, self) for opt in options]
+        self.match = {cb: opt for cb, opt in zip(checkboxes, options)}
         layout.addWidget(label)
-        layout.addWidget(self.checkbox_for_mamut)
-        layout.addWidget(self.checkbox_for_astec)
-        layout.addWidget(self.checkbox_for_tgmm)
+        for cb in checkboxes:
+            layout.addWidget(cb)
+            cb.stateChanged.connect(self.on_type_selection)
         self.setLayout(layout)
-        self.checkbox_for_astec.stateChanged.connect(self.on_type_selection)
-        self.checkbox_for_mamut.stateChanged.connect(self.on_type_selection)
-        self.checkbox_for_tgmm.stateChanged.connect(self.on_type_selection)
         self.setStyleSheet(get_current_stylesheet())
 
     def on_type_selection(self, event):
