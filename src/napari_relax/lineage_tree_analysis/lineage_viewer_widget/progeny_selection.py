@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 
 from magicgui import widgets
 from matplotlib.figure import Figure
-from napari.layers import Points
 from qtpy.QtCore import Qt, Signal
 from qtpy.QtGui import QIcon
 from qtpy.QtWidgets import (
@@ -25,11 +24,8 @@ from ..._util_classes import (
     TooltipButton,
 )
 from ..._util_classes.popable_window_for_tree_graph import Setup
-from ..._utils import _select_correct_layer
+from ..._utils import _select_active_lt_layer
 from .canvas_for_progeny import SingleTreeProgeny
-from napari.layers import Points
-
-from ..._util_classes.layer_corrector import _select_correct_layer
 
 if TYPE_CHECKING:
     from lineagetree import LineageTree
@@ -70,7 +66,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         """
         If a Point is selected it selects the whole Lineage.
         """
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer:
             return
         if not active_layer.selected_data:
@@ -183,16 +179,14 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         """
         Program to load the diagrams in black or magenta. Reads the attributes to load different graphs.
         """
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer:
             return
         self.ax_for_tree_graph.clear()
         val = int(self.graph_slider.value())
 
         # Save slider state to bridge
-        self.bridge.update_state(
-            graph_slider_value=val, selected_lineage=val
-        )
+        self.bridge.update_state(graph_slider_value=val, selected_lineage=val)
 
         # Preserve selected_subtree during lineage change if it exists
         preserve_subtree = (
@@ -291,7 +285,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
     def sub_point_painter(self):
         """Paints specific part of the lineagetree when a sublineage is selected"""
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer:
             return
         cell = active_layer.selected_data.pop()
@@ -349,7 +343,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         Function that handles the layer change event.
         Switches to the InteractionBridge for the selected layer and restores its state.
         """
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is None:
             return
 
@@ -446,7 +440,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                     self.bridge.restore_state(self)
 
     def label_remover(self):
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is None:
             return
         to_remove = int(self.w_lineedit.placeholderText().split()[3])
@@ -492,7 +486,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 )
         else:
             # Fallback: use Points layer selected data
-            active_layer = _select_correct_layer(self, Points)
+            active_layer = _select_active_lt_layer(self.viewer)
             if active_layer and active_layer.selected_data:
                 active_layer.shown[list(active_layer.selected_data)] = False
                 active_layer.refresh()
@@ -514,12 +508,12 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 )
         else:
             # Fallback: use Points layer selected data
-            active_layer = _select_correct_layer(self, Points)
+            active_layer = _select_active_lt_layer(self.viewer)
             if active_layer and active_layer.selected_data:
                 active_layer.shown[list(active_layer.selected_data)] = True
                 active_layer.refresh()
             # Fallback: use Points layer selected data
-            active_layer = _select_correct_layer(self, Points)
+            active_layer = _select_active_lt_layer(self.viewer)
             if active_layer and active_layer.selected_data:
                 active_layer.shown[list(active_layer.selected_data)] = True
                 active_layer.refresh()
@@ -550,7 +544,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         super().__init__(napari_viewer)
 
         # Get the specific Points layer for this widget
-        points_layer = _select_correct_layer(self, Points)
+        points_layer = _select_active_lt_layer(self.viewer)
 
         # Get or create the InteractionBridge for this Points layer
         if points_layer:
@@ -577,7 +571,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             self.graph_slider.setValue(0)
             self.roots = [
                 g["root"]
-                for g in _select_correct_layer(self, Points)
+                for g in _select_active_lt_layer(self.viewer)
                 .metadata["graphs"][0]
                 .values()
             ]

@@ -9,6 +9,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 import numpy as np
+from napari.layers import Points, Surface, Tracks
 
 
 class LayerAdapter(ABC):
@@ -465,7 +466,6 @@ class InteractionBridge:
         bool
             True if any compatible layers were found
         """
-        from napari.layers import Points, Surface, Tracks
 
         self.adapters.clear()
 
@@ -546,11 +546,11 @@ class InteractionBridge:
 
     def _points_show_only_fallback(self, node_ids: list[int]) -> None:
         """Fallback method to show only specified nodes in Points layer directly."""
-        if not self.primary_points or not hasattr(self.primary_points, 'size'):
+        if not self.primary_points or not hasattr(self.primary_points, "size"):
             return
-            
+
         lT_to_napari = self.primary_points.metadata.get("lT2napari", {})
-        
+
         # Get napari indices for visible nodes
         visible_indices = set()
         for node_id in node_ids:
@@ -583,24 +583,23 @@ class InteractionBridge:
     def highlight_lineages(self, node_ids: list[int]) -> None:
         """Highlight the specified lineages. For Points, this selects them without hiding others."""
         highlighted_any = False
-        
+
         for adapter in self.adapters.values():
             if hasattr(adapter, "select_nodes"):
                 # For layers that support selection, select the nodes
                 adapter.select_nodes(node_ids)
                 highlighted_any = True
-        
+
         # Fallback: if no adapters handled selection, work directly with primary Points layer
         if not highlighted_any and self.primary_points:
             # Direct Points layer fallback
             selected_indices = set()
-            napari_to_node = self.primary_points.metadata.get("napari2lT", {})
             lT_to_napari = self.primary_points.metadata.get("lT2napari", {})
-            
+
             for node_id in node_ids:
                 if node_id in lT_to_napari:
                     selected_indices.add(lT_to_napari[node_id])
-            
+
             self.primary_points.selected_data = selected_indices
 
     def reset_visibility(self) -> None:
@@ -610,17 +609,23 @@ class InteractionBridge:
                 adapter.reset_visibility()
         elif self.primary_points:
             # Fallback: reset Points layer directly
-            if hasattr(self.primary_points, 'size'):
+            if hasattr(self.primary_points, "size"):
                 # Restore original sizes if we have them, otherwise set to default
-                original_size = getattr(self.primary_points, '_original_size', 1)
-                if hasattr(original_size, '__len__'):
+                original_size = getattr(
+                    self.primary_points, "_original_size", 1
+                )
+                if hasattr(original_size, "__len__"):
                     self.primary_points.size = original_size
                 else:
                     # Set uniform size for all points
-                    data_len = len(self.primary_points.data) if hasattr(self.primary_points, 'data') else 0
+                    data_len = (
+                        len(self.primary_points.data)
+                        if hasattr(self.primary_points, "data")
+                        else 0
+                    )
                     if data_len > 0:
                         self.primary_points.size = [original_size] * data_len
-            
+
             # Clear selection
             self.primary_points.selected_data = set()
 

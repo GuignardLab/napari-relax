@@ -22,7 +22,7 @@ from .._util_classes import (
 )
 from .._utils import (
     _infer_point_size,
-    _select_correct_layer,
+    _select_active_lt_layer,
     _transform_float_value_to_slider_int,
     _transform_slider_int_value_to_float,
 )
@@ -40,7 +40,7 @@ class CellSize(LayerCorrectorTreeProducer):
 
     def add_tracks(self, event):
         "Adds the tracks layer of a specific LineageTree points layer."
-        active = _select_correct_layer(self, Points)
+        active = _select_active_lt_layer(self.viewer)
         if active:
             data = active.metadata["graph_to_create_tracks"]
             data["metadata"] = {"link": active}
@@ -50,27 +50,19 @@ class CellSize(LayerCorrectorTreeProducer):
                 **data,
             )
 
-    def _get_lT_from_layer(self):
-        point_layer = _select_correct_layer(self, Points)
-        if (
-            point_layer
-            and hasattr(point_layer, "metadata")
-            and "LineageTree" in point_layer.metadata
-        ):
-            return point_layer.metadata["LineageTree"]
-        return None
-
     def reset_slider(self, value=None):
         """Update the slider values after the update button has been pushed.
         The Points layer holding the lineageTree is used to infer the values.
         """
-        lT = self._get_lT_from_layer()
-        if lT:
-            if value is None:
-                _, optimal_size, _ = _infer_point_size(lT)
-            else:
-                optimal_size = value
-            self._changes(None, value=optimal_size)
+        points_layer = _select_active_lt_layer(self.viewer)
+        if points_layer:
+            lT = points_layer.metadata["LineageTree"]
+            if lT:
+                if value is None:
+                    _, optimal_size, _ = _infer_point_size(lT)
+                else:
+                    optimal_size = value
+                self._changes(None, value=optimal_size)
 
     def _changes(self, event, value=None):
         """
@@ -79,7 +71,7 @@ class CellSize(LayerCorrectorTreeProducer):
         """
 
         new_size = None
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
 
         if value is None:
             layers_to_update = []
@@ -162,7 +154,7 @@ class CellSize(LayerCorrectorTreeProducer):
             #     self.see_all_layers()
 
             # Update the slider values according to the new active layer
-            active_layer = _select_correct_layer(self, Points)
+            active_layer = _select_active_lt_layer(self.viewer)
             if (
                 active_layer
                 and self.is_lt_layer(active_layer)

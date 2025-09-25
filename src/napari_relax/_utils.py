@@ -3,6 +3,7 @@ from collections.abc import Iterable
 import matplotlib.pyplot as plt
 import numpy as np
 from lineagetree import LineageTree
+from napari.layers import Points
 from napari.qt import get_current_stylesheet
 from qtpy.QtWidgets import (
     QMessageBox,
@@ -79,27 +80,26 @@ def _transform_float_value_to_slider_int(
         return int(float_value)
 
 
-def _select_correct_layer(self, layer_type):
+def _select_active_lt_layer(viewer):
     """
     Finds the correct layer of the specified type that corresponds to the currently active layer.
     If the active layer is already of the correct type, returns it.
     Otherwise, looks for a 'link' metadata in the active layer pointing to the correct layer.
-
-    Args:
-        layer_type (Points/Tracks): The layer the script needs to use.
-    Returns:
-        layer_type (Points/Tracks): The correct layer, or None if not found.
     """
-    if len(self.viewer.layers.selection) == 1:
-        active_layer = self.viewer.layers.selection.active
-        if isinstance(active_layer, layer_type):
+    if len(viewer.layers.selection) == 1:
+        active_layer = viewer.layers.selection.active
+        if (
+            isinstance(active_layer, Points)
+            and hasattr(active_layer, "metadata")
+            and "LineageTree" in active_layer.metadata
+        ):
             return active_layer
         else:
             # Look for a 'link' metadata in the active layer
             if (
                 hasattr(active_layer, "metadata")
                 and "link" in active_layer.metadata
-                and isinstance(active_layer.metadata["link"], layer_type)
+                and isinstance(active_layer.metadata["link"], Points)
             ):
                 return active_layer.metadata["link"]
 

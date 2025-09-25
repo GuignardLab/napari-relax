@@ -1,10 +1,9 @@
 from lineagetree import LineageTree
-from napari.layers import Points
 from qtpy.QtWidgets import (
     QWidget,
 )
 
-from .._utils import _select_correct_layer
+from .._utils import _select_active_lt_layer
 
 
 class LayerCorrectorTreeProducer(QWidget):
@@ -24,7 +23,7 @@ class LayerCorrectorTreeProducer(QWidget):
         Adds all descendants of a cell to selected_data.
         Reads the selected data from napari.layer and it will select all the cells that are ancestors of this point.
         """
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer.selected_data:
             return 0
         lT = active_layer.metadata["LineageTree"]
@@ -42,7 +41,7 @@ class LayerCorrectorTreeProducer(QWidget):
         Function that reads the LineageTree structure through one of the layers.
 
         """
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is None:
             return None
         return active_layer.metadata.get("LineageTree", None)
@@ -55,7 +54,7 @@ class LayerCorrectorTreeProducer(QWidget):
         Args:
         val (int): index of the list of graphs
         """
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         active_layer.face_color = active_layer.metadata["clone2"]
         if self.point_color_from_trees.value:
             root = [
