@@ -11,19 +11,15 @@ import uuid
 
 import numpy as np
 from lineagetree import (
+    LOADERS,
     LineageTree,
-    read_from_ASTEC,
-    read_from_mamut_xml,
-    read_from_mastodon,
-    read_from_tgmm_xml,
-    read_from_bmf,
 )
 from lineagetree._core import utils
 from napari.utils import colormaps
 from napari.utils.notifications import show_warning
 
-from ._utils import _infer_point_size
 from ._util_classes import LoadingDialog, TimeResDialog
+from ._utils import _infer_point_size
 
 
 def napari_get_reader(path):
@@ -49,11 +45,8 @@ def napari_get_reader(path):
     # if we know we cannot read the file, we immediately return None.
 
     if (
-        path.endswith(".lT")
-        or path.lower().endswith(".mastodon")
-        or path.lower().endswith(".xml")
-        or path.lower().endswith(".csv")
-        or path.lower().endswith(".bmf")
+        path.lower().endswith(".lt")
+        or path.lower().split(".")[-1] in LOADERS
     ):
         return reader_function
 
@@ -83,35 +76,32 @@ def reader_function(path: str):
         layer. Both "meta", and "layer_type" are optional. napari will
         default to layer_type=="image" if not provided
     """
-    # handle both a string and a list of strings
-    loaders = {
-        "mamut": read_from_mamut_xml,
-        "ASTEC": read_from_ASTEC,
-        "tgmm": read_from_tgmm_xml,
-    }
-    if isinstance(path, list):
-        lT = LineageTree(file_format=path, file_type="mastodon")
-    elif path.lower().endswith(".lt"):
+    if path.lower().endswith(".lt"):
         lT = LineageTree.load(path)
-    elif path.lower().endswith(".mastodon"):
-        lT = read_from_mastodon(path)
-    elif path.lower().endswith(".xml"):
-        selector = LoadingDialog()
-        selector.exec_()
-        file_type = selector.value_selected
-        if file_type is None:
-            raise Warning("Please select one type.")
-        lT = loaders[file_type](
-            path
-        )  # LineageTree(file_format=path, file_type=file_type)
-    elif path.lower().endswith(".bmf"):
-        lT = read_from_bmf(path, store_meshes=True)
+    else:
+        extension = path.lower().split(".")[-1]
+        options = LOADERS[extension]
+
+        if len(options) > 1:
+            selector = LoadingDialog(options.keys())
+            selector.exec_()
+            value_selected = selector.value_selected
+            if value_selected:
+                loader = options[selector.value_selected]
+            else:
+                raise Warning("Please select one reader function.")
+        else:
+            loader = options.values[0]
+
+        lT = loader(path)
+
     if not hasattr(lT, "time_resolution") or lT.time_resolution == 0:
         t_res = TimeResDialog()
         t_res.exec_()
         lT.time_resolution = t_res.value_selected
         if t_res.check_resave.isChecked():
             lT.write(path)
+
     return layer_preparation(lT, path)
 
 
