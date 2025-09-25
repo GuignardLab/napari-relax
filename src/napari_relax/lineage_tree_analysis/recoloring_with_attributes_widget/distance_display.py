@@ -65,7 +65,7 @@ class DisplayDistances(LayerCorrectorTreeProducer):
                         last_time_change = t
 
                 starting_time = last_change[
-                    (np.round(self.time_slider.value * (max_t - min_t)))
+                    int(np.round(self.time_slider.value * (max_t - min_t)))
                 ]
 
                 sub_trees = [
@@ -103,6 +103,7 @@ class DisplayDistances(LayerCorrectorTreeProducer):
                 ), np.percentile(new_colors[new_colors != 0], 95)
                 new_colors[new_colors == 0] = baseline
                 new_colors = 0.5 + (new_colors - min_) / (2 * (max_ - min_))
+                
                 if not self.change_size.value:
                     active_layer.properties["clone"][:] = new_colors[:]
                     active_layer.face_color = "clone"
@@ -257,7 +258,7 @@ class DisplayDistances(LayerCorrectorTreeProducer):
                 cont_size,
             ],
             labels=False,
-            layout="vertical",
+            layout="horizontal",
         )
         self.coloring_widget = Coloring(self.viewer)
         self.do_color.clicked.connect(self.color_clones)
