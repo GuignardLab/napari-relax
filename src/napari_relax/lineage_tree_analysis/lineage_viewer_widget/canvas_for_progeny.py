@@ -6,6 +6,8 @@ from matplotlib.backends.backend_qtagg import (
 )
 from psygnal import Signal
 from scipy.spatial import KDTree
+from napari_relax._utils import _select_correct_layer
+from napari.layers import Points
 
 
 class SingleTreeProgeny(FigureCanvas):
@@ -39,6 +41,9 @@ class SingleTreeProgeny(FigureCanvas):
             self.selected_subtree = signal["selected_nodes"]
         else:
             self.selected_subtree.clear()
+            
+        # Update metadata with current face colors from the active layer
+        self._update_current_face_colors_metadata()
         self.draw_graph()
 
     def __init__(
@@ -159,6 +164,116 @@ class SingleTreeProgeny(FigureCanvas):
                     return list(color)
         
         return None
+
+    def _extract_current_lineage_color(self):
+        """Extract the current color for this lineage from the active Points layer.
+        
+        This method checks the actual face_color of points in the current lineage,
+        which may be different from the original clone2 colors if quantitative 
+        recoloring has been applied.
+        
+        Returns:
+            dict: Dictionary with 'color' (single color if uniform) and 'is_uniform' (bool)
+                  indicating whether all nodes in the lineage have the same color.
+                  Returns None if no data is available.
+        """
+        if not self.points_layer_metadata:
+            return None
+            
+        # Get the mappings
+        lT2napari = self.points_layer_metadata.get("lT2napari")
+        if lT2napari is None:
+            return None
+            
+        # Get the actual root node ID from the graph structure
+        actual_root = None
+        if hasattr(self, 'lnks_tms') and self.lnks_tms and 'root' in self.lnks_tms:
+            actual_root = self.lnks_tms['root']
+        elif hasattr(self, 'root') and self.root is not None:
+            actual_root = self.root
+            
+        if actual_root is None:
+            return None
+        
+        # Get all nodes in the current lineage
+        if hasattr(self, 'lT') and self.lT:
+            lineage_nodes = list(self.lT.get_subtree_nodes(actual_root))
+        else:
+            lineage_nodes = [actual_root]
+        
+        # Try to get the active Points layer to access current face colors
+        try:
+            # This requires access to the viewer, which we don't have directly in the canvas
+            # We'll need to get the face colors from the points layer metadata
+            # Let's check if face colors are passed in the metadata
+            current_face_colors = self.points_layer_metadata.get("current_face_colors")
+            if current_face_colors is None:
+                # Fallback to original clone2 colors
+                return self._get_original_color_info(actual_root)
+            
+            # Collect colors for all nodes in this lineage
+            lineage_colors = []
+            for node in lineage_nodes:
+                if node in lT2napari:
+                    napari_idx = lT2napari[node]
+                    if napari_idx < len(current_face_colors):
+                        color = current_face_colors[napari_idx]
+                        if hasattr(color, 'tolist'):
+                            lineage_colors.append(color.tolist())
+                        else:
+                            lineage_colors.append(list(color))
+            
+            if not lineage_colors:
+                return None
+            
+            # Check if all colors are the same (uniform lineage color)
+            first_color = lineage_colors[0][:3]  # Compare only RGB, ignore alpha
+            is_uniform = all(
+                color[:3] == first_color for color in lineage_colors
+            )
+            
+            return {
+                'color': first_color,
+                'is_uniform': is_uniform,
+                'sample_colors': lineage_colors[:5]  # Sample of colors for debugging
+            }
+            
+        except Exception:
+            # Fallback to original method
+            return self._get_original_color_info(actual_root)
+    
+    def _update_current_face_colors_metadata(self):
+        """Update the canvas metadata with current face colors from the active Points layer."""
+        try:
+            active_layer = _select_correct_layer(self, Points)
+            if active_layer and self.points_layer_metadata is not None:
+                # Update the metadata with current face colors
+                self.points_layer_metadata['current_face_colors'] = active_layer.face_color
+        except Exception:
+            # If we can't get the layer, just continue
+            pass
+    
+    def _get_original_color_info(self, actual_root):
+        """Get the original color info from clone2 for fallback."""
+        clone2 = self.points_layer_metadata.get("clone2")
+        lT2napari = self.points_layer_metadata.get("lT2napari")
+        
+        if clone2 is None or lT2napari is None or actual_root not in lT2napari:
+            return None
+            
+        napari_idx = lT2napari[actual_root]
+        if napari_idx < len(clone2):
+            color = clone2[napari_idx]
+            if hasattr(color, 'tolist'):
+                color = color.tolist()
+            else:
+                color = list(color)
+            
+            return {
+                'color': color[:3],
+                'is_uniform': True,  # Original colors are always uniform per lineage
+                'sample_colors': [color]
+            }
 
     def time_line(self, time):
         if hasattr(self, "ax") and self.ax:
@@ -376,11 +491,17 @@ class SingleTreeProgeny(FigureCanvas):
         if self.all_selected:
             self.selected_subtree = set(self.lT.nodes)
             
-        # Extract colors from reader metadata
-        reader_color = self._extract_node_colors_from_reader()
+        # Extract current colors from the active layer (handles quantitative coloring)
+        color_info = self._extract_current_lineage_color()
         
-        # Use reader color as default color if available
-        default_color = reader_color if reader_color is not None else self.color_of_nodes
+        # Use current color as default if available, otherwise fallback to original reader color
+        default_color = None
+        if color_info and color_info.get('color'):
+            default_color = color_info['color']
+        else:
+            # Fallback to original reader color
+            reader_color = self._extract_node_colors_from_reader()
+            default_color = reader_color if reader_color is not None else self.color_of_nodes
         
         self.lT.draw_tree_graph(
             self.pos,

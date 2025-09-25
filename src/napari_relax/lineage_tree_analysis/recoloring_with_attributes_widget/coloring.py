@@ -293,6 +293,13 @@ class Quantitative(LayerCorrectorTreeProducer):
                             (val - min_val) / (max_val - min_val)
                         )
 
+        face_colors = [
+            cell_color.get(node, [0, 0, 0, 1])
+            for point, node in active_layer.metadata["napari2lT"].items()
+        ]
+        active_layer.face_color = face_colors
+        
+        # Emit signal AFTER updating face colors so color box can read the new colors
         self.color_signal.emit(
             {
                 "color_of_selection": cell_color,
@@ -301,13 +308,13 @@ class Quantitative(LayerCorrectorTreeProducer):
                 "all_selected": True,
             }
         )
-        face_colors = [
-            cell_color.get(node, [0, 0, 0, 1])
-            for point, node in active_layer.metadata["napari2lT"].items()
-        ]
-        active_layer.face_color = face_colors
 
     def reset_button_pr(self):
+        active_layer = _select_correct_layer(self, Points)
+        if active_layer is not None:
+            active_layer.face_color = active_layer.metadata["clone2"]
+            
+        # Emit signal AFTER updating face colors so color box can read the new colors
         self.color_signal.emit(
             {
                 "color_of_nodes": "black",
@@ -318,9 +325,6 @@ class Quantitative(LayerCorrectorTreeProducer):
                 "color_of_selection": "magenta",
             }
         )
-        active_layer = _select_correct_layer(self, Points)
-        if active_layer is not None:
-            active_layer.face_color = active_layer.metadata["clone2"]
 
     def layer_change(self):
         self.lT = self.get_lT()

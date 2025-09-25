@@ -204,40 +204,70 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         """Update the color box to show the current lineage color."""
         if not hasattr(self, 'lineage_color_box'):
             return
+        
+        # Update the canvas with current face colors before extracting color
+        self._update_canvas_with_current_colors()
             
-        # Get the color from the canvas which already has the color extraction logic
-        color = None
+        # Get the color info from the canvas using the new method
+        color_info = None
         if (hasattr(self, 'canvas') and 
-            hasattr(self.canvas, '_extract_node_colors_from_reader') and
+            hasattr(self.canvas, '_extract_current_lineage_color') and
             hasattr(self.canvas, 'points_layer_metadata') and
             self.canvas.points_layer_metadata is not None):
             try:
-                color = self.canvas._extract_node_colors_from_reader()
+                color_info = self.canvas._extract_current_lineage_color()
             except (AttributeError, KeyError):
                 # Handle cases where the canvas isn't fully initialized yet
-                color = None
+                color_info = None
         
-        if color:
+        if color_info and color_info.get('color'):
+            color = color_info['color']
+            is_uniform = color_info.get('is_uniform', True)
+            
             # Convert to RGB tuple (0-255 range) if needed
             if isinstance(color, (list, tuple)) and len(color) >= 3:
                 rgb_color = tuple(int(c * 255) if c <= 1.0 else int(c) for c in color[:3])
-                # Set the background color of the QLabel
-                self.lineage_color_box.setStyleSheet(
-                    f"QLabel {{ background-color: rgb({rgb_color[0]}, {rgb_color[1]}, {rgb_color[2]}); "
-                    f"border: 1px solid black; border-radius: 3px; }}"
-                )
+                
+                if is_uniform:
+                    # Solid color for uniform lineage colors
+                    self.lineage_color_box.setStyleSheet(
+                        f"QLabel {{ background-color: rgb({rgb_color[0]}, {rgb_color[1]}, {rgb_color[2]}); "
+                        f"border: 1px solid black; border-radius: 3px; }}"
+                    )
+                    self.lineage_color_box.setToolTip("Current lineage color (uniform)")
+                else:
+                    # Gradient or pattern for non-uniform colors (quantitative coloring applied)
+                    self.lineage_color_box.setStyleSheet(
+                        f"QLabel {{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, "
+                        f"stop:0 rgb({rgb_color[0]}, {rgb_color[1]}, {rgb_color[2]}), "
+                        f"stop:0.5 rgb(255, 255, 255), stop:1 rgb({rgb_color[0]}, {rgb_color[1]}, {rgb_color[2]})); "
+                        f"border: 1px solid black; border-radius: 3px; }}"
+                    )
+                    self.lineage_color_box.setToolTip("Lineage has mixed colors (quantitative coloring applied)")
             else:
                 # Fallback to default color
-                self.lineage_color_box.setStyleSheet(
-                    "QLabel { background-color: rgb(128, 128, 128); "
-                    "border: 1px solid black; border-radius: 3px; }"
-                )
+                self._set_default_color_box()
         else:
             # Default gray color if no color is available
-            self.lineage_color_box.setStyleSheet(
-                "QLabel { background-color: rgb(128, 128, 128); "
-                "border: 1px solid black; border-radius: 3px; }"
-            )
+            self._set_default_color_box()
+    
+    def _update_canvas_with_current_colors(self):
+        """Update the canvas metadata with current face colors from the active layer and redraw."""
+        active_layer = _select_correct_layer(self, Points)
+        if active_layer and hasattr(self, 'canvas') and hasattr(self.canvas, 'points_layer_metadata'):
+            if self.canvas.points_layer_metadata is not None:
+                # Add current face colors to the canvas metadata
+                self.canvas.points_layer_metadata['current_face_colors'] = active_layer.face_color
+                # Trigger a redraw of the canvas with updated colors
+                self.canvas.draw_graph()
+    
+    def _set_default_color_box(self):
+        """Set the color box to default gray color."""
+        self.lineage_color_box.setStyleSheet(
+            "QLabel { background-color: rgb(128, 128, 128); "
+            "border: 1px solid black; border-radius: 3px; }"
+        )
+        self.lineage_color_box.setToolTip("Current lineage color")
 
     def Progeny_diagram_loader(self):
         """
