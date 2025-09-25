@@ -159,21 +159,20 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 active_layer.selected_data = {cell}
                 
                 # Update the cell ID spinbox to show the clicked cell (without triggering signals)
-                if hasattr(self, 'cell_id_spinbox'):
-                    cell_id = active_layer.metadata["napari2lT"][cell]
-                    
-                    # Temporarily disconnect signals to avoid triggering cell_id_selector
-                    try:
-                        self.cell_id_spinbox.valueChanged.disconnect()
-                        self.cell_id_spinbox.editingFinished.disconnect()
-                    except:
-                        pass
-                    
-                    self.cell_id_spinbox.setValue(cell_id)
-                    
-                    # Reconnect signals
-                    self.cell_id_spinbox.valueChanged.connect(self.cell_id_selector)
-                    self.cell_id_spinbox.editingFinished.connect(self.cell_id_selector)
+                cell_id = active_layer.metadata["napari2lT"][cell]
+                
+                # Temporarily disconnect signals to avoid triggering cell_id_selector
+                try:
+                    self.cell_id_spinbox.valueChanged.disconnect()
+                    self.cell_id_spinbox.editingFinished.disconnect()
+                except:
+                    pass
+                
+                self.cell_id_spinbox.setValue(cell_id)
+                
+                # Reconnect signals
+                self.cell_id_spinbox.valueChanged.connect(self.cell_id_selector)
+                self.cell_id_spinbox.editingFinished.connect(self.cell_id_selector)
                 
                 val = self.val_finder(
                     active_layer.metadata["napari2lT"][cell],
@@ -193,8 +192,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                     )
                     
                     # Add circle marker for the clicked cell
-                    if hasattr(self.canvas, 'marked_cell_id'):
-                        self.canvas.marked_cell_id = active_layer.metadata["napari2lT"][cell]
+                    self.canvas.marked_cell_id = active_layer.metadata["napari2lT"][cell]
                     
                     self.canvas.draw_graph()
                 else:
@@ -222,8 +220,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         )
 
         # Clear any marked cell from spinbox selection
-        if hasattr(self.canvas, 'marked_cell_id'):
-            self.canvas.marked_cell_id = None
+        self.canvas.marked_cell_id = None
 
         self.canvas.setFocusPolicy(Qt.WheelFocus)
         self.canvas.setFocus()
@@ -247,8 +244,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         active_layer.selected_data.clear()
         
         # Clear any marked cell from spinbox selection
-        if hasattr(self.canvas, 'marked_cell_id'):
-            self.canvas.marked_cell_id = None
+        self.canvas.marked_cell_id = None
         
         if not event:
             # Background click - clear selections and refresh
@@ -271,19 +267,18 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         active_layer.refresh()
 
         # Update the cell ID spinbox to show the clicked cell (without triggering signals)
-        if hasattr(self, 'cell_id_spinbox'):
-            # Temporarily disconnect signals to avoid triggering cell_id_selector
-            try:
-                self.cell_id_spinbox.valueChanged.disconnect()
-                self.cell_id_spinbox.editingFinished.disconnect()
-            except:
-                pass
-            
+        # Temporarily disconnect signals to avoid triggering cell_id_selector
+        try:
+            self.cell_id_spinbox.valueChanged.disconnect()
+            self.cell_id_spinbox.editingFinished.disconnect()
             self.cell_id_spinbox.setValue(cell_id)
             
             # Reconnect signals
             self.cell_id_spinbox.valueChanged.connect(self.cell_id_selector)
             self.cell_id_spinbox.editingFinished.connect(self.cell_id_selector)
+        except:
+            pass
+            
 
         normal_label = "Unlabeled"
         self.w_lineedit.setPlaceholderText(
