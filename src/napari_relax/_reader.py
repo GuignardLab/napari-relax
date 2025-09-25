@@ -6,8 +6,8 @@ implement multiple readers or even other plugin contributions. see:
 https://napari.org/stable/plugins/guides.html?#readers
 """
 
-from pathlib import Path
 import uuid
+from pathlib import Path
 
 import numpy as np
 from lineagetree import (
@@ -44,10 +44,7 @@ def napari_get_reader(path):
 
     # if we know we cannot read the file, we immediately return None.
 
-    if (
-        path.lower().endswith(".lt")
-        or path.lower().split(".")[-1] in LOADERS
-    ):
+    if path.lower().endswith(".lt") or path.lower().split(".")[-1] in LOADERS:
         return reader_function
 
     # otherwise we return the *function* that can read ``path``.
@@ -109,61 +106,68 @@ def _extract_napari_surface_from_lT(lT: LineageTree):
     # First pass: count total vertices and faces to pre-allocate arrays
     total_vertices = 0
     total_faces = 0
-    
+
     for node in lT.nodes:
         if node in lT.mesh:
             mesh = lT.mesh[node]
             total_vertices += mesh["vertices"].shape[0]
             total_faces += mesh["faces"].shape[0]
-    
+
     # Pre-allocate arrays
     all_vertices = np.zeros((total_vertices, 4))
     all_faces = np.zeros((total_faces, 3), dtype=int)
-    
+
     vertex_offset = 0
     face_offset = 0
-    
+
     for node in lT.nodes:
         if node not in lT.mesh:
             continue
-            
+
         mesh = lT.mesh[node]
-        points = mesh["vertices"][:, ::-1]  # reverse coordinates for napari convention
+        points = mesh["vertices"][
+            :, ::-1
+        ]  # reverse coordinates for napari convention
         triangles = mesh["faces"]
         node_time = lT.time[node]
-        
+
         num_vertices = points.shape[0]
         num_faces = triangles.shape[0]
-        
+
         # Add time dimension and fill points
-        all_vertices[vertex_offset:vertex_offset + num_vertices, 0] = node_time
-        all_vertices[vertex_offset:vertex_offset + num_vertices, 1:] = points
-        
+        all_vertices[vertex_offset : vertex_offset + num_vertices, 0] = (
+            node_time
+        )
+        all_vertices[vertex_offset : vertex_offset + num_vertices, 1:] = points
+
         # Adjust triangle indices and fill triangles
-        all_faces[face_offset:face_offset + num_faces] = triangles + vertex_offset
-        
+        all_faces[face_offset : face_offset + num_faces] = (
+            triangles + vertex_offset
+        )
+
         vertex_offset += num_vertices
         face_offset += num_faces
 
-    return all_vertices, all_faces    
+    return all_vertices, all_faces
+
 
 def layer_preparation(lT: LineageTree, points_layer_name: str = ""):
     tracks = lT.all_chains
     first_c_to_track = {}
     last_c_of_track = {}
-    
+
     # Pre-calculate total number of cells
     total_cells = sum(len(track) for track in tracks)
-    
+
     # Pre-allocate arrays
     data = np.zeros((total_cells, 5), dtype=float)  # track_id, time, z, y, x
     lT_to_here = {}
-    
+
     c_id = 0
     for i, track in enumerate(tracks):
         first_c_to_track[track[0]] = i
         last_c_of_track[i] = track[-1]
-        
+
         for cell in track:
             # Get position once and reverse coordinates
             pos = lT.pos[cell]
@@ -179,20 +183,22 @@ def layer_preparation(lT: LineageTree, points_layer_name: str = ""):
     roots = lT.roots
     clone2 = np.zeros((len(data), 4))
     cmap = colormaps.label_colormap(len(roots))
-    
+
     for i, root in enumerate(roots, start=1):
         color = cmap.map(i)
         # Get all cells in subtree at once for vectorized assignment
         subtree_cells = lT.get_subtree_nodes(root)
         # Convert to indices and assign vectorized
-        cell_indices = [lT_to_here[cell] for cell in subtree_cells if cell in lT_to_here]
+        cell_indices = [
+            lT_to_here[cell] for cell in subtree_cells if cell in lT_to_here
+        ]
         if cell_indices:
             clone[cell_indices] = i
             clone2[cell_indices, :] = color
 
     if Path(points_layer_name).stem:
         points_layer_name = Path(points_layer_name).stem
-    
+
     # Create a unique identifier for this lineage tree to link Points and Surface layers
     lineage_tree_id = str(uuid.uuid4())
     graphs = lT._create_dict_of_plots(
@@ -253,20 +259,26 @@ def layer_preparation(lT: LineageTree, points_layer_name: str = ""):
     ]
 
     if hasattr(lT, "mesh"):
-    
+
         root_nodes_ids = lT.roots
         dict_roots_to_successors = {
-            root: sum(lT.get_all_chains_of_subtree(root), []) for root in root_nodes_ids
+            root: sum(lT.get_all_chains_of_subtree(root), [])
+            for root in root_nodes_ids
         }
 
         dict_successors_to_roots = {
-            successor: root for root, successors in dict_roots_to_successors.items()
+            successor: root
+            for root, successors in dict_roots_to_successors.items()
             for successor in successors
         }
 
         # Pre-calculate total vertices for efficient vertex_colors allocation
-        total_vertices = sum(mesh["vertices"].shape[0] for mesh in lT.mesh.values())
-        vertex_colors = np.zeros((total_vertices, 4))  # Pre-allocate RGBA array
+        total_vertices = sum(
+            mesh["vertices"].shape[0] for mesh in lT.mesh.values()
+        )
+        vertex_colors = np.zeros(
+            (total_vertices, 4)
+        )  # Pre-allocate RGBA array
         node_to_vertex_range = {}  # Track vertex ranges for each node
         vertex_offset = 0
 
@@ -274,24 +286,24 @@ def layer_preparation(lT: LineageTree, points_layer_name: str = ""):
             root_node_id = dict_successors_to_roots.get(node_id, node_id)
             root_index = list(roots).index(root_node_id) + 1
             num_vertices = mesh["vertices"].shape[0]
-            
+
             # Store vertex range for this node
-            node_to_vertex_range[node_id] = (vertex_offset, vertex_offset + num_vertices)
-            
+            node_to_vertex_range[node_id] = (
+                vertex_offset,
+                vertex_offset + num_vertices,
+            )
+
             # Efficiently assign colors to the pre-allocated array
             color = cmap.map(root_index)  # Get color once
-            vertex_colors[vertex_offset:vertex_offset + num_vertices] = color
-            
+            vertex_colors[vertex_offset : vertex_offset + num_vertices] = color
+
             vertex_offset += num_vertices
 
         all_vertices, all_faces = _extract_napari_surface_from_lT(lT)
-        
+
         # all_vertices[:, 1:] -= barycenter #TODO think about barycenter
 
-        napari_surface = (
-            all_vertices,
-            all_faces
-        )
+        napari_surface = (all_vertices, all_faces)
 
         add_kwargs_surface = {
             "name": f"{points_layer_name}_mesh",
@@ -304,9 +316,6 @@ def layer_preparation(lT: LineageTree, points_layer_name: str = ""):
             },
         }
 
-        
-        napari_layers.append(
-            (napari_surface, add_kwargs_surface, "surface")
-        )
-        
+        napari_layers.append((napari_surface, add_kwargs_surface, "surface"))
+
     return napari_layers

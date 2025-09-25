@@ -21,7 +21,7 @@ class DisplayDistances(LayerCorrectorTreeProducer):
 
     def point_click(self, viewer, event):
         active_layer = _select_correct_layer(self, Points)
-        
+
         # Check if we found a valid active layer
         if active_layer is None:
             return
@@ -30,11 +30,13 @@ class DisplayDistances(LayerCorrectorTreeProducer):
         lineage_tree = None
         if "LineageTree" in active_layer.metadata:
             lineage_tree = active_layer.metadata["LineageTree"]
-        elif "link" in active_layer.metadata and hasattr(active_layer.metadata["link"], "metadata"):
+        elif "link" in active_layer.metadata and hasattr(
+            active_layer.metadata["link"], "metadata"
+        ):
             linked_metadata = active_layer.metadata["link"].metadata
             if "LineageTree" in linked_metadata:
                 lineage_tree = linked_metadata["LineageTree"]
-        
+
         if (
             event.button == 2
             and "Shift" not in event.modifiers

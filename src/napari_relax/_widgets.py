@@ -108,7 +108,7 @@ class LineageTreeAnalysisWidget(ReLAXWidget):
         )
 
         # commenting for now because the event/signal is unclear
-        # and breaking some features 
+        # and breaking some features
 
         # self.widget_dictionary[
         #     "Attribute Based Recoloring"
