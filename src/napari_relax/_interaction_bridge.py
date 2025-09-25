@@ -528,13 +528,47 @@ class InteractionBridge:
 
     def show_only_lineages(self, node_ids: list[int]) -> None:
         """Show only the specified lineages across all registered layers."""
-        for adapter in self.adapters.values():
-            adapter.show_only_nodes(node_ids)
+        if self.adapters:
+            for adapter in self.adapters.values():
+                adapter.show_only_nodes(node_ids)
+        elif self.primary_points:
+            # Fallback: work directly with primary Points layer using size manipulation
+            self._points_show_only_fallback(node_ids)
 
     def show_only_nodes(self, node_ids: list[int]) -> None:
         """Show only the specified nodes across all registered layers."""
-        for adapter in self.adapters.values():
-            adapter.show_only_nodes(node_ids)
+        if self.adapters:
+            for adapter in self.adapters.values():
+                adapter.show_only_nodes(node_ids)
+        elif self.primary_points:
+            # Fallback: work directly with primary Points layer
+            self._points_show_only_fallback(node_ids)
+
+    def _points_show_only_fallback(self, node_ids: list[int]) -> None:
+        """Fallback method to show only specified nodes in Points layer directly."""
+        if not self.primary_points or not hasattr(self.primary_points, 'size'):
+            return
+            
+        lT_to_napari = self.primary_points.metadata.get("lT2napari", {})
+        
+        # Get napari indices for visible nodes
+        visible_indices = set()
+        for node_id in node_ids:
+            if node_id in lT_to_napari:
+                visible_indices.add(lT_to_napari[node_id])
+
+        # Set sizes: visible nodes keep size, others get size 0
+        sizes = (
+            self.primary_points.size.copy()
+            if hasattr(self.primary_points.size, "copy")
+            else np.array(self.primary_points.size)
+        )
+
+        for i in range(len(sizes)):
+            if i not in visible_indices:
+                sizes[i] = 0
+
+        self.primary_points.size = sizes
 
     def hide_lineages(self, node_ids_to_hide: list[int]) -> None:
         """Hide specific lineages while showing all others."""
@@ -548,15 +582,47 @@ class InteractionBridge:
 
     def highlight_lineages(self, node_ids: list[int]) -> None:
         """Highlight the specified lineages. For Points, this selects them without hiding others."""
+        highlighted_any = False
+        
         for adapter in self.adapters.values():
             if hasattr(adapter, "select_nodes"):
                 # For layers that support selection, select the nodes
                 adapter.select_nodes(node_ids)
+                highlighted_any = True
+        
+        # Fallback: if no adapters handled selection, work directly with primary Points layer
+        if not highlighted_any and self.primary_points:
+            # Direct Points layer fallback
+            selected_indices = set()
+            napari_to_node = self.primary_points.metadata.get("napari2lT", {})
+            lT_to_napari = self.primary_points.metadata.get("lT2napari", {})
+            
+            for node_id in node_ids:
+                if node_id in lT_to_napari:
+                    selected_indices.add(lT_to_napari[node_id])
+            
+            self.primary_points.selected_data = selected_indices
 
     def reset_visibility(self) -> None:
         """Reset visibility across all registered layers."""
-        for adapter in self.adapters.values():
-            adapter.reset_visibility()
+        if self.adapters:
+            for adapter in self.adapters.values():
+                adapter.reset_visibility()
+        elif self.primary_points:
+            # Fallback: reset Points layer directly
+            if hasattr(self.primary_points, 'size'):
+                # Restore original sizes if we have them, otherwise set to default
+                original_size = getattr(self.primary_points, '_original_size', 1)
+                if hasattr(original_size, '__len__'):
+                    self.primary_points.size = original_size
+                else:
+                    # Set uniform size for all points
+                    data_len = len(self.primary_points.data) if hasattr(self.primary_points, 'data') else 0
+                    if data_len > 0:
+                        self.primary_points.size = [original_size] * data_len
+            
+            # Clear selection
+            self.primary_points.selected_data = set()
 
     def find_node_at_position(
         self,

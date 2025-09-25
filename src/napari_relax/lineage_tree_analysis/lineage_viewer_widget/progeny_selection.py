@@ -91,15 +91,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         selected_node_ids = list(scores.keys())
 
         # Use interaction bridge for coordinated multi-layer selection
-        if self.bridge.adapters:
-            self.bridge.highlight_lineages(selected_node_ids)
-        else:
-            # Fallback to original Points-only behavior
-            for key in scores:
-                active_layer.selected_data.add(
-                    active_layer.metadata["lT2napari"][key]
-                )
-            active_layer.refresh()
+        self.bridge.highlight_lineages(selected_node_ids)
         val = self.val_finder(
             active_layer.metadata["napari2lT"][cell],
             self.lT,
@@ -278,16 +270,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         selected_node_ids = self.lT.get_subtree_nodes(cell_id)
 
         # Use interaction bridge for coordinated multi-layer selection
-        if self.bridge.adapters:
-            self.bridge.highlight_lineages(selected_node_ids)
-        else:
-            # Fallback: update Points layer directly
-            for node_id in selected_node_ids:
-                if node_id in points_layer.metadata.get("lT2napari", {}):
-                    points_layer.selected_data.add(
-                        points_layer.metadata["lT2napari"][node_id]
-                    )
-            points_layer.refresh()
+        self.bridge.highlight_lineages(selected_node_ids)
 
         normal_label = "Unlabeled"
         self.w_lineedit.setPlaceholderText(
@@ -345,16 +328,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             )
 
             # Use interaction bridge for coordinated selection of the subtree
-            if self.bridge.adapters:
-                self.bridge.highlight_lineages(selected_cells)
-            else:
-                # Fallback: update Points layer directly
-                for node_id in selected_cells:
-                    if node_id in active_layer.metadata.get("lT2napari", {}):
-                        active_layer.selected_data.add(
-                            active_layer.metadata["lT2napari"][node_id]
-                        )
-                active_layer.refresh()
+            self.bridge.highlight_lineages(selected_cells)
 
             lT_cell = self.lT.get_chain_of_node(
                 active_layer.metadata["napari2lT"][cell]
