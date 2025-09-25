@@ -107,7 +107,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
             # Save state to bridge
             if hasattr(self, "bridge") and self.bridge:
-                self.bridge.save_state(graph_slider_value=int(val))
+                self.bridge.update_state(graph_slider_value=int(val))
 
             selected_cells = self.lT.get_subtree_nodes(
                 self.lT.get_ancestor_at_t(
@@ -126,7 +126,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
             # Save updated state to bridge
             if hasattr(self, "bridge") and self.bridge:
-                self.bridge.save_state(
+                self.bridge.update_state(
                     selected_subtree=set(selected_cells), selected_lineage=val
                 )
             self.canvas.draw_graph()
@@ -198,7 +198,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
         # Save slider state to bridge
         if hasattr(self, "bridge") and self.bridge:
-            self.bridge.save_state(
+            self.bridge.update_state(
                 graph_slider_value=val, selected_lineage=val
             )
 
@@ -340,7 +340,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
             # Save state to bridge
             if hasattr(self, "bridge") and self.bridge:
-                self.bridge.save_state(
+                self.bridge.update_state(
                     selected_subtree=set(selected_cells),
                     selected_lineage=val,
                     graph_slider_value=val,
@@ -383,7 +383,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
         # Save current state to the previous bridge
         if hasattr(self, "bridge") and self.bridge:
-            self.bridge.save_state(
+            self.bridge.update_state(
                 graph_slider_value=(
                     self.graph_slider.value()
                     if hasattr(self, "graph_slider")
@@ -496,14 +496,14 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.bridge.reset_visibility()
         # Save state
         if self.bridge:
-            self.bridge.save_state(visibility_state="all_visible")
+            self.bridge.update_state(visibility_state="all_visible")
 
     def hide_all(self):
         """Hide all nodes across all layer types."""
         self.bridge.show_only_nodes([])
         # Save state
         if self.bridge:
-            self.bridge.save_state(visibility_state="all_hidden")
+            self.bridge.update_state(visibility_state="all_hidden")
 
     def hide_lineage(self):
         """Hide the currently selected lineage across all layer types."""
@@ -516,7 +516,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 self.bridge.hide_lineages(selected_node_ids)
                 # Save state
                 if self.bridge:
-                    self.bridge.save_state(
+                    self.bridge.update_state(
                         visibility_state="lineage_hidden",
                         hidden_lineage=selected_node_ids,
                     )
@@ -539,7 +539,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 self.bridge.show_only_lineages(selected_node_ids)
                 # Save state
                 if self.bridge:
-                    self.bridge.save_state(
+                    self.bridge.update_state(
                         visibility_state="lineage_only",
                         visible_lineage=selected_node_ids,
                     )

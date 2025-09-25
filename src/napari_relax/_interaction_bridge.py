@@ -596,7 +596,7 @@ class InteractionBridge:
         """Get list of registered layer types."""
         return list(self.adapters.keys())
 
-    def save_state(self, **kwargs) -> None:
+    def update_state(self, **kwargs) -> None:
         """Save state parameters for this lineage tree."""
         self.state.update(kwargs)
 
@@ -653,7 +653,7 @@ class InteractionBridge:
         points_layer.metadata["interaction_bridge"] = bridge
 
         # Initialize with default state
-        bridge.save_state(
+        bridge.update_state(
             graph_slider_value=0,
             selected_subtree=set(),
             visibility_state="all_visible",
