@@ -271,8 +271,8 @@ class SingleTreeProgeny(FigureCanvas):
             if dist > (max_dist):
                 # Background click - clear selections and marked cell
                 self.selected_subtree.clear()
-                if hasattr(self, 'marked_cell_id'):
-                    self.marked_cell_id = None
+                self.marked_cell_id = None
+
                 plt.close("all")
                 self.draw_graph()
                 self.node_signal.emit({})
@@ -396,7 +396,7 @@ class SingleTreeProgeny(FigureCanvas):
         )
         
         # Draw circle marker for marked cell if specified
-        if hasattr(self, 'marked_cell_id') and self.marked_cell_id is not None:
+        if self.marked_cell_id is not None:
             self._draw_cell_marker(self.marked_cell_id)
         
         if with_labels:
@@ -437,7 +437,7 @@ class SingleTreeProgeny(FigureCanvas):
             marker_pos = self._calculate_cell_position_on_edge(cell_id, cell_time)
         
         if marker_pos is not None:
-            # Use scatter plot to draw a circular marker that won't be distorted
+            # Use scatter plot to draw a circular marker
             self.ax.scatter(
                 marker_pos[0], 
                 marker_pos[1],
@@ -451,38 +451,19 @@ class SingleTreeProgeny(FigureCanvas):
 
     def _calculate_cell_position_on_edge(self, cell_id, cell_time):
         """Simplified version using direct lineage traversal"""
-    
-        # Find positioned ancestor by walking up the direct lineage
-        ancestor_pos, ancestor_time = None, None
-        current = cell_id
-        while current in self.lT.predecessor:
-            predecessors = self.lT.predecessor[current]
-            if not predecessors:
-                break
-            current = predecessors[0]  # Follow main lineage
-            if current in self.pos:
-                ancestor_pos = self.pos[current]
-                ancestor_time = self.lT.time[current]
-                break
-    
-        # Find positioned descendant by walking down the direct lineage
-        descendant_pos, descendant_time = None, None
-        current = cell_id
-        while current in self.lT.successor:
-            successors = self.lT.successor[current]
-            if not successors:
-                break
-            # For simplicity, follow the first successor (main branch)
-            current = successors[0]
-            if current in self.pos:
-                descendant_pos = self.pos[current]
-                descendant_time = self.lT.time[current]
-                break
+
+        chain_of_node = self.lT.get_chain_of_node(cell_id)
+
+        # chain_of_node has at least 3 elements, otherwise the node 
+        # would be in self.pos
+        ancestor_id, descendant_id = chain_of_node[0], chain_of_node[-1]
+        ancestor_pos, descendant_pos = self.pos[ancestor_id], self.pos[descendant_id]
+        ancestor_time, descendant_time = self.lT.time[ancestor_id], self.lT.time[descendant_id]
     
         # Interpolate if we have both endpoints
         if ancestor_pos and descendant_pos and ancestor_time != descendant_time:
             time_ratio = (cell_time - ancestor_time) / (descendant_time - ancestor_time)
-            time_ratio = max(0, min(1, time_ratio))
+            time_ratio = np.clip(time_ratio, 0, 1)
             
             return (
                 ancestor_pos[0] + time_ratio * (descendant_pos[0] - ancestor_pos[0]),
