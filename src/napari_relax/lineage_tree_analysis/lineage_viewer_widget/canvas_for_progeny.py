@@ -137,6 +137,49 @@ class SingleTreeProgeny(FigureCanvas):
             )
             self.draw_graph()
 
+    def _get_actual_root(self):
+        """Get the actual root node ID from the graph structure.
+        
+        Returns:
+            The root node ID, or None if not available.
+        """
+        if hasattr(self, 'lnks_tms') and self.lnks_tms and 'root' in self.lnks_tms:
+            return self.lnks_tms['root']
+        elif hasattr(self, 'root') and self.root is not None:
+            return self.root
+        return None
+    
+    def _get_metadata_mappings(self):
+        """Get the color and node mappings from metadata.
+        
+        Returns:
+            tuple: (clone2, lT2napari) or (None, None) if not available.
+        """
+        if not self.points_layer_metadata:
+            return None, None
+            
+        clone2 = self.points_layer_metadata.get("clone2")
+        lT2napari = self.points_layer_metadata.get("lT2napari")
+        
+        if clone2 is None or lT2napari is None:
+            return None, None
+            
+        return clone2, lT2napari
+    
+    def _convert_color_to_list(self, color):
+        """Normalize color to a list format.
+        
+        Args:
+            color: Color in various formats (numpy array, list, tuple)
+            
+        Returns:
+            list: Normalized color as list
+        """
+        if hasattr(color, 'tolist'):
+            return color.tolist()
+        else:
+            return list(color)
+
     def _extract_node_colors_from_reader(self):
         """Extract node colors from the Points layer metadata created by the reader.
         
@@ -147,24 +190,11 @@ class SingleTreeProgeny(FigureCanvas):
             color: Single color as tuple/list for the current lineage root,
                    or None if metadata is not available.
         """
-        if not self.points_layer_metadata:
-            return None
-            
-        # Get the color mapping from the reader metadata
-        clone2 = self.points_layer_metadata.get("clone2")
-        lT2napari = self.points_layer_metadata.get("lT2napari")
-        
+        clone2, lT2napari = self._get_metadata_mappings()
         if clone2 is None or lT2napari is None:
             return None
             
-        # Get the actual root node ID from the graph structure
-        # The root is stored in the lnks_tms structure
-        actual_root = None
-        if hasattr(self, 'lnks_tms') and self.lnks_tms and 'root' in self.lnks_tms:
-            actual_root = self.lnks_tms['root']
-        elif hasattr(self, 'root') and self.root is not None:
-            actual_root = self.root
-            
+        actual_root = self._get_actual_root()
         if actual_root is None:
             return None
             
@@ -173,11 +203,7 @@ class SingleTreeProgeny(FigureCanvas):
             napari_idx = lT2napari[actual_root]
             if napari_idx < len(clone2):
                 # Convert numpy array to tuple to avoid LineageTree issues
-                color = clone2[napari_idx]
-                if hasattr(color, 'tolist'):
-                    return color.tolist()
-                else:
-                    return list(color)
+                return self._convert_color_to_list(clone2[napari_idx])
         
         return None
 
@@ -193,21 +219,11 @@ class SingleTreeProgeny(FigureCanvas):
                   indicating whether all nodes in the lineage have the same color.
                   Returns None if no data is available.
         """
-        if not self.points_layer_metadata:
+        clone2, lT2napari = self._get_metadata_mappings()
+        if clone2 is None or lT2napari is None:
             return None
             
-        # Get the mappings
-        lT2napari = self.points_layer_metadata.get("lT2napari")
-        if lT2napari is None:
-            return None
-            
-        # Get the actual root node ID from the graph structure
-        actual_root = None
-        if hasattr(self, 'lnks_tms') and self.lnks_tms and 'root' in self.lnks_tms:
-            actual_root = self.lnks_tms['root']
-        elif hasattr(self, 'root') and self.root is not None:
-            actual_root = self.root
-            
+        actual_root = self._get_actual_root()
         if actual_root is None:
             return None
         
@@ -234,10 +250,7 @@ class SingleTreeProgeny(FigureCanvas):
                     napari_idx = lT2napari[node]
                     if napari_idx < len(current_face_colors):
                         color = current_face_colors[napari_idx]
-                        if hasattr(color, 'tolist'):
-                            lineage_colors.append(color.tolist())
-                        else:
-                            lineage_colors.append(list(color))
+                        lineage_colors.append(self._convert_color_to_list(color))
             
             if not lineage_colors:
                 return None
@@ -265,19 +278,14 @@ class SingleTreeProgeny(FigureCanvas):
     
     def _get_original_color_info(self, actual_root):
         """Get the original color info from clone2 for fallback."""
-        clone2 = self.points_layer_metadata.get("clone2")
-        lT2napari = self.points_layer_metadata.get("lT2napari")
+        clone2, lT2napari = self._get_metadata_mappings()
         
         if clone2 is None or lT2napari is None or actual_root not in lT2napari:
             return None
             
         napari_idx = lT2napari[actual_root]
         if napari_idx < len(clone2):
-            color = clone2[napari_idx]
-            if hasattr(color, 'tolist'):
-                color = color.tolist()
-            else:
-                color = list(color)
+            color = self._convert_color_to_list(clone2[napari_idx])
             
             return {
                 'color': color[:3],
