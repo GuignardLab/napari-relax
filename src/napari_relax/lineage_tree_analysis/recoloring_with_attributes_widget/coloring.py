@@ -325,7 +325,6 @@ class Quantitative(LayerCorrectorTreeProducer):
                     "node_size": 10,
                     "lw": 0.3,
                     "fontsize": 6,
-                    "color_of_selection": "magenta",
                     "quantitative_coloring": False,
                     "face_colors": original_colors,
                 }
@@ -339,7 +338,6 @@ class Quantitative(LayerCorrectorTreeProducer):
                     "node_size": 10,
                     "lw": 0.3,
                     "fontsize": 6,
-                    "color_of_selection": "magenta",
                     "quantitative_coloring": False,
                 }
             )
@@ -347,6 +345,7 @@ class Quantitative(LayerCorrectorTreeProducer):
     def layer_change(self):
         self.lT = self.get_lT()
         if self.lT:
+            # Only emit essential settings, preserve visual customizations
             self.color_signal.emit(
                 {
                     "color_of_nodes": "black",
@@ -354,7 +353,6 @@ class Quantitative(LayerCorrectorTreeProducer):
                     "node_size": 10,
                     "lw": 0.3,
                     "fontsize": 6,
-                    "color_of_selection": "magenta",
                 }
             )
             self.selected_attribute.clear()

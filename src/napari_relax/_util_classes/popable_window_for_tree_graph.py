@@ -76,7 +76,7 @@ class Setup(QDialog):
 
         edit_col_edg = ColoredPushButton(color=self.color_of_edges)
         edit_col_edg.color_change.connect(
-            lambda event: setattr(self, "color_of_nodes", event)
+            lambda event: setattr(self, "color_of_edges", event)
         )
 
         label_edge_size = QLabel("Edge Size:")
@@ -118,7 +118,7 @@ class Setup(QDialog):
         self.layout().addWidget(Containerize([reset_but, apply_but]))
 
     def reset(self):
-        """Resets the colors of the tree graph."""
+        """Resets the colors of the tree graph to default values."""
         self.sig.emit(
             {
                 "color_of_nodes": "black",
@@ -126,7 +126,7 @@ class Setup(QDialog):
                 "node_size": 10,
                 "lw": 0.3,
                 "fontsize": 6,
-                "color_of_selection": "magenta",
+                "color_of_selection": "magenta",  # Default selection color
             }
         )
         self.accept()
