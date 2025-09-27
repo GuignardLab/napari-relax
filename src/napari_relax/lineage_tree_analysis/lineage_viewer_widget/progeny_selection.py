@@ -159,21 +159,9 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 cell = active_layer.selected_data.pop()
                 active_layer.selected_data = {cell}
                 
-                # Update the cell ID spinbox to show the clicked cell (without triggering signals)
+                # Update the cell ID spinbox to show the clicked cell
                 cell_id = active_layer.metadata["napari2lT"][cell]
-                
-                # Temporarily disconnect signals to avoid triggering cell_id_selector
-                try:
-                    self.cell_id_spinbox.valueChanged.disconnect()
-                    self.cell_id_spinbox.editingFinished.disconnect()
-                except:
-                    pass
-                
                 self.cell_id_spinbox.setValue(cell_id)
-                
-                # Reconnect signals
-                self.cell_id_spinbox.valueChanged.connect(self.cell_id_selector)
-                self.cell_id_spinbox.editingFinished.connect(self.cell_id_selector)
                 
                 val = self.val_finder(
                     active_layer.metadata["napari2lT"][cell],
@@ -336,16 +324,9 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         active_layer.selected_data = points_to_select
         active_layer.refresh()
 
-        # Update the cell ID spinbox to show the clicked cell (without triggering signals)
-        # Temporarily disconnect signals to avoid triggering cell_id_selector
+        # Update the cell ID spinbox to show the clicked cell
         try:
-            self.cell_id_spinbox.valueChanged.disconnect()
-            self.cell_id_spinbox.editingFinished.disconnect()
             self.cell_id_spinbox.setValue(cell_id)
-            
-            # Reconnect signals
-            self.cell_id_spinbox.valueChanged.connect(self.cell_id_selector)
-            self.cell_id_spinbox.editingFinished.connect(self.cell_id_selector)
         except:
             pass
             
@@ -447,23 +428,25 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 self.cell_id_spinbox.setValue(min_cell_id)
                 self.cell_id_spinbox.setEnabled(True)
                 
-                # Connect signals when lineage tree is loaded
+                # Enable the Go button and connect it to the selector
+                self.cell_id_go_button.setEnabled(True)
+                # Disconnect any existing connections to avoid duplicates
                 try:
-                    # Disconnect any existing connections to avoid duplicates
-                    self.cell_id_spinbox.valueChanged.disconnect()
+                    self.cell_id_go_button.clicked.disconnect()
                     self.cell_id_spinbox.editingFinished.disconnect()
                 except:
-                    pass  # No connections to disconnect
+                    pass
                 
                 # Connect the signals
-                self.cell_id_spinbox.valueChanged.connect(self.cell_id_selector)
+                self.cell_id_go_button.clicked.connect(self.cell_id_selector)
                 self.cell_id_spinbox.editingFinished.connect(self.cell_id_selector)
                 
                 self.w_lineedit.update()
                 self.Progeny_diagram_loader()
             else:
-                # Disable spinbox if no lineage tree
+                # Disable spinbox and button if no lineage tree
                 self.cell_id_spinbox.setEnabled(False)
+                self.cell_id_go_button.setEnabled(False)
 
     def label_remover(self):
         active_layer = _select_correct_layer(self, Points)
@@ -742,8 +725,11 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         )
         self.layout().addWidget(self.slider_box)
         
-        # Add cell ID selection spinbox
+        # Add cell ID selection spinbox with Go button
         self.cell_id_spinbox = QSpinBox()
+        self.cell_id_go_button = QPushButton("Go")
+        self.cell_id_go_button.setMaximumWidth(40)  # Keep the button compact
+        
         if self.lT:
             # Get all cell IDs in the lineage tree
             all_cell_ids = list(self.lT.nodes)
@@ -753,20 +739,27 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             self.cell_id_spinbox.setMinimum(min_cell_id)
             self.cell_id_spinbox.setMaximum(max_cell_id)
             self.cell_id_spinbox.setValue(min_cell_id)
-            self.cell_id_spinbox.setToolTip("Enter cell ID to jump to its lineage")
+            self.cell_id_spinbox.setToolTip("Enter cell ID, then press Enter or click 'Go' to jump to its lineage")
             
-            # Connect signals immediately if tree is already loaded
-            self.cell_id_spinbox.valueChanged.connect(self.cell_id_selector)
+            # Connect the Go button to the selector function
+            self.cell_id_go_button.clicked.connect(self.cell_id_selector)
+            self.cell_id_go_button.setEnabled(True)
+            self.cell_id_go_button.setToolTip("Click to jump to the entered cell ID")
+            
+            # Also allow Enter key in the spinbox to trigger selection
             self.cell_id_spinbox.editingFinished.connect(self.cell_id_selector)
         else:
-            # Create disabled spinbox when no lineage tree is loaded
+            # Create disabled spinbox and button when no lineage tree is loaded
             self.cell_id_spinbox.setEnabled(False)
             self.cell_id_spinbox.setToolTip("Load a lineage tree to enable cell ID selection")
+            self.cell_id_go_button.setEnabled(False)
+            self.cell_id_go_button.setToolTip("Load a lineage tree to enable cell ID selection")
             
         self.cell_id_box = Containerize(
             [
                 widgets.Label(value="Cell ID selector").native,
                 self.cell_id_spinbox,
+                self.cell_id_go_button,
             ]
         )
         
