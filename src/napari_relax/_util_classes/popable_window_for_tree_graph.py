@@ -72,7 +72,6 @@ class Setup(QDialog):
         self.setWindowTitle("Config Tree graph")
         layout = QVBoxLayout()
         double_validator = QDoubleValidator()
-        self.color_of_nodes = str(canvas.color_of_nodes)
         self.color_of_edges = str(canvas.color_of_edges)
         self.node_size = str(canvas.node_size)
         self.lw = str(canvas.lw)
@@ -83,15 +82,6 @@ class Setup(QDialog):
         reset_but.pressed.connect(self.reset)
         apply_but = QPushButton(text="Apply")
         apply_but.pressed.connect(self.apply)
-
-        label_col_nod = QLabel("Node Color:")
-        edit_col_nod = ColoredPushButton(
-            color=self.color_of_nodes,
-        )
-        edit_col_nod.color_change.connect(
-            lambda event: setattr(self, "color_of_nodes", event)
-        )
-        col_nod_cont = Containerize([label_col_nod, edit_col_nod])
 
         label_node_size = QLabel("Node Size:")
         self.edit_node_size = QLineEdit(
@@ -136,7 +126,6 @@ class Setup(QDialog):
             [label_color_selection, self.edit_color_sel]
         )
         self.setLayout(layout)
-        self.layout().addWidget(col_nod_cont)
         self.layout().addWidget(nod_size_cont)
         self.layout().addWidget(edge_size_cont)
         self.layout().addWidget(fontsize_cont)
@@ -155,7 +144,6 @@ class Setup(QDialog):
         
         self.sig.emit(
             {
-                "color_of_nodes": "black",
                 "color_of_edges": "black",
                 "node_size": 10,
                 "lw": 0.3,
@@ -174,7 +162,6 @@ class Setup(QDialog):
         
         self.sig.emit(
             {
-                "color_of_nodes": self.color_of_nodes,
                 "color_of_edges": self.color_of_edges,
                 "node_size": self.edit_node_size.text(),
                 "lw": self.edit_edge_size.text(),
