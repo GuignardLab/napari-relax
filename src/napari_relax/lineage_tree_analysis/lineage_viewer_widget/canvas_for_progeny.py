@@ -29,21 +29,37 @@ class SingleTreeProgeny(FigureCanvas):
         self.color_of_edges = signal.get("color_of_edges", self.color_of_edges)
         self.node_size = signal.get("node_size", self.node_size)
         self.lw = signal.get("lw", self.lw)
-        self.color_of_selection_nodes = signal.get(
-            "color_of_selection", self.color_of_selection_nodes
-        )
-        self.color_of_selection_edges = signal.get(
-            "color_of_selection", self.color_of_selection_edges
-        )
+        
+        # Only update selection colors if it's a valid single color (not a dictionary)
+        color_of_selection = signal.get("color_of_selection")
+        if color_of_selection is not None and not isinstance(color_of_selection, dict):
+            self.color_of_selection_nodes = color_of_selection
+            self.color_of_selection_edges = color_of_selection
+        
         self.fontsize = signal.get("fontsize", self.fontsize)
         self.all_selected = signal.get("all_selected", False)
+        is_quantitative = signal.get("quantitative_coloring", False)
+        
+        # Store individual node colors if provided (for quantitative coloring)
+        if "node_colors" in signal:
+            self.node_colors = signal["node_colors"]
+        
         if self.all_selected is True:
             self.selected_subtree = signal["selected_nodes"]
+            # Don't apply selection highlighting if it's quantitative coloring
+            self.is_quantitative_mode = is_quantitative
         else:
             self.selected_subtree.clear()
+            self.is_quantitative_mode = False
+            # Clear individual node colors when exiting quantitative mode
+            if hasattr(self, 'node_colors'):
+                delattr(self, 'node_colors')
             
-        # Update metadata with current face colors from the active layer
-        self._update_current_face_colors_metadata()
+        # Update face colors if provided in the signal (for quantitative coloring)
+        face_colors = signal.get("face_colors")
+        if face_colors is not None:
+            self.update_face_colors(face_colors)
+            
         self.draw_graph()
 
     def __init__(
@@ -242,16 +258,10 @@ class SingleTreeProgeny(FigureCanvas):
             # Fallback to original method
             return self._get_original_color_info(actual_root)
     
-    def _update_current_face_colors_metadata(self):
-        """Update the canvas metadata with current face colors from the active Points layer."""
-        try:
-            active_layer = _select_correct_layer(self, Points)
-            if active_layer and self.points_layer_metadata is not None:
-                # Update the metadata with current face colors
-                self.points_layer_metadata['current_face_colors'] = active_layer.face_color
-        except Exception:
-            # If we can't get the layer, just continue
-            pass
+    def update_face_colors(self, face_colors):
+        """Update the metadata with provided face colors."""
+        if self.points_layer_metadata is not None:
+            self.points_layer_metadata['current_face_colors'] = face_colors
     
     def _get_original_color_info(self, actual_root):
         """Get the original color info from clone2 for fallback."""
@@ -488,8 +498,14 @@ class SingleTreeProgeny(FigureCanvas):
             ylim = self.ylim
         with_labels = (xlim[1] - xlim[0]) <= self.xlim_min + 70
         self.labels = with_labels
-        if self.all_selected:
+        
+        # Handle selection highlighting differently for quantitative mode
+        if self.all_selected and not getattr(self, 'is_quantitative_mode', False):
+            # Normal selection mode - highlight all nodes
             self.selected_subtree = set(self.lT.nodes)
+        elif getattr(self, 'is_quantitative_mode', False):
+            # Quantitative mode - don't use selection highlighting
+            self.selected_subtree = set()
             
         # Extract current colors from the active layer (handles quantitative coloring)
         color_info = self._extract_current_lineage_color()
@@ -503,13 +519,23 @@ class SingleTreeProgeny(FigureCanvas):
             reader_color = self._extract_node_colors_from_reader()
             default_color = reader_color if reader_color is not None else self.color_of_nodes
         
+        # Choose colors based on whether we're in quantitative mode
+        if getattr(self, 'is_quantitative_mode', False) and hasattr(self, 'node_colors'):
+            # Use individual colors from quantitative coloring (dictionary format)
+            color_of_nodes = self.node_colors
+            color_of_edges = self.node_colors  # Use same colors for edges
+        else:
+            # Normal mode - use selection highlighting
+            color_of_nodes = self.color_of_selection_nodes
+            color_of_edges = self.color_of_selection_edges
+        
         self.lT.draw_tree_graph(
             self.pos,
             self.lnks_tms,
             lw=float(self.lw),
             size=float(self.node_size),
-            color_of_nodes=self.color_of_selection_nodes,
-            color_of_edges=self.color_of_selection_edges,
+            color_of_nodes=color_of_nodes,
+            color_of_edges=color_of_edges,
             default_color=default_color,
             selected_nodes=self.selected_subtree,
             selected_edges=self.selected_subtree,

@@ -252,14 +252,11 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             self._set_default_color_box()
     
     def _update_canvas_with_current_colors(self):
-        """Update the canvas metadata with current face colors from the active layer and redraw."""
+        """Update the canvas metadata with current face colors from the active layer."""
         active_layer = _select_correct_layer(self, Points)
-        if active_layer and hasattr(self, 'canvas') and hasattr(self.canvas, 'points_layer_metadata'):
-            if self.canvas.points_layer_metadata is not None:
-                # Add current face colors to the canvas metadata
-                self.canvas.points_layer_metadata['current_face_colors'] = active_layer.face_color
-                # Trigger a redraw of the canvas with updated colors
-                self.canvas.draw_graph()
+        if active_layer and hasattr(self, 'canvas'):
+            # Just update the metadata, the canvas handles its own redrawing
+            self.canvas.update_face_colors(active_layer.face_color)
     
     def _set_default_color_box(self):
         """Set the color box to default gray color."""
