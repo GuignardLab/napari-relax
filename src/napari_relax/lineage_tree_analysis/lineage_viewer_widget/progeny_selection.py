@@ -27,7 +27,7 @@ from ..._util_classes import (
     LayerCorrectorTreeProducer,
     TooltipButton,
 )
-from ..._util_classes.popable_window_for_tree_graph import Setup
+from ..._util_classes.popable_window_for_tree_graph import Setup, _update_napari_highlight_color
 from ..._utils import _select_correct_layer
 from .canvas_for_progeny import SingleTreeProgeny
 
@@ -667,6 +667,10 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.figure = Figure(figsize=(1, 3), frameon=False)
         self.ax_for_tree_graph = self.figure.add_subplot(111)
         self.canvas = SingleTreeProgeny(self.figure, self.ax_for_tree_graph)
+        
+        # Initialize napari highlight color to match canvas selection color
+        _update_napari_highlight_color(self.canvas.color_of_selection_nodes, self.viewer)
+        
         label1 = widgets.Label(
             value="""<span style="font-family: Arial; font-size: 20px; color: white;">Lineage Viewer</span>"""
         ).native
@@ -689,7 +693,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.config_settings.setIcon(
             QIcon(str(Path(__file__).parent / "gear-bold.svg"))
         )
-        self.pop_win = Setup(self.canvas)
+        self.pop_win = Setup(self.canvas, self.viewer)
         self.config_settings.clicked.connect(lambda x: self.pop_win.exec_())
         self.config_settings.setFixedSize(30, 30)
 
