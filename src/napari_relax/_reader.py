@@ -90,7 +90,7 @@ def reader_function(path: str):
             else:
                 raise Warning("Please select one reader function.")
         else:
-            loader = options.values[0]
+            loader = next(iter(options.values()))
 
         lT = loader(path)
 
