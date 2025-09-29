@@ -42,12 +42,11 @@ def napari_get_reader(path):
         # so we are only going to look at the first file.
         path = path[0]
 
-    # if we know we cannot read the file, we immediately return None.
-
+    # if we know we can read the file, we return the *function* that can read ``path``
     if path.lower().endswith(".lt") or path.lower().split(".")[-1] in LOADERS:
         return reader_function
 
-    # otherwise we return the *function* that can read ``path``.
+    # otherwise we return None
     return None
 
 
