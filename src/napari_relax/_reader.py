@@ -151,7 +151,7 @@ def _extract_napari_surface_from_lT(lT: LineageTree):
     return all_vertices, all_faces
 
 
-def layer_preparation(lT: LineageTree, points_layer_name: str = ""):
+def layer_preparation(lT: LineageTree, points_layer_name: str | Path):
     tracks = lT.all_chains
     first_c_to_track = {}
     last_c_of_track = {}
@@ -196,8 +196,10 @@ def layer_preparation(lT: LineageTree, points_layer_name: str = ""):
             clone[cell_indices] = i
             clone2[cell_indices, :] = color
 
-    if Path(points_layer_name).stem:
+    if Path(points_layer_name).exists():
         points_layer_name = Path(points_layer_name).stem
+    else:
+        points_layer_name = points_layer_name
 
     # Create a unique identifier for this lineage tree to link Points and Surface layers
     lineage_tree_id = str(uuid.uuid4())
