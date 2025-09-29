@@ -1,7 +1,5 @@
-
 from napari.qt import get_current_stylesheet
 from napari.settings import get_settings
-import numpy as np
 from psygnal import Signal
 from qtpy.QtGui import QColor, QDoubleValidator
 from qtpy.QtWidgets import (
@@ -27,13 +25,13 @@ def _update_napari_highlight_color(color_name: str, viewer=None):
     if color.isValid():
         rgba = (
             color.red() / 255.0,
-            color.green() / 255.0, 
+            color.green() / 255.0,
             color.blue() / 255.0,
-            color.alpha() / 255.0
+            color.alpha() / 255.0,
         )
         settings.appearance.highlight.highlight_color = rgba
         settings.appearance.highlight.highlight_thickness = 3
-        
+
         # Refresh Points layers if viewer is available
         if viewer is not None:
             for layer in viewer.layers:
@@ -41,7 +39,7 @@ def _update_napari_highlight_color(color_name: str, viewer=None):
     else:
         # Fallback to magenta if invalid color
         settings.appearance.highlight.highlight_color = (1.0, 0.0, 1.0, 1.0)
- 
+
 
 class ColoredPushButton(QPushButton):
     color_change = Signal(str)
@@ -141,7 +139,7 @@ class Setup(QDialog):
         """Resets the colors of the tree graph to default values."""
         # Update napari highlight color to default
         _update_napari_highlight_color("magenta", self.viewer)
-        
+
         self.sig.emit(
             {
                 "color_of_edges": "black",
@@ -159,7 +157,7 @@ class Setup(QDialog):
         color_name = self.edit_color_sel.color
         self.color_of_selection = color_name
         _update_napari_highlight_color(self.color_of_selection, self.viewer)
-        
+
         self.sig.emit(
             {
                 "color_of_edges": self.color_of_edges,

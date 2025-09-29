@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 from warnings import warn
 
 import numpy as np
-from napari.layers import Points
 from napari.utils.colormaps import AVAILABLE_COLORMAPS
 from psygnal import Signal
 from qtpy.QtGui import QDoubleValidator
@@ -26,7 +25,7 @@ from ..._util_classes import (
     Containerize,
     LayerCorrectorTreeProducer,
 )
-from ..._utils import _select_correct_layer
+from ..._utils import _select_active_lt_layer
 from .colorboxlabel import ColorBoxLabel
 
 if TYPE_CHECKING:
@@ -223,7 +222,7 @@ class Quantitative(LayerCorrectorTreeProducer):
             return
         min_val = min(self.lT.__getattribute__(attr).values())
         max_val = max(self.lT.__getattribute__(attr).values())
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         match selected_method:
             case "Black":
                 for node, value in self.lT.__getattribute__(attr).items():
@@ -312,11 +311,11 @@ class Quantitative(LayerCorrectorTreeProducer):
 
     def reset_button_pr(self):
         # First reset the face colors
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is not None:
             original_colors = active_layer.metadata["clone2"]
             active_layer.face_color = original_colors
-            
+
             # Emit signal with the original face colors
             self.color_signal.emit(
                 {

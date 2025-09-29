@@ -106,14 +106,18 @@ class LineageTreeAnalysisWidget(ReLAXWidget):
         ].w_lineedit.returnPressed.connect(
             self.widget_dictionary["Distance Calculation"].label_update
         )
-        self.widget_dictionary[
-            "Attribute Based Recoloring"
-        ].coloring_widget.quant.color_signal.connect(
-            self.widget_dictionary[
-                "Explore and Relabel"
-            ].canvas.change_attributes
-        )
-        
+
+        # commenting for now because the event/signal is unclear
+        # and breaking some features
+
+        # self.widget_dictionary[
+        #     "Attribute Based Recoloring"
+        # ].coloring_widget.quant.color_signal.connect(
+        #     self.widget_dictionary[
+        #         "Explore and Relabel"
+        #     ].canvas.change_attributes
+        # )
+
         # Also update the lineage color box when colors change
         self.widget_dictionary[
             "Attribute Based Recoloring"

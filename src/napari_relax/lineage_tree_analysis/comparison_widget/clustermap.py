@@ -15,7 +15,6 @@ from matplotlib.backends.backend_qt5agg import (
 )
 from matplotlib.figure import Figure
 from napari._qt.qthreading import thread_worker
-from napari.layers import Points
 from napari.utils import notifications, progress
 from qtpy.QtCore import QRegExp
 from qtpy.QtGui import QIntValidator, QRegExpValidator
@@ -38,7 +37,7 @@ from ..._util_classes import (
     LayerCorrectorTreeProducer,
     TooltipButton,
 )
-from ..._utils import _select_correct_layer
+from ..._utils import _select_active_lt_layer
 
 
 class OnlineClustermap(LayerCorrectorTreeProducer):
@@ -58,7 +57,7 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         cell (int): id of the cell
         val (int): the index of the list of networkx graphs.
         """
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer:
             return
         if cell not in active_layer.metadata["graphs"][1][val]:
@@ -90,7 +89,7 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         """
         if event.button == 1 and event.inaxes:
             self.figure.canvas.mpl_disconnect(self.click_signal)
-            active_layer = _select_correct_layer(self, Points)
+            active_layer = _select_active_lt_layer(self.viewer)
             if not active_layer:
                 return
             active_layer.face_color = "white"
@@ -176,7 +175,7 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         """
         Resets colors of points.
         """
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer:
             return
         active_layer.face_color = active_layer.metadata["clone2"]
@@ -490,7 +489,9 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
                     key=lambda x: self.lT.time[x[0]],
                 )
             ]
-            self.list_widget.addItems([s for k, s in self.list_of_selected_nodes])
+            self.list_widget.addItems(
+                [s for k, s in self.list_of_selected_nodes]
+            )
             self.list_widget.update()
 
     def c_layer_change(self, event):

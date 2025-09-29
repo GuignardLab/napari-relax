@@ -3,10 +3,12 @@ from collections.abc import Iterable
 import matplotlib.pyplot as plt
 import numpy as np
 from lineagetree import LineageTree
+from napari.layers import Points
 from napari.qt import get_current_stylesheet
 from qtpy.QtWidgets import (
     QMessageBox,
 )
+
 
 def _infer_point_size(lT: "LineageTree"):
     """
@@ -14,31 +16,35 @@ def _infer_point_size(lT: "LineageTree"):
 
     Heuristics:
     - minimal size: 0.01 * optimal size
-    - optimal size: half of minimum median nearest neighbor distance 
+    - optimal size: half of minimum median nearest neighbor distance
                     across all time points
-    - maximal size: half of maximum nearest neighbor distance across 
-                    all time points 
+    - maximal size: half of maximum nearest neighbor distance across
+                    all time points
     """
 
     optimal_dist = float("inf")
     maximal_dist = 0
 
-    for t in lT.time_nodes:
+    timepoints = list(lT.time_nodes.keys())
+    if len(timepoints) > 100:
+        # Sample evenly across the timeline
+        step = len(timepoints) // 10
+        sampled_timepoints = timepoints[::step]
+    else:
+        sampled_timepoints = timepoints
+
+    for t in sampled_timepoints:
         nodes = lT.time_nodes[t]
-        if 1 < len(nodes):
+        if len(nodes) > 1:
             idx3d, nodes = lT.get_idx3d(t)
 
             nn_dists = idx3d.query(idx3d.data, k=2)[0][:, 1]
 
-            optimal_dist = np.nanmin([
-                optimal_dist,
-                np.nanmedian(nn_dists) / 2
-            ])
+            optimal_dist = np.nanmin(
+                [optimal_dist, np.nanmedian(nn_dists) / 2]
+            )
 
-            maximal_dist = np.nanmax([
-                maximal_dist,
-                np.nanmax(nn_dists) / 2
-            ])
+            maximal_dist = np.nanmax([maximal_dist, np.nanmax(nn_dists) / 2])
 
     if optimal_dist == float("inf"):
         optimal_dist = 100
@@ -47,41 +53,58 @@ def _infer_point_size(lT: "LineageTree"):
 
     minimal_dist = 0.01 * optimal_dist
 
-    print(f"Inferred point sizes: {minimal_dist:.2f}, {optimal_dist:.2f}, {maximal_dist:.2f}")
-    
     return minimal_dist, optimal_dist, maximal_dist
 
-def _transform_slider_int_value_to_float(int_value, min_float_value, max_float_value):
+
+def _transform_slider_int_value_to_float(
+    int_value, min_float_value, max_float_value
+):
     if min_float_value and max_float_value:
-        return min_float_value + (max_float_value - min_float_value) * (int_value / 100)
+        return min_float_value + (max_float_value - min_float_value) * (
+            int_value / 100
+        )
     else:
         return float(int_value)
-    
-def _transform_float_value_to_slider_int(float_value, min_float_value, max_float_value):
+
+
+def _transform_float_value_to_slider_int(
+    float_value, min_float_value, max_float_value
+):
     if min_float_value and max_float_value:
-        return int(100 * (float_value - min_float_value) / (max_float_value - min_float_value))
+        return int(
+            100
+            * (float_value - min_float_value)
+            / (max_float_value - min_float_value)
+        )
     else:
         return int(float_value)
 
-def _select_correct_layer(self, layer_type):
-    """
-    Swaps Layers of the same origin, using the metadata property called "link".
 
-    REDUNDANT UNTIL WE ADD TRACKS LAYER AGAIN.
-
-    Args:
-        layer_type (Points/Tracks): The layer the script needs to use.
-    Returns:
-        layer_type (Points/Tracks): The correct layer.
+def _select_active_lt_layer(viewer):
     """
-    if len(self.viewer.layers.selection) == 1:
-        active_layer = self.viewer.layers.selection.active
-        if isinstance(active_layer, layer_type):
+    Finds the correct layer of the specified type that corresponds to the currently active layer.
+    If the active layer is already of the correct type, returns it.
+    Otherwise, looks for a 'link' metadata in the active layer pointing to the correct layer.
+    """
+    if len(viewer.layers.selection) == 1:
+        active_layer = viewer.layers.selection.active
+        if (
+            isinstance(active_layer, Points)
+            and hasattr(active_layer, "metadata")
+            and "LineageTree" in active_layer.metadata
+        ):
             return active_layer
         else:
-            for layer in self.viewer.layers:
-                if "link" in layer.metadata:
-                    return active_layer.metadata["link"]
+            # Look for a 'link' metadata in the active layer
+            if (
+                hasattr(active_layer, "metadata")
+                and "link" in active_layer.metadata
+                and isinstance(active_layer.metadata["link"], Points)
+            ):
+                return active_layer.metadata["link"]
+
+    # Fallback: return None if no matching layer found
+    return None
 
 
 def error_image_selection():

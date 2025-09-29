@@ -3,10 +3,8 @@ import os
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import numpy as np
 from magicgui import widgets
 from matplotlib.figure import Figure
-from napari.layers import Points
 from qtpy.QtCore import Qt, Signal
 from qtpy.QtGui import QIcon
 from qtpy.QtWidgets import (
@@ -19,16 +17,19 @@ from qtpy.QtWidgets import (
     QSpinBox,
     QVBoxLayout,
 )
-from scipy.spatial import KDTree
 
+from ..._interaction_bridge import InteractionBridge
 from ..._util_classes import (
     Containerize,
     DelayedTooltipEventFilter,
     LayerCorrectorTreeProducer,
     TooltipButton,
 )
-from ..._util_classes.popable_window_for_tree_graph import Setup, _update_napari_highlight_color
-from ..._utils import _select_correct_layer
+from ..._util_classes.popable_window_for_tree_graph import (
+    Setup,
+    _update_napari_highlight_color,
+)
+from ..._utils import _select_active_lt_layer
 from .canvas_for_progeny import SingleTreeProgeny
 
 if TYPE_CHECKING:
@@ -66,25 +67,32 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             score[c] = 1
         return score
 
-    def points_selector(self):
+    def select_the_lineage(self):
         """
         If a Point is selected it selects the whole Lineage.
         """
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer:
             return
         if not active_layer.selected_data:
             return 0
+
+        # Ensure lineage tree is available
+        self.lT = self.get_lT()
+        if self.lT is None:
+            return
+
         cell = active_layer.selected_data.pop()
         active_layer.selected_data = {cell}
         scores = self.get_sublineage(
             active_layer.metadata["napari2lT"][cell], self.lT
         )
-        for key in scores:
-            active_layer.selected_data.add(
-                active_layer.metadata["lT2napari"][key]
-            )
-        active_layer.refresh()
+
+        # Get node IDs for the selected lineage
+        selected_node_ids = list(scores.keys())
+
+        # Use interaction bridge for coordinated multi-layer selection
+        self.bridge.highlight_lineages(selected_node_ids)
         val = self.val_finder(
             active_layer.metadata["napari2lT"][cell],
             self.lT,
@@ -92,6 +100,10 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         )
         if val is not None:
             self.graph_slider.setValue(int(val))
+
+            # Save state to bridge
+            self.bridge.update_state(graph_slider_value=int(val))
+
             selected_cells = self.lT.get_subtree_nodes(
                 self.lT.get_ancestor_at_t(
                     active_layer.metadata["napari2lT"][cell]  # type: ignore
@@ -107,6 +119,11 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 points_layer_metadata=active_layer.metadata,
             )
             self.canvas.selected_subtree = set(selected_cells)
+
+            # Save updated state to bridge
+            self.bridge.update_state(
+                selected_subtree=set(selected_cells), selected_lineage=val
+            )
             self.canvas.draw_graph()
         else:
             raise Warning(
@@ -114,60 +131,50 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             )
 
     def point_click(self, viewer, event):
-        """Function for clicking on the viewer to select a Point from the Points layer.
+        """Function for clicking on the viewer to select a node from any supported layer type.
 
         Args:
             viewer (napari_viewer): The viewer of napari.
             event : The event signal that contains the spatial information of the action taken.
         """
-        active_layer = _select_correct_layer(self, Points)
-        if not active_layer:
-            return
-        if (
-            "Shift" in event.modifiers
-            and event.button == 2
-            and "LineageTree" in active_layer.metadata
-            and active_layer
-        ):
-            for layer in viewer.layers:
-                with contextlib.suppress(Exception):
-                    layer.selected_data.clear()
-            current_position = event.position
-            time = current_position[0]
-            near_point, far_point = active_layer.get_ray_intersections(
-                np.array(event.position),
-                event.view_direction,
-                np.array(event.dims_displayed),
+        if "Shift" in event.modifiers and event.button == 2:
+            # Ensure lineage tree is available
+            # self.lT = self.get_lT()
+            active_layer = _select_active_lt_layer(self.viewer)
+            if active_layer is None:
+                self.lT = None
+            else:
+                self.lT = active_layer.metadata.get("LineageTree", None)
+            if self.lT is None:
+                return
+
+            # Use InteractionBridge to find node in any layer
+            result = self.bridge.find_node_at_position(
+                event.position, event.view_direction, event.dims_displayed
             )
-            if (near_point is not None) and (far_point is not None):
-                ray_points = np.linspace(
-                    near_point, far_point, 30, endpoint=True
-                )
-                indexes_of_slice = np.where(active_layer.data[:, 0] == time)
-                data_in_slice = active_layer.data[indexes_of_slice][:, 1:]
-                kdtree = KDTree(data_in_slice)
-                dists, idx = kdtree.query(ray_points[:, 1:])
-                active_layer.selected_data.add(
-                    indexes_of_slice[0][idx[np.argmin(dists)]]
-                )
-                color = active_layer.face_color[
-                    indexes_of_slice[0][idx[np.argmin(dists)]]
-                ]
-                active_layer._face.current_color = color
-                self.Progeny_diagram_loader()
-                active_layer.refresh()
-                cell = active_layer.selected_data.pop()
-                active_layer.selected_data = {cell}
-                
+
+            if result:
+                layer, node_id = result
+                node_id_napari = layer.metadata["lT2napari"][node_id]
+
+                # cell = active_layer.selected_data.pop()
+                active_layer.selected_data = {node_id_napari}
+
                 # Update the cell ID spinbox to show the clicked cell
-                cell_id = active_layer.metadata["napari2lT"][cell]
-                self.cell_id_spinbox.setValue(cell_id)
-                
+                self.cell_id_spinbox.setValue(node_id_napari)
+
+                # Clear selections in all layers
+                for viewer_layer in viewer.layers:
+                    with contextlib.suppress(Exception):
+                        viewer_layer.selected_data.clear()
+
+                # Find the graph value for this node
                 val = self.val_finder(
-                    active_layer.metadata["napari2lT"][cell],
+                    node_id_napari,
                     self.lT,
-                    active_layer.metadata["graphs"][0],
+                    layer.metadata["graphs"][0],
                 )
+
                 if val is not None:
                     self.graph_slider.setValue(int(val))
                     self.canvas.change_lineage(
@@ -179,10 +186,14 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                         active_layer.metadata["graphs"][1][val],
                         points_layer_metadata=active_layer.metadata,
                     )
-                    
+
                     # Add circle marker for the clicked cell
-                    self.canvas.marked_cell_id = active_layer.metadata["napari2lT"][cell]
-                    
+                    self.canvas.marked_cell_id = active_layer.metadata[
+                        "napari2lT"
+                    ][
+                        node_id_napari
+                    ]
+
                     self.canvas.draw_graph()
                 else:
                     self.canvas.ax.clear()
@@ -190,39 +201,43 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
     def update_lineage_color_box(self):
         """Update the color box to show the current lineage color."""
-        if not hasattr(self, 'lineage_color_box'):
+        if not hasattr(self, "lineage_color_box"):
             return
-        
+
         # Update the canvas with current face colors before extracting color
         self._update_canvas_with_current_colors()
-            
+
         # Get the color info from the canvas using the new method
         color_info = None
-        if (hasattr(self, 'canvas') and 
-            hasattr(self.canvas, '_extract_current_lineage_color') and
-            hasattr(self.canvas, 'points_layer_metadata') and
-            self.canvas.points_layer_metadata is not None):
+        if (
+            hasattr(self.canvas, "points_layer_metadata")
+            and self.canvas.points_layer_metadata is not None
+        ):
             try:
                 color_info = self.canvas._extract_current_lineage_color()
             except (AttributeError, KeyError):
                 # Handle cases where the canvas isn't fully initialized yet
                 color_info = None
-        
-        if color_info and color_info.get('color'):
-            color = color_info['color']
-            is_uniform = color_info.get('is_uniform', True)
-            
+
+        if color_info and color_info.get("color"):
+            color = color_info["color"]
+            is_uniform = color_info.get("is_uniform", True)
+
             # Convert to RGB tuple (0-255 range) if needed
-            if isinstance(color, (list, tuple)) and len(color) >= 3:
-                rgb_color = tuple(int(c * 255) if c <= 1.0 else int(c) for c in color[:3])
-                
+            if isinstance(color, list | tuple) and len(color) >= 3:
+                rgb_color = tuple(
+                    int(c * 255) if c <= 1.0 else int(c) for c in color[:3]
+                )
+
                 if is_uniform:
                     # Solid color for uniform lineage colors
                     self.lineage_color_box.setStyleSheet(
                         f"QLabel {{ background-color: rgb({rgb_color[0]}, {rgb_color[1]}, {rgb_color[2]}); "
                         f"border: 1px solid black; border-radius: 3px; }}"
                     )
-                    self.lineage_color_box.setToolTip("Current lineage color (uniform)")
+                    self.lineage_color_box.setToolTip(
+                        "Current lineage color (uniform)"
+                    )
                 else:
                     # Gradient or pattern for non-uniform colors (quantitative coloring applied)
                     self.lineage_color_box.setStyleSheet(
@@ -231,21 +246,23 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                         f"stop:0.5 rgb(255, 255, 255), stop:1 rgb({rgb_color[0]}, {rgb_color[1]}, {rgb_color[2]})); "
                         f"border: 1px solid black; border-radius: 3px; }}"
                     )
-                    self.lineage_color_box.setToolTip("Lineage has mixed colors (quantitative coloring applied)")
+                    self.lineage_color_box.setToolTip(
+                        "Lineage has mixed colors (quantitative coloring applied)"
+                    )
             else:
                 # Fallback to default color
                 self._set_default_color_box()
         else:
             # Default gray color if no color is available
             self._set_default_color_box()
-    
+
     def _update_canvas_with_current_colors(self):
         """Update the canvas metadata with current face colors from the active layer."""
-        active_layer = _select_correct_layer(self, Points)
-        if active_layer and hasattr(self, 'canvas'):
+        active_layer = _select_active_lt_layer(self.viewer)
+        if active_layer:
             # Just update the metadata, the canvas handles its own redrawing
             self.canvas.update_face_colors(active_layer.face_color)
-    
+
     def _set_default_color_box(self):
         """Set the color box to default gray color."""
         self.lineage_color_box.setStyleSheet(
@@ -254,15 +271,32 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         )
         self.lineage_color_box.setToolTip("Current lineage color")
 
-    def Progeny_diagram_loader(self):
+    def progeny_diagram_loader(self):
         """
         Program to load the diagrams in black or magenta. Reads the attributes to load different graphs.
         """
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer:
             return
         self.ax_for_tree_graph.clear()
         val = int(self.graph_slider.value())
+
+        # Save slider state to bridge
+        self.bridge.update_state(graph_slider_value=val, selected_lineage=val)
+
+        # Preserve selected_subtree during lineage change if it exists
+        preserve_subtree = (
+            getattr(self.canvas, "selected_subtree", set())
+        )
+        preserve_all_selected = (
+            getattr(self.canvas, "all_selected", False)
+        )
+
+        # Temporarily set all_selected to True if we have a subtree to preserve
+        # This tricks change_lineage into preserving the selected nodes
+        if preserve_subtree:
+            self.canvas.all_selected = True
+
         self.canvas.change_lineage(
             self.figure,
             self.ax_for_tree_graph,
@@ -276,16 +310,24 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
         # Clear any marked cell from spinbox selection
         self.canvas.marked_cell_id = None
+        # Restore the original all_selected state
+        self.canvas.all_selected = preserve_all_selected
+
+        # Ensure selected_subtree is properly set and draw
+        if preserve_subtree:
+            self.canvas.selected_subtree = preserve_subtree
+            self.canvas.draw_graph()
 
         self.canvas.setFocusPolicy(Qt.WheelFocus)
         self.canvas.setFocus()
         if self.lT is not None:
+            root_id = self.roots[int(self.graph_slider.value())]
             self.w_lineedit.setPlaceholderText(
-                f"ID of root: {self.roots[int(self.graph_slider.value())]} - Label: {self.lT.labels[self.roots[int(self.graph_slider.value())]]}"
+                f"ID of root: {root_id} - Label: {self.lT.labels[root_id]}"
             )
         self.w_lineedit.clear()
         self.w_lineedit.update()
-        
+
         # Update the lineage color box
         self.update_lineage_color_box()
 
@@ -296,53 +338,51 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         Args:
             event : The signal that contains the spatial information of the graph click.
         """
-        active_layer = _select_correct_layer(self, Points)
-        if not active_layer:
+        # Get the Points layer through the bridge for consistent behavior
+        if "points" not in self.bridge.adapters:
             return
-        active_layer.selected_data.clear()
-        
+        master_layer = self.bridge.adapters["points"].layer
+        if not master_layer:
+            return
+        master_layer.selected_data.clear()
+
         # Clear any marked cell from spinbox selection
         self.canvas.marked_cell_id = None
-        
+
         if not event:
             # Background click - clear selections and refresh
-            active_layer.refresh()
+            self.bridge.reset_visibility()
+            master_layer.refresh()
             return
-            
+
         cell_id = event["value"]
-        cell = active_layer.metadata["lT2napari"][cell_id]
-        color = active_layer.face_color[cell]
-        active_layer._face.current_color = color
-        
-        # Select the full sublineage (original behavior)
-        selected_cells = self.lT.get_subtree_nodes(cell_id)
-        points_to_select = set()
-        for cell in selected_cells:
-            if cell in active_layer.metadata["lT2napari"]:
-                points_to_select.add(active_layer.metadata["lT2napari"][cell])
-        
-        active_layer.selected_data = points_to_select
-        active_layer.refresh()
+        # cell = points_layer.metadata["lT2napari"][cell_id]
+        # color = points_layer.face_color[cell]
+        # points_layer._face.current_color = color
+        # points_layer.selected_data.add(cell)
+
+        # Get the sublineage for the clicked node
+        selected_node_ids = self.lT.get_subtree_nodes(cell_id)
+
+        # Use interaction bridge for coordinated multi-layer selection
+        self.bridge.highlight_lineages(selected_node_ids)
 
         # Update the cell ID spinbox to show the clicked cell
-        try:
+        with contextlib.suppress(Exception):
             self.cell_id_spinbox.setValue(cell_id)
-        except:
-            pass
-            
 
         normal_label = "Unlabeled"
         self.w_lineedit.setPlaceholderText(
             f"ID of root: {cell_id} - Label: {self.lT.labels.get(cell_id,normal_label)}"
         )
-        
+
         # Only move time slider on double click (original behavior)
         if event["dblclick"]:
             self.update_time_slider_for_cell(cell_id)
 
     def sub_point_painter(self):
         """Paints specific part of the lineagetree when a sublineage is selected"""
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer:
             return
         cell = active_layer.selected_data.pop()
@@ -370,16 +410,18 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             )
             self.canvas.selected_subtree = set(selected_cells)
             self.canvas.draw_graph()
-            
-            # Select the corresponding points in the 3D view
-            points_to_select = set()
-            for cell in selected_cells:
-                if cell in active_layer.metadata["lT2napari"]:
-                    points_to_select.add(active_layer.metadata["lT2napari"][cell])
-            
-            active_layer.selected_data = points_to_select
-            active_layer.refresh()
-            
+            active_layer.selected_data = {cell}
+
+            # Save state to bridge
+            self.bridge.update_state(
+                selected_subtree=set(selected_cells),
+                selected_lineage=val,
+                graph_slider_value=val,
+            )
+
+            # Use interaction bridge for coordinated selection of the subtree
+            self.bridge.highlight_lineages(selected_cells)
+
             lT_cell = self.lT.get_chain_of_node(
                 active_layer.metadata["napari2lT"][cell]
             )[0]
@@ -390,15 +432,43 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         else:
             raise Warning("Selected cell is not part of an important lineage.")
 
+    def points_selector(self):
+        """Select the entire lineage that contains the selected node."""
+        self.select_the_lineage()
+
     def layer_change(self, event):
         """
         Function that handles the layer change event.
-        Replaces the widgets of the ui of progeny selection, to fit the new layer.
-
+        Switches to the InteractionBridge for the selected layer and restores its state.
         """
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is None:
             return
+
+        # Save current state to the previous bridge
+        if self.bridge:
+            self.bridge.update_state(
+                graph_slider_value=(
+                    self.graph_slider.value()
+                    if hasattr(self, "graph_slider")
+                    else 0
+                ),
+                selected_subtree=(
+                    getattr(self.canvas, "selected_subtree", set())
+                ),
+            )
+
+        # Get or create the InteractionBridge for this Points layer
+        self.bridge = InteractionBridge.get_bridge_for_layer(active_layer)
+        if not self.bridge:
+            # Create a new bridge for this Points layer (this will establish links automatically)
+            self.bridge = InteractionBridge.create_bridge_for_points_layer(
+                self.viewer, active_layer
+            )
+        else:
+            # If bridge already exists, make sure links are established for any new companion layers
+            self.bridge._establish_layer_links()
+
         if len(self.viewer.layers.selection) == 1:
             self.lT: LineageTree = self.get_lT()
             if self.lT:
@@ -410,52 +480,98 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 self.range = len(self.roots) - 1
                 self.graph_slider.setMinimum(0)
                 self.graph_slider.setMaximum(self.range)
-                self.graph_slider.setValue(0)
+
+                # Restore the saved state for this lineage tree
+                saved_slider_value = 0  # default
+                if self.bridge and "graph_slider_value" in self.bridge.state:
+                    saved_slider_value = self.bridge.state[
+                        "graph_slider_value"
+                    ]
+                    # Ensure the saved value is within valid range
+                    saved_slider_value = max(
+                        0, min(saved_slider_value, self.range)
+                    )
+
                 self.w_lineedit.setPlaceholderText(
-                    f"ID of root: {self.roots[0]} - Label: {self.lT.labels[self.roots[0]]}"
+                    f"ID of root: {self.roots[saved_slider_value]} - Label: {self.lT.labels[self.roots[saved_slider_value]]}"
                 )
                 self.graph_slider.setToolTip(
                     f"Currently {self.range+1} lineages present."
                 )
-                
+
                 # Update cell ID spinbox with new lineage tree
                 all_cell_ids = list(self.lT.nodes)
                 min_cell_id = min(all_cell_ids)
                 max_cell_id = max(all_cell_ids)
-                
+
                 self.cell_id_spinbox.setMinimum(min_cell_id)
                 self.cell_id_spinbox.setMaximum(max_cell_id)
                 self.cell_id_spinbox.setValue(min_cell_id)
                 self.cell_id_spinbox.setEnabled(True)
-                
+
                 # Enable the Go button and connect it to the selector
                 self.cell_id_go_button.setEnabled(True)
                 # Disconnect any existing connections to avoid duplicates
-                try:
+                with contextlib.suppress(Exception):
                     self.cell_id_go_button.clicked.disconnect()
                     self.cell_id_spinbox.editingFinished.disconnect()
-                except:
-                    pass
-                
+
                 # Connect the signals
                 self.cell_id_go_button.clicked.connect(self.cell_id_selector)
-                self.cell_id_spinbox.editingFinished.connect(self.cell_id_selector)
-                
+                self.cell_id_spinbox.editingFinished.connect(
+                    self.cell_id_selector
+                )
+
                 self.w_lineedit.update()
-                self.Progeny_diagram_loader()
+
+                # Store the selected_subtree from bridge state to restore after slider triggers progeny_diagram_loader
+                bridge_selected_subtree = None
+                if (
+                    self.bridge
+                    and "selected_subtree" in self.bridge.state
+                    and self.bridge.state["selected_subtree"]
+                ):
+                    bridge_selected_subtree = self.bridge.state[
+                        "selected_subtree"
+                    ]
+
+                # Setting the slider value will trigger progeny_diagram_loader via valueChanged signal
+                # However, if the saved value is the same as current value, no signal is emitted
+                # So we need to force the diagram loading
+                current_slider_value = self.graph_slider.value()
+                self.graph_slider.setValue(saved_slider_value)
+
+                # Force diagram loading if slider value didn't change (common case: both are 0)
+                if current_slider_value == saved_slider_value:
+                    self.progeny_diagram_loader()
+
+                # Now restore the highlighting state after the slider change has completed
+                if bridge_selected_subtree:
+                    # Set the selected subtree and redraw to show highlighting
+                    self.canvas.selected_subtree = bridge_selected_subtree
+                    self.canvas.draw_graph()
+
+                    # Also restore highlighting on companion layers
+                    selected_node_ids = list(bridge_selected_subtree)
+                    self.bridge.highlight_lineages(selected_node_ids)
+
+                # Restore other state
+                if self.bridge:
+                    self.bridge.restore_state(self)
+
             else:
                 # Disable spinbox and button if no lineage tree
                 self.cell_id_spinbox.setEnabled(False)
                 self.cell_id_go_button.setEnabled(False)
 
     def label_remover(self):
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is None:
             return
         to_remove = int(self.w_lineedit.placeholderText().split()[3])
         self.lT.labels.pop(to_remove)
         active_layer.metadata["LineageTree"].labels.pop(to_remove)
-        self.Progeny_diagram_loader()
+        self.progeny_diagram_loader()
 
     def show_all_labels(self):
         msg = QMessageBox()
@@ -467,42 +583,77 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         msg.exec_()
 
     def show_all(self):
-        active_layer = _select_correct_layer(self, Points)
-        if active_layer is None:
-            return
-        active_layer.shown = True
+        """Show all nodes across all layer types."""
+        self.bridge.reset_visibility()
+        # Save state
+        if self.bridge:
+            self.bridge.update_state(visibility_state="all_visible")
 
     def hide_all(self):
-        active_layer = _select_correct_layer(self, Points)
-        if active_layer is None:
-            return
-        active_layer.shown = False
+        """Hide all nodes across all layer types."""
+        self.bridge.show_only_nodes([])
+        # Save state
+        self.bridge.update_state(visibility_state="all_hidden")
 
     def hide_lineage(self):
-        active_layer = _select_correct_layer(self, Points)
-        if active_layer is None:
-            return
-        active_layer.shown[list(active_layer.selected_data)] = False
-        active_layer.refresh()
+        """Hide the currently selected lineage across all layer types."""
+        if hasattr(
+            self.canvas, "selected_subtree"
+        ):
+            # Use the currently selected subtree from the graph
+            selected_node_ids = list(self.canvas.selected_subtree)
+            if selected_node_ids:
+                self.bridge.hide_lineages(selected_node_ids)
+                # Save state
+                self.bridge.update_state(
+                    visibility_state="lineage_hidden",
+                    hidden_lineage=selected_node_ids,
+                )
+        else:
+            # Fallback: use Points layer selected data
+            active_layer = _select_active_lt_layer(self.viewer)
+            if active_layer and active_layer.selected_data:
+                active_layer.shown[list(active_layer.selected_data)] = False
+                active_layer.refresh()
 
     def show_lineage(self):
-        active_layer = _select_correct_layer(self, Points)
-        if active_layer is None:
-            return
-        active_layer.shown[list(active_layer.selected_data)] = True
-        active_layer.refresh()
+        """Show only the currently selected lineage across all layer types."""
+        if hasattr(
+            self.canvas, "selected_subtree"
+        ):
+            # Use the currently selected subtree from the graph
+            selected_node_ids = list(self.canvas.selected_subtree)
+            if selected_node_ids:
+                # Show only the selected lineage across all layers (including hiding other points)
+                self.bridge.show_only_lineages(selected_node_ids)
+                # Save state
+                self.bridge.update_state(
+                    visibility_state="lineage_only",
+                    visible_lineage=selected_node_ids,
+                )
+        else:
+            # Fallback: use Points layer selected data
+            active_layer = _select_active_lt_layer(self.viewer)
+            if active_layer and active_layer.selected_data:
+                active_layer.shown[list(active_layer.selected_data)] = True
+                active_layer.refresh()
+            # Fallback: use Points layer selected data
+            active_layer = _select_active_lt_layer(self.viewer)
+            if active_layer and active_layer.selected_data:
+                active_layer.shown[list(active_layer.selected_data)] = True
+                active_layer.refresh()
 
     def cell_id_selector(self):
         """
         Select lineage based on cell ID input from spinbox.
         Moves slider to lineage containing this cell and shows a circle marker on lineage graph.
         """
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer or not self.lT:
             return
-            
+
         cell_id = self.cell_id_spinbox.value()
-        
+
         # Check if cell_id exists in the lineage tree
         if cell_id not in self.lT.nodes:
             # If cell doesn't exist, find the closest existing cell ID
@@ -510,18 +661,18 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             closest_node = min(all_nodes, key=lambda x: abs(x - cell_id))
             self.cell_id_spinbox.setValue(closest_node)
             cell_id = closest_node
-            
+
         # Find which lineage (root) this cell belongs to
         val = self.val_finder(
             cell_id,
             self.lT,
             active_layer.metadata["graphs"][0],
         )
-        
+
         if val is not None:
             # Update the slider to the correct lineage
             self.graph_slider.setValue(int(val))
-            
+
             # Update the canvas to show the correct lineage without sublineage highlighting
             self.canvas.change_lineage(
                 self.figure,
@@ -532,29 +683,33 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 active_layer.metadata["graphs"][1][val],
                 points_layer_metadata=active_layer.metadata,
             )
-            
+
             # Clear any previous subtree selection and draw with circle marker
             self.canvas.selected_subtree = set()
-            self.canvas.marked_cell_id = cell_id  # Store the cell to mark with circle
+            self.canvas.marked_cell_id = (
+                cell_id  # Store the cell to mark with circle
+            )
             self.canvas.draw_graph()
-            
+
             # Select only the single cell in the 3D view (not sublineage)
             points_to_select = set()
             if cell_id in active_layer.metadata["lT2napari"]:
-                points_to_select.add(active_layer.metadata["lT2napari"][cell_id])
-            
+                points_to_select.add(
+                    active_layer.metadata["lT2napari"][cell_id]
+                )
+
             active_layer.selected_data = points_to_select
             active_layer.refresh()
-            
+
             # Update the label text field
             normal_label = "Unlabeled"
             self.w_lineedit.setPlaceholderText(
                 f"ID of root: {cell_id} - Label: {self.lT.labels.get(cell_id, normal_label)}"
             )
-            
+
             # Update time slider to show when this cell first appears
             self.update_time_slider_for_cell(cell_id)
-            
+
             # Update the lineage color box
             self.update_lineage_color_box()
 
@@ -562,10 +717,10 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         """Update the time slider to show when the given cell first appears."""
         if not self.lT or cell_id not in self.lT.time:
             return
-            
+
         # Calculate the time step for this cell
         cell_time = self.lT.time[cell_id]
-        
+
         # Get the minimum time from all lineage tree layers (important if dataset doesn't start from 0)
         min_time = min(
             {
@@ -574,7 +729,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 if layer.metadata.get("LineageTree")
             }
         )
-        
+
         # Set the time slider to show when this cell appears
         time_step = cell_time - min_time
         current_step = list(self.viewer.dims.current_step)
@@ -606,6 +761,25 @@ class ProgenySelection(LayerCorrectorTreeProducer):
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
 
+        # Get the specific Points layer for this widget
+        points_layer = _select_active_lt_layer(self.viewer)
+
+        # Get or create the InteractionBridge for this Points layer
+        if points_layer:
+            # First establish links from companion layers to the Points layer
+            # We'll let the bridge handle this during its creation
+
+            # Then get or create the bridge (which will now find the linked layers)
+            self.bridge = InteractionBridge.get_bridge_for_layer(points_layer)
+            if not self.bridge:
+                # Create a new bridge for this Points layer (this will establish links automatically)
+                self.bridge = InteractionBridge.create_bridge_for_points_layer(
+                    napari_viewer, points_layer
+                )
+        else:
+            # Create a temporary bridge that will be replaced when a layer is selected
+            self.bridge = InteractionBridge(napari_viewer, None)
+
         self.lT: LineageTree = self.get_lT()
         if self.lT:
             self.graph_slider = QSlider()
@@ -615,7 +789,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             self.graph_slider.setValue(0)
             self.roots = [
                 g["root"]
-                for g in _select_correct_layer(self, Points)
+                for g in _select_active_lt_layer(self.viewer)
                 .metadata["graphs"][0]
                 .values()
             ]
@@ -636,7 +810,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             self.graph_slider.setOrientation(Qt.Orientation.Horizontal)
             self.range = 0
             self.graph_slider.setMaximum(0)
-        self.graph_slider.valueChanged.connect(self.Progeny_diagram_loader)
+        self.graph_slider.valueChanged.connect(self.progeny_diagram_loader)
         remove_label = widgets.Button(text="Remove this label")
         remove_label.clicked.connect(self.label_remover)
         show_labels = widgets.Button(text="Show Labels")
@@ -667,10 +841,12 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.figure = Figure(figsize=(1, 3), frameon=False)
         self.ax_for_tree_graph = self.figure.add_subplot(111)
         self.canvas = SingleTreeProgeny(self.figure, self.ax_for_tree_graph)
-        
+
         # Initialize napari highlight color to match canvas selection color
-        _update_napari_highlight_color(self.canvas.color_of_selection_nodes, self.viewer)
-        
+        _update_napari_highlight_color(
+            self.canvas.color_of_selection_nodes, self.viewer
+        )
+
         label1 = widgets.Label(
             value="""<span style="font-family: Arial; font-size: 20px; color: white;">Lineage Viewer</span>"""
         ).native
@@ -701,11 +877,11 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.pop_win.sig.connect(self.canvas.change_attributes)
 
         if self.lT:
-            self.Progeny_diagram_loader()
+            self.progeny_diagram_loader()
         self.graph_slider.setToolTip(
             f"Currently {self.range+1} lineages present."
         )
-        
+
         # Create a color box to show the current lineage color
         self.lineage_color_box = QLabel()
         self.lineage_color_box.setFixedSize(40, 20)
@@ -715,11 +891,11 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             "QLabel { background-color: rgb(128, 128, 128); "
             "border: 1px solid black; border-radius: 3px; }"
         )
-        
+
         # Update color box if lineage data is already loaded
         if self.lT:
             self.update_lineage_color_box()
-        
+
         self.slider_box = Containerize(
             [
                 widgets.Label(value="Lineage slider").native,
@@ -728,37 +904,45 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             ]
         )
         self.layout().addWidget(self.slider_box)
-        
+
         # Add cell ID selection spinbox with Go button
         self.cell_id_spinbox = QSpinBox()
         self.cell_id_go_button = QPushButton("Go")
         self.cell_id_go_button.setMaximumWidth(40)  # Keep the button compact
-        
+
         if self.lT:
             # Get all cell IDs in the lineage tree
             all_cell_ids = list(self.lT.nodes)
             min_cell_id = min(all_cell_ids)
             max_cell_id = max(all_cell_ids)
-            
+
             self.cell_id_spinbox.setMinimum(min_cell_id)
             self.cell_id_spinbox.setMaximum(max_cell_id)
             self.cell_id_spinbox.setValue(min_cell_id)
-            self.cell_id_spinbox.setToolTip("Enter cell ID, then press Enter or click 'Go' to jump to its lineage")
-            
+            self.cell_id_spinbox.setToolTip(
+                "Enter cell ID, then press Enter or click 'Go' to jump to its lineage"
+            )
+
             # Connect the Go button to the selector function
             self.cell_id_go_button.clicked.connect(self.cell_id_selector)
             self.cell_id_go_button.setEnabled(True)
-            self.cell_id_go_button.setToolTip("Click to jump to the entered cell ID")
-            
+            self.cell_id_go_button.setToolTip(
+                "Click to jump to the entered cell ID"
+            )
+
             # Also allow Enter key in the spinbox to trigger selection
             self.cell_id_spinbox.editingFinished.connect(self.cell_id_selector)
         else:
             # Create disabled spinbox and button when no lineage tree is loaded
             self.cell_id_spinbox.setEnabled(False)
-            self.cell_id_spinbox.setToolTip("Load a lineage tree to enable cell ID selection")
+            self.cell_id_spinbox.setToolTip(
+                "Load a lineage tree to enable cell ID selection"
+            )
             self.cell_id_go_button.setEnabled(False)
-            self.cell_id_go_button.setToolTip("Load a lineage tree to enable cell ID selection")
-            
+            self.cell_id_go_button.setToolTip(
+                "Load a lineage tree to enable cell ID selection"
+            )
+
         self.cell_id_box = Containerize(
             [
                 widgets.Label(value="Cell ID selector").native,
@@ -766,7 +950,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 self.cell_id_go_button,
             ]
         )
-        
+
         self.layout().addWidget(self.cell_id_box)
         self.layout().addWidget(
             Containerize(
@@ -790,7 +974,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.layout().addWidget(shown_cont)
 
         self.viewer.mouse_drag_callbacks.append(self.point_click)
-        self.viewer.layers.selection.events.connect(self.layer_change)
+        self.viewer.layers.selection.events.active.connect(self.layer_change)
         self.canvas.node_signal.connect(self._click_on_tree_graph)
         self.canvas.setFocusPolicy(Qt.WheelFocus)
         self.canvas.setFocus()
