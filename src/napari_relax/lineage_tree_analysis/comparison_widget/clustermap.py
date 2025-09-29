@@ -490,7 +490,9 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
                     key=lambda x: self.lT.time[x[0]],
                 )
             ]
-            self.list_widget.addItems([s for k, s in self.list_of_selected_nodes])
+            self.list_widget.addItems(
+                [s for k, s in self.list_of_selected_nodes]
+            )
             self.list_widget.update()
 
     def c_layer_change(self, event):

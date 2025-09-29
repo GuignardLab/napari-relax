@@ -8,16 +8,17 @@ from qtpy.QtWidgets import (
     QMessageBox,
 )
 
+
 def _infer_point_size(lT: "LineageTree"):
     """
     Infer a point size based on nearest neighbor distances.
 
     Heuristics:
     - minimal size: 0.01 * optimal size
-    - optimal size: half of minimum median nearest neighbor distance 
+    - optimal size: half of minimum median nearest neighbor distance
                     across all time points
-    - maximal size: half of maximum nearest neighbor distance across 
-                    all time points 
+    - maximal size: half of maximum nearest neighbor distance across
+                    all time points
     """
 
     optimal_dist = float("inf")
@@ -25,20 +26,16 @@ def _infer_point_size(lT: "LineageTree"):
 
     for t in lT.time_nodes:
         nodes = lT.time_nodes[t]
-        if 1 < len(nodes):
+        if len(nodes) > 1:
             idx3d, nodes = lT.get_idx3d(t)
 
             nn_dists = idx3d.query(idx3d.data, k=2)[0][:, 1]
 
-            optimal_dist = np.nanmin([
-                optimal_dist,
-                np.nanmedian(nn_dists) / 2
-            ])
+            optimal_dist = np.nanmin(
+                [optimal_dist, np.nanmedian(nn_dists) / 2]
+            )
 
-            maximal_dist = np.nanmax([
-                maximal_dist,
-                np.nanmax(nn_dists) / 2
-            ])
+            maximal_dist = np.nanmax([maximal_dist, np.nanmax(nn_dists) / 2])
 
     if optimal_dist == float("inf"):
         optimal_dist = 100
@@ -47,21 +44,36 @@ def _infer_point_size(lT: "LineageTree"):
 
     minimal_dist = 0.01 * optimal_dist
 
-    print(f"Inferred point sizes: {minimal_dist:.2f}, {optimal_dist:.2f}, {maximal_dist:.2f}")
-    
+    print(
+        f"Inferred point sizes: {minimal_dist:.2f}, {optimal_dist:.2f}, {maximal_dist:.2f}"
+    )
+
     return minimal_dist, optimal_dist, maximal_dist
 
-def _transform_slider_int_value_to_float(int_value, min_float_value, max_float_value):
+
+def _transform_slider_int_value_to_float(
+    int_value, min_float_value, max_float_value
+):
     if min_float_value and max_float_value:
-        return min_float_value + (max_float_value - min_float_value) * (int_value / 100)
+        return min_float_value + (max_float_value - min_float_value) * (
+            int_value / 100
+        )
     else:
         return float(int_value)
-    
-def _transform_float_value_to_slider_int(float_value, min_float_value, max_float_value):
+
+
+def _transform_float_value_to_slider_int(
+    float_value, min_float_value, max_float_value
+):
     if min_float_value and max_float_value:
-        return int(100 * (float_value - min_float_value) / (max_float_value - min_float_value))
+        return int(
+            100
+            * (float_value - min_float_value)
+            / (max_float_value - min_float_value)
+        )
     else:
         return int(float_value)
+
 
 def _select_correct_layer(self, layer_type):
     """

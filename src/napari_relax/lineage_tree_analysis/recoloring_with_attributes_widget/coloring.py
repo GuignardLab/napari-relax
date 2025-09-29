@@ -345,7 +345,8 @@ class Quantitative(LayerCorrectorTreeProducer):
             self.selected_attribute.addItems([str(None)])
 
 
-class Qualitative(QWidget): ...
+class Qualitative(QWidget):
+    ...
 
 
 class Coloring(LayerCorrectorTreeProducer):
