@@ -329,28 +329,17 @@ class QuantitativeColoringWidget(LineageTreeWidgetBase):
             # Emit coloring reset
             self.signal_hub.emit_coloring_reset()
 
-            # Emit visual settings update
-            self.signal_hub.emit_visual_settings_update(
-                {
-                    "color_of_nodes": "black",
-                    "color_of_edges": "black",
-                    "node_size": 10,
-                    "lw": 0.3,
-                    "fontsize": 6,
-                }
-            )
+            # DO NOT emit visual settings that override user preferences
+            # The LineageCanvas will use its own user preferences for visual settings
+            # Only emit coloring-related changes, not visual appearance settings
         else:
-            # Emit reset signals even without active layer
+            # Emit reset signals even without active layer using user preferences
+            from ..._util_classes.tree_graph_popup import _get_user_canvas_settings
+            user_settings = _get_user_canvas_settings()
+            
             self.signal_hub.emit_coloring_reset()
-            self.signal_hub.emit_visual_settings_update(
-                {
-                    "color_of_nodes": "black",
-                    "color_of_edges": "black",
-                    "node_size": 10,
-                    "lw": 0.3,
-                    "fontsize": 6,
-                }
-            )
+            # DO NOT emit visual settings that override user preferences
+            # Let the LineageCanvas use its own user preferences for edge colors
 
     def layer_change(self):
         active_layer = _select_active_lt_layer(self.viewer)
@@ -360,22 +349,13 @@ class QuantitativeColoringWidget(LineageTreeWidgetBase):
             self.lT = None
 
         if self.lT:
-            # Only emit essential settings, preserve visual customizations
-            settings_data = {
-                "color_of_nodes": "black",
-                "color_of_edges": "black",
-                "node_size": 10,
-                "lw": 0.3,
-                "fontsize": 6,
-            }
-            
-            # Emit through signal hub (with safety check)
+            # DO NOT emit visual settings on layer change
+            # The LineageCanvas should use its own user preferences
+            # Only emit coloring reset to clear any quantitative state
             if self.signal_hub is not None:
-                self.signal_hub.emit_visual_settings_update(settings_data)
-            else:
-                print(f"❌ [DEBUG] signal_hub is None in layer_change! Cannot emit visual settings.")
+                self.signal_hub.emit_coloring_reset()
             
-            # Always update the attribute selection regardless of signal hub status
+            # Update the attribute selection
             self.selected_attribute.clear()
             self.selected_attribute.addItems(
                 [str(None)]

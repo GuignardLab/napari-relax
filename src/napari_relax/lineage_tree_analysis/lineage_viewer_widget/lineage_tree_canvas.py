@@ -8,26 +8,29 @@ from psygnal import Signal
 from scipy.spatial import KDTree
 
 
+def _get_user_canvas_preferences():
+    """Get user's preferred canvas settings."""
+    # Import here to avoid circular imports
+    from ..._util_classes.tree_graph_popup import _get_user_canvas_settings
+    return _get_user_canvas_settings()
+
+
 class LineageCanvas(FigureCanvas):
     node_signal = Signal(dict)
     quantitative_coloring_applied = Signal()
-    color_of_nodes = "black"
-    color_of_edges = "black"
-    node_size = 10
-    lw = 0.3
-    fontsize = 6
-    color_of_selection_nodes = "magenta"
-    color_of_selection_edges = "magenta"
-    all_selected = False
 
     def change_attributes(self, signal):
         """
         Receives a signal to change the attributes of the plot.
         """
-        self.color_of_nodes = signal.get("color_of_nodes", self.color_of_nodes)
-        self.color_of_edges = signal.get("color_of_edges", self.color_of_edges)
+        # CRITICAL: Edge color should ONLY be changed by LineageCanvasSetup dialog
+        # Never update edge colors from other signals to prevent contamination
+        # self.color_of_edges = signal.get("color_of_edges", self.color_of_edges)  # REMOVED!
+        
+        # Only update visual settings that don't interfere with user preferences
         self.node_size = signal.get("node_size", self.node_size)
         self.lw = signal.get("lw", self.lw)
+        self.fontsize = signal.get("fontsize", self.fontsize)
 
         # Only update selection colors if it's a valid single color (not a dictionary)
         color_of_selection = signal.get("color_of_selection")
@@ -39,12 +42,20 @@ class LineageCanvas(FigureCanvas):
 
         self.fontsize = signal.get("fontsize", self.fontsize)
         
+        # Special handling for LineageCanvasSetup signals (identified by presence of color_of_edges)
+        # These are the ONLY signals allowed to update edge colors
+        if "color_of_edges" in signal:
+            self.color_of_edges = signal["color_of_edges"]
+            # This is a visual settings update from LineageCanvasSetup - update all visual properties
+            self.node_size = signal.get("node_size", self.node_size)
+            self.lw = signal.get("lw", self.lw)
+            self.fontsize = signal.get("fontsize", self.fontsize)
+        
         # CRITICAL: Only change quantitative state if signal explicitly addresses it
         # Don't reset quantitative mode for unrelated signals (visual settings, etc.)
-        if "quantitative_coloring" in signal or "all_selected" in signal:
+        if "quantitative_coloring" in signal:
             # This signal is about quantitative coloring - process normally
             is_quantitative = signal.get("quantitative_coloring", False)
-            all_selected = signal.get("all_selected", False)
             
             # Store individual node colors if provided (for quantitative coloring)
             if "node_colors" in signal:
@@ -54,11 +65,16 @@ class LineageCanvas(FigureCanvas):
             if "face_colors" in signal:
                 self.update_face_colors(signal["face_colors"])
             
-            if all_selected is True:
-                self.selected_subtree = signal.get("selected_nodes", set())
-                # Don't apply selection highlighting if it's quantitative coloring
-                self.is_quantitative_mode = is_quantitative
-            elif all_selected is False:
+            # Set quantitative mode and handle selection
+            self.is_quantitative_mode = is_quantitative
+            
+            if is_quantitative:
+                # Entering quantitative mode - preserve any existing selection
+                if "selected_nodes" in signal:
+                    self.selected_subtree = signal["selected_nodes"]
+                # If no selection specified, keep existing selection if any
+            else:
+                # Exiting quantitative mode - clear selection and individual colors
                 if (
                     hasattr(self, "selected_subtree")
                     and self.selected_subtree is not None
@@ -67,7 +83,6 @@ class LineageCanvas(FigureCanvas):
                 else:
                     self.selected_subtree = set()
 
-                self.is_quantitative_mode = False
                 # Clear individual node colors when exiting quantitative mode
                 if hasattr(self, "node_colors"):
                     delattr(self, "node_colors")
@@ -96,6 +111,16 @@ class LineageCanvas(FigureCanvas):
         old_nodes=None,
         points_layer_metadata=None,
     ):
+        # Load user preferences and apply them to this instance
+        user_prefs = _get_user_canvas_preferences()
+        self.color_of_nodes = user_prefs.get("color_of_edges", "black")  # Use edge color for nodes too in normal mode
+        self.color_of_edges = user_prefs["color_of_edges"]
+        self.node_size = user_prefs["node_size"]
+        self.lw = user_prefs["lw"]
+        self.fontsize = user_prefs["fontsize"]
+        self.color_of_selection_nodes = user_prefs["color_of_selection"]
+        self.color_of_selection_edges = user_prefs["color_of_selection"]
+        
         if do_super:
             super().__init__(figure)
         if root is not None and (lT or lnks_tms, hier):
@@ -111,7 +136,7 @@ class LineageCanvas(FigureCanvas):
             # Extract colors from the reader metadata if available
             reader_color = self._extract_node_colors_from_reader()
 
-            # Use reader color as default color if available
+            # Use reader color as default color if available, otherwise fallback to user preferences
             default_color = (
                 reader_color
                 if reader_color is not None
@@ -122,9 +147,10 @@ class LineageCanvas(FigureCanvas):
                 self.pos,
                 self.graph,
                 ax=self.ax,
-                color_of_nodes=self.color_of_selection_nodes,
-                color_of_edges=self.color_of_selection_edges,
+                color_of_edges=self.color_of_edges,  # Use fixed edge color from user settings
                 default_color=default_color,
+                # Note: No color_of_nodes provided - let default_color handle node colors from points layer
+                # Note: No selected_nodes/selected_edges parameters in initial draw
             )
             self.draw()
             self.xlim = self.ax.get_xlim()
@@ -293,14 +319,7 @@ class LineageCanvas(FigureCanvas):
         return {
             "color": first_color,
             "is_uniform": is_uniform,
-            "sample_colors": lineage_colors[
-                :5
-            ],  # Sample of colors for debugging
         }
-
-        # except Exception:
-        #     # Fallback to original method
-        #     return self._get_original_color_info(actual_root)
 
     def update_face_colors(self, face_colors):
         """Update the metadata with provided face colors."""
@@ -321,7 +340,6 @@ class LineageCanvas(FigureCanvas):
             return {
                 "color": color[:3],
                 "is_uniform": True,  # Original colors are always uniform per lineage
-                "sample_colors": [color],
             }
 
     def time_line(self, time):
@@ -397,7 +415,7 @@ class LineageCanvas(FigureCanvas):
         change=False,
         points_layer_metadata=None,
     ):
-        # Preserve selected nodes if they exist, regardless of all_selected state
+        # Preserve selected nodes if they exist
         if (
             hasattr(self, "selected_subtree")
             and self.selected_subtree
@@ -446,8 +464,8 @@ class LineageCanvas(FigureCanvas):
                 return
             cell = list(self.pos.keys())[ind]
             self.node_signal.emit({"value": cell, "dblclick": event.dblclick})
-            if not self.all_selected:
-                self.selected_subtree = set(self.lT.get_subtree_nodes(cell))
+            # Always select the subtree when clicking on a node
+            self.selected_subtree = set(self.lT.get_subtree_nodes(cell))
             self.draw_graph()
 
     def reset(self, event):
@@ -536,16 +554,6 @@ class LineageCanvas(FigureCanvas):
         if not hasattr(self, "ax") or self.ax is None:
             return
 
-        import traceback
-        print(f"🎨 [DEBUG] draw_graph() called with reset={reset}")
-        print(f"🎨 [DEBUG] is_quantitative_mode: {getattr(self, 'is_quantitative_mode', False)}")
-        print(f"🎨 [DEBUG] has node_colors: {hasattr(self, 'node_colors')}")
-        if hasattr(self, 'node_colors'):
-            print(f"🎨 [DEBUG] node_colors count: {len(self.node_colors)}")
-        # Print stack trace to see who called this
-        stack = traceback.extract_stack()
-        print(f"🎨 [DEBUG] Called from: {stack[-2].filename}:{stack[-2].lineno} in {stack[-2].name}")
-
         if not reset:
             xlim = self.ax.get_xlim()
             ylim = self.ax.get_ylim()
@@ -555,20 +563,19 @@ class LineageCanvas(FigureCanvas):
         with_labels = (xlim[1] - xlim[0]) <= self.xlim_min + 70
         self.labels = with_labels
 
-        # Handle selection highlighting differently for quantitative mode
-        if self.all_selected and not getattr(
-            self, "is_quantitative_mode", False
-        ):
-            # Normal selection mode - highlight all nodes
-            self.selected_subtree = set(self.lT.nodes)
-        elif getattr(self, "is_quantitative_mode", False):
-            # QuantitativeColoringWidget mode - don't use selection highlighting
-            self.selected_subtree = set()
+        # Handle selection highlighting for quantitative mode
+        if getattr(self, "is_quantitative_mode", False):
+            # Quantitative mode - preserve existing selection highlighting
+            # Only clear selection if there isn't already a valid selection
+            if not hasattr(self, 'selected_subtree') or self.selected_subtree is None:
+                self.selected_subtree = set()
+            # Otherwise, keep the existing selection for highlighting in quantitative mode
 
         # Extract current colors from the active layer (handles quantitative coloring)
         color_info = self._extract_current_lineage_color()
 
         # Use current color as default if available, otherwise fallback to original reader color
+        # This allows nodes to get proper colors from points layer in default mode
         default_color = None
         if color_info and color_info.get("color"):
             default_color = color_info["color"]
@@ -585,28 +592,38 @@ class LineageCanvas(FigureCanvas):
         if getattr(self, "is_quantitative_mode", False) and hasattr(
             self, "node_colors"
         ):
-            # Use individual colors from quantitative coloring (dictionary format)
+            # Use individual colors from quantitative coloring (dictionary format) for nodes only
             color_of_nodes = self.node_colors
-            color_of_edges = self.node_colors  # Use same colors for edges
-            print(f"🎨 [DEBUG] Canvas using quantitative colors: {len(color_of_nodes)} nodes, sample: {list(color_of_nodes.items())[:3]}")
-        else:
-            # Normal mode - use selection highlighting
+        elif self.selected_subtree:
+            # Normal mode with selections - use selection highlighting for nodes
             color_of_nodes = self.color_of_selection_nodes
-            color_of_edges = self.color_of_selection_edges
-            print(f"🎨 [DEBUG] Canvas using selection colors: {color_of_nodes}")
+        else:
+            # Normal mode without selections - don't override default_color, let nodes get their natural colors
+            color_of_nodes = None
 
-        print(f"🎨 [DEBUG] Calling draw_tree_graph with color_of_nodes type: {type(color_of_nodes)}")
+        # With LineageTree fix: Edge colors are now properly isolated
+        # Always use the user-configured edge color
+        color_of_edges = self.color_of_edges
+
+        # Build draw_tree_graph parameters - simplified thanks to LineageTree fix
+        draw_params = {
+            "lw": float(self.lw),
+            "size": float(self.node_size),
+            "color_of_edges": color_of_edges,  # Will not be contaminated by nodes anymore
+            "default_color": default_color,
+            "selected_nodes": self.selected_subtree,
+            "selected_edges": set(),  # Don't highlight edges - keep them at fixed color
+            "ax": self.ax,
+        }
+        
+        # Only provide color_of_nodes if we have specific node colors to apply
+        if color_of_nodes is not None:
+            draw_params["color_of_nodes"] = color_of_nodes
+
         self.lT.draw_tree_graph(
             self.pos,
             self.lnks_tms,
-            lw=float(self.lw),
-            size=float(self.node_size),
-            color_of_nodes=color_of_nodes,
-            color_of_edges=color_of_edges,
-            default_color=default_color,
-            selected_nodes=self.selected_subtree,
-            selected_edges=self.selected_subtree,
-            ax=self.ax,
+            **draw_params
         )
 
         # Draw circle marker for marked cell if specified

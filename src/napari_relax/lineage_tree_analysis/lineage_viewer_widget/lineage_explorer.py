@@ -27,7 +27,7 @@ from ..._util_classes import (
     TooltipButton,
 )
 from ..._util_classes.tree_graph_popup import (
-    Setup,
+    LineageCanvasSetup,
     _update_napari_highlight_color,
 )
 from ..._utils import _select_active_lt_layer
@@ -161,16 +161,15 @@ class LineageExplorationWidget(BaseAnalysisWidget):
                 layer, node_id = result
                 node_id_napari = layer.metadata["lT2napari"][node_id]
 
-                # cell = active_layer.selected_data.pop()
                 active_layer.selected_data = {node_id_napari}
 
                 # Update the cell ID spinbox to show the clicked cell
                 self.cell_id_spinbox.setValue(node_id_napari)
 
-                # Clear selections in all layers
-                for viewer_layer in viewer.layers:
-                    with contextlib.suppress(Exception):
-                        viewer_layer.selected_data.clear()
+                # # Clear selections in all layers
+                # for viewer_layer in viewer.layers:
+                #     with contextlib.suppress(Exception):
+                #         viewer_layer.selected_data.clear()
 
                 # Find the graph value for this node
                 val = self.find_graph_index(
@@ -903,7 +902,7 @@ class LineageExplorationWidget(BaseAnalysisWidget):
         self.config_settings.setIcon(
             QIcon(str(Path(__file__).parent / "gear-bold.svg"))
         )
-        self.pop_win = Setup(self.canvas, self.viewer)
+        self.pop_win = LineageCanvasSetup(self.canvas, self.viewer)
         self.config_settings.clicked.connect(lambda x: self.pop_win.exec_())
         self.config_settings.setFixedSize(30, 30)
 
@@ -1059,15 +1058,18 @@ class LineageExplorationWidget(BaseAnalysisWidget):
                 
                 print(f"🌟 [DEBUG] Direct setup: quantitative_mode=True, node_colors={len(node_colors)}, selection_preserved={len(current_selection)}")
         elif mapping_data.get("type") == "reset":
-            # Handle color reset
-            if hasattr(self.canvas, "reset_colors"):
-                self.canvas.reset_colors()
-            else:
-                # Direct approach: reset to non-quantitative mode
-                self.canvas.is_quantitative_mode = False
-                if hasattr(self.canvas, "node_colors"):
-                    delattr(self.canvas, "node_colors")
-                print(f"🌟 [DEBUG] Direct reset: quantitative_mode=False, node_colors cleared")
+            # Handle color reset by loading user preferences and applying them
+            from ..._util_classes.tree_graph_popup import _get_user_canvas_settings
+            user_settings = _get_user_canvas_settings()
+            
+            # Create a reset signal that includes user preferences and quantitative reset
+            reset_signal = {
+                "quantitative_coloring": False,  # Exit quantitative mode
+                **user_settings  # Apply user's default visual settings
+            }
+            
+            print(f"🌟 [DEBUG] Reset with user settings: {reset_signal}")
+            self.canvas.change_attributes(reset_signal)
 
         # Trigger canvas redraw
         print(f"🌟 [DEBUG] Calling canvas.draw_graph()")

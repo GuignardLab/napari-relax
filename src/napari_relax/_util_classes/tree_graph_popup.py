@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from napari.qt import get_current_stylesheet
 from napari.settings import get_settings
 from psygnal import Signal
@@ -12,9 +14,55 @@ from qtpy.QtWidgets import (
 )
 
 from .._layout_utils import SimpleContainer
-from ..lineage_tree_analysis.lineage_viewer_widget.lineage_tree_canvas import (
-    LineageCanvas,
-)
+
+if TYPE_CHECKING:
+    from ..lineage_tree_analysis.lineage_viewer_widget.lineage_tree_canvas import (
+        LineageCanvas,
+    )
+
+
+# Default values for canvas properties - can be referenced by other components
+DEFAULT_CANVAS_SETTINGS = {
+    "color_of_edges": "black",
+    "node_size": 10,
+    "lw": 0.3,
+    "fontsize": 6,
+    "color_of_selection": "magenta",
+}
+
+
+def _get_user_canvas_settings():
+    """Get user's preferred canvas settings from napari settings."""
+    settings = get_settings()
+    if hasattr(settings, 'plugins') and hasattr(settings.plugins, 'napari_relax'):
+        plugin_settings = settings.plugins.napari_relax
+        return {
+            "color_of_edges": getattr(plugin_settings, 'canvas_edge_color', DEFAULT_CANVAS_SETTINGS["color_of_edges"]),
+            "node_size": getattr(plugin_settings, 'canvas_node_size', DEFAULT_CANVAS_SETTINGS["node_size"]),
+            "lw": getattr(plugin_settings, 'canvas_edge_width', DEFAULT_CANVAS_SETTINGS["lw"]),
+            "fontsize": getattr(plugin_settings, 'canvas_fontsize', DEFAULT_CANVAS_SETTINGS["fontsize"]),
+            "color_of_selection": getattr(plugin_settings, 'canvas_selection_color', DEFAULT_CANVAS_SETTINGS["color_of_selection"]),
+        }
+    return DEFAULT_CANVAS_SETTINGS.copy()
+
+
+def _save_user_canvas_settings(settings_dict):
+    """Save user's preferred canvas settings to napari settings."""
+    settings = get_settings()
+    try:
+        if hasattr(settings, 'plugins'):
+            if not hasattr(settings.plugins, 'napari_relax'):
+                # Create the plugin settings section if it doesn't exist
+                settings.plugins.napari_relax = {}
+            
+            plugin_settings = settings.plugins.napari_relax
+            plugin_settings.canvas_edge_color = settings_dict.get("color_of_edges", DEFAULT_CANVAS_SETTINGS["color_of_edges"])
+            plugin_settings.canvas_node_size = settings_dict.get("node_size", DEFAULT_CANVAS_SETTINGS["node_size"])
+            plugin_settings.canvas_edge_width = settings_dict.get("lw", DEFAULT_CANVAS_SETTINGS["lw"])
+            plugin_settings.canvas_fontsize = settings_dict.get("fontsize", DEFAULT_CANVAS_SETTINGS["fontsize"])
+            plugin_settings.canvas_selection_color = settings_dict.get("color_of_selection", DEFAULT_CANVAS_SETTINGS["color_of_selection"])
+    except Exception as e:
+        print(f"Warning: Could not save canvas settings: {e}")
 
 
 def _update_napari_highlight_color(color_name: str, viewer=None):
@@ -59,10 +107,10 @@ class ColoredPushButton(QPushButton):
             self.color = color.name()
 
 
-class Setup(QDialog):
+class LineageCanvasSetup(QDialog):
     sig = Signal(dict)
 
-    def __init__(self, canvas: LineageCanvas, viewer=None):
+    def __init__(self, canvas: "LineageCanvas", viewer=None):
         super().__init__()
         self.canvas = canvas
         self.viewer = viewer
@@ -70,11 +118,15 @@ class Setup(QDialog):
         self.setWindowTitle("Config Tree graph")
         layout = QVBoxLayout()
         double_validator = QDoubleValidator()
-        self.color_of_edges = str(canvas.color_of_edges)
-        self.node_size = str(canvas.node_size)
-        self.lw = str(canvas.lw)
-        self.fontsize = str(canvas.fontsize)
-        self.color_of_selection = str(canvas.color_of_selection_nodes)
+        
+        # Initialize with current user preferences rather than current canvas state
+        # This ensures the dialog shows what the user last configured, not temporary values
+        user_prefs = _get_user_canvas_settings()
+        self.color_of_edges = str(user_prefs["color_of_edges"])
+        self.node_size = str(user_prefs["node_size"])
+        self.lw = str(user_prefs["lw"])
+        self.fontsize = str(user_prefs["fontsize"])
+        self.color_of_selection = str(user_prefs["color_of_selection"])
 
         reset_but = QPushButton(text="Reset Settings")
         reset_but.pressed.connect(self.reset)
@@ -90,10 +142,12 @@ class Setup(QDialog):
         self.edit_node_size.setValidator(double_validator)
         nod_size_cont = SimpleContainer([label_node_size, self.edit_node_size])
 
+        label_edge_color = QLabel("Edge Color:")
         edit_col_edg = ColoredPushButton(color=self.color_of_edges)
         edit_col_edg.color_change.connect(
             lambda event: setattr(self, "color_of_edges", event)
         )
+        edge_color_cont = SimpleContainer([label_edge_color, edit_col_edg])
 
         label_edge_size = QLabel("Edge Size:")
         self.edit_edge_size = QLineEdit(
@@ -127,6 +181,7 @@ class Setup(QDialog):
         )
         self.setLayout(layout)
         self.layout().addWidget(nod_size_cont)
+        self.layout().addWidget(edge_color_cont)
         self.layout().addWidget(edge_size_cont)
         self.layout().addWidget(fontsize_cont)
         self.layout().addWidget(color_of_sel_cont)
@@ -140,17 +195,11 @@ class Setup(QDialog):
     def reset(self):
         """Resets the colors of the tree graph to default values."""
         # Update napari highlight color to default
-        _update_napari_highlight_color("magenta", self.viewer)
+        _update_napari_highlight_color(DEFAULT_CANVAS_SETTINGS["color_of_selection"], self.viewer)
 
-        self.sig.emit(
-            {
-                "color_of_edges": "black",
-                "node_size": 10,
-                "lw": 0.3,
-                "fontsize": 6,
-                "color_of_selection": "magenta",  # Default selection color
-            }
-        )
+        # Use default settings
+        settings_to_emit = DEFAULT_CANVAS_SETTINGS.copy()
+        self.sig.emit(settings_to_emit)
         self.accept()
 
     def apply(self):
@@ -160,13 +209,16 @@ class Setup(QDialog):
         self.color_of_selection = color_name
         _update_napari_highlight_color(self.color_of_selection, self.viewer)
 
-        self.sig.emit(
-            {
-                "color_of_edges": self.color_of_edges,
-                "node_size": self.edit_node_size.text(),
-                "lw": self.edit_edge_size.text(),
-                "fontsize": self.edit_fontsize_size.text(),
-                "color_of_selection": self.color_of_selection,
-            }
-        )
+        settings_to_emit = {
+            "color_of_edges": self.color_of_edges,
+            "node_size": self.edit_node_size.text(),
+            "lw": self.edit_edge_size.text(),
+            "fontsize": self.edit_fontsize_size.text(),
+            "color_of_selection": self.color_of_selection,
+        }
+        
+        # Save user preferences
+        _save_user_canvas_settings(settings_to_emit)
+        
+        self.sig.emit(settings_to_emit)
         self.accept()
