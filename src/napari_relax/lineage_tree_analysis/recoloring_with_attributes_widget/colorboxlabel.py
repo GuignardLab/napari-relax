@@ -26,6 +26,11 @@ class ColorBoxLabel(QWidget):
         self.combobox_continuous.setObjectName("colormapcombobox")
         for name, cm in AVAILABLE_COLORMAPS.items():
             self.combobox_continuous.addItem(cm._display_name, name)
+        # Set inferno as the default colormap
+        if "inferno" in AVAILABLE_COLORMAPS:
+            inferno_index = self.combobox_continuous.findData("inferno")
+            if inferno_index >= 0:
+                self.combobox_continuous.setCurrentIndex(inferno_index)
         self.color_label = QPushButton(self)
         self.combobox_continuous.currentTextChanged.connect(
             self.change_color_label
