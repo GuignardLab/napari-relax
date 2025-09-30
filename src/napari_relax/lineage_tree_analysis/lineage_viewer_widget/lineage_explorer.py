@@ -270,17 +270,6 @@ class LineageExplorationWidget(BaseAnalysisWidget):
         )
         self.lineage_color_box.setToolTip("Current lineage color")
 
-    def handle_color_change(self, color_mapping: dict[str, Any]) -> None:
-        """
-        Handle color change signals from signal hub.
-        Override BaseAnalysisWidget to update the lineage canvas.
-        """
-        if hasattr(self, "canvas"):
-            # Pass the color mapping to the canvas change_attributes method
-            self.canvas.change_attributes(color_mapping)
-            # Redraw the canvas to reflect color changes
-            self.canvas.draw_graph()
-
     def progeny_diagram_loader(self):
         """
         Program to load the diagrams in black or magenta. Reads the attributes to load different graphs.
@@ -296,12 +285,6 @@ class LineageExplorationWidget(BaseAnalysisWidget):
 
         # Preserve selected_subtree during lineage change if it exists
         preserve_subtree = getattr(self.canvas, "selected_subtree", set())
-        preserve_all_selected = getattr(self.canvas, "all_selected", False)
-
-        # Temporarily set all_selected to True if we have a subtree to preserve
-        # This tricks change_lineage into preserving the selected nodes
-        if preserve_subtree:
-            self.canvas.all_selected = True
 
         self.canvas.change_lineage(
             self.figure,
@@ -316,8 +299,6 @@ class LineageExplorationWidget(BaseAnalysisWidget):
 
         # Clear any marked cell from spinbox selection
         self.canvas.marked_cell_id = None
-        # Restore the original all_selected state
-        self.canvas.all_selected = preserve_all_selected
 
         # Ensure selected_subtree is properly set and draw
         if preserve_subtree:
@@ -369,6 +350,9 @@ class LineageExplorationWidget(BaseAnalysisWidget):
 
         # Get the sublineage for the clicked node
         selected_node_ids = self.lT.get_subtree_nodes(cell_id)
+
+        # Set the selected subtree on the canvas so hide/show lineage buttons work
+        self.canvas.selected_subtree = set(selected_node_ids)
 
         # Use interaction bridge for coordinated multi-layer selection
         self.bridge.highlight_lineages(selected_node_ids)
@@ -599,7 +583,7 @@ class LineageExplorationWidget(BaseAnalysisWidget):
 
     def hide_lineage(self):
         """Hide the currently selected lineage across all layer types."""
-        if hasattr(self.canvas, "selected_subtree"):
+        if hasattr(self.canvas, "selected_subtree") and self.canvas.selected_subtree:
             # Use the currently selected subtree from the graph
             selected_node_ids = list(self.canvas.selected_subtree)
             if selected_node_ids:
@@ -609,16 +593,36 @@ class LineageExplorationWidget(BaseAnalysisWidget):
                     visibility_state="lineage_hidden",
                     hidden_lineage=selected_node_ids,
                 )
-        else:
-            # Fallback: use Points layer selected data
-            active_layer = _select_active_lt_layer(self.viewer)
-            if active_layer and active_layer.selected_data:
-                active_layer.shown[list(active_layer.selected_data)] = False
+                return
+
+        # Fallback: use Points layer selected data
+        active_layer = _select_active_lt_layer(self.viewer)
+        if active_layer and active_layer.selected_data:
+            # If there's a selected point, get its lineage and hide it
+            selected_points = list(active_layer.selected_data)
+            if selected_points and self.lT:
+                # Get the lineage for the first selected point
+                point_id = selected_points[0]
+                lT_cell_id = active_layer.metadata["napari2lT"][point_id]
+                lineage_node_ids = self.lT.get_subtree_nodes(lT_cell_id)
+                
+                # Set the selected subtree for consistency
+                self.canvas.selected_subtree = set(lineage_node_ids)
+                
+                # Hide the lineage
+                self.bridge.hide_lineages(lineage_node_ids)
+                self.bridge.update_state(
+                    visibility_state="lineage_hidden",
+                    hidden_lineage=lineage_node_ids,
+                )
+            else:
+                # Just hide the selected points
+                active_layer.shown[selected_points] = False
                 active_layer.refresh()
 
     def show_lineage(self):
         """Show only the currently selected lineage across all layer types."""
-        if hasattr(self.canvas, "selected_subtree"):
+        if hasattr(self.canvas, "selected_subtree") and self.canvas.selected_subtree:
             # Use the currently selected subtree from the graph
             selected_node_ids = list(self.canvas.selected_subtree)
             if selected_node_ids:
@@ -629,11 +633,32 @@ class LineageExplorationWidget(BaseAnalysisWidget):
                     visibility_state="lineage_only",
                     visible_lineage=selected_node_ids,
                 )
-        else:
-            # Fallback: use Points layer selected data
-            active_layer = _select_active_lt_layer(self.viewer)
-            if active_layer and active_layer.selected_data:
-                active_layer.shown[list(active_layer.selected_data)] = True
+                return
+
+        # Fallback: use Points layer selected data
+        active_layer = _select_active_lt_layer(self.viewer)
+        if active_layer and active_layer.selected_data:
+            # If there's a selected point, get its lineage and show only it
+            selected_points = list(active_layer.selected_data)
+            if selected_points and self.lT:
+                # Get the lineage for the first selected point
+                point_id = selected_points[0]
+                lT_cell_id = active_layer.metadata["napari2lT"][point_id]
+                lineage_node_ids = self.lT.get_subtree_nodes(lT_cell_id)
+                
+                # Set the selected subtree for consistency
+                self.canvas.selected_subtree = set(lineage_node_ids)
+                
+                # Show only the lineage
+                self.bridge.show_only_lineages(lineage_node_ids)
+                self.bridge.update_state(
+                    visibility_state="lineage_only",
+                    visible_lineage=lineage_node_ids,
+                )
+            else:
+                # Just show the selected points
+                active_layer.shown[selected_points] = True
+                active_layer.refresh()
                 active_layer.refresh()
 
     def cell_id_selector(self):
@@ -756,12 +781,19 @@ class LineageExplorationWidget(BaseAnalysisWidget):
         self.canvas.draw_graph()
 
     def __init__(self, napari_viewer, signal_hub: PluginSignalHub = None):
-        # Create signal hub if not provided
+        # CRITICAL: Don't create a new signal hub - this breaks signal routing!
+        # If no signal hub provided, we'll get one via the fallback mechanism in _widgets.py
         if signal_hub is None:
+            # This will be set by the widget creation fallback mechanism
             signal_hub = PluginSignalHub()
+            print(f"⚠️  [DEBUG] LineageExplorer created its own signal hub - this may cause issues!")
+        else:
+            print(f"✅ [DEBUG] LineageExplorer received signal hub from parent")
 
         super().__init__(napari_viewer, signal_hub)
         self.name = "Lineage Exploration"
+        
+        print(f"🌟 [DEBUG] LineageExplorer using signal_hub: {id(self.signal_hub)} with {len(self.signal_hub.get_registered_widgets())} widgets")
 
         # Get the specific Points layer for this widget
         points_layer = _select_active_lt_layer(self.viewer)
@@ -992,52 +1024,63 @@ class LineageExplorationWidget(BaseAnalysisWidget):
     # Enhanced color handling methods for new signal system
     def handle_color_mapping(self, mapping_data: dict) -> None:
         """Handle color mapping updates from signal hub."""
+        print(f"🌟 [DEBUG] LineageExplorer received color_mapping: {mapping_data.get('type')}")
+        
         if mapping_data.get("type") == "quantitative":
             # Handle quantitative coloring
             node_colors = mapping_data.get("node_colors", {})
+            face_colors = mapping_data.get("face_colors", [])
+            
+            print(f"🌟 [DEBUG] Processing quantitative coloring for {len(node_colors)} nodes")
+            
+            # Debug: Check a few sample colors
+            if node_colors:
+                sample_items = list(node_colors.items())[:3]  # First 3 items
+                print(f"🌟 [DEBUG] Sample colors: {sample_items}")
+            
+            # Preserve the current user selection
+            current_selection = getattr(self.canvas, "selected_subtree", set())
+            
             if hasattr(self.canvas, "update_quantitative_colors"):
                 self.canvas.update_quantitative_colors(node_colors)
             else:
-                # Fallback to legacy method
-                legacy_data = {
-                    "quantitative_coloring": True,
-                    "node_colors": node_colors,
-                }
-                self.canvas.change_attributes(legacy_data)
+                # Direct approach: set exactly what we need without side effects
+                # Preserve the current user selection
+                current_selection = getattr(self.canvas, "selected_subtree", set())
+                
+                # Directly set the canvas properties we need
+                self.canvas.node_colors = node_colors
+                self.canvas.is_quantitative_mode = True
+                self.canvas.selected_subtree = current_selection  # Preserve user selection
+                
+                # Update face colors if provided
+                if face_colors:
+                    self.canvas.update_face_colors(face_colors)
+                
+                print(f"🌟 [DEBUG] Direct setup: quantitative_mode=True, node_colors={len(node_colors)}, selection_preserved={len(current_selection)}")
         elif mapping_data.get("type") == "reset":
             # Handle color reset
             if hasattr(self.canvas, "reset_colors"):
                 self.canvas.reset_colors()
             else:
-                # Fallback to legacy method
-                legacy_data = {"quantitative_coloring": False}
-                self.canvas.change_attributes(legacy_data)
+                # Direct approach: reset to non-quantitative mode
+                self.canvas.is_quantitative_mode = False
+                if hasattr(self.canvas, "node_colors"):
+                    delattr(self.canvas, "node_colors")
+                print(f"🌟 [DEBUG] Direct reset: quantitative_mode=False, node_colors cleared")
 
         # Trigger canvas redraw
+        print(f"🌟 [DEBUG] Calling canvas.draw_graph()")
         self.canvas.draw_graph()
 
         # Update color box
+        print(f"🌟 [DEBUG] Calling update_lineage_color_box()")
         self.update_lineage_color_box()
 
     def handle_visual_settings(self, settings: dict) -> None:
         """Handle visual settings updates from signal hub."""
         self.canvas.change_attributes(settings)
         self.canvas.draw_graph()
-
-    def handle_quantitative_coloring(self, coloring_data: dict) -> None:
-        """Handle quantitative coloring updates from signal hub."""
-        # Delegate to color mapping handler
-        mapping_data = {
-            "type": "quantitative",
-            "node_colors": coloring_data.get("node_colors", {}),
-            "face_colors": coloring_data.get("face_colors", []),
-        }
-        self.handle_color_mapping(mapping_data)
-
-        # Update selection if provided
-        selected_nodes = coloring_data.get("selected_nodes", set())
-        if selected_nodes and hasattr(self.canvas, "selected_subtree"):
-            self.canvas.selected_subtree = selected_nodes
 
     def handle_coloring_reset(self) -> None:
         """Handle coloring reset requests from signal hub."""

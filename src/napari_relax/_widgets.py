@@ -68,13 +68,21 @@ class PluginWidgetBase(QWidget):
         for im_info_class in self.module.__all_widgets__:
             # Check if widget accepts signal_hub parameter
             try:
+                print(f"🔨 [DEBUG] Creating widget {im_info_class.__name__} with signal_hub: {id(self.signal_hub)}")
                 w_created = im_info_class(self.viewer, self.signal_hub)
-            except TypeError:
+                print(f"🔨 [DEBUG] Widget {im_info_class.__name__} created successfully with signal hub")
+            except TypeError as e:
                 # Fallback for widgets that don't support signal_hub yet
+                print(f"🔨 [DEBUG] Widget {im_info_class.__name__} doesn't support signal_hub parameter: {e}")
+                print(f"🔨 [DEBUG] Using fallback mechanism...")
                 w_created = im_info_class(self.viewer)
                 # Add signal_hub as attribute for backward compatibility
                 if hasattr(w_created, "__dict__"):
+                    print(f"🔨 [DEBUG] Assigning signal_hub {id(self.signal_hub)} to {w_created.name} via fallback")
                     w_created.signal_hub = self.signal_hub
+                    print(f"🔨 [DEBUG] Fallback assignment complete for {w_created.name}")
+                else:
+                    print(f"❌ [DEBUG] Cannot assign signal_hub to {im_info_class.__name__} - no __dict__")
 
             main_combobox.addItem(w_created.name)
             main_stack.addWidget(w_created)
@@ -135,17 +143,9 @@ class LineageTreeAnalysisWidget(PluginWidgetBase):
         ):
             explore_widget = self.widget_dictionary["Explore and Relabel"]
 
-            # Connect signal hub to explore widget canvas for color updates
-            # Use colors_changed signal which provides legacy format that canvas expects
-            self.signal_hub.colors_changed.connect(
-                explore_widget.canvas.change_attributes
-            )
-
-            # Also check if widget has color box update method
-            if hasattr(explore_widget, "update_lineage_color_box"):
-                self.signal_hub.colors_changed.connect(
-                    explore_widget.update_lineage_color_box
-                )
+            # The lineage explorer widget should be automatically connected via signal hub registration
+            # No manual connections needed - the signal hub auto-connects widgets that have enhanced methods
+            # Widget will receive color updates through handle_color_mapping and handle_quantitative_coloring
 
 
 class CrossEmbryoManagerComparisonWidget(PluginWidgetBase):

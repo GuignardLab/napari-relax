@@ -25,13 +25,27 @@ class LineageTreeWidgetBase(QWidget):
         super().__init__()
         self.viewer = napari_viewer
 
-        # Create signal hub if not provided (for backward compatibility)
-        if signal_hub is None:
-            signal_hub = PluginSignalHub()
+        # Store signal hub - will be overridden by plugin framework if needed
         self.signal_hub = signal_hub
+        
+        if signal_hub is not None:
+            print(f"🔧 [DEBUG] LineageTreeWidgetBase received signal hub: {id(signal_hub)}")
+        else:
+            print(f"⚠️  [DEBUG] LineageTreeWidgetBase created without signal hub - will be assigned by fallback")
 
         # Use composition with data manager for cleaner architecture
         self._data_manager = LineageTreeDataManager(napari_viewer)
+
+    def _safe_emit_signal(self, signal_method_name, *args, **kwargs):
+        """Safely emit a signal, checking if signal_hub is available."""
+        if self.signal_hub is not None:
+            method = getattr(self.signal_hub, signal_method_name, None)
+            if method:
+                return method(*args, **kwargs)
+            else:
+                print(f"⚠️ [DEBUG] Signal method {signal_method_name} not found on signal hub")
+        else:
+            print(f"⚠️ [DEBUG] Cannot emit {signal_method_name} - signal_hub is None")
 
     def select_progeny_points(self):
         """

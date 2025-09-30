@@ -167,7 +167,6 @@ class Setup(QDialog):
                 "lw": self.edit_edge_size.text(),
                 "fontsize": self.edit_fontsize_size.text(),
                 "color_of_selection": self.color_of_selection,
-                "all_selected": False,
             }
         )
         self.accept()

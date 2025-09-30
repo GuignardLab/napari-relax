@@ -59,6 +59,7 @@ class BaseAnalysisWidget(QWidget):
 
         # Register with signal hub
         self.signal_hub.register_widget(self._name, self)
+        print(f"🔧 [DEBUG] BaseAnalysisWidget registered with signal hub: {id(self.signal_hub)}")
 
     @property
     def name(self) -> str:
@@ -87,9 +88,14 @@ class BaseAnalysisWidget(QWidget):
     def handle_color_change(self, color_mapping: dict[str, Any]) -> None:
         """
         Handle color mapping updates.
-        Override in subclasses for specific behavior.
+        
+        DEPRECATED: This method is deprecated in favor of handle_color_mapping.
+        Kept for backward compatibility with external plugins.
+        Override handle_color_mapping instead for enhanced functionality.
         """
-        # Default implementation - can be overridden
+        # No-op for backward compatibility
+        # Modern widgets should override handle_color_mapping instead
+        pass
 
     def handle_label_update(self, label_text: str) -> None:
         """

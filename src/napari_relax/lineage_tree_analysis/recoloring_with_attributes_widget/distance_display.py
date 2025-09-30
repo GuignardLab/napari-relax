@@ -281,7 +281,8 @@ class DisplayDistances(BaseAnalysisWidget):
             labels=False,
             layout="horizontal",
         )
-        self.coloring_widget = AttributeColoringWidget(self.viewer)
+        self.coloring_widget = AttributeColoringWidget(self.viewer, self.signal_hub)
+        print(f"🎨 [DEBUG] DisplayDistances passed signal_hub {id(self.signal_hub) if self.signal_hub else 'None'} to AttributeColoringWidget")
 
         # Connect coloring widget signals to main signal hub
         # Color updates now handled through central signal hub

@@ -290,34 +290,37 @@ class QuantitativeColoringWidget(LineageTreeWidgetBase):
         active_layer.face_color = face_colors
 
         # Emit through new structured signals via signal hub
-        # Emit color mapping update
-        self.signal_hub.emit_color_mapping_update(
-            {
-                "type": "quantitative",
-                "node_colors": cell_color,
-                "face_colors": face_colors,
-                "source": "attribute_coloring",
-            }
-        )
-
-        # Emit selection change
-        selected_node_ids = set(cell_color.keys())
-        self.signal_hub.emit_selection_change(selected_node_ids)
-
-        # Emit quantitative coloring data
-        self.signal_hub.emit_quantitative_coloring(
-            {
-                "node_colors": cell_color,
-                "face_colors": face_colors,
-                "selected_nodes": selected_node_ids,
-                "colormap": self.combobox_continuous.currentData(),
-                "attribute": self.selected_attribute.currentText(),
-            }
-        )
+        print(f"🎨 [DEBUG] Emitting color signals for {len(cell_color)} nodes")
+        
+        # Check if signal hub is available
+        if self.signal_hub is None:
+            print(f"❌ [DEBUG] signal_hub is None! Cannot emit signals.")
+            return
+            
+        print(f"🎨 [DEBUG] Using signal_hub: {id(self.signal_hub)} with {len(self.signal_hub.get_registered_widgets())} widgets")
+        
+        # Send a single comprehensive signal with all the data needed
+        comprehensive_data = {
+            "type": "quantitative",
+            "node_colors": cell_color,
+            "face_colors": face_colors,
+            "selected_nodes": set(cell_color.keys()),
+            "colormap": self.combobox_continuous.currentData(),
+            "attribute": self.selected_attribute.currentText(),
+            "source": "attribute_coloring",
+        }
+        print(f"🎨 [DEBUG] emit_color_mapping_update: {comprehensive_data['type']} with {len(comprehensive_data['node_colors'])} colors")
+        self.signal_hub.emit_color_mapping_update(comprehensive_data)
 
     def reset_button_pr(self):
         # First reset the face colors
         active_layer = _select_active_lt_layer(self.viewer)
+        
+        # Check if signal hub is available
+        if self.signal_hub is None:
+            print(f"❌ [DEBUG] signal_hub is None in reset_button_pr! Cannot emit signals.")
+            return
+            
         if active_layer is not None:
             original_colors = active_layer.metadata["clone2"]
             active_layer.face_color = original_colors
@@ -365,10 +368,14 @@ class QuantitativeColoringWidget(LineageTreeWidgetBase):
                 "lw": 0.3,
                 "fontsize": 6,
             }
-
-            # Emit through signal hub
-            self.signal_hub.emit_visual_settings_update(settings_data)
-
+            
+            # Emit through signal hub (with safety check)
+            if self.signal_hub is not None:
+                self.signal_hub.emit_visual_settings_update(settings_data)
+            else:
+                print(f"❌ [DEBUG] signal_hub is None in layer_change! Cannot emit visual settings.")
+            
+            # Always update the attribute selection regardless of signal hub status
             self.selected_attribute.clear()
             self.selected_attribute.addItems(
                 [str(None)]
@@ -385,8 +392,11 @@ class QualitativeColoringWidget(QWidget): ...
 class AttributeColoringWidget(LineageTreeWidgetBase):
     name = "coloring"
 
-    def __init__(self, napari_viewer):
+    def __init__(self, napari_viewer, signal_hub=None):
         super().__init__(napari_viewer)
+        
+        # Store signal hub for passing to child widgets
+        self.signal_hub = signal_hub
 
         self.combobox = QComboBox()
         self.combobox.addItems(
@@ -394,6 +404,13 @@ class AttributeColoringWidget(LineageTreeWidgetBase):
         )
         stack = QStackedWidget()
         self.quant = QuantitativeColoringWidget(napari_viewer)
+        # Pass signal hub to quantitative widget if available
+        if signal_hub is not None:
+            self.quant.signal_hub = signal_hub
+            print(f"🎨 [DEBUG] AttributeColoringWidget passed signal_hub {id(signal_hub)} to QuantitativeColoringWidget")
+        else:
+            print(f"❌ [DEBUG] AttributeColoringWidget received None signal_hub!")
+            
         qual = QualitativeColoringWidget()
         stack.addWidget(self.quant)
         stack.addWidget(qual)

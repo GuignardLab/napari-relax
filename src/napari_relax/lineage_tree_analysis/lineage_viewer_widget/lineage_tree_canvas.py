@@ -38,34 +38,43 @@ class LineageCanvas(FigureCanvas):
             self.color_of_selection_edges = color_of_selection
 
         self.fontsize = signal.get("fontsize", self.fontsize)
-        self.all_selected = signal.get("all_selected", False)
-        is_quantitative = signal.get("quantitative_coloring", False)
+        
+        # CRITICAL: Only change quantitative state if signal explicitly addresses it
+        # Don't reset quantitative mode for unrelated signals (visual settings, etc.)
+        if "quantitative_coloring" in signal or "all_selected" in signal:
+            # This signal is about quantitative coloring - process normally
+            is_quantitative = signal.get("quantitative_coloring", False)
+            all_selected = signal.get("all_selected", False)
+            
+            # Store individual node colors if provided (for quantitative coloring)
+            if "node_colors" in signal:
+                self.node_colors = signal["node_colors"]
 
-        # Store individual node colors if provided (for quantitative coloring)
-        if "node_colors" in signal:
-            self.node_colors = signal["node_colors"]
+            # Update face colors metadata if provided (for quantitative coloring)
+            if "face_colors" in signal:
+                self.update_face_colors(signal["face_colors"])
+            
+            if all_selected is True:
+                self.selected_subtree = signal.get("selected_nodes", set())
+                # Don't apply selection highlighting if it's quantitative coloring
+                self.is_quantitative_mode = is_quantitative
+            elif all_selected is False:
+                if (
+                    hasattr(self, "selected_subtree")
+                    and self.selected_subtree is not None
+                ):
+                    self.selected_subtree.clear()
+                else:
+                    self.selected_subtree = set()
 
-        # Update face colors metadata if provided (for quantitative coloring)
-        if "face_colors" in signal:
-            self.update_face_colors(signal["face_colors"])
-
-        if self.all_selected is True:
-            self.selected_subtree = signal["selected_nodes"]
-            # Don't apply selection highlighting if it's quantitative coloring
-            self.is_quantitative_mode = is_quantitative
+                self.is_quantitative_mode = False
+                # Clear individual node colors when exiting quantitative mode
+                if hasattr(self, "node_colors"):
+                    delattr(self, "node_colors")
         else:
-            if (
-                hasattr(self, "selected_subtree")
-                and self.selected_subtree is not None
-            ):
-                self.selected_subtree.clear()
-            else:
-                self.selected_subtree = set()
-
-            self.is_quantitative_mode = False
-            # Clear individual node colors when exiting quantitative mode
-            if hasattr(self, "node_colors"):
-                delattr(self, "node_colors")
+            # This signal is NOT about quantitative coloring (e.g., visual settings)
+            # Preserve current quantitative state
+            is_quantitative = getattr(self, "is_quantitative_mode", False)
 
         # draw_graph now handles its own canvas initialization checks
         self.draw_graph()
@@ -136,7 +145,7 @@ class LineageCanvas(FigureCanvas):
             self.pan = False
             self.labels = False
             if previous_state and old_nodes:
-                self.all_selected = True
+                # Preserve the previous selection state
                 self.selected_subtree = old_nodes
             else:
                 self.selected_subtree = set()
@@ -388,14 +397,17 @@ class LineageCanvas(FigureCanvas):
         change=False,
         points_layer_metadata=None,
     ):
+        # Preserve selected nodes if they exist, regardless of all_selected state
         if (
             hasattr(self, "selected_subtree")
             and self.selected_subtree
-            and self.all_selected
         ):
             old_nodes = self.selected_subtree
+            preserve_state = True
         else:
             old_nodes = set()
+            preserve_state = False
+            
         self.__init__(
             figure,
             ax,
@@ -404,7 +416,7 @@ class LineageCanvas(FigureCanvas):
             lnks_tms,
             hier,
             change,
-            previous_state=self.all_selected,
+            previous_state=preserve_state,
             old_nodes=old_nodes,
             points_layer_metadata=points_layer_metadata,
         )
@@ -524,6 +536,16 @@ class LineageCanvas(FigureCanvas):
         if not hasattr(self, "ax") or self.ax is None:
             return
 
+        import traceback
+        print(f"🎨 [DEBUG] draw_graph() called with reset={reset}")
+        print(f"🎨 [DEBUG] is_quantitative_mode: {getattr(self, 'is_quantitative_mode', False)}")
+        print(f"🎨 [DEBUG] has node_colors: {hasattr(self, 'node_colors')}")
+        if hasattr(self, 'node_colors'):
+            print(f"🎨 [DEBUG] node_colors count: {len(self.node_colors)}")
+        # Print stack trace to see who called this
+        stack = traceback.extract_stack()
+        print(f"🎨 [DEBUG] Called from: {stack[-2].filename}:{stack[-2].lineno} in {stack[-2].name}")
+
         if not reset:
             xlim = self.ax.get_xlim()
             ylim = self.ax.get_ylim()
@@ -566,11 +588,14 @@ class LineageCanvas(FigureCanvas):
             # Use individual colors from quantitative coloring (dictionary format)
             color_of_nodes = self.node_colors
             color_of_edges = self.node_colors  # Use same colors for edges
+            print(f"🎨 [DEBUG] Canvas using quantitative colors: {len(color_of_nodes)} nodes, sample: {list(color_of_nodes.items())[:3]}")
         else:
             # Normal mode - use selection highlighting
             color_of_nodes = self.color_of_selection_nodes
             color_of_edges = self.color_of_selection_edges
+            print(f"🎨 [DEBUG] Canvas using selection colors: {color_of_nodes}")
 
+        print(f"🎨 [DEBUG] Calling draw_tree_graph with color_of_nodes type: {type(color_of_nodes)}")
         self.lT.draw_tree_graph(
             self.pos,
             self.lnks_tms,

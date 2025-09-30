@@ -67,6 +67,8 @@ class PluginSignalHub(QObject):
 
             # Auto-connect common signals if widget has standard methods
             self._auto_connect_widget(widget_name, widget_instance)
+        else:
+            print(f"⚠️  [DEBUG] Widget {widget_name} already registered! Skipping re-registration.")
 
     def unregister_widget(self, widget_name: str) -> None:
         """
@@ -97,11 +99,9 @@ class PluginSignalHub(QObject):
             widget_instance.handle_label_update
         )
 
-        # Connect enhanced color signals
-        if hasattr(widget_instance, "handle_color_mapping"):
-            self.color_mapping_updated.connect(
-                widget_instance.handle_color_mapping
-            )
+        # Connect enhanced color signals through central coordination
+        # Note: handle_color_mapping is connected through _handle_color_mapping_update method
+        # to ensure centralized coordination - don't connect directly here
         if hasattr(widget_instance, "handle_visual_settings"):
             self.visual_settings_updated.connect(
                 widget_instance.handle_visual_settings
@@ -232,14 +232,22 @@ class PluginSignalHub(QObject):
 
     def _bridge_to_widget_compatible_signal(self, mapping_data: dict) -> None:
         """Bridge new color mapping signals to widget-compatible colors_changed format."""
+        # Only emit widget-compatible format for widgets that need it
+        # Widgets with enhanced methods will receive the structured signals directly
+        has_enhanced_widgets = any(
+            hasattr(widget, 'handle_color_mapping') 
+            for widget in self._widget_connections.values()
+        )
+        
         # Convert structured mapping data to widget-compatible format
         widget_compatible_data = {
-            "quantitative_coloring": mapping_data.get("type")
-            == "quantitative",
+            "quantitative_coloring": mapping_data.get("type") == "quantitative",
             "node_colors": mapping_data.get("node_colors", {}),
             "face_colors": mapping_data.get("face_colors", []),
             "source": mapping_data.get("source", "unknown"),
         }
+        
+        # Always emit for backward compatibility with widgets that only have handle_color_change
         self.colors_changed.emit(widget_compatible_data)
 
     def _bridge_quantitative_to_widget_compatible(
