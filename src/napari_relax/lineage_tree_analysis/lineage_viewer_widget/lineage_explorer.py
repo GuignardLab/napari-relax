@@ -1,7 +1,7 @@
 import contextlib
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, Any
 
 from magicgui import widgets
 from matplotlib.figure import Figure
@@ -271,6 +271,17 @@ class LineageExplorationWidget(BaseAnalysisWidget):
             "border: 1px solid black; border-radius: 3px; }"
         )
         self.lineage_color_box.setToolTip("Current lineage color")
+
+    def handle_color_change(self, color_mapping: Dict[str, Any]) -> None:
+        """
+        Handle color change signals from signal hub.
+        Override BaseAnalysisWidget to update the lineage canvas.
+        """
+        if hasattr(self, 'canvas'):
+            # Pass the color mapping to the canvas change_attributes method
+            self.canvas.change_attributes(color_mapping)
+            # Redraw the canvas to reflect color changes
+            self.canvas.draw_graph()
 
     def progeny_diagram_loader(self):
         """

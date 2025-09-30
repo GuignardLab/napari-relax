@@ -126,6 +126,10 @@ class BaseAnalysisWidget(QWidget):
         """Paint tree nodes using data manager."""
         self.data_manager.paint_tree_nodes(graph_index, color_from_trees)
     
+    def find_graph_index(self, cell_id: int, lineage_tree: LineageTree, graphs: Dict) -> Optional[int]:
+        """Find graph index using data manager."""
+        return self.data_manager.find_graph_index(cell_id, lineage_tree, graphs)
+    
     def emit_selection_change(self, selected_cells: Set[int]) -> None:
         """Emit selection change through signal hub."""
         self.signal_hub.emit_selection_change(selected_cells)
