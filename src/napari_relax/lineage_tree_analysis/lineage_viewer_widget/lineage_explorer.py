@@ -144,7 +144,6 @@ class LineageExplorationWidget(BaseAnalysisWidget):
         """
         if "Shift" in event.modifiers and event.button == 2:
             # Ensure lineage tree is available
-            # self.lT = self.get_lT()
             active_layer = _select_active_lt_layer(self.viewer)
             if active_layer is None:
                 self.lT = None
