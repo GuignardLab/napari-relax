@@ -302,7 +302,7 @@ class Quantitative(LayerCorrectorTreeProducer):
             {
                 "color_of_nodes": "black",
                 "selected_nodes": cell_color.keys(),
-                "all_selected": True,
+                # "all_selected": True,
                 "quantitative_coloring": True,
                 "face_colors": face_colors,
                 "node_colors": cell_color,  # Individual colors per node ID
