@@ -284,9 +284,7 @@ class DisplayDistances(BaseAnalysisWidget):
         self.coloring_widget = AttributeColoringWidget(self.viewer)
 
         # Connect coloring widget signals to main signal hub
-        self.coloring_widget.quant.color_signal.connect(
-            lambda color_info: self.emit_color_change(color_info)
-        )
+        # Color updates now handled through central signal hub
 
         self.do_color.clicked.connect(self.color_clones)
         self.viewer.mouse_drag_callbacks.append(self.point_click)

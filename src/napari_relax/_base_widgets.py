@@ -141,9 +141,77 @@ class BaseAnalysisWidget(QWidget):
         """Emit color change through signal hub."""
         self.signal_hub.emit_color_change(color_mapping)
 
+    def emit_color_mapping_update(self, mapping_data: dict) -> None:
+        """Emit structured color mapping update through signal hub."""
+        self.signal_hub.emit_color_mapping_update(mapping_data)
+
+    def emit_visual_settings_update(self, settings: dict) -> None:
+        """Emit visual settings update through signal hub."""
+        self.signal_hub.emit_visual_settings_update(settings)
+
+    def emit_quantitative_coloring(self, coloring_data: dict) -> None:
+        """Emit quantitative coloring update through signal hub."""
+        self.signal_hub.emit_quantitative_coloring(coloring_data)
+
+    def emit_coloring_reset(self) -> None:
+        """Emit coloring reset request through signal hub."""
+        self.signal_hub.emit_coloring_reset()
+
     def emit_label_update(self, label_text: str) -> None:
         """Emit label update through signal hub."""
         self.signal_hub.emit_label_update(label_text)
+
+    # Signal handlers for enhanced color system
+    def handle_color_mapping(self, mapping_data: dict) -> None:
+        """Handle color mapping updates from signal hub."""
+        # Default implementation - subclasses can override
+        if hasattr(self, "canvas"):
+            if mapping_data.get('type') == 'quantitative':
+                # Handle quantitative coloring
+                node_colors = mapping_data.get('node_colors', {})
+                if hasattr(self.canvas, 'update_quantitative_colors'):
+                    self.canvas.update_quantitative_colors(node_colors)
+                elif hasattr(self.canvas, 'change_attributes'):
+                    # Fallback to legacy method
+                    legacy_data = {
+                        'quantitative_coloring': True,
+                        'node_colors': node_colors
+                    }
+                    self.canvas.change_attributes(legacy_data)
+            elif mapping_data.get('type') == 'reset':
+                # Handle color reset
+                if hasattr(self.canvas, 'reset_colors'):
+                    self.canvas.reset_colors()
+                elif hasattr(self.canvas, 'change_attributes'):
+                    # Fallback to legacy method
+                    legacy_data = {'quantitative_coloring': False}
+                    self.canvas.change_attributes(legacy_data)
+            
+            # Trigger canvas redraw
+            if hasattr(self.canvas, 'draw_graph'):
+                self.canvas.draw_graph()
+        
+        # Update color box if available
+        if hasattr(self, 'update_lineage_color_box'):
+            self.update_lineage_color_box()
+
+    def handle_visual_settings(self, settings: dict) -> None:
+        """Handle visual settings updates from signal hub."""
+        # Default implementation - subclasses can override
+        if hasattr(self, "canvas") and hasattr(self.canvas, 'change_attributes'):
+            self.canvas.change_attributes(settings)
+            if hasattr(self.canvas, 'draw_graph'):
+                self.canvas.draw_graph()
+
+    def handle_quantitative_coloring(self, coloring_data: dict) -> None:
+        """Handle quantitative coloring updates from signal hub."""
+        # Default implementation - subclasses can override
+        self.handle_color_mapping(coloring_data)
+
+    def handle_coloring_reset(self) -> None:
+        """Handle coloring reset requests from signal hub."""
+        # Default implementation - subclasses can override
+        self.handle_color_mapping({'type': 'reset'})
 
     def cleanup(self) -> None:
         """Cleanup when widget is destroyed."""

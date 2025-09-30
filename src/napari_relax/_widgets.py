@@ -139,13 +139,8 @@ class LineageTreeAnalysisWidget(PluginWidgetBase):
             ]
             explore_widget = self.widget_dictionary["Explore and Relabel"]
 
-            # Connect color signal through signal hub
-            coloring_widget.coloring_widget.quant.color_signal.connect(
-                lambda color_map: self.signal_hub.emit_color_change(color_map)
-            )
-
-            # Connect signal hub to explore widget canvas
-            self.signal_hub.colors_changed.connect(
+            # Connect signal hub to explore widget canvas for color updates
+            self.signal_hub.color_mapping_updated.connect(
                 explore_widget.canvas.change_attributes
             )
 

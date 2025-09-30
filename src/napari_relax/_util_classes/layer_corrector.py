@@ -70,15 +70,12 @@ class LineageTreeWidgetBase(QWidget):
 
     def emit_selection_change(self, selected_cells):
         """Emit selection change through signal hub."""
-        if hasattr(self, "signal_hub"):
-            self.signal_hub.emit_selection_change(selected_cells)
+        self.signal_hub.emit_selection_change(selected_cells)
 
     def emit_color_change(self, color_mapping):
         """Emit color change through signal hub."""
-        if hasattr(self, "signal_hub"):
-            self.signal_hub.emit_color_change(color_mapping)
+        self.signal_hub.emit_color_change(color_mapping)
 
     def emit_label_update(self, label_text):
         """Emit label update through signal hub."""
-        if hasattr(self, "signal_hub"):
-            self.signal_hub.emit_label_update(label_text)
+        self.signal_hub.emit_label_update(label_text)

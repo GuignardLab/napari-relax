@@ -988,3 +988,57 @@ class LineageExplorationWidget(BaseAnalysisWidget):
         self.viewer.dims.events.emitters["current_step"].connect(
             self.canvas.time_line
         )
+
+    # Enhanced color handling methods for new signal system
+    def handle_color_mapping(self, mapping_data: dict) -> None:
+        """Handle color mapping updates from signal hub."""
+        if mapping_data.get('type') == 'quantitative':
+            # Handle quantitative coloring
+            node_colors = mapping_data.get('node_colors', {})
+            if hasattr(self.canvas, 'update_quantitative_colors'):
+                self.canvas.update_quantitative_colors(node_colors)
+            else:
+                # Fallback to legacy method
+                legacy_data = {
+                    'quantitative_coloring': True,
+                    'node_colors': node_colors
+                }
+                self.canvas.change_attributes(legacy_data)
+        elif mapping_data.get('type') == 'reset':
+            # Handle color reset
+            if hasattr(self.canvas, 'reset_colors'):
+                self.canvas.reset_colors()
+            else:
+                # Fallback to legacy method
+                legacy_data = {'quantitative_coloring': False}
+                self.canvas.change_attributes(legacy_data)
+        
+        # Trigger canvas redraw
+        self.canvas.draw_graph()
+        
+        # Update color box
+        self.update_lineage_color_box()
+
+    def handle_visual_settings(self, settings: dict) -> None:
+        """Handle visual settings updates from signal hub."""
+        self.canvas.change_attributes(settings)
+        self.canvas.draw_graph()
+
+    def handle_quantitative_coloring(self, coloring_data: dict) -> None:
+        """Handle quantitative coloring updates from signal hub."""
+        # Delegate to color mapping handler
+        mapping_data = {
+            'type': 'quantitative',
+            'node_colors': coloring_data.get('node_colors', {}),
+            'face_colors': coloring_data.get('face_colors', []),
+        }
+        self.handle_color_mapping(mapping_data)
+        
+        # Update selection if provided
+        selected_nodes = coloring_data.get('selected_nodes', set())
+        if selected_nodes and hasattr(self.canvas, 'selected_subtree'):
+            self.canvas.selected_subtree = selected_nodes
+
+    def handle_coloring_reset(self) -> None:
+        """Handle coloring reset requests from signal hub."""
+        self.handle_color_mapping({'type': 'reset'})
