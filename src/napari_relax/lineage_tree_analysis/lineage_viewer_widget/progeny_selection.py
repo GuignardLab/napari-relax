@@ -584,7 +584,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
     def show_all(self):
         """Show all nodes across all layer types."""
-        self.bridge.reset_visibility()
+        self.bridge.restore_visibility()
         # Save state
         if self.bridge:
             self.bridge.update_state(visibility_state="all_visible")
