@@ -13,6 +13,12 @@ from ..._util_classes import LayerCorrectorTreeProducer
 from ..._utils import _select_correct_layer
 from .coloring import Coloring
 
+from ..._util_classes import (
+    LayerCorrectorTreeProducer,
+    TooltipButton,
+)
+import os
+
 
 class DisplayDistances(LayerCorrectorTreeProducer):
     name = "Attribute Based Recoloring"
@@ -169,3 +175,44 @@ class DisplayDistances(LayerCorrectorTreeProducer):
         layout.addWidget(tabs)
         self.setLayout(layout)
         self.slider_change()
+
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(
+            os.path.join(current_dir, "clone_recolor.html"),
+            encoding="utf-8",
+        ) as f:
+            txt = f.read()
+        self.clone_tooltip = TooltipButton(txt)
+        self.clone_tooltip.setParent(self.clone_based_recoloring)
+        self.clone_tooltip.move(
+            self.clone_based_recoloring.width() - self.clone_tooltip.width(),
+            0,
+        )
+
+        with open(
+            os.path.join(current_dir, "node_recolor.html"),
+            encoding="utf-8",
+        ) as f:
+            txt = f.read()
+        self.node_tooltip = TooltipButton(txt)
+        self.node_tooltip.setParent(self.coloring_widget)
+        self.node_tooltip.move(
+            self.coloring_widget.width() - self.node_tooltip.width(), 0
+        )
+        self.clone_tooltip.move(
+            self.clone_based_recoloring.width() - self.clone_tooltip.width(), 0
+        )
+        self.node_tooltip.move(
+            self.coloring_widget.width() - self.node_tooltip.width(), 0
+        )
+        self.clone_based_recoloring.resizeEvent = self.resizeEvent
+        self.coloring_widget.resizeEvent = self.resizeEvent
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.clone_tooltip.move(
+            self.clone_based_recoloring.width() - self.clone_tooltip.width(), 0
+        )
+        self.node_tooltip.move(
+            self.coloring_widget.width() - self.node_tooltip.width(), 0
+        )

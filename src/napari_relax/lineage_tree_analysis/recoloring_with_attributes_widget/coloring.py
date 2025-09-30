@@ -21,7 +21,7 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
+from qtpy.QtCore import Qt
 from ..._util_classes import (
     Containerize,
     LayerCorrectorTreeProducer,
@@ -361,10 +361,12 @@ class Coloring(LayerCorrectorTreeProducer):
         self.quant = Quantitative(napari_viewer)
         qual = Qualitative()
         stack.addWidget(self.quant)
+        self.combobox.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.combobox.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         stack.addWidget(qual)
         self.combobox.currentIndexChanged.connect(stack.setCurrentIndex)
         layout = QVBoxLayout()
-        layout.addWidget(self.combobox)
+        layout.addWidget(self.combobox, alignment=Qt.AlignLeft)
         layout.addWidget(stack)
         layout.addStretch(1)
         self.setLayout(layout)
