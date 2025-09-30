@@ -53,11 +53,10 @@ self.signal_hub.label_update_requested.connect(distance_widget.label_update)
 ### 3. **Updated Base Classes**
 
 **Before**: Complex inheritance from `LineageTreeWidgetBase`
-**After**: Multiple inheritance options:
+**After**: Simplified inheritance options:
 
-1. **`LineageTreeWidgetBase`** (updated to use composition internally)
-2. **`ModernLineageWidget`** (new clean alternative)
-3. **`BaseAnalysisWidget`** (for completely new widgets)
+1. **`LineageTreeWidgetBase`** (updated to use composition internally, for backward compatibility)
+2. **`BaseAnalysisWidget`** (recommended for new widgets, cleaner composition-based approach)
 
 ### 4. **Simplified Layout Management**
 
@@ -104,10 +103,10 @@ Both widgets now use:
    - Reduces widget coupling
    - Auto-connects standard widget methods
 
-3. **`ModernLineageWidget`** (`_modern_base.py`)
-   - Clean alternative to `LineageTreeWidgetBase`
-   - Uses composition with data manager
-   - Maintains compatibility interface
+3. **`BaseAnalysisWidget`** (`_base_widgets.py`)
+   - Clean composition-based alternative to `LineageTreeWidgetBase`
+   - Uses composition with data manager and signal hub
+   - Recommended for new widgets
 
 ### Signal Flow
 
@@ -134,9 +133,10 @@ Existing widgets continue to work exactly as before:
 Use the modern architecture:
 
 ```python
-from napari_relax._modern_base import ModernLineageWidget
+# Use the new base class
+from napari_relax._base_widgets import BaseAnalysisWidget
 
-class MyNewWidget(ModernLineageWidget):
+class MyNewWidget(BaseAnalysisWidget):
     def __init__(self, napari_viewer, signal_hub=None):
         super().__init__(napari_viewer, signal_hub)
         self.name = "My New Analysis"
@@ -178,8 +178,8 @@ class ExistingWidget(LineageTreeWidgetBase):
 
 ### New Files
 - `_data_management.py` - Pure data operations
-- `_signal_hub.py` - Signal coordination
-- `_modern_base.py` - Alternative base class
+- `_signal_hub.py` - Signal coordination  
+- `_base_widgets.py` - Unified base widget classes
 - `_layout_utils.py` - Layout utilities
 
 ### Updated Files
@@ -188,7 +188,8 @@ class ExistingWidget(LineageTreeWidgetBase):
 - `napari.yaml` - Keeps original plugin entries
 
 ### Removed Files
-- None (maintains full backward compatibility)
+- `_simplified_base.py` - Merged functionality into `_base_widgets.py`
+- `_modern_base.py` - Replaced by `BaseAnalysisWidget` in `_base_widgets.py`
 
 ## Usage Examples
 
