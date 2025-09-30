@@ -133,21 +133,19 @@ class LineageTreeAnalysisWidget(PluginWidgetBase):
             "Attribute Based Recoloring" in self.widget_dictionary
             and "Explore and Relabel" in self.widget_dictionary
         ):
-
-            coloring_widget = self.widget_dictionary[
-                "Attribute Based Recoloring"
-            ]
             explore_widget = self.widget_dictionary["Explore and Relabel"]
 
             # Connect signal hub to explore widget canvas for color updates
-            self.signal_hub.color_mapping_updated.connect(
+            # Use colors_changed signal which provides legacy format that canvas expects
+            self.signal_hub.colors_changed.connect(
                 explore_widget.canvas.change_attributes
             )
 
-            # Also update lineage color box
-            self.signal_hub.colors_changed.connect(
-                explore_widget.update_lineage_color_box
-            )
+            # Also check if widget has color box update method
+            if hasattr(explore_widget, "update_lineage_color_box"):
+                self.signal_hub.colors_changed.connect(
+                    explore_widget.update_lineage_color_box
+                )
 
 
 class CrossEmbryoManagerComparisonWidget(PluginWidgetBase):

@@ -291,25 +291,29 @@ class QuantitativeColoringWidget(LineageTreeWidgetBase):
 
         # Emit through new structured signals via signal hub
         # Emit color mapping update
-        self.signal_hub.emit_color_mapping_update({
-            'type': 'quantitative',
-            'node_colors': cell_color,
-            'face_colors': face_colors,
-            'source': 'attribute_coloring'
-        })
-        
+        self.signal_hub.emit_color_mapping_update(
+            {
+                "type": "quantitative",
+                "node_colors": cell_color,
+                "face_colors": face_colors,
+                "source": "attribute_coloring",
+            }
+        )
+
         # Emit selection change
         selected_node_ids = set(cell_color.keys())
         self.signal_hub.emit_selection_change(selected_node_ids)
-        
+
         # Emit quantitative coloring data
-        self.signal_hub.emit_quantitative_coloring({
-            'node_colors': cell_color,
-            'face_colors': face_colors,
-            'selected_nodes': selected_node_ids,
-            'colormap': self.combobox_continuous.currentData(),
-            'attribute': self.selected_attribute.currentText()
-        })
+        self.signal_hub.emit_quantitative_coloring(
+            {
+                "node_colors": cell_color,
+                "face_colors": face_colors,
+                "selected_nodes": selected_node_ids,
+                "colormap": self.combobox_continuous.currentData(),
+                "attribute": self.selected_attribute.currentText(),
+            }
+        )
 
     def reset_button_pr(self):
         # First reset the face colors
@@ -321,25 +325,29 @@ class QuantitativeColoringWidget(LineageTreeWidgetBase):
             # Emit through new structured signals via signal hub
             # Emit coloring reset
             self.signal_hub.emit_coloring_reset()
-            
+
             # Emit visual settings update
-            self.signal_hub.emit_visual_settings_update({
-                "color_of_nodes": "black",
-                "color_of_edges": "black",
-                "node_size": 10,
-                "lw": 0.3,
-                "fontsize": 6,
-            })
+            self.signal_hub.emit_visual_settings_update(
+                {
+                    "color_of_nodes": "black",
+                    "color_of_edges": "black",
+                    "node_size": 10,
+                    "lw": 0.3,
+                    "fontsize": 6,
+                }
+            )
         else:
             # Emit reset signals even without active layer
             self.signal_hub.emit_coloring_reset()
-            self.signal_hub.emit_visual_settings_update({
-                "color_of_nodes": "black",
-                "color_of_edges": "black",
-                "node_size": 10,
-                "lw": 0.3,
-                "fontsize": 6,
-            })
+            self.signal_hub.emit_visual_settings_update(
+                {
+                    "color_of_nodes": "black",
+                    "color_of_edges": "black",
+                    "node_size": 10,
+                    "lw": 0.3,
+                    "fontsize": 6,
+                }
+            )
 
     def layer_change(self):
         active_layer = _select_active_lt_layer(self.viewer)
@@ -357,10 +365,10 @@ class QuantitativeColoringWidget(LineageTreeWidgetBase):
                 "lw": 0.3,
                 "fontsize": 6,
             }
-            
+
             # Emit through signal hub
             self.signal_hub.emit_visual_settings_update(settings_data)
-            
+
             self.selected_attribute.clear()
             self.selected_attribute.addItems(
                 [str(None)]

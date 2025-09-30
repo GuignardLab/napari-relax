@@ -23,8 +23,10 @@ class PluginSignalHub(QObject):
     cell_selection_changed = Signal(set)  # set of selected cell IDs
     subtree_selection_requested = Signal(int)  # Cell ID for subtree selection
 
-    # Legacy visualization signals (maintained for backward compatibility)
-    colors_changed = Signal(dict)  # Color mapping updates (legacy)
+    # Widget-compatible visualization signals (maintained for existing widget compatibility)
+    colors_changed = Signal(
+        dict
+    )  # Color mapping updates (widget-compatible format)
     graph_colors_updated = Signal(int, bool)  # graph_index, color_from_trees
     layer_refresh_requested = Signal()
 
@@ -47,7 +49,7 @@ class PluginSignalHub(QObject):
         super().__init__()
         self._registered_widgets = []
         self._widget_connections = {}
-        
+
         # Set up central color coordination
         self._setup_color_coordination()
 
@@ -94,16 +96,24 @@ class PluginSignalHub(QObject):
         self.label_update_requested.connect(
             widget_instance.handle_label_update
         )
-        
+
         # Connect enhanced color signals
-        if hasattr(widget_instance, 'handle_color_mapping'):
-            self.color_mapping_updated.connect(widget_instance.handle_color_mapping)
-        if hasattr(widget_instance, 'handle_visual_settings'):
-            self.visual_settings_updated.connect(widget_instance.handle_visual_settings)
-        if hasattr(widget_instance, 'handle_quantitative_coloring'):
-            self.quantitative_coloring_applied.connect(widget_instance.handle_quantitative_coloring)
-        if hasattr(widget_instance, 'handle_coloring_reset'):
-            self.coloring_reset_requested.connect(widget_instance.handle_coloring_reset)
+        if hasattr(widget_instance, "handle_color_mapping"):
+            self.color_mapping_updated.connect(
+                widget_instance.handle_color_mapping
+            )
+        if hasattr(widget_instance, "handle_visual_settings"):
+            self.visual_settings_updated.connect(
+                widget_instance.handle_visual_settings
+            )
+        if hasattr(widget_instance, "handle_quantitative_coloring"):
+            self.quantitative_coloring_applied.connect(
+                widget_instance.handle_quantitative_coloring
+            )
+        if hasattr(widget_instance, "handle_coloring_reset"):
+            self.coloring_reset_requested.connect(
+                widget_instance.handle_coloring_reset
+            )
 
         # Widget-specific connections (keep hasattr for optional methods)
         if widget_name == "manager" and hasattr(
@@ -122,11 +132,11 @@ class PluginSignalHub(QObject):
         self.cell_selection_changed.emit(selected_cells)
 
     def emit_color_change(self, color_mapping: dict[str, Any]) -> None:
-        """Emit signal when colors are updated (legacy support)."""
+        """Emit signal when colors are updated (widget-compatible format support)."""
         self.colors_changed.emit(color_mapping)
-        
+
         # Also emit through new structured signals for better handling
-        self._route_legacy_color_signal(color_mapping)
+        self._route_widget_compatible_color_signal(color_mapping)
 
     def emit_color_mapping_update(self, mapping_data: dict) -> None:
         """Emit structured color mapping update."""
@@ -162,44 +172,86 @@ class PluginSignalHub(QObject):
 
     def _setup_color_coordination(self) -> None:
         """Set up central color signal coordination."""
-        # Connect new structured signals to legacy ones for backward compatibility
+        # Connect new structured signals to widget-compatible ones for backward compatibility
         self.color_mapping_updated.connect(self._handle_color_mapping_update)
-        self.visual_settings_updated.connect(self._handle_visual_settings_update)
+        self.visual_settings_updated.connect(
+            self._handle_visual_settings_update
+        )
 
-    def _route_legacy_color_signal(self, color_data: dict) -> None:
-        """Route legacy color signals to appropriate new structured signals."""
-        if color_data.get('quantitative_coloring'):
+        # Bridge new structured signals to widget-compatible colors_changed signal
+        self.color_mapping_updated.connect(
+            self._bridge_to_widget_compatible_signal
+        )
+        self.quantitative_coloring_applied.connect(
+            self._bridge_quantitative_to_widget_compatible
+        )
+
+    def _route_widget_compatible_color_signal(self, color_data: dict) -> None:
+        """Route widget-compatible color signals to appropriate new structured signals."""
+        if color_data.get("quantitative_coloring"):
             # Route quantitative coloring to new signal
             quantitative_data = {
-                'type': 'quantitative',
-                'node_colors': color_data.get('node_colors', {}),
-                'face_colors': color_data.get('face_colors', []),
-                'selected_nodes': color_data.get('selected_nodes', set()),
+                "type": "quantitative",
+                "node_colors": color_data.get("node_colors", {}),
+                "face_colors": color_data.get("face_colors", []),
+                "selected_nodes": color_data.get("selected_nodes", set()),
             }
             self.emit_quantitative_coloring(quantitative_data)
-        elif color_data.get('quantitative_coloring') is False:
+        elif color_data.get("quantitative_coloring") is False:
             # Route reset signal
             self.emit_coloring_reset()
-        
+
         # Route visual settings
         visual_settings = {}
-        for key in ['color_of_nodes', 'color_of_edges', 'node_size', 'lw', 'fontsize']:
+        for key in [
+            "color_of_nodes",
+            "color_of_edges",
+            "node_size",
+            "lw",
+            "fontsize",
+        ]:
             if key in color_data:
                 visual_settings[key] = color_data[key]
-        
+
         if visual_settings:
             self.emit_visual_settings_update(visual_settings)
 
     def _handle_color_mapping_update(self, mapping_data: dict) -> None:
         """Central handler for color mapping updates."""
         # Route to widgets that can handle color mapping
-        for widget_name, widget_instance in self._widget_connections.items():
-            if hasattr(widget_instance, 'handle_color_mapping'):
+        for _, widget_instance in self._widget_connections.items():
+            if hasattr(widget_instance, "handle_color_mapping"):
                 widget_instance.handle_color_mapping(mapping_data)
 
     def _handle_visual_settings_update(self, settings: dict) -> None:
         """Central handler for visual settings updates."""
         # Route to widgets that can handle visual settings
-        for widget_name, widget_instance in self._widget_connections.items():
-            if hasattr(widget_instance, 'handle_visual_settings'):
+        for _, widget_instance in self._widget_connections.items():
+            if hasattr(widget_instance, "handle_visual_settings"):
                 widget_instance.handle_visual_settings(settings)
+
+    def _bridge_to_widget_compatible_signal(self, mapping_data: dict) -> None:
+        """Bridge new color mapping signals to widget-compatible colors_changed format."""
+        # Convert structured mapping data to widget-compatible format
+        widget_compatible_data = {
+            "quantitative_coloring": mapping_data.get("type")
+            == "quantitative",
+            "node_colors": mapping_data.get("node_colors", {}),
+            "face_colors": mapping_data.get("face_colors", []),
+            "source": mapping_data.get("source", "unknown"),
+        }
+        self.colors_changed.emit(widget_compatible_data)
+
+    def _bridge_quantitative_to_widget_compatible(
+        self, coloring_data: dict
+    ) -> None:
+        """Bridge quantitative coloring signals to widget-compatible colors_changed format."""
+        widget_compatible_data = {
+            "quantitative_coloring": True,
+            "node_colors": coloring_data.get("node_colors", {}),
+            "face_colors": coloring_data.get("face_colors", []),
+            "selected_nodes": coloring_data.get("selected_nodes", set()),
+            "colormap": coloring_data.get("colormap", "viridis"),
+            "attribute": coloring_data.get("attribute", "unknown"),
+        }
+        self.colors_changed.emit(widget_compatible_data)
