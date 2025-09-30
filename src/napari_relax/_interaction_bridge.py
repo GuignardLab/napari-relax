@@ -45,7 +45,7 @@ class LayerAdapter(ABC):
         for prop in [
             "shown",
             "face_color",
-            "vertex_colors", 
+            "vertex_colors",
             "opacity",
             "blending",
             "_track_connex",
@@ -65,7 +65,7 @@ class LayerAdapter(ABC):
     def reset_visibility(self) -> None:
         """Reset all nodes to be visible."""
 
-    @abstractmethod 
+    @abstractmethod
     def restore_visibility(self) -> None:
         """Restore all nodes to be visible without affecting selection."""
 
@@ -97,7 +97,7 @@ class PointsAdapter(LayerAdapter):
                 shown[i] = True
 
         self.layer.shown = shown
-        self.layer.selected_data = visible_indices
+        # Don't modify selection - only control visibility
         self.layer.refresh()
 
     def reset_visibility(self) -> None:
@@ -419,11 +419,13 @@ class TracksAdapter(LayerAdapter):
 
         # Create a mask to hide all tracks first
         track_connex = np.zeros_like(self.layer._track_connex, dtype=bool)
-        
+
         # Show only the specified tracks by setting their segments to True
         for i, track_id in enumerate(self.layer.data[:, 0]):
             if track_id in visible_track_ids:
-                track_connex[i] = self.layer._track_connex[i]  # Preserve original connectivity
+                track_connex[i] = self.layer._track_connex[
+                    i
+                ]  # Preserve original connectivity
 
         self.layer._track_connex = track_connex
         self.layer.refresh()
@@ -432,7 +434,7 @@ class TracksAdapter(LayerAdapter):
         """Hide specific tracks while preserving visibility of others."""
         # Get current track_connex state
         current_track_connex = self.layer._track_connex.copy()
-        
+
         # Get track IDs for nodes to hide
         track_ids_to_hide = set()
         for node_id in node_ids:
@@ -450,7 +452,9 @@ class TracksAdapter(LayerAdapter):
     def reset_visibility(self) -> None:
         """Restore original track visibility."""
         if "_track_connex" in self.original_state:
-            self.layer._track_connex = self.original_state["_track_connex"].copy()
+            self.layer._track_connex = self.original_state[
+                "_track_connex"
+            ].copy()
             self.layer.refresh()
         else:
             # Restore all track connections - this requires rebuilding tracks
@@ -462,7 +466,9 @@ class TracksAdapter(LayerAdapter):
     def restore_visibility(self) -> None:
         """Restore original track visibility without affecting selection."""
         if "_track_connex" in self.original_state:
-            self.layer._track_connex = self.original_state["_track_connex"].copy()
+            self.layer._track_connex = self.original_state[
+                "_track_connex"
+            ].copy()
             self.layer.refresh()
         else:
             # Restore all track connections - this requires rebuilding tracks

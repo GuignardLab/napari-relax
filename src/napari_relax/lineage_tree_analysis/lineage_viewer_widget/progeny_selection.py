@@ -190,9 +190,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                     # Add circle marker for the clicked cell
                     self.canvas.marked_cell_id = active_layer.metadata[
                         "napari2lT"
-                    ][
-                        node_id_napari
-                    ]
+                    ][node_id_napari]
 
                     self.canvas.draw_graph()
                 else:
@@ -285,12 +283,8 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.bridge.update_state(graph_slider_value=val, selected_lineage=val)
 
         # Preserve selected_subtree during lineage change if it exists
-        preserve_subtree = (
-            getattr(self.canvas, "selected_subtree", set())
-        )
-        preserve_all_selected = (
-            getattr(self.canvas, "all_selected", False)
-        )
+        preserve_subtree = getattr(self.canvas, "selected_subtree", set())
+        preserve_all_selected = getattr(self.canvas, "all_selected", False)
 
         # Temporarily set all_selected to True if we have a subtree to preserve
         # This tricks change_lineage into preserving the selected nodes
@@ -597,9 +591,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
     def hide_lineage(self):
         """Hide the currently selected lineage across all layer types."""
-        if hasattr(
-            self.canvas, "selected_subtree"
-        ):
+        if hasattr(self.canvas, "selected_subtree"):
             # Use the currently selected subtree from the graph
             selected_node_ids = list(self.canvas.selected_subtree)
             if selected_node_ids:
@@ -618,9 +610,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
     def show_lineage(self):
         """Show only the currently selected lineage across all layer types."""
-        if hasattr(
-            self.canvas, "selected_subtree"
-        ):
+        if hasattr(self.canvas, "selected_subtree"):
             # Use the currently selected subtree from the graph
             selected_node_ids = list(self.canvas.selected_subtree)
             if selected_node_ids:
@@ -632,11 +622,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                     visible_lineage=selected_node_ids,
                 )
         else:
-            # Fallback: use Points layer selected data
-            active_layer = _select_active_lt_layer(self.viewer)
-            if active_layer and active_layer.selected_data:
-                active_layer.shown[list(active_layer.selected_data)] = True
-                active_layer.refresh()
             # Fallback: use Points layer selected data
             active_layer = _select_active_lt_layer(self.viewer)
             if active_layer and active_layer.selected_data:
@@ -976,6 +961,9 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.viewer.mouse_drag_callbacks.append(self.point_click)
         self.viewer.layers.selection.events.active.connect(self.layer_change)
         self.canvas.node_signal.connect(self._click_on_tree_graph)
+        self.canvas.quantitative_coloring_applied.connect(
+            self.update_lineage_color_box
+        )
         self.canvas.setFocusPolicy(Qt.WheelFocus)
         self.canvas.setFocus()
         self.viewer.dims.events.emitters["current_step"].connect(
