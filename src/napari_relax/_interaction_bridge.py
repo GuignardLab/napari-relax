@@ -7,9 +7,10 @@ Points, Surface, Labels, and Tracks layers in napari-relax.
 
 from abc import ABC, abstractmethod
 from typing import Any
-from scipy.spatial import KDTree
+
 import numpy as np
 from napari.layers import Points, Surface, Tracks
+from scipy.spatial import KDTree
 
 
 class LayerAdapter(ABC):
@@ -90,7 +91,7 @@ class PointsAdapter(LayerAdapter):
             if node_id in self.node_to_napari:
                 visible_indices.add(self.node_to_napari[node_id])
 
-        # Set visibility: visible nodes = True, others = False
+        # set visibility: visible nodes = True, others = False
         shown = np.zeros(len(self.layer.data), dtype=bool)
         for i in visible_indices:
             if i < len(shown):
@@ -127,7 +128,7 @@ class PointsAdapter(LayerAdapter):
             if node_id in self.node_to_napari:
                 selected_indices.add(self.node_to_napari[node_id])
 
-        # Set selection without modifying visibility
+        # set selection without modifying visibility
         self.layer.selected_data = selected_indices
 
     def hide_nodes(self, node_ids: list[int]) -> None:
@@ -303,7 +304,7 @@ class SurfaceAdapter(LayerAdapter):
                 start_idx, end_idx = self.node_to_vertex_range[node_id]
                 visible_vertex_indices.update(range(start_idx, end_idx))
 
-        # Set alpha: visible vertices = 1.0, others = 0.0
+        # set alpha: visible vertices = 1.0, others = 0.0
         for i in range(vertex_colors.shape[0]):
             vertex_colors[i, 3] = 1.0 if i in visible_vertex_indices else 0.0
 
@@ -349,7 +350,7 @@ class SurfaceAdapter(LayerAdapter):
             self.layer.vertex_colors is not None
             and self.layer.vertex_colors.shape[1] >= 4
         ):
-            # Set all alpha to 1.0
+            # set all alpha to 1.0
             vertex_colors = self.layer.vertex_colors.copy()
             vertex_colors[:, 3] = 1.0
             self.layer.vertex_colors = vertex_colors
@@ -371,7 +372,7 @@ class SurfaceAdapter(LayerAdapter):
             self.layer.vertex_colors is not None
             and self.layer.vertex_colors.shape[1] >= 4
         ):
-            # Set all alpha to 1.0
+            # set all alpha to 1.0
             vertex_colors = self.layer.vertex_colors.copy()
             vertex_colors[:, 3] = 1.0
             self.layer.vertex_colors = vertex_colors

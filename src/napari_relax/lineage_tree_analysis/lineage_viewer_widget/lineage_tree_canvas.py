@@ -235,7 +235,7 @@ class LineageCanvas(FigureCanvas):
         recoloring has been applied.
 
         Returns:
-            dict: Dictionary with 'color' (single color if uniform) and 'is_uniform' (bool)
+            dict: dictionary with 'color' (single color if uniform) and 'is_uniform' (bool)
                   indicating whether all nodes in the lineage have the same color.
                   Returns None if no data is available.
         """
@@ -254,50 +254,44 @@ class LineageCanvas(FigureCanvas):
             lineage_nodes = [actual_root]
 
         # Try to get the active Points layer to access current face colors
-        try:
-            # This requires access to the viewer, which we don't have directly in the canvas
-            # We'll need to get the face colors from the points layer metadata
-            # Let's check if face colors are passed in the metadata
-            current_face_colors = self.points_layer_metadata.get(
-                "current_face_colors"
-            )
-            if current_face_colors is None:
-                # Fallback to original clone2 colors
-                return self._get_original_color_info(actual_root)
-
-            # Collect colors for all nodes in this lineage
-            lineage_colors = []
-            for node in lineage_nodes:
-                if node in lT2napari:
-                    napari_idx = lT2napari[node]
-                    if napari_idx < len(current_face_colors):
-                        color = current_face_colors[napari_idx]
-                        lineage_colors.append(
-                            self._convert_color_to_list(color)
-                        )
-
-            if not lineage_colors:
-                return None
-
-            # Check if all colors are the same (uniform lineage color)
-            first_color = lineage_colors[0][
-                :3
-            ]  # Compare only RGB, ignore alpha
-            is_uniform = all(
-                color[:3] == first_color for color in lineage_colors
-            )
-
-            return {
-                "color": first_color,
-                "is_uniform": is_uniform,
-                "sample_colors": lineage_colors[
-                    :5
-                ],  # Sample of colors for debugging
-            }
-
-        except Exception:
-            # Fallback to original method
+        # try:
+        # This requires access to the viewer, which we don't have directly in the canvas
+        # We'll need to get the face colors from the points layer metadata
+        # Let's check if face colors are passed in the metadata
+        current_face_colors = self.points_layer_metadata.get(
+            "current_face_colors"
+        )
+        if current_face_colors is None:
+            # Fallback to original clone2 colors
             return self._get_original_color_info(actual_root)
+
+        # Collect colors for all nodes in this lineage
+        lineage_colors = []
+        for node in lineage_nodes:
+            if node in lT2napari:
+                napari_idx = lT2napari[node]
+                if napari_idx < len(current_face_colors):
+                    color = current_face_colors[napari_idx]
+                    lineage_colors.append(self._convert_color_to_list(color))
+
+        if not lineage_colors:
+            return None
+
+        # Check if all colors are the same (uniform lineage color)
+        first_color = lineage_colors[0][:3]  # Compare only RGB, ignore alpha
+        is_uniform = all(color[:3] == first_color for color in lineage_colors)
+
+        return {
+            "color": first_color,
+            "is_uniform": is_uniform,
+            "sample_colors": lineage_colors[
+                :5
+            ],  # Sample of colors for debugging
+        }
+
+        # except Exception:
+        #     # Fallback to original method
+        #     return self._get_original_color_info(actual_root)
 
     def update_face_colors(self, face_colors):
         """Update the metadata with provided face colors."""

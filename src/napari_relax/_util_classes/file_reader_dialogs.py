@@ -61,12 +61,12 @@ class TimeResDialog(QDialog):
     def __init__(self, current=None):
         super().__init__()
         layout = QVBoxLayout()
-        self.setWindowTitle("Set time resolution")
+        self.setWindowTitle("set time resolution")
         if current is None:
             self.tr_edit = widgets.LineEdit(value="0")
         else:
             self.tr_edit = widgets.LineEdit(value=str(current))
-        self.tr_edit.tooltip = "Set time resolution in mins"
+        self.tr_edit.tooltip = "set time resolution in mins"
         self.value_selected = 0
         self.check_resave = QCheckBox(
             "Resave dataset with new time resolution"

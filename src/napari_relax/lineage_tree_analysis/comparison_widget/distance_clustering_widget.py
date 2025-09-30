@@ -31,15 +31,14 @@ from qtpy.QtWidgets import (
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
 
+from ..._base_widgets import BaseAnalysisWidget
 from ..._layout_utils import SimpleContainer
+from ..._signal_hub import PluginSignalHub
 from ..._util_classes import (
     DelayedTooltipEventFilter,
-    LineageTreeWidgetBase,
     TooltipButton,
 )
 from ..._utils import _select_active_lt_layer
-from ..._base_widgets import BaseAnalysisWidget
-from ..._signal_hub import PluginSignalHub
 
 
 class InteractiveClusterMapWidget(BaseAnalysisWidget):
@@ -537,10 +536,10 @@ class InteractiveClusterMapWidget(BaseAnalysisWidget):
         # Create signal hub if not provided
         if signal_hub is None:
             signal_hub = PluginSignalHub()
-            
+
         super().__init__(napari_viewer, signal_hub)
         self.name = "Distance Calculation"
-        
+
         self.comps = []
         event_filt = DelayedTooltipEventFilter()
         self.installEventFilter(event_filt)

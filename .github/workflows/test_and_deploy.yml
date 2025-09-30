@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
@@ -74,7 +74,7 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
+      - name: set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.x"

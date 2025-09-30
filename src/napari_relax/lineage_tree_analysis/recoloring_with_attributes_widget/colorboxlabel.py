@@ -24,7 +24,7 @@ class ColorBoxLabel(QWidget):
         self.combobox_continuous.setObjectName("colormapcombobox")
         for name, cm in AVAILABLE_COLORMAPS.items():
             self.combobox_continuous.addItem(cm._display_name, name)
-        # Set inferno as the default colormap
+        # set inferno as the default colormap
         if "inferno" in AVAILABLE_COLORMAPS:
             inferno_index = self.combobox_continuous.findData("inferno")
             if inferno_index >= 0:
@@ -34,7 +34,9 @@ class ColorBoxLabel(QWidget):
             self.change_color_label
         )
         self.color_label.clicked.connect(self.combobox_continuous.showPopup)
-        color_cont = SimpleContainer([self.color_label, self.combobox_continuous])
+        color_cont = SimpleContainer(
+            [self.color_label, self.combobox_continuous]
+        )
         self.setLayout(QVBoxLayout())
         self.change_color_label()
         self.layout().addWidget(color_cont)

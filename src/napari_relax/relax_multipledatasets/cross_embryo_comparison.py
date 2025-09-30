@@ -33,16 +33,16 @@ from qtpy.QtWidgets import (
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
 
-from .._reader import layer_preparation
 from .._base_widgets import BaseAnalysisWidget
-from .._signal_hub import PluginSignalHub
 from .._layout_utils import SimpleContainer
+from .._reader import layer_preparation
+from .._signal_hub import PluginSignalHub
 from .._util_classes import (
     BigDatasetNamesDialog,
     DelayedTooltipEventFilter,
+    EmbryoComparisonTab,
     LineageTreeWidgetBase,
     QtViewerWrap,
-    EmbryoComparisonTab,
 )
 
 
@@ -586,10 +586,10 @@ class EmbryoComparisonsWidget(BaseAnalysisWidget):
         # Create signal hub if not provided
         if signal_hub is None:
             signal_hub = PluginSignalHub()
-            
+
         super().__init__(napari_viewer, signal_hub)
         self.name = "Embryo Comparisons"
-        
+
         self.tabs = QTabWidget()
         self.tab_dictionary = {}
         self.viewer = napari_viewer

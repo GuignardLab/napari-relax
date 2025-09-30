@@ -1,7 +1,7 @@
 import contextlib
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, Any
+from typing import TYPE_CHECKING, Any
 
 from magicgui import widgets
 from matplotlib.figure import Figure
@@ -18,13 +18,12 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
 )
 
-from ..._interaction_bridge import InteractionBridge
 from ..._base_widgets import BaseAnalysisWidget
-from ..._signal_hub import PluginSignalHub
+from ..._interaction_bridge import InteractionBridge
 from ..._layout_utils import SimpleContainer
+from ..._signal_hub import PluginSignalHub
 from ..._util_classes import (
     DelayedTooltipEventFilter,
-    LineageTreeWidgetBase,
     TooltipButton,
 )
 from ..._util_classes.tree_graph_popup import (
@@ -95,10 +94,10 @@ class LineageExplorationWidget(BaseAnalysisWidget):
 
         # Use interaction bridge for coordinated multi-layer selection
         self.bridge.highlight_lineages(selected_node_ids)
-        
+
         # Emit signal about selection change
         self.emit_selection_change(set(selected_node_ids))
-        
+
         val = self.find_graph_index(
             active_layer.metadata["napari2lT"][cell],
             self.lT,
@@ -265,19 +264,19 @@ class LineageExplorationWidget(BaseAnalysisWidget):
             self.canvas.update_face_colors(active_layer.face_color)
 
     def _set_default_color_box(self):
-        """Set the color box to default gray color."""
+        """set the color box to default gray color."""
         self.lineage_color_box.setStyleSheet(
             "QLabel { background-color: rgb(128, 128, 128); "
             "border: 1px solid black; border-radius: 3px; }"
         )
         self.lineage_color_box.setToolTip("Current lineage color")
 
-    def handle_color_change(self, color_mapping: Dict[str, Any]) -> None:
+    def handle_color_change(self, color_mapping: dict[str, Any]) -> None:
         """
         Handle color change signals from signal hub.
         Override BaseAnalysisWidget to update the lineage canvas.
         """
-        if hasattr(self, 'canvas'):
+        if hasattr(self, "canvas"):
             # Pass the color mapping to the canvas change_attributes method
             self.canvas.change_attributes(color_mapping)
             # Redraw the canvas to reflect color changes
@@ -551,7 +550,7 @@ class LineageExplorationWidget(BaseAnalysisWidget):
 
                 # Now restore the highlighting state after the slider change has completed
                 if bridge_selected_subtree:
-                    # Set the selected subtree and redraw to show highlighting
+                    # set the selected subtree and redraw to show highlighting
                     self.canvas.selected_subtree = bridge_selected_subtree
                     self.canvas.draw_graph()
 
@@ -725,7 +724,7 @@ class LineageExplorationWidget(BaseAnalysisWidget):
             }
         )
 
-        # Set the time slider to show when this cell appears
+        # set the time slider to show when this cell appears
         time_step = cell_time - min_time
         current_step = list(self.viewer.dims.current_step)
         current_step[0] = time_step
@@ -751,17 +750,17 @@ class LineageExplorationWidget(BaseAnalysisWidget):
         self.w_lineedit.update()
         self.w_lineedit.clear()
         self.signal.emit(self.labels)
-        
+
         # Emit signal about label change
         self.emit_label_update(f"Label updated: {node} -> {text}")
-        
+
         self.canvas.draw_graph()
 
     def __init__(self, napari_viewer, signal_hub: PluginSignalHub = None):
         # Create signal hub if not provided
         if signal_hub is None:
             signal_hub = PluginSignalHub()
-            
+
         super().__init__(napari_viewer, signal_hub)
         self.name = "Lineage Exploration"
 
@@ -962,7 +961,9 @@ class LineageExplorationWidget(BaseAnalysisWidget):
             )
         )
         self.layout().addWidget(w2.native)
-        self.layout().addWidget(SimpleContainer([cutoff2.native, cutoff3.native]))
+        self.layout().addWidget(
+            SimpleContainer([cutoff2.native, cutoff3.native])
+        )
         self.layout().addWidget(w.native)
 
         show_all = QPushButton("Show all")

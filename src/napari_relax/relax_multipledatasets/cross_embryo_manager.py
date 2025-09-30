@@ -11,8 +11,8 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
 )
 
-from .._reader import layer_preparation
 from .._layout_utils import SimpleContainer
+from .._reader import layer_preparation
 from .._util_classes import (
     LineageTreeWidgetBase,
     TimeResDialog,
@@ -200,7 +200,7 @@ class CrossEmbryoManager(LineageTreeWidgetBase):
         self.layout().addWidget(QLabel(text="Load a Manager"))
         self.layout().addWidget(self.loading_cont)
         self.layout().addWidget(
-            QLabel(text="List of all LineageTrees loaded to the Manager")
+            QLabel(text="list of all LineageTrees loaded to the Manager")
         )
         self.layout().addWidget(self.lineagetree_list)
         self.layout().addWidget(

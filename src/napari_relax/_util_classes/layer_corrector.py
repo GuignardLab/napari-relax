@@ -1,7 +1,5 @@
-from lineagetree import LineageTree
 from qtpy.QtWidgets import QWidget
 
-from .._utils import _select_active_lt_layer
 from .._data_management import LineageTreeDataManager
 from .._signal_hub import PluginSignalHub
 
@@ -13,7 +11,7 @@ class LineageTreeWidgetBase(QWidget):
     """
     Parent Class that is called inside the plugin, it produces no interface.
     Updated to use composition with LineageTreeDataManager.
-    
+
     Contains functions that are useful for the used Widgets inside the plugin:
         -Selector for cell and all descendants
         -Producing the lineagetree object
@@ -26,12 +24,12 @@ class LineageTreeWidgetBase(QWidget):
     def __init__(self, napari_viewer, signal_hub: PluginSignalHub = None):
         super().__init__()
         self.viewer = napari_viewer
-        
+
         # Create signal hub if not provided (for backward compatibility)
         if signal_hub is None:
             signal_hub = PluginSignalHub()
         self.signal_hub = signal_hub
-        
+
         # Use composition with data manager for cleaner architecture
         self._data_manager = LineageTreeDataManager(napari_viewer)
 
@@ -52,9 +50,9 @@ class LineageTreeWidgetBase(QWidget):
         """
         # Check if the widget has the point_color_from_trees attribute
         color_from_trees = False
-        if hasattr(self, 'point_color_from_trees'):
+        if hasattr(self, "point_color_from_trees"):
             color_from_trees = self.point_color_from_trees.value
-        
+
         self._data_manager.paint_tree_nodes(val, color_from_trees)
 
     def find_graph_index(self, cell, lt, graphs):
@@ -69,18 +67,18 @@ class LineageTreeWidgetBase(QWidget):
             i (int): The key of the graphs list
         """
         return self._data_manager.find_graph_index(cell, lt, graphs)
-    
+
     def emit_selection_change(self, selected_cells):
         """Emit selection change through signal hub."""
-        if hasattr(self, 'signal_hub'):
+        if hasattr(self, "signal_hub"):
             self.signal_hub.emit_selection_change(selected_cells)
-    
+
     def emit_color_change(self, color_mapping):
         """Emit color change through signal hub."""
-        if hasattr(self, 'signal_hub'):
+        if hasattr(self, "signal_hub"):
             self.signal_hub.emit_color_change(color_mapping)
-    
+
     def emit_label_update(self, label_text):
         """Emit label update through signal hub."""
-        if hasattr(self, 'signal_hub'):
+        if hasattr(self, "signal_hub"):
             self.signal_hub.emit_label_update(label_text)

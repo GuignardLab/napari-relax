@@ -117,7 +117,7 @@ def propose_configurations(unconfigured_files):
         print(f'    "{suggested_name}": {{')
         print(f'        "filename": "{info["filename"]}",')
         print(
-            '        "url": null,  # Set after uploading to hosting platform'
+            '        "url": null,  # set after uploading to hosting platform'
         )
         print(f'        "md5": "{info["md5"]}",')
         print(

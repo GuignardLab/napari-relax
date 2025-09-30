@@ -1,7 +1,9 @@
 from .cell_size_control import (
     CellSizeControlWidget,
 )
-from .comparison_widget.distance_clustering_widget import InteractiveClusterMapWidget
+from .comparison_widget.distance_clustering_widget import (
+    InteractiveClusterMapWidget,
+)
 
 # Clustermap,
 # DisplayDistances,

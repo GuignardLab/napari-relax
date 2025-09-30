@@ -103,7 +103,9 @@ class Setup(QDialog):
         self.edit_edge_size.setText(self.lw)
         self.edit_edge_size.setValidator(double_validator)
 
-        edge_size_cont = SimpleContainer([label_edge_size, self.edit_edge_size])
+        edge_size_cont = SimpleContainer(
+            [label_edge_size, self.edit_edge_size]
+        )
 
         label_fontsize_size = QLabel("Fontsize for labels:")
         self.edit_fontsize_size = QLineEdit(

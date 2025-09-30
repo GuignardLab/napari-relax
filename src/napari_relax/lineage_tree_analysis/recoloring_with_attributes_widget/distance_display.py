@@ -211,10 +211,10 @@ class DisplayDistances(BaseAnalysisWidget):
         # Create signal hub if not provided
         if signal_hub is None:
             signal_hub = PluginSignalHub()
-            
+
         super().__init__(napari_viewer, signal_hub)
         self.name = "Attribute Based Recoloring"
-        
+
         self.qualitative_cmaps = [
             "Pastel1",
             "Pastel2",
@@ -282,12 +282,12 @@ class DisplayDistances(BaseAnalysisWidget):
             layout="horizontal",
         )
         self.coloring_widget = AttributeColoringWidget(self.viewer)
-        
+
         # Connect coloring widget signals to main signal hub
         self.coloring_widget.quant.color_signal.connect(
             lambda color_info: self.emit_color_change(color_info)
         )
-        
+
         self.do_color.clicked.connect(self.color_clones)
         self.viewer.mouse_drag_callbacks.append(self.point_click)
         self.viewer.layers.selection.events.connect(self.layer_change)

@@ -16,8 +16,8 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QPushButton, QSlider, QVBoxLayout
 
 from .._base_widgets import BaseAnalysisWidget
-from .._signal_hub import PluginSignalHub
 from .._layout_utils import SimpleContainer
+from .._signal_hub import PluginSignalHub
 from .._util_classes import (
     DelayedTooltipEventFilter,
 )
@@ -119,10 +119,19 @@ class CellSizeControlWidget(BaseAnalysisWidget):
         self.slider.setToolTip(
             f"Change the size of the spheres on the viewer. Current size {new_size}"
         )
-        
+
         # Emit signal about size change
         if new_size is not None:
-            self.emit_color_change({"size_changed": new_size, "layers_updated": len(layers_to_update) if 'layers_to_update' in locals() else 1})
+            self.emit_color_change(
+                {
+                    "size_changed": new_size,
+                    "layers_updated": (
+                        len(layers_to_update)
+                        if "layers_to_update" in locals()
+                        else 1
+                    ),
+                }
+            )
 
     def see_one_layer(self):
         """Button that turns all other layers invisible in the napari viewer"""
@@ -174,7 +183,7 @@ class CellSizeControlWidget(BaseAnalysisWidget):
         if lT:
             txt = Path(self.save_widget.value)
             lT.write(str(txt))
-            
+
             # Emit signal that lineage tree was saved
             self.signal_hub.emit_label_update(f"Lineage tree saved to {txt}")
 
@@ -201,7 +210,7 @@ class CellSizeControlWidget(BaseAnalysisWidget):
         # Create signal hub if not provided
         if signal_hub is None:
             signal_hub = PluginSignalHub()
-        
+
         super().__init__(napari_viewer, signal_hub)
         self.name = "Cell Size Control"
 

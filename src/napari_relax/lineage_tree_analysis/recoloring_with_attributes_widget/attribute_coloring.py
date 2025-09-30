@@ -21,10 +21,10 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
+from ..._layout_utils import SimpleContainer
 from ..._util_classes import (
     LineageTreeWidgetBase,
 )
-from ..._layout_utils import SimpleContainer
 from ..._utils import _select_active_lt_layer
 from .colorboxlabel import ColorBoxLabel
 
@@ -183,14 +183,14 @@ class QuantitativeColoringWidget(LineageTreeWidgetBase):
         # color_cont = SimpleContainer([self.color_label, self.combobox_continuous])
         self.colorbox = ColorBoxLabel(self)
         self.combobox_continuous = self.colorbox.combobox_continuous
-        
+
         # Get lineage tree from active layer
         active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is not None:
             self.lT = active_layer.metadata.get("LineageTree", None)
         else:
             self.lT = None
-            
+
         self.selected_attribute = QComboBox()
         if self.lT:
             self.selected_attribute.addItems(
@@ -354,7 +354,7 @@ class QuantitativeColoringWidget(LineageTreeWidgetBase):
             self.lT = active_layer.metadata.get("LineageTree", None)
         else:
             self.lT = None
-            
+
         if self.lT:
             # Only emit essential settings, preserve visual customizations
             self.color_signal.emit(
@@ -386,7 +386,9 @@ class AttributeColoringWidget(LineageTreeWidgetBase):
         super().__init__(napari_viewer)
 
         self.combobox = QComboBox()
-        self.combobox.addItems(["QuantitativeColoringWidget", "QualitativeColoringWidget"])
+        self.combobox.addItems(
+            ["QuantitativeColoringWidget", "QualitativeColoringWidget"]
+        )
         stack = QStackedWidget()
         self.quant = QuantitativeColoringWidget(napari_viewer)
         qual = QualitativeColoringWidget()
