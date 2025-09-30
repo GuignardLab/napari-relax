@@ -6,11 +6,8 @@ from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
 from napari.layers import Points
-from qtpy.QtWidgets import (
-    QTabWidget,
-    QVBoxLayout,
-    QWidget,
-)
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QLabel, QTabWidget, QVBoxLayout, QWidget
 
 from ..._util_classes import LayerCorrectorTreeProducer
 from ..._utils import _select_correct_layer
@@ -28,7 +25,7 @@ class DisplayDistances(LayerCorrectorTreeProducer):
         times = list(range(lT.t_b, lT.t_e))
         nb_cells = [len(self.time_nodes[t]) for t in times]
         target_time = self.time_slider.value * (max(times) - min(times))
-        if self.time_nodes.get(np.round(target_time)):
+        if self.time_nodes.get(np.round(target_time)) is not None:
             if active_layer != self.previous_layer:
                 self.previous_layer = active_layer
                 self.ax.clear()
@@ -42,14 +39,16 @@ class DisplayDistances(LayerCorrectorTreeProducer):
                 self.ax.set_yticks([])
             else:
                 self.pos_line.set_xdata([target_time, target_time])
-                self.ax.set_xlabel(f"time [{int(np.round(target_time)):03d}]")
 
-            self.ax.yaxis.set_label_coords(0.05, 1.1)
+            self.ax.set_xlabel(f"time [{int(np.round(target_time)):03d}]")
             self.ax.set_ylabel(
-                f"#cells ({len(self.time_nodes.get(np.round(target_time))):04d})",
-                rotation=45,
+                "#cells",
+                rotation=0,
                 va="bottom",
                 ha="right",
+            )
+            self.ax.set_title(
+                f"Number of cells \n({len(self.time_nodes.get(np.round(target_time))):04d})",
             )
         self.fig.canvas.draw()
 
@@ -150,6 +149,12 @@ class DisplayDistances(LayerCorrectorTreeProducer):
         self.do_color.clicked.connect(self.color_clones)
         self.viewer.layers.selection.events.connect(self.layer_change)
         self.distance_layout = QVBoxLayout()
+        self.distance_layout.addWidget(
+            QLabel(
+                """<span style="font-family: Arial; font-size: 20px; color: white;">Population Graph</span>"""
+            ),
+            alignment=Qt.AlignHCenter,
+        )
         self.distance_layout.addWidget(container.native)
         self.distance_layout.addWidget(w2.native)
         self.distance_layout.addStretch(1)
@@ -170,7 +175,7 @@ class DisplayDistances(LayerCorrectorTreeProducer):
         self.clone_based_recoloring = QWidget()
         self.clone_based_recoloring.setLayout(self.distance_layout)
         self.coloring_widget = Coloring(self.viewer)
-        tabs.addTab(self.clone_based_recoloring, "Clone base recoloring")
+        tabs.addTab(self.clone_based_recoloring, "Clone based Recoloring")
         tabs.addTab(self.coloring_widget, "Attribute based Recoloring")
         layout.addWidget(tabs)
         self.setLayout(layout)
