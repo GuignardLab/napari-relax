@@ -10,6 +10,7 @@ from scipy.spatial import KDTree
 
 class SingleTreeProgeny(FigureCanvas):
     node_signal = Signal(dict)
+    quantitative_coloring_applied = Signal()
     color_of_nodes = "black"
     color_of_edges = "black"
     node_size = 10
@@ -44,6 +45,10 @@ class SingleTreeProgeny(FigureCanvas):
         if "node_colors" in signal:
             self.node_colors = signal["node_colors"]
 
+        # Update face colors metadata if provided (for quantitative coloring)
+        if "face_colors" in signal:
+            self.update_face_colors(signal["face_colors"])
+
         if self.all_selected is True:
             self.selected_subtree = signal["selected_nodes"]
             # Don't apply selection highlighting if it's quantitative coloring
@@ -64,6 +69,10 @@ class SingleTreeProgeny(FigureCanvas):
 
         # draw_graph now handles its own canvas initialization checks
         self.draw_graph()
+
+        # Emit signal if quantitative coloring was applied
+        if is_quantitative:
+            self.quantitative_coloring_applied.emit()
 
     def __init__(
         self,
