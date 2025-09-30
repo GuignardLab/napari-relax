@@ -24,8 +24,10 @@ class DisplayDistances(LayerCorrectorTreeProducer):
         lT = active_layer.metadata["LineageTree"]
         times = list(range(lT.t_b, lT.t_e))
         nb_cells = [len(self.time_nodes[t]) for t in times]
-        target_time = self.time_slider.value * (max(times) - min(times))
-        if self.time_nodes.get(np.round(target_time)) is not None:
+        target_time = self.time_slider.value * (max(times) - min(times)) + (
+            min(times) / (max(times) - min(times))
+        )
+        if self.time_nodes:
             if active_layer != self.previous_layer:
                 self.previous_layer = active_layer
                 self.ax.clear()
@@ -48,7 +50,7 @@ class DisplayDistances(LayerCorrectorTreeProducer):
                 ha="right",
             )
             self.ax.set_title(
-                f"Number of cells \n({len(self.time_nodes.get(np.round(target_time))):04d})",
+                f"Number of cells \n({len(self.time_nodes.get(np.round(target_time), {})):04d})",
             )
         self.fig.canvas.draw()
 
@@ -59,22 +61,9 @@ class DisplayDistances(LayerCorrectorTreeProducer):
         lT = active_layer.metadata["LineageTree"]
         min_t = lT.t_b
         max_t = lT.t_e
-        times = list(range(lT.t_b, lT.t_e))
-        nb_cells = np.array([len(self.time_nodes[t]) for t in times])
-        last_change = {min_t: min_t}
-        last_time_change = min_t
-        for t, change in zip(
-            times, nb_cells[1:] - nb_cells[:-1], strict=False
-        ):
-            if change == 0:
-                last_change[t] = last_time_change
-            else:
-                last_change[t] = t
-                last_time_change = t
-
-        starting_time = last_change[
-            (min_t + np.round(self.time_slider.value * (max_t - min_t)))
-        ]
+        starting_time = np.round(self.time_slider.value * (max_t - min_t))
+        if starting_time < min_t:
+            starting_time = min_t
         colors = np.zeros((active_layer.data.shape[0], 4))
         cmap = mpl.colormaps[self.cmap_choice.value]
         if active_layer.face_color_mode != "direct":
@@ -176,7 +165,7 @@ class DisplayDistances(LayerCorrectorTreeProducer):
         self.clone_based_recoloring.setLayout(self.distance_layout)
         self.coloring_widget = Coloring(self.viewer)
         tabs.addTab(self.clone_based_recoloring, "Clone based Recoloring")
-        tabs.addTab(self.coloring_widget, "Attribute based Recoloring")
+        tabs.addTab(self.coloring_widget, "Node based Recoloring")
         layout.addWidget(tabs)
         self.setLayout(layout)
         self.slider_change()
