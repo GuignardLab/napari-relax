@@ -12,14 +12,14 @@ from qtpy.QtWidgets import (
 )
 
 from .._reader import layer_preparation
+from .._layout_utils import SimpleContainer
 from .._util_classes import (
-    Containerize,
-    LayerCorrectorTreeProducer,
+    LineageTreeWidgetBase,
     TimeResDialog,
 )
 
 
-class CrossEmbryo(LayerCorrectorTreeProducer):
+class CrossEmbryoManager(LineageTreeWidgetBase):
     name = "Manager Manipulation"
 
     send_manager_to_classes = Signal(LineageTreeManager)
@@ -169,7 +169,7 @@ class CrossEmbryo(LayerCorrectorTreeProducer):
         )
         self.save_manager_button = QPushButton("Save Manager")
         self.save_manager_button.native = self.save_manager_button
-        self.save_ltm_container = Containerize(
+        self.save_ltm_container = SimpleContainer(
             [self.save_manager_widget.native, self.save_manager_button.native]
         )
         self.load_ltm_file = widgets.FileEdit(
@@ -177,7 +177,7 @@ class CrossEmbryo(LayerCorrectorTreeProducer):
         )
         self.load_manager = QPushButton("Load a Manager")
         self.load_manager.native = self.load_manager
-        self.loading_cont = Containerize(
+        self.loading_cont = SimpleContainer(
             [self.load_ltm_file.native, self.load_manager.native]
         )
         self.create_manager = QPushButton(
@@ -189,7 +189,7 @@ class CrossEmbryo(LayerCorrectorTreeProducer):
         )
         self.add_emb = QPushButton("Add LineageTrees")
         self.add_emb.native = self.add_emb
-        self.add_emb_container = Containerize(
+        self.add_emb_container = SimpleContainer(
             [self.add_lT_to_manager.native, self.add_emb.native]
         )
         self.add_layer = QPushButton("Add selected lineageTrees to viewer")

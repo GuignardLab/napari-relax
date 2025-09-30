@@ -31,16 +31,18 @@ from qtpy.QtWidgets import (
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
 
+from ..._layout_utils import SimpleContainer
 from ..._util_classes import (
-    Containerize,
     DelayedTooltipEventFilter,
-    LayerCorrectorTreeProducer,
+    LineageTreeWidgetBase,
     TooltipButton,
 )
 from ..._utils import _select_active_lt_layer
+from ..._base_widgets import BaseAnalysisWidget
+from ..._signal_hub import PluginSignalHub
 
 
-class OnlineClustermap(LayerCorrectorTreeProducer):
+class InteractiveClusterMapWidget(BaseAnalysisWidget):
     """
     Widget to produce and load comparisons between lineages, which are used to
     plot Clustermaps and letting the user select respective Lineages.
@@ -135,10 +137,10 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
                 active_layer.selected_data.add(
                     active_layer.metadata["lT2napari"][cell]
                 )
-                self.sub_points_selector()
+                self.select_progeny_points()
                 selection = list(active_layer.selected_data)
                 active_layer.face_color[selection] = colors[i]
-                val_for_graph = self.val_finder(
+                val_for_graph = self.find_graph_index(
                     cell, lt=self.lT, graphs=active_layer.metadata["graphs"][0]
                 )
                 self.lT.draw_tree_graph(
@@ -501,7 +503,7 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
             event : The signal of layer change, it's important to note that you need to have one layer selected.
         """
         if event.value:
-            self.lT = self.get_lT()
+            self.lT = self.get_current_lineage_tree()
             if self.lT:
                 start = self.lT.t_b
                 stop = self.lT.t_b + 30
@@ -524,21 +526,28 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         if self.styl == "downsampled":
             self.downsampling_widget.visible = True
 
-    def __init__(self, napari_viewer):
+    def __init__(self, napari_viewer, signal_hub: PluginSignalHub = None):
         """
         Build the containers for the loading widget
 
         Args:
             napari_viewer (napari.Viewer): the parent napari viewer
+            signal_hub (PluginSignalHub): signal hub for coordination
         """
-        super().__init__(napari_viewer)
+        # Create signal hub if not provided
+        if signal_hub is None:
+            signal_hub = PluginSignalHub()
+            
+        super().__init__(napari_viewer, signal_hub)
+        self.name = "Distance Calculation"
+        
         self.comps = []
         event_filt = DelayedTooltipEventFilter()
         self.installEventFilter(event_filt)
         self.pbr = None
         self.times = []
         self.viewer = napari_viewer
-        self.lT = self.get_lT()
+        self.lT = self.get_current_lineage_tree()
         if self.lT:
             self.specific_roots = self.lT.time_nodes[self.lT.t_b]
             self.labels = self.lT.labels
@@ -559,7 +568,7 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
             txt = f.read()
         self.tree_style_combobox.tooltip = txt
         self.tree_style_combobox.changed.connect(self.update_tree_style)
-        self.styl_combobox = Containerize(
+        self.styl_combobox = SimpleContainer(
             [self.tree_style_combobox.native, self.downsampling_widget.native]
         )
         self.downsampling_widget.visible = False
@@ -627,7 +636,7 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
                 "YlGn",
             ],
         )
-        self.norm_color_cont = Containerize(
+        self.norm_color_cont = SimpleContainer(
             [self.norm_combo.native, self.colormap.native]
         )
         self.colormap.changed.connect(self._clustermap_creator)
@@ -697,7 +706,7 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         self.time_slicer_check = QCheckBox(
             "Select a range of timepoints for comparison"
         )
-        time_slice = Containerize(
+        time_slice = SimpleContainer(
             [self.time_slicer_check, self.time_slicer.native], horizontal=False
         )
         self.time_slicer_check.setChecked(True)
@@ -706,7 +715,7 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         self.time_list_check = QCheckBox(
             "Select the timepoints for comparison"
         )
-        time_list = Containerize(
+        time_list = SimpleContainer(
             [self.time_list_check, self.time_list], horizontal=False
         )
         regex = QRegExp(r"^\s*-?\d+\s*(,\s*-?\d+\s*)*$")
@@ -725,7 +734,7 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         self.tab1.layout().addWidget(time_slice)
         self.tab1.layout().addWidget(time_list)
         self.tab1.layout().addWidget(
-            Containerize(
+            SimpleContainer(
                 [
                     widgets.Label(
                         value="Final timepoint of lineagetree"
@@ -753,7 +762,7 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         self.tab2.layout().setContentsMargins(2, 1, 2, 0)
         self.tab2.layout().addWidget(self.tree_canvas)
         self.tab2.layout().addWidget(
-            Containerize(
+            SimpleContainer(
                 [
                     self.reset_colors,
                     self.time_mover_box.native,

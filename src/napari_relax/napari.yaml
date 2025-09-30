@@ -16,7 +16,7 @@ contributions:
       python_name: napari_relax._widgets:LineageTreeAnalysisWidget
       title: Lineage tree analysis
     - id: napari-relax.cross_embryo_comparison
-      python_name: napari_relax._widgets:CrossEmbryoComparisonWidget
+      python_name: napari_relax._widgets:CrossEmbryoManagerComparisonWidget
       title: Cross Lineagetree comparison
     - id: napari-relax.load_demo
       python_name: napari_relax.demo_data:load_demo

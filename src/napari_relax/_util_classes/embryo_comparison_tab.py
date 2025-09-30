@@ -11,10 +11,10 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from .containerize import Containerize
+from .._layout_utils import SimpleContainer
 
 
-class TabTemplate(QWidget):
+class EmbryoComparisonTab(QWidget):
     """Template to produce specific tabs, these tabs are specifically used by cross embryo
     comparisons.
 
@@ -63,7 +63,7 @@ class TabTemplate(QWidget):
             else:
                 self.times = list(range(start, stop, step))
 
-    def ret_times(self) -> list:
+    def get_time_points(self) -> list:
         """Returns the times
 
         Returns:
@@ -123,7 +123,7 @@ class TabTemplate(QWidget):
         )
         self.times_slicer_check.setChecked(True)
         self.times_slicer = widgets.SliceEdit(0, 100, 5, min=0)
-        time_slice = Containerize(
+        time_slice = SimpleContainer(
             [self.times_slicer_check, self.times_slicer.native],
             horizontal=False,
         )
@@ -135,7 +135,7 @@ class TabTemplate(QWidget):
         regex = QRegExp(r"^\s*-?\d+\s*(,\s*-?\d+\s*)*$")
         validator = QRegExpValidator(regex, self)
         self.times_list.setValidator(validator)
-        times_list = Containerize(
+        times_list = SimpleContainer(
             [self.times_list_check, self.times_list], horizontal=False
         )
 
@@ -149,7 +149,7 @@ class TabTemplate(QWidget):
         layout.addWidget(time_slice)
         layout.addWidget(times_list)
         layout.addWidget(
-            Containerize(
+            SimpleContainer(
                 [
                     widgets.Label(
                         value="Final timepoint of lineagetree"

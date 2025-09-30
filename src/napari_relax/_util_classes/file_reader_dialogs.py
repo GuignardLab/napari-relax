@@ -2,7 +2,7 @@ from magicgui import widgets
 from napari.qt import get_current_stylesheet
 from qtpy.QtWidgets import QCheckBox, QDialog, QLabel, QPushButton, QVBoxLayout
 
-from .._util_classes import Containerize
+from .._layout_utils import SimpleContainer
 
 
 class LoadingDialog(QDialog):
@@ -45,7 +45,7 @@ class BigDatasetNamesDialog(QDialog):
         self.no_but = QPushButton("No")
         self.yes_but.pressed.connect(self.continue_comps)
         self.no_but.pressed.connect(self.stop_comps)
-        self.layout().addWidget(Containerize([self.no_but, self.yes_but]))
+        self.layout().addWidget(SimpleContainer([self.no_but, self.yes_but]))
         self.setStyleSheet(get_current_stylesheet())
 
     def stop_comps(self):
@@ -74,7 +74,7 @@ class TimeResDialog(QDialog):
         ok_but = widgets.PushButton(text="Ok")
         self.setLayout(layout)
         self.layout().addWidget(
-            Containerize([self.tr_edit.native, QLabel("mins")])
+            SimpleContainer([self.tr_edit.native, QLabel("mins")])
         )
         self.layout().addWidget(ok_but.native)
         self.layout().addWidget(self.check_resave)

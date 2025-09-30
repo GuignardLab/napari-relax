@@ -15,10 +15,11 @@ from napari.layers import Points
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QPushButton, QSlider, QVBoxLayout
 
+from .._base_widgets import BaseAnalysisWidget
+from .._signal_hub import PluginSignalHub
+from .._layout_utils import SimpleContainer
 from .._util_classes import (
-    Containerize,
     DelayedTooltipEventFilter,
-    LayerCorrectorTreeProducer,
 )
 from .._utils import (
     _infer_point_size,
@@ -32,7 +33,7 @@ DEFAULT_MAX_POINT_SIZE = 2000
 DEFAULT_OPTIMAL_POINT_SIZE = 200
 
 
-class CellSize(LayerCorrectorTreeProducer):
+class CellSizeControlWidget(BaseAnalysisWidget):
     """
     Changes the size of the Points in Point layer.
     It's added on to all widgets.
@@ -118,6 +119,10 @@ class CellSize(LayerCorrectorTreeProducer):
         self.slider.setToolTip(
             f"Change the size of the spheres on the viewer. Current size {new_size}"
         )
+        
+        # Emit signal about size change
+        if new_size is not None:
+            self.emit_color_change({"size_changed": new_size, "layers_updated": len(layers_to_update) if 'layers_to_update' in locals() else 1})
 
     def see_one_layer(self):
         """Button that turns all other layers invisible in the napari viewer"""
@@ -165,10 +170,13 @@ class CellSize(LayerCorrectorTreeProducer):
                 self.reset_slider(value=active_layer.size[0])
 
     def write_embryo(self):
-        lT = self.get_lT()
+        lT = self.get_current_lineage_tree()
         if lT:
             txt = Path(self.save_widget.value)
             lT.write(str(txt))
+            
+            # Emit signal that lineage tree was saved
+            self.signal_hub.emit_label_update(f"Lineage tree saved to {txt}")
 
     def is_lt_layer(self, layer):
         return (
@@ -189,8 +197,13 @@ class CellSize(LayerCorrectorTreeProducer):
             self.viewer.layers.selection.active = layer
             # self.reset_slider()
 
-    def __init__(self, napari_viewer):
-        super().__init__(napari_viewer)
+    def __init__(self, napari_viewer, signal_hub: PluginSignalHub = None):
+        # Create signal hub if not provided
+        if signal_hub is None:
+            signal_hub = PluginSignalHub()
+        
+        super().__init__(napari_viewer, signal_hub)
+        self.name = "Cell Size Control"
 
         event_filt = DelayedTooltipEventFilter()
         self.installEventFilter(event_filt)
@@ -266,7 +279,7 @@ class CellSize(LayerCorrectorTreeProducer):
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
 
-        cont = Containerize(
+        cont = SimpleContainer(
             [
                 self.count.native,
                 self.slider,
@@ -277,14 +290,14 @@ class CellSize(LayerCorrectorTreeProducer):
         cont.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().addWidget(cont)
 
-        self.tracks_and_vis_cont = Containerize(
+        self.tracks_and_vis_cont = SimpleContainer(
             [vis_container.native, track_button.native]
         )
         self.tracks_and_vis_cont.layout().setContentsMargins(0, 0, 0, 0)
         self.tracks_and_vis_cont.layout().setSpacing(0)
         self.layout().addWidget(self.tracks_and_vis_cont)
 
-        self.save_container = Containerize(
+        self.save_container = SimpleContainer(
             [self.save_widget.native, self.save_button.native]
         )
         self.save_container.layout().setContentsMargins(0, 15, 0, 0)

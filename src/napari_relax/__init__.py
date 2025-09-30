@@ -5,12 +5,12 @@ except ImportError:
 
 from ._reader import napari_get_reader
 from ._widgets import (
-    CrossEmbryoComparisonWidget,
+    CrossEmbryoManagerComparisonWidget,
     LineageTreeAnalysisWidget,
 )
 
 __all__ = (
-    "CrossEmbryoComparisonWidget",
+    "CrossEmbryoManagerComparisonWidget",
     "LineageTreeAnalysisWidget",
     "napari_get_reader",
 )

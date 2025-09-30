@@ -1,28 +1,28 @@
-from .cells_size import (
-    CellSize,
+from .cell_size_control import (
+    CellSizeControlWidget,
 )
-from .comparison_widget.clustermap import OnlineClustermap
+from .comparison_widget.distance_clustering_widget import InteractiveClusterMapWidget
 
 # Clustermap,
 # DisplayDistances,
-# OnlineClustermap,
-# ProgenySelection,
-from .lineage_viewer_widget.progeny_selection import ProgenySelection
+# InteractiveClusterMapWidget,
+# LineageExplorationWidget,
+from .lineage_viewer_widget.lineage_explorer import LineageExplorationWidget
 from .recoloring_with_attributes_widget.distance_display import (
     DisplayDistances,
 )
 
 __all__ = (
-    "ProgenySelection",
+    "LineageExplorationWidget",
     "DisplayDistances",
-    "OnlineClustermap",
+    "InteractiveClusterMapWidget",
 )
 
 # All new widget should be listed here to be displayed in napari
 __all_widgets__ = (
-    ProgenySelection,
+    LineageExplorationWidget,
     DisplayDistances,
-    OnlineClustermap,
+    InteractiveClusterMapWidget,
 )
 
-__overall_widget__ = CellSize
+__overall_widget__ = CellSizeControlWidget

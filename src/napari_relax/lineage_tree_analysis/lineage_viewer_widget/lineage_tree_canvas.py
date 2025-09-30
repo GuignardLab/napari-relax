@@ -8,7 +8,7 @@ from psygnal import Signal
 from scipy.spatial import KDTree
 
 
-class SingleTreeProgeny(FigureCanvas):
+class LineageCanvas(FigureCanvas):
     node_signal = Signal(dict)
     quantitative_coloring_applied = Signal()
     color_of_nodes = "black"
@@ -546,7 +546,7 @@ class SingleTreeProgeny(FigureCanvas):
             # Normal selection mode - highlight all nodes
             self.selected_subtree = set(self.lT.nodes)
         elif getattr(self, "is_quantitative_mode", False):
-            # Quantitative mode - don't use selection highlighting
+            # QuantitativeColoringWidget mode - don't use selection highlighting
             self.selected_subtree = set()
 
         # Extract current colors from the active layer (handles quantitative coloring)

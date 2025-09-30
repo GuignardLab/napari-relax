@@ -34,17 +34,19 @@ from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
 
 from .._reader import layer_preparation
+from .._base_widgets import BaseAnalysisWidget
+from .._signal_hub import PluginSignalHub
+from .._layout_utils import SimpleContainer
 from .._util_classes import (
     BigDatasetNamesDialog,
-    Containerize,
     DelayedTooltipEventFilter,
-    LayerCorrectorTreeProducer,
+    LineageTreeWidgetBase,
     QtViewerWrap,
-    TabTemplate,
+    EmbryoComparisonTab,
 )
 
 
-class MinimalCellSize(LayerCorrectorTreeProducer):
+class MinimalCellSize(LineageTreeWidgetBase):
     def change(
         self,
         viewer: QtViewerWrap,
@@ -126,7 +128,7 @@ class MinimalCellSize(LayerCorrectorTreeProducer):
         )
         self.slider_1.valueChanged.connect(self.change_size_1)
 
-        slid_container = Containerize(
+        slid_container = SimpleContainer(
             [self.slider_1, self.slider_2], horizontal=False
         )
         slid_container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -138,7 +140,7 @@ class MinimalCellSize(LayerCorrectorTreeProducer):
         self.layout().addWidget(toggle_container.native)
 
 
-class Embryo_comparisons(LayerCorrectorTreeProducer):
+class EmbryoComparisonsWidget(BaseAnalysisWidget):
     name = "Embryo comparisons"
 
     def get_lt_manager(self, signal):
@@ -170,7 +172,7 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
             self.root_tabs.addTab(default_tab, "Empty Layout")
         else:
             for item in selected_items:
-                self.tab_dictionary[item.text()] = TabTemplate(
+                self.tab_dictionary[item.text()] = EmbryoComparisonTab(
                     self.manager.lineagetrees[item.text()], item.text()
                 )
                 self.root_tabs.addTab(
@@ -237,7 +239,7 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
             ax (ax object): Matplotlib object where the tree will be graphed.
         """
         lT = self.manager.lineagetrees[lineagetree_name]
-        index = LayerCorrectorTreeProducer(self.viewer).val_finder(
+        index = LineageTreeWidgetBase(self.viewer).find_graph_index(
             node, lT, self.layers[lineagetree_name].metadata["graphs"][0]
         )
         ax.clear()
@@ -429,7 +431,7 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         end_times = {}
         for tab in self.tab_dictionary:
             roots[tab] = self.tab_dictionary[tab].show_roots()
-            times[tab] = self.tab_dictionary[tab].ret_times()
+            times[tab] = self.tab_dictionary[tab].get_time_points()
             end_times[tab] = self.tab_dictionary[tab].time_crop
 
         data = {
@@ -454,7 +456,7 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         local_manager = copy.copy(self.manager)
         for tab in self.tab_dictionary:
             roots[tab] = self.tab_dictionary[tab].show_roots()
-            times[tab] = self.tab_dictionary[tab].ret_times()
+            times[tab] = self.tab_dictionary[tab].get_time_points()
             end_times[tab] = self.tab_dictionary[tab].time_crop
         minimum_length = 1_000
         for tab in times:
@@ -580,8 +582,14 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         else:
             self.downsampling_widget.setToolTip("")
 
-    def __init__(self, napari_viewer):
-        super().__init__(napari_viewer)
+    def __init__(self, napari_viewer, signal_hub: PluginSignalHub = None):
+        # Create signal hub if not provided
+        if signal_hub is None:
+            signal_hub = PluginSignalHub()
+            
+        super().__init__(napari_viewer, signal_hub)
+        self.name = "Embryo Comparisons"
+        
         self.tabs = QTabWidget()
         self.tab_dictionary = {}
         self.viewer = napari_viewer
@@ -658,7 +666,7 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         self.tree_style_combobox = widgets.ComboBox(
             value="simple", choices=self.possible_styles
         )
-        self.styl_combobox = Containerize(
+        self.styl_combobox = SimpleContainer(
             [self.tree_style_combobox.native, self.downsampling_widget]
         )
         self.tree_style_combobox.changed.connect(self.update_tree_style)
@@ -718,7 +726,7 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         self.tab2.layout().addWidget(self.tree_canvas)
 
         self.tab2.layout().addWidget(
-            Containerize([self.norm_combo.native, self.colormap.native])
+            SimpleContainer([self.norm_combo.native, self.colormap.native])
         )
         self.tab2.layout().addWidget(self.time_mover_box.native)
         self.tab2.layout().addWidget(self.time_mover_box.native)

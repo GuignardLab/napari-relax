@@ -19,24 +19,26 @@ from qtpy.QtWidgets import (
 )
 
 from ..._interaction_bridge import InteractionBridge
+from ..._base_widgets import BaseAnalysisWidget
+from ..._signal_hub import PluginSignalHub
+from ..._layout_utils import SimpleContainer
 from ..._util_classes import (
-    Containerize,
     DelayedTooltipEventFilter,
-    LayerCorrectorTreeProducer,
+    LineageTreeWidgetBase,
     TooltipButton,
 )
-from ..._util_classes.popable_window_for_tree_graph import (
+from ..._util_classes.tree_graph_popup import (
     Setup,
     _update_napari_highlight_color,
 )
 from ..._utils import _select_active_lt_layer
-from .canvas_for_progeny import SingleTreeProgeny
+from .lineage_tree_canvas import LineageCanvas
 
 if TYPE_CHECKING:
     from lineagetree import LineageTree
 
 
-class ProgenySelection(LayerCorrectorTreeProducer):
+class LineageExplorationWidget(BaseAnalysisWidget):
     # your QWidget.__init__ can optionally request the napari viewer instance
     # in one of two ways:
     # 1. use a parameter called `napari_viewer`, as done here
@@ -78,7 +80,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             return 0
 
         # Ensure lineage tree is available
-        self.lT = self.get_lT()
+        self.lT = self.get_current_lineage_tree()
         if self.lT is None:
             return
 
@@ -93,7 +95,11 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
         # Use interaction bridge for coordinated multi-layer selection
         self.bridge.highlight_lineages(selected_node_ids)
-        val = self.val_finder(
+        
+        # Emit signal about selection change
+        self.emit_selection_change(set(selected_node_ids))
+        
+        val = self.find_graph_index(
             active_layer.metadata["napari2lT"][cell],
             self.lT,
             active_layer.metadata["graphs"][0],
@@ -169,7 +175,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                         viewer_layer.selected_data.clear()
 
                 # Find the graph value for this node
-                val = self.val_finder(
+                val = self.find_graph_index(
                     node_id_napari,
                     self.lT,
                     layer.metadata["graphs"][0],
@@ -199,9 +205,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
     def update_lineage_color_box(self):
         """Update the color box to show the current lineage color."""
-        if not hasattr(self, "lineage_color_box"):
-            return
-
         # Update the canvas with current face colors before extracting color
         self._update_canvas_with_current_colors()
 
@@ -380,7 +383,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         if not active_layer:
             return
         cell = active_layer.selected_data.pop()
-        val = self.val_finder(
+        val = self.find_graph_index(
             active_layer.metadata["napari2lT"][cell],
             self.lT,
             active_layer.metadata["graphs"][0],
@@ -442,11 +445,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         # Save current state to the previous bridge
         if self.bridge:
             self.bridge.update_state(
-                graph_slider_value=(
-                    self.graph_slider.value()
-                    if hasattr(self, "graph_slider")
-                    else 0
-                ),
+                graph_slider_value=self.graph_slider.value(),
                 selected_subtree=(
                     getattr(self.canvas, "selected_subtree", set())
                 ),
@@ -464,7 +463,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             self.bridge._establish_layer_links()
 
         if len(self.viewer.layers.selection) == 1:
-            self.lT: LineageTree = self.get_lT()
+            self.lT: LineageTree = self.get_current_lineage_tree()
             if self.lT:
                 self.labels = self.lT.labels
                 self.roots = [
@@ -558,7 +557,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 self.cell_id_spinbox.setEnabled(False)
                 self.cell_id_go_button.setEnabled(False)
 
-    def label_remover(self):
+    def remove_cell_label(self):
         active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is None:
             return
@@ -648,7 +647,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             cell_id = closest_node
 
         # Find which lineage (root) this cell belongs to
-        val = self.val_finder(
+        val = self.find_graph_index(
             cell_id,
             self.lT,
             active_layer.metadata["graphs"][0],
@@ -741,10 +740,19 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.w_lineedit.update()
         self.w_lineedit.clear()
         self.signal.emit(self.labels)
+        
+        # Emit signal about label change
+        self.emit_label_update(f"Label updated: {node} -> {text}")
+        
         self.canvas.draw_graph()
 
-    def __init__(self, napari_viewer):
-        super().__init__(napari_viewer)
+    def __init__(self, napari_viewer, signal_hub: PluginSignalHub = None):
+        # Create signal hub if not provided
+        if signal_hub is None:
+            signal_hub = PluginSignalHub()
+            
+        super().__init__(napari_viewer, signal_hub)
+        self.name = "Lineage Exploration"
 
         # Get the specific Points layer for this widget
         points_layer = _select_active_lt_layer(self.viewer)
@@ -765,7 +773,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             # Create a temporary bridge that will be replaced when a layer is selected
             self.bridge = InteractionBridge(napari_viewer, None)
 
-        self.lT: LineageTree = self.get_lT()
+        self.lT: LineageTree = self.get_current_lineage_tree()
         if self.lT:
             self.graph_slider = QSlider()
             self.graph_slider.setOrientation(Qt.Orientation.Horizontal)
@@ -797,7 +805,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             self.graph_slider.setMaximum(0)
         self.graph_slider.valueChanged.connect(self.progeny_diagram_loader)
         remove_label = widgets.Button(text="Remove this label")
-        remove_label.clicked.connect(self.label_remover)
+        remove_label.clicked.connect(self.remove_cell_label)
         show_labels = widgets.Button(text="Show Labels")
         show_labels.clicked.connect(self.show_all_labels)
         self.w_lineedit.returnPressed.connect(self.label_changer)
@@ -825,7 +833,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.setLayout(layout)
         self.figure = Figure(figsize=(1, 3), frameon=False)
         self.ax_for_tree_graph = self.figure.add_subplot(111)
-        self.canvas = SingleTreeProgeny(self.figure, self.ax_for_tree_graph)
+        self.canvas = LineageCanvas(self.figure, self.ax_for_tree_graph)
 
         # Initialize napari highlight color to match canvas selection color
         _update_napari_highlight_color(
@@ -881,7 +889,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         if self.lT:
             self.update_lineage_color_box()
 
-        self.slider_box = Containerize(
+        self.slider_box = SimpleContainer(
             [
                 widgets.Label(value="Lineage slider").native,
                 self.graph_slider,
@@ -928,7 +936,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 "Load a lineage tree to enable cell ID selection"
             )
 
-        self.cell_id_box = Containerize(
+        self.cell_id_box = SimpleContainer(
             [
                 widgets.Label(value="Cell ID selector").native,
                 self.cell_id_spinbox,
@@ -938,12 +946,12 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
         self.layout().addWidget(self.cell_id_box)
         self.layout().addWidget(
-            Containerize(
+            SimpleContainer(
                 [self.w_lineedit, show_labels.native, remove_label.native]
             )
         )
         self.layout().addWidget(w2.native)
-        self.layout().addWidget(Containerize([cutoff2.native, cutoff3.native]))
+        self.layout().addWidget(SimpleContainer([cutoff2.native, cutoff3.native]))
         self.layout().addWidget(w.native)
 
         show_all = QPushButton("Show all")
@@ -955,7 +963,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         show_lin = QPushButton("Show Lineage")
         show_lin.clicked.connect(self.show_lineage)
 
-        shown_cont = Containerize([hide_lin, show_lin, hide_all, show_all])
+        shown_cont = SimpleContainer([hide_lin, show_lin, hide_all, show_all])
         self.layout().addWidget(shown_cont)
 
         self.viewer.mouse_drag_callbacks.append(self.point_click)

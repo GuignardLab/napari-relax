@@ -11,9 +11,9 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
 )
 
-from .._util_classes import Containerize
-from ..lineage_tree_analysis.lineage_viewer_widget.canvas_for_progeny import (
-    SingleTreeProgeny,
+from .._layout_utils import SimpleContainer
+from ..lineage_tree_analysis.lineage_viewer_widget.lineage_tree_canvas import (
+    LineageCanvas,
 )
 
 
@@ -62,7 +62,7 @@ class ColoredPushButton(QPushButton):
 class Setup(QDialog):
     sig = Signal(dict)
 
-    def __init__(self, canvas: SingleTreeProgeny, viewer=None):
+    def __init__(self, canvas: LineageCanvas, viewer=None):
         super().__init__()
         self.canvas = canvas
         self.viewer = viewer
@@ -88,7 +88,7 @@ class Setup(QDialog):
         )  # type: ignore
         self.edit_node_size.setText(self.node_size)
         self.edit_node_size.setValidator(double_validator)
-        nod_size_cont = Containerize([label_node_size, self.edit_node_size])
+        nod_size_cont = SimpleContainer([label_node_size, self.edit_node_size])
 
         edit_col_edg = ColoredPushButton(color=self.color_of_edges)
         edit_col_edg.color_change.connect(
@@ -103,7 +103,7 @@ class Setup(QDialog):
         self.edit_edge_size.setText(self.lw)
         self.edit_edge_size.setValidator(double_validator)
 
-        edge_size_cont = Containerize([label_edge_size, self.edit_edge_size])
+        edge_size_cont = SimpleContainer([label_edge_size, self.edit_edge_size])
 
         label_fontsize_size = QLabel("Fontsize for labels:")
         self.edit_fontsize_size = QLineEdit(
@@ -113,14 +113,14 @@ class Setup(QDialog):
         self.edit_fontsize_size.setText(self.fontsize)
         self.edit_fontsize_size.setValidator(double_validator)
 
-        fontsize_cont = Containerize(
+        fontsize_cont = SimpleContainer(
             [label_fontsize_size, self.edit_fontsize_size]
         )
 
         label_color_selection = QLabel("Selected Subtrees Color:")
         self.edit_color_sel = ColoredPushButton(color=self.color_of_selection)
         # edit_color_sel.color_change.connect(self._update_selection_color)
-        color_of_sel_cont = Containerize(
+        color_of_sel_cont = SimpleContainer(
             [label_color_selection, self.edit_color_sel]
         )
         self.setLayout(layout)
@@ -128,7 +128,7 @@ class Setup(QDialog):
         self.layout().addWidget(edge_size_cont)
         self.layout().addWidget(fontsize_cont)
         self.layout().addWidget(color_of_sel_cont)
-        self.layout().addWidget(Containerize([reset_but, apply_but]))
+        self.layout().addWidget(SimpleContainer([reset_but, apply_but]))
 
     # def _update_selection_color(self, color_name: str):
     #     """Update both internal setting and napari highlight color."""

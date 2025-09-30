@@ -10,12 +10,13 @@ from qtpy.QtWidgets import (
 )
 from scipy.spatial import KDTree
 
-from ..._util_classes import LayerCorrectorTreeProducer
+from ..._base_widgets import BaseAnalysisWidget
+from ..._signal_hub import PluginSignalHub
 from ..._utils import _select_active_lt_layer
-from .coloring import Coloring
+from .attribute_coloring import AttributeColoringWidget
 
 
-class DisplayDistances(LayerCorrectorTreeProducer):
+class DisplayDistances(BaseAnalysisWidget):
     name = "Attribute Based Recoloring"
 
     def point_click(self, viewer, event):
@@ -199,14 +200,21 @@ class DisplayDistances(LayerCorrectorTreeProducer):
         active_layer.face_color = colors
 
     def layer_change(self):
-        self.lT = self.get_lT()
+        self.lT = self.get_current_lineage_tree()
         if self.lT:
             self.time_nodes = self.lT.time_nodes
             self.slider_change()
         else:
             self.time_nodes = None
 
-    def __init__(self, napari_viewer):
+    def __init__(self, napari_viewer, signal_hub: PluginSignalHub = None):
+        # Create signal hub if not provided
+        if signal_hub is None:
+            signal_hub = PluginSignalHub()
+            
+        super().__init__(napari_viewer, signal_hub)
+        self.name = "Attribute Based Recoloring"
+        
         self.qualitative_cmaps = [
             "Pastel1",
             "Pastel2",
@@ -221,9 +229,8 @@ class DisplayDistances(LayerCorrectorTreeProducer):
             "tab20b",
             "tab20c",
         ]
-        super().__init__(napari_viewer)
         self.viewer = napari_viewer
-        self.lT = self.get_lT()
+        self.lT = self.get_current_lineage_tree()
         if self.lT:
             self.time_nodes = self.lT.time_nodes
         else:
@@ -274,7 +281,13 @@ class DisplayDistances(LayerCorrectorTreeProducer):
             labels=False,
             layout="horizontal",
         )
-        self.coloring_widget = Coloring(self.viewer)
+        self.coloring_widget = AttributeColoringWidget(self.viewer)
+        
+        # Connect coloring widget signals to main signal hub
+        self.coloring_widget.quant.color_signal.connect(
+            lambda color_info: self.emit_color_change(color_info)
+        )
+        
         self.do_color.clicked.connect(self.color_clones)
         self.viewer.mouse_drag_callbacks.append(self.point_click)
         self.viewer.layers.selection.events.connect(self.layer_change)

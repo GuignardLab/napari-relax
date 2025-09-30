@@ -10,9 +10,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from ..._util_classes import (
-    Containerize,
-)
+from ..._layout_utils import SimpleContainer
 
 if TYPE_CHECKING:
     pass
@@ -36,7 +34,7 @@ class ColorBoxLabel(QWidget):
             self.change_color_label
         )
         self.color_label.clicked.connect(self.combobox_continuous.showPopup)
-        color_cont = Containerize([self.color_label, self.combobox_continuous])
+        color_cont = SimpleContainer([self.color_label, self.combobox_continuous])
         self.setLayout(QVBoxLayout())
         self.change_color_label()
         self.layout().addWidget(color_cont)

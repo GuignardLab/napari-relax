@@ -22,9 +22,9 @@ from qtpy.QtWidgets import (
 )
 
 from ..._util_classes import (
-    Containerize,
-    LayerCorrectorTreeProducer,
+    LineageTreeWidgetBase,
 )
+from ..._layout_utils import SimpleContainer
 from ..._utils import _select_active_lt_layer
 from .colorboxlabel import ColorBoxLabel
 
@@ -153,7 +153,7 @@ class MissingData(QWidget):
             return None
 
 
-class Quantitative(LayerCorrectorTreeProducer):
+class QuantitativeColoringWidget(LineageTreeWidgetBase):
     color_signal = Signal(dict)
 
     # def change_color_label(self):
@@ -180,10 +180,17 @@ class Quantitative(LayerCorrectorTreeProducer):
         #     self.change_color_label
         # )
         # self.color_label.clicked.connect(self.combobox_continuous.showPopup)
-        # color_cont = Containerize([self.color_label, self.combobox_continuous])
+        # color_cont = SimpleContainer([self.color_label, self.combobox_continuous])
         self.colorbox = ColorBoxLabel(self)
         self.combobox_continuous = self.colorbox.combobox_continuous
-        self.lT = self.get_lT()
+        
+        # Get lineage tree from active layer
+        active_layer = _select_active_lt_layer(self.viewer)
+        if active_layer is not None:
+            self.lT = active_layer.metadata.get("LineageTree", None)
+        else:
+            self.lT = None
+            
         self.selected_attribute = QComboBox()
         if self.lT:
             self.selected_attribute.addItems(
@@ -199,9 +206,9 @@ class Quantitative(LayerCorrectorTreeProducer):
         color_button.pressed.connect(self.generate_colors)
         reset_color_button = QPushButton("Reset Color of Dataset")
         reset_color_button.pressed.connect(self.reset_button_pr)
-        cont = Containerize([color_button, reset_color_button])
+        cont = SimpleContainer([color_button, reset_color_button])
         layout.addWidget(
-            Containerize([QLabel("Select Colormap"), self.colorbox])
+            SimpleContainer([QLabel("Select Colormap"), self.colorbox])
         )
         layout.addWidget(self.miss_data)
         layout.addWidget(cont)
@@ -342,7 +349,12 @@ class Quantitative(LayerCorrectorTreeProducer):
             )
 
     def layer_change(self):
-        self.lT = self.get_lT()
+        active_layer = _select_active_lt_layer(self.viewer)
+        if active_layer is not None:
+            self.lT = active_layer.metadata.get("LineageTree", None)
+        else:
+            self.lT = None
+            
         if self.lT:
             # Only emit essential settings, preserve visual customizations
             self.color_signal.emit(
@@ -364,20 +376,20 @@ class Quantitative(LayerCorrectorTreeProducer):
             self.selected_attribute.addItems([str(None)])
 
 
-class Qualitative(QWidget): ...
+class QualitativeColoringWidget(QWidget): ...
 
 
-class Coloring(LayerCorrectorTreeProducer):
+class AttributeColoringWidget(LineageTreeWidgetBase):
     name = "coloring"
 
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
 
         self.combobox = QComboBox()
-        self.combobox.addItems(["Quantitative", "Qualitative"])
+        self.combobox.addItems(["QuantitativeColoringWidget", "QualitativeColoringWidget"])
         stack = QStackedWidget()
-        self.quant = Quantitative(napari_viewer)
-        qual = Qualitative()
+        self.quant = QuantitativeColoringWidget(napari_viewer)
+        qual = QualitativeColoringWidget()
         stack.addWidget(self.quant)
         stack.addWidget(qual)
         self.combobox.currentIndexChanged.connect(stack.setCurrentIndex)

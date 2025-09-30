@@ -1,17 +1,19 @@
 from lineagetree import LineageTree
-from qtpy.QtWidgets import (
-    QWidget,
-)
+from qtpy.QtWidgets import QWidget
 
 from .._utils import _select_active_lt_layer
+from .._data_management import LineageTreeDataManager
+from .._signal_hub import PluginSignalHub
 
 # Default selection color - can be overridden by canvas settings
 DEFAULT_SELECTION_COLOR_RGBA = [1, 0, 1, 1]  # magenta
 
 
-class LayerCorrectorTreeProducer(QWidget):
+class LineageTreeWidgetBase(QWidget):
     """
     Parent Class that is called inside the plugin, it produces no interface.
+    Updated to use composition with LineageTreeDataManager.
+    
     Contains functions that are useful for the used Widgets inside the plugin:
         -Selector for cell and all descendants
         -Producing the lineagetree object
@@ -21,60 +23,41 @@ class LayerCorrectorTreeProducer(QWidget):
     Generally functions that are used by other classes are added here.
     """
 
-    def sub_points_selector(self):
+    def __init__(self, napari_viewer, signal_hub: PluginSignalHub = None):
+        super().__init__()
+        self.viewer = napari_viewer
+        
+        # Create signal hub if not provided (for backward compatibility)
+        if signal_hub is None:
+            signal_hub = PluginSignalHub()
+        self.signal_hub = signal_hub
+        
+        # Use composition with data manager for cleaner architecture
+        self._data_manager = LineageTreeDataManager(napari_viewer)
+
+    def select_progeny_points(self):
         """
         Adds all descendants of a cell to selected_data.
         Reads the selected data from napari.layer and it will select all the cells that are ancestors of this point.
         """
-        active_layer = _select_active_lt_layer(self.viewer)
-        if not active_layer.selected_data:
-            return 0
-        lT = active_layer.metadata["LineageTree"]
-        cell = active_layer.selected_data.pop()
-        active_layer.selected_data = {cell}
-        scores = lT.get_subtree_nodes(active_layer.metadata["napari2lT"][cell])
-        for val in scores:
-            active_layer.selected_data.add(
-                active_layer.metadata["lT2napari"][val]
-            )
-        active_layer.refresh()
-
-    def get_lT(self) -> LineageTree:
-        """
-        Function that reads the LineageTree structure through one of the layers.
-
-        """
-        active_layer = _select_active_lt_layer(self.viewer)
-        if active_layer is None:
-            return None
-        return active_layer.metadata.get("LineageTree", None)
+        return self._data_manager.select_subtree()
 
     def paint_nodes_of_same_tree(self, val):
         """
         Specific of Progeny selection class. Changes the color of the subtree or the whole
-        tree accordng the the state of the toggleble point_color_from_trees.value.
+        tree according to the state of the toggleable point_color_from_trees.value.
 
         Args:
         val (int): index of the list of graphs
         """
-        active_layer = _select_active_lt_layer(self.viewer)
-        active_layer.face_color = active_layer.metadata["clone2"]
-        if self.point_color_from_trees.value:
-            root = [
-                i
-                for i, d in active_layer.metadata["graphs"][0][val].in_degree()
-                if d == 0
-            ]
-            active_layer.selected_data.add(
-                active_layer.metadata["lT2napari"][root[0]]
-            )
-            self.sub_points_selector()
-            selection = list(active_layer.selected_data)
-            active_layer.face_color[selection] = DEFAULT_SELECTION_COLOR_RGBA
-            active_layer.selected_data.clear()
-            active_layer.refresh()
+        # Check if the widget has the point_color_from_trees attribute
+        color_from_trees = False
+        if hasattr(self, 'point_color_from_trees'):
+            color_from_trees = self.point_color_from_trees.value
+        
+        self._data_manager.paint_tree_nodes(val, color_from_trees)
 
-    def val_finder(self, cell, lt, graphs):
+    def find_graph_index(self, cell, lt, graphs):
         """
         Useful function for selecting the right index in the list of graphs
         Args:
@@ -85,10 +68,19 @@ class LayerCorrectorTreeProducer(QWidget):
         Returns:
             i (int): The key of the graphs list
         """
-        for i, g in graphs.items():
-            if lt.get_ancestor_at_t(cell) == g["root"]:
-                return i
-
-    def __init__(self, napari_viewer):
-        super().__init__()
-        self.viewer = napari_viewer
+        return self._data_manager.find_graph_index(cell, lt, graphs)
+    
+    def emit_selection_change(self, selected_cells):
+        """Emit selection change through signal hub."""
+        if hasattr(self, 'signal_hub'):
+            self.signal_hub.emit_selection_change(selected_cells)
+    
+    def emit_color_change(self, color_mapping):
+        """Emit color change through signal hub."""
+        if hasattr(self, 'signal_hub'):
+            self.signal_hub.emit_color_change(color_mapping)
+    
+    def emit_label_update(self, label_text):
+        """Emit label update through signal hub."""
+        if hasattr(self, 'signal_hub'):
+            self.signal_hub.emit_label_update(label_text)
