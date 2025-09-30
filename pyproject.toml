@@ -31,10 +31,8 @@ requires-python = ">=3.10"
 # See best practices: https://napari.org/stable/plugins/building_a_plugin/best_practices.html
 dependencies = [
     "numpy",
-    "magicgui",
-    "qtpy",
     "matplotlib",
-    "lineagetree>=3.0.0",
+    "lineagetree>=3.0.4",
     "mplcursors",
     "seaborn",
 ]

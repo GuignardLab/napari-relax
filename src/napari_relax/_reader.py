@@ -43,10 +43,7 @@ def napari_get_reader(path):
 
     # if we know we cannot read the file, we immediately return None.
 
-    if (
-        path.lower().endswith(".lt")
-        or path.lower().split(".")[-1] in LOADERS
-    ):
+    if path.lower().endswith(".lt") or path.lower().split(".")[-1] in LOADERS:
         return reader_function
 
     # otherwise we return the *function* that can read ``path``.

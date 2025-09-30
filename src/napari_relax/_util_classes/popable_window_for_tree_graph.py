@@ -1,4 +1,3 @@
-
 from napari.qt import get_current_stylesheet
 from psygnal import Signal
 from qtpy.QtGui import QColor, QDoubleValidator
