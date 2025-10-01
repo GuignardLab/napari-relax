@@ -459,7 +459,20 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
     def show_all(self):
         """Show all nodes across all layer types."""
+        # Store the currently selected lineage before resetting
+        selected_subtree = None
+        if hasattr(self, "canvas") and hasattr(self.canvas, "selected_subtree"):
+            selected_subtree = self.canvas.selected_subtree.copy() if self.canvas.selected_subtree else None
+        
+        # Reset visibility (this will clear the selection)
         self.bridge.reset_visibility()
+        
+        # After resetting visibility, restore the selection for the currently selected lineage
+        if selected_subtree:
+            # Use highlight_lineages to restore selection without hiding other nodes
+            selected_node_ids = list(selected_subtree)
+            self.bridge.highlight_lineages(selected_node_ids)
+        
         # Save state
         if self.bridge:
             self.bridge.update_state(visibility_state="all_visible")

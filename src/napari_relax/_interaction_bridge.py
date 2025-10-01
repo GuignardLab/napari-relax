@@ -98,23 +98,63 @@ class PointsAdapter(LayerAdapter):
 
         # If all current sizes are 0 (after "Hide all"), use original sizes as reference
         original_sizes = self.original_state.get("size", sizes)
+        original_sizes = np.broadcast_to(original_sizes, sizes.shape)
 
         for i in range(len(sizes)):
             if i in visible_indices:
                 # Restore original size for visible nodes
-                sizes[i] = original_sizes[i] if i < len(original_sizes) else 1
+                sizes[i] = original_sizes[i]
             else:
                 # Hide non-visible nodes
                 sizes[i] = 0
-
         self.layer.size = sizes
         self.layer.selected_data = visible_indices
+
+    def hide_nodes(self, node_ids_to_hide: list[int]) -> None:
+        """Hide specific nodes by setting their size to 0, without affecting selection."""
+        if not hasattr(self.layer, "size") or not hasattr(self.layer, "data"):
+            return
+
+        # Get napari indices for nodes to hide
+        indices_to_hide = set()
+        for node_id in node_ids_to_hide:
+            if node_id in self.node_to_napari:
+                indices_to_hide.add(self.node_to_napari[node_id])
+
+        # Set sizes: hidden nodes get size 0, others keep their current size
+        sizes = (
+            self.layer.size.copy()
+            if hasattr(self.layer.size, "copy")
+            else np.array(self.layer.size)
+        )
+
+        # If current sizes are from original state, use them as reference
+        original_sizes = self.original_state.get("size", sizes)
+        original_sizes = np.broadcast_to(original_sizes, sizes.shape)
+
+        for i in range(len(sizes)):
+            if i in indices_to_hide:
+                # Hide these nodes
+                sizes[i] = 0
+            elif sizes[i] == 0:
+                # Restore previously hidden nodes that should now be visible
+                sizes[i] = original_sizes[i]
+
+        self.layer.size = sizes
+        # Don't modify selected_data - keep current selection unchanged
 
     def reset_visibility(self) -> None:
         """Restore original sizes and clear selection."""
         if "size" in self.original_state:
             self.layer.size = self.original_state["size"].copy()
         self.layer.selected_data = set()
+
+    def update_original_size(self, new_size) -> None:
+        """Update the original size state when user deliberately changes size."""
+        if hasattr(new_size, "copy"):
+            self.original_state["size"] = new_size.copy()
+        else:
+            self.original_state["size"] = new_size
 
     def select_nodes(self, node_ids: list[int]) -> None:
         """Select nodes without hiding others."""
@@ -300,6 +340,45 @@ class SurfaceAdapter(LayerAdapter):
 
         self.layer.vertex_colors = vertex_colors
 
+    def hide_nodes(self, node_ids_to_hide: list[int]) -> None:
+        """Hide specific nodes by setting their alpha to 0."""
+        if not hasattr(self.layer, "vertex_colors"):
+            return
+
+        # Get vertex ranges for nodes to hide
+        vertex_indices_to_hide = set()
+        for node_id in node_ids_to_hide:
+            if node_id in self.node_to_vertex_range:
+                start_idx, end_idx = self.node_to_vertex_range[node_id]
+                vertex_indices_to_hide.update(range(start_idx, end_idx))
+
+        # Ensure we have vertex colors and alpha channel
+        vertex_colors = self.layer.vertex_colors
+        if vertex_colors is None:
+            # Create default colors (white) for all vertices
+            num_vertices = len(self.layer.data[0])  # data[0] is vertices
+            vertex_colors = np.ones((num_vertices, 4))  # RGBA
+        elif vertex_colors.shape[1] == 3:
+            # Add alpha channel
+            alpha = np.ones((vertex_colors.shape[0], 1))
+            vertex_colors = np.hstack([vertex_colors, alpha])
+
+        vertex_colors = vertex_colors.copy()
+
+        # Set alpha: hidden vertices = 0.0, others keep their current alpha (or restore to 1.0 if 0)
+        original_vertex_colors = self.original_state.get("vertex_colors")
+        for i in range(vertex_colors.shape[0]):
+            if i in vertex_indices_to_hide:
+                vertex_colors[i, 3] = 0.0
+            elif vertex_colors[i, 3] == 0.0:
+                # Restore previously hidden vertices
+                if original_vertex_colors is not None and i < len(original_vertex_colors):
+                    vertex_colors[i, 3] = original_vertex_colors[i, 3]
+                else:
+                    vertex_colors[i, 3] = 1.0
+
+        self.layer.vertex_colors = vertex_colors
+
     def reset_visibility(self) -> None:
         """Restore original vertex colors and blending."""
         if "vertex_colors" in self.original_state:
@@ -373,6 +452,36 @@ class TracksAdapter(LayerAdapter):
         else:
             # Fallback: adjust opacity
             self.layer.opacity = 0.8 if node_ids else 0.1
+
+    def hide_nodes(self, node_ids_to_hide: list[int]) -> None:
+        """Hide specific tracks."""
+        if hasattr(self.layer, "shown"):
+            # Get track IDs for nodes to hide
+            track_ids_to_hide = set()
+            for node_id in node_ids_to_hide:
+                if node_id in self.node_to_napari:
+                    track_ids_to_hide.add(self.node_to_napari[node_id])
+
+            # Get current visibility state
+            shown = (
+                self.layer.shown.copy() 
+                if hasattr(self.layer.shown, "copy")
+                else np.array(self.layer.shown)
+            )
+
+            # Hide specified tracks, restore others if they were hidden
+            original_shown = self.original_state.get("shown")
+            for track_id in range(len(shown)):
+                if track_id in track_ids_to_hide:
+                    shown[track_id] = False
+                elif not shown[track_id] and original_shown is not None and track_id < len(original_shown):
+                    # Restore previously hidden tracks that should now be visible
+                    shown[track_id] = original_shown[track_id]
+
+            self.layer.shown = shown
+        else:
+            # Fallback: adjust opacity
+            self.layer.opacity = 0.3
 
     def reset_visibility(self) -> None:
         """Restore original track visibility."""
@@ -572,13 +681,15 @@ class InteractionBridge:
 
     def hide_lineages(self, node_ids_to_hide: list[int]) -> None:
         """Hide specific lineages while showing all others."""
-        # Get all available node IDs from the Points layer
-        if "points" in self.adapters:
-            points_adapter = self.adapters["points"]
-            all_node_ids = set(points_adapter.napari_to_node.values())
-            # Show everything except the specified lineages
-            visible_node_ids = list(all_node_ids - set(node_ids_to_hide))
-            self.show_only_nodes(visible_node_ids)
+        # Use the new hide_nodes method for all adapters to avoid unwanted selection
+        for adapter in self.adapters.values():
+            if hasattr(adapter, "hide_nodes"):
+                adapter.hide_nodes(node_ids_to_hide)
+            else:
+                # Fallback for adapters that don't have hide_nodes yet
+                all_node_ids = set(adapter.napari_to_node.values())
+                visible_node_ids = list(all_node_ids - set(node_ids_to_hide))
+                adapter.show_only_nodes(visible_node_ids)
 
     def highlight_lineages(self, node_ids: list[int]) -> None:
         """Highlight the specified lineages. For Points, this selects them without hiding others."""
@@ -670,6 +781,11 @@ class InteractionBridge:
     def update_state(self, **kwargs) -> None:
         """Save state parameters for this lineage tree."""
         self.state.update(kwargs)
+
+    def update_original_size(self, new_size) -> None:
+        """Update the original size state in Points adapter when user changes size."""
+        if "points" in self.adapters:
+            self.adapters["points"].update_original_size(new_size)
 
     def get_state(self, key: str = None):
         """Get state value(s) for this lineage tree."""
