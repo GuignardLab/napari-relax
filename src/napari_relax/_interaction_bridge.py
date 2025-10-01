@@ -434,54 +434,11 @@ class TracksAdapter(LayerAdapter):
 
     def show_only_nodes(self, node_ids: list[int]) -> None:
         """Show only specified tracks."""
-        # For tracks, we can use the layer's shown property if available
-        if hasattr(self.layer, "shown"):
-            # Get track IDs for visible nodes
-            visible_track_ids = set()
-            for node_id in node_ids:
-                if node_id in self.node_to_napari:
-                    visible_track_ids.add(self.node_to_napari[node_id])
-
-            # Set visibility for all tracks
-            shown = np.zeros_like(self.layer.shown, dtype=bool)
-            for track_id in visible_track_ids:
-                if track_id < len(shown):
-                    shown[track_id] = True
-
-            self.layer.shown = shown
-        else:
-            # Fallback: adjust opacity
-            self.layer.opacity = 0.8 if node_ids else 0.1
+        pass
 
     def hide_nodes(self, node_ids_to_hide: list[int]) -> None:
         """Hide specific tracks."""
-        if hasattr(self.layer, "shown"):
-            # Get track IDs for nodes to hide
-            track_ids_to_hide = set()
-            for node_id in node_ids_to_hide:
-                if node_id in self.node_to_napari:
-                    track_ids_to_hide.add(self.node_to_napari[node_id])
-
-            # Get current visibility state
-            shown = (
-                self.layer.shown.copy() 
-                if hasattr(self.layer.shown, "copy")
-                else np.array(self.layer.shown)
-            )
-
-            # Hide specified tracks, restore others if they were hidden
-            original_shown = self.original_state.get("shown")
-            for track_id in range(len(shown)):
-                if track_id in track_ids_to_hide:
-                    shown[track_id] = False
-                elif not shown[track_id] and original_shown is not None and track_id < len(original_shown):
-                    # Restore previously hidden tracks that should now be visible
-                    shown[track_id] = original_shown[track_id]
-
-            self.layer.shown = shown
-        else:
-            # Fallback: adjust opacity
-            self.layer.opacity = 0.3
+        pass
 
     def reset_visibility(self) -> None:
         """Restore original track visibility."""
