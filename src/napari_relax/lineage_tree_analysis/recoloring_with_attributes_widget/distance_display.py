@@ -5,6 +5,9 @@ from magicgui import widgets
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
+from napari.utils.colormaps import AVAILABLE_COLORMAPS
+from .custom_colorboxes.discrete_colorbox import QUANTITATIVE_CMAPS
+
 from napari.layers import Points
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QLabel, QTabWidget, QVBoxLayout, QWidget
@@ -12,6 +15,7 @@ from qtpy.QtWidgets import QLabel, QTabWidget, QVBoxLayout, QWidget
 from ..._util_classes import LayerCorrectorTreeProducer
 from ..._utils import _select_correct_layer
 from .coloring import Coloring
+from .custom_colorboxes.discrete_colorbox import DiscreteColorbox
 
 
 class DisplayDistances(LayerCorrectorTreeProducer):
@@ -65,7 +69,7 @@ class DisplayDistances(LayerCorrectorTreeProducer):
         if starting_time < min_t:
             starting_time = min_t
         colors = np.zeros((active_layer.data.shape[0], 4))
-        cmap = mpl.colormaps[self.cmap_choice.value]
+        cmap = QUANTITATIVE_CMAPS[self.cmap_choice.currentData()]
         if active_layer.face_color_mode != "direct":
             active_layer.face_color_mode = "direct"
         for i, c in enumerate(self.time_nodes[starting_time]):
@@ -115,18 +119,22 @@ class DisplayDistances(LayerCorrectorTreeProducer):
         )
 
         recolor_text = widgets.Label(value="Color map:")
-        self.cmap_choice = widgets.ComboBox(
-            value="Accent", choices=self.qualitative_cmaps
-        )
+        self.combobox = DiscreteColorbox(self)
+        self.cmap_choice = self.combobox.combobox_continuous
+        # self.cmap_choice = widgets.ComboBox(
+        #     value="Accent", choices=self.qualitative_cmaps
+        # )
+        self.combobox.native = self.combobox
         cmap = widgets.Container(
             widgets=[
                 recolor_text,
-                self.cmap_choice,
+                self.combobox,
             ],
             labels=False,
             layout="horizontal",
         )
         self.do_color = widgets.Button(text="Recolor Clones")
+
         w2 = widgets.Container(
             widgets=[
                 cmap,
