@@ -5,8 +5,9 @@ description = "A plugin to visualise and manipulate cell lineage trees"
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
-  {name = "Léo Guignard"},
-  {email = "leo.guignard@univ-amu.fr"},
+  {name = "Léo Guignard", email = "leo.guignard@univ-amu.fr"},
+  {name = "Giannis Liaskas"},
+  {name = "Jules Vanaret"},
 ]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",

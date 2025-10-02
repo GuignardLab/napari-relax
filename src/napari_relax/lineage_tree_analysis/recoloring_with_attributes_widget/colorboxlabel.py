@@ -17,7 +17,6 @@ if TYPE_CHECKING:
 
 
 class ColorBoxLabel(QWidget):
-
     def __init__(self, parent: QWidget):
         super().__init__(parent)
         self.combobox_continuous = QtColormapComboBox(self)
