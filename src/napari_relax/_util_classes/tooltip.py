@@ -8,4 +8,5 @@ class TooltipButton(QPushButton):
         self.setFixedSize(30, 30)
         self.setCheckable(False)
         self.setToolTip(tooltip)
+        self.toolTip
         self.setChecked(True)
