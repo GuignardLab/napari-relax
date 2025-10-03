@@ -380,7 +380,10 @@ class AttributeColoringWidget(LineageTreeWidgetBase):
 
         self.combobox = QComboBox()
         self.combobox.addItems(
-            ["QuantitativeColoringWidget", "QualitativeColoringWidget"]
+            [
+                "Coloring based on Quantitative Attributes", 
+                "Coloring based on Qualitative Attributes"
+            ]
         )
         stack = QStackedWidget()
         self.quant = QuantitativeColoringWidget(napari_viewer)
