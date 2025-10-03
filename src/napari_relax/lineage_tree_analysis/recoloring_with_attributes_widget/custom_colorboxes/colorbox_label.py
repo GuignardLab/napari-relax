@@ -1,8 +1,10 @@
 from typing import TYPE_CHECKING
 
 import numpy as np
-from napari._qt.layer_controls.qt_colormap_combobox import QtColormapComboBox
-from napari.utils.colormaps import AVAILABLE_COLORMAPS
+from napari._qt.layer_controls.widgets.qt_colormap_control import (
+    QtColormapComboBox,
+)
+from napari.utils.colormaps import ALL_COLORMAPS
 from qtpy.QtGui import QIcon, QImage, QPixmap
 from qtpy.QtWidgets import (
     QPushButton,
@@ -10,7 +12,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from ..._util_classes import (
+from ...._util_classes import (
     Containerize,
 )
 
@@ -19,11 +21,17 @@ if TYPE_CHECKING:
 
 
 class ColorBoxLabel(QWidget):
+    """A colorbox label that uses the naparis colormaps.
+    If matplotlib is being used, or any other library that works like matplotlib
+    use MatplotlibCompatibleCombobox.
+
+    """
+
     def __init__(self, parent: QWidget):
         super().__init__(parent)
         self.combobox_continuous = QtColormapComboBox(self)
         self.combobox_continuous.setObjectName("colormapcombobox")
-        for name, cm in AVAILABLE_COLORMAPS.items():
+        for name, cm in ALL_COLORMAPS.items():
             self.combobox_continuous.addItem(cm._display_name, name)
         self.color_label = QPushButton(self)
         self.combobox_continuous.currentTextChanged.connect(
@@ -40,7 +48,7 @@ class ColorBoxLabel(QWidget):
         n_samples = 256
         height = self.combobox_continuous.height()
         gradient = np.tile(np.linspace(0, 1, n_samples), (height, 1))
-        cmap = AVAILABLE_COLORMAPS[self.combobox_continuous.currentData()]
+        cmap = ALL_COLORMAPS[self.combobox_continuous.currentData()]
         colors = (cmap.map(gradient) * 255).astype(np.uint8)
         h, w, ch = colors.shape
         qimage = QImage(colors.data, w, height, ch * w, QImage.Format_RGBA8888)
