@@ -106,12 +106,31 @@ class LineageCanvas(FigureCanvas):
         lT: LineageTree = None,
         lnks_tms=None,
         hier: dict | None = None,
-        do_super=True,
         previous_state=False,
         old_nodes=None,
         points_layer_metadata=None,
     ):
+        # Initialize as a matplotlib FigureCanvas
+        super().__init__(figure)
+        
         # Load user preferences and apply them to this instance
+        self._load_user_preferences()
+        
+        # Initialize the lineage data if provided
+        if root is not None and (lT or lnks_tms, hier):
+            self._initialize_lineage_data(
+                ax=ax,
+                root=root,
+                lT=lT,
+                lnks_tms=lnks_tms,
+                hier=hier,
+                previous_state=previous_state,
+                old_nodes=old_nodes,
+                points_layer_metadata=points_layer_metadata,
+            )
+            
+    def _load_user_preferences(self):
+        """Load and apply user canvas preferences."""
         user_prefs = _get_user_canvas_preferences()
         self.color_of_nodes = user_prefs.get("color_of_edges", "black")  # Use edge color for nodes too in normal mode
         self.color_of_edges = user_prefs["color_of_edges"]
@@ -120,73 +139,134 @@ class LineageCanvas(FigureCanvas):
         self.fontsize = user_prefs["fontsize"]
         self.color_of_selection_nodes = user_prefs["color_of_selection"]
         self.color_of_selection_edges = user_prefs["color_of_selection"]
+
+    def _initialize_lineage_data(
+        self,
+        ax,
+        root,
+        lT: LineageTree,
+        lnks_tms,
+        hier,
+        previous_state=False,
+        old_nodes=None,
+        points_layer_metadata=None,
+    ):
+        """Initialize the canvas with lineage data and setup the graph."""
+        self.ax = ax
+        self.selected_node = []
+        self.root = root
+        self.lnks_tms = lnks_tms
+        self.graph = lnks_tms
+        self.lT = lT
+        self.pos = hier
+        self.points_layer_metadata = points_layer_metadata
+
+        # Set up initial selection state
+        if previous_state and old_nodes:
+            # Preserve the previous selection state
+            self.selected_subtree = old_nodes
+        else:
+            self.selected_subtree = set()
+
+        # Initialize marked cell for circle highlighting
+        self.marked_cell_id = None
         
-        if do_super:
-            super().__init__(figure)
-        if root is not None and (lT or lnks_tms, hier):
-            self.ax = ax
-            self.selected_node = []
-            self.root = root
-            self.lnks_tms = lnks_tms
-            self.graph = lnks_tms
-            self.lT = lT
-            self.pos = hier
-            self.points_layer_metadata = points_layer_metadata
+        # Set up matplotlib event connections
+        self.mpl_connect("button_press_event", self.click)
+        self.mpl_connect("button_press_event", self.pan_start)
+        self.mpl_connect("button_release_event", self.pan_stop)
+        self.mpl_connect("motion_notify_event", self.panning)
+        self.mpl_connect("scroll_event", self.scroll)
+        self.mpl_connect("key_press_event", self.reset)
+        self.pan = False
+        self.labels = False
 
-            # Extract colors from the reader metadata if available
-            reader_color = self._extract_node_colors_from_reader()
+        # Configure figure layout
+        self.figure.subplots_adjust(
+            wspace=0,
+            hspace=0,
+            top=1,
+            bottom=0,
+            right=1,
+            left=0,
+        )
+        
+        # Perform initial drawing with basic parameters to establish bounds
+        self._draw_initial_graph()
+        
+        # After initial drawing, store the bounds for pan/zoom constraints and reset
+        self._store_initial_bounds()
 
-            # Use reader color as default color if available, otherwise fallback to user preferences
-            default_color = (
-                reader_color
-                if reader_color is not None
-                else self.color_of_nodes
-            )
+    def _draw_initial_graph(self):
+        """Draw the initial graph with basic parameters to establish axis bounds."""
+        if not hasattr(self, "ax") or self.ax is None or not hasattr(self, "lT"):
+            return
+            
+        # Extract colors for the initial drawing
+        color_info = self._extract_current_lineage_color()
+        reader_color = self._extract_node_colors_from_reader()
+        
+        if color_info and color_info.get("color"):
+            default_color = color_info["color"]
+        elif reader_color is not None:
+            default_color = reader_color
+        else:
+            default_color = self.color_of_nodes
 
-            self.lT.draw_tree_graph(
-                self.pos,
-                self.graph,
-                ax=self.ax,
-                color_of_edges=self.color_of_edges,  # Use fixed edge color from user settings
-                default_color=default_color,
-                # Note: No color_of_nodes provided - let default_color handle node colors from points layer
-                # Note: No selected_nodes/selected_edges parameters in initial draw
-            )
-            self.draw()
-            self.xlim = self.ax.get_xlim()
-            self.ylim = self.ax.get_ylim()
-            self.xmax = self.xlim[1]
-            self.xmin = self.xlim[0]
-            self.ymax = self.ylim[1]
-            self.ymin = self.ylim[0]
-            self.lims_of_tree = np.array(list(self.pos.values()))[:, 1]
-            self.xlim_min = (self.xlim[1] - self.xlim[0]) / 50
-            self.xlim_max = self.xlim[1] - self.xlim[0]
-            self.mpl_connect("button_press_event", self.click)
-            self.mpl_connect("button_press_event", self.pan_start)
-            self.mpl_connect("button_release_event", self.pan_stop)
-            self.mpl_connect("motion_notify_event", self.panning)
-            self.mpl_connect("scroll_event", self.scroll)
-            self.mpl_connect("key_press_event", self.reset)
-            self.pan = False
-            self.labels = False
-            if previous_state and old_nodes:
-                # Preserve the previous selection state
-                self.selected_subtree = old_nodes
-            else:
-                self.selected_subtree = set()
+        # Draw the graph with basic parameters
+        self.lT.draw_tree_graph_relax(
+            hier=self.pos,
+            lnks_tms=self.lnks_tms,
+            color_of_nodes=default_color,
+            color_of_edges=self.color_of_edges,
+            selected_nodes=self.selected_subtree,
+            color_of_selection=self.color_of_selection_nodes,
+            size=float(self.node_size),
+            lw=float(self.lw),
+            ax=self.ax,
+        )
+        
+        # Draw the canvas to establish proper bounds
+        self.draw()
 
-            # Initialize marked cell for circle highlighting
-            self.marked_cell_id = None
-            self.figure.subplots_adjust(
-                wspace=0,
-                hspace=0,
-                top=1,
-                bottom=0,
-                right=1,
-                left=0,
-            )
-            self.draw_graph()
+    def _store_initial_bounds(self):
+        """Store the initial graph bounds for pan/zoom constraints and reset functionality."""
+        if hasattr(self, "ax") and self.ax is not None:
+            self.initial_xlim = self.ax.get_xlim()
+            self.initial_ylim = self.ax.get_ylim()
+            # Store tree Y limits for timeline functionality
+            if hasattr(self, "pos") and self.pos:
+                self.lims_of_tree = np.array(list(self.pos.values()))[:, 1]
+
+    def _get_bounds_info(self):
+        """Get current and initial bounds information for interactions.
+        
+        Returns:
+            dict: Contains current and initial xlim/ylim, and computed boundaries
+        """
+        if not hasattr(self, "ax") or self.ax is None:
+            return None
+            
+        current_xlim = self.ax.get_xlim()
+        current_ylim = self.ax.get_ylim()
+        
+        # Use initial bounds if available, otherwise current bounds
+        initial_xlim = getattr(self, "initial_xlim", current_xlim)
+        initial_ylim = getattr(self, "initial_ylim", current_ylim)
+        
+        return {
+            "current_xlim": current_xlim,
+            "current_ylim": current_ylim,
+            "initial_xlim": initial_xlim,
+            "initial_ylim": initial_ylim,
+            "xmin": initial_xlim[0],
+            "xmax": initial_xlim[1],
+            "ymin": initial_ylim[0],
+            "ymax": initial_ylim[1],
+            "full_width": initial_xlim[1] - initial_xlim[0],
+            "full_height": initial_ylim[1] - initial_ylim[0],
+            "label_threshold": (initial_xlim[1] - initial_xlim[0]) / 50 + 70,
+        }
 
     def _get_actual_root(self):
         """Get the actual root node ID from the graph structure.
@@ -235,6 +315,32 @@ class LineageCanvas(FigureCanvas):
         else:
             return list(color)
 
+    def _convert_color_to_hex(self, color):
+        """Convert RGB color values to hex string format.
+
+        Args:
+            color: Color in various formats (numpy array, list, tuple)
+                  Values should be in 0-1 range (matplotlib format)
+
+        Returns:
+            str: Hex color string (e.g., "#ff0000")
+        """
+        if hasattr(color, "tolist"):
+            color = color.tolist()
+        elif not isinstance(color, (list, tuple)):
+            color = [color]
+
+        # Ensure we have at least 3 values
+        if len(color) < 3:
+            return "#000000"  # Default to black
+
+        # Convert to 0-255 range and then to hex
+        r = int(min(255, max(0, color[0] * 255)))
+        g = int(min(255, max(0, color[1] * 255)))
+        b = int(min(255, max(0, color[2] * 255)))
+        
+        return f"#{r:02x}{g:02x}{b:02x}"
+
     def _extract_node_colors_from_reader(self):
         """Extract node colors from the Points layer metadata created by the reader.
 
@@ -257,8 +363,8 @@ class LineageCanvas(FigureCanvas):
         if actual_root in lT2napari:
             napari_idx = lT2napari[actual_root]
             if napari_idx < len(clone2):
-                # Convert numpy array to tuple to avoid LineageTree issues
-                return self._convert_color_to_list(clone2[napari_idx])
+                # Convert to hex string for the new function
+                return self._convert_color_to_hex(clone2[napari_idx])
 
         return None
 
@@ -317,7 +423,7 @@ class LineageCanvas(FigureCanvas):
         is_uniform = all(color[:3] == first_color for color in lineage_colors)
 
         return {
-            "color": first_color,
+            "color": self._convert_color_to_hex(first_color),
             "is_uniform": is_uniform,
         }
 
@@ -338,19 +444,24 @@ class LineageCanvas(FigureCanvas):
             color = self._convert_color_to_list(clone2[napari_idx])
 
             return {
-                "color": color[:3],
+                "color": self._convert_color_to_hex(color[:3]),
                 "is_uniform": True,  # Original colors are always uniform per lineage
             }
 
     def time_line(self, time):
         if hasattr(self, "ax") and self.ax:
+            bounds = self._get_bounds_info()
+            if bounds is None:
+                return
+                
             time = time.value[0]
             zorder = max([_.zorder for _ in self.ax.get_children()]) + 1
+            
             if not hasattr(self, "line"):
                 (self.line,) = self.ax.plot(
                     [
-                        self.xmin,
-                        self.xmax,
+                        bounds["xmin"],
+                        bounds["xmax"],
                     ],
                     [
                         -time - self.lT.t_b,
@@ -364,10 +475,12 @@ class LineageCanvas(FigureCanvas):
                 self.line.set_visible(True)
 
             if hasattr(self, "line") and self.line in self.ax.lines:
-                if (
-                    min(self.lims_of_tree)
+                # Check if time is within tree limits
+                tree_limits = getattr(self, "lims_of_tree", None)
+                if tree_limits is not None and (
+                    min(tree_limits)
                     <= -time - self.lT.t_b
-                    <= max(self.lims_of_tree)
+                    <= max(tree_limits)
                 ):
                     self.line.set_ydata(
                         [
@@ -377,8 +490,8 @@ class LineageCanvas(FigureCanvas):
                     )
                     self.line.set_xdata(
                         [
-                            self.xmin,
-                            self.xmax,
+                            bounds["xmin"],
+                            bounds["xmax"],
                         ]
                     )
                     self.line.set_visible(True)
@@ -388,8 +501,8 @@ class LineageCanvas(FigureCanvas):
             else:
                 (self.line,) = self.ax.plot(
                     [
-                        self.xmin,
-                        self.xmax,
+                        bounds["xmin"],
+                        bounds["xmax"],
                     ],
                     [
                         -time - self.lT.t_b,
@@ -415,6 +528,11 @@ class LineageCanvas(FigureCanvas):
         change=False,
         points_layer_metadata=None,
     ):
+        """Change the lineage displayed in the canvas.
+        
+        This method updates the canvas to display a new lineage while preserving
+        the current selection state if applicable.
+        """
         # Preserve selected nodes if they exist
         if (
             hasattr(self, "selected_subtree")
@@ -426,14 +544,13 @@ class LineageCanvas(FigureCanvas):
             old_nodes = set()
             preserve_state = False
             
-        self.__init__(
-            figure,
-            ax,
-            root,
-            lT,
-            lnks_tms,
-            hier,
-            change,
+        # Re-initialize with new lineage data
+        self._initialize_lineage_data(
+            ax=ax,
+            root=root,
+            lT=lT,
+            lnks_tms=lnks_tms,
+            hier=hier,
             previous_state=preserve_state,
             old_nodes=old_nodes,
             points_layer_metadata=points_layer_metadata,
@@ -441,12 +558,18 @@ class LineageCanvas(FigureCanvas):
 
     def click(self, event):
         if event.button == 1 and event.inaxes and self.lT:
+            bounds = self._get_bounds_info()
+            if bounds is None:
+                return
+                
             plt.close("all")
             self.selected_node = []
             kdtree = KDTree(list(self.pos.values()))
             dist, ind = kdtree.query([event.xdata, event.ydata])
-            max_x = self.xmin, self.xmax
-            max_y = self.ymin, self.ymax
+            
+            # Calculate click tolerance based on current view
+            max_x = bounds["xmin"], bounds["xmax"]
+            max_y = bounds["ymin"], bounds["ymax"]
             max_dist = (
                 np.sqrt(
                     (max_x[1] - max_x[0]) ** 2 + (max_y[1] - max_y[0]) ** 2
@@ -486,13 +609,19 @@ class LineageCanvas(FigureCanvas):
 
     def panning(self, event):
         if self.pan and event.button == 3 and event.inaxes:
+            bounds = self._get_bounds_info()
+            if bounds is None:
+                return
+                
             dx = event.xdata - self.starting_pos[0]
             dy = event.ydata - self.starting_pos[1]
             self.xlims_on_click -= dx
             self.ylims_on_click -= dy
+            
+            # Constrain panning to initial bounds
             if (
-                self.xlim[0] <= self.xlims_on_click[0]
-                and self.xlims_on_click[1] <= self.xlim[1]
+                bounds["xmin"] <= self.xlims_on_click[0]
+                and self.xlims_on_click[1] <= bounds["xmax"]
             ):
                 self.ax.set_xlim(self.xlims_on_click)
                 self.ax.set_ylim(self.ylims_on_click)
@@ -506,30 +635,41 @@ class LineageCanvas(FigureCanvas):
     def scroll(self, event):
         if not event.inaxes:
             return
+            
+        bounds = self._get_bounds_info()
+        if bounds is None:
+            return
+            
         scale = 1.2 if event.button == "down" else 1 / 1.2
         xlim = self.ax.get_xlim()
         ylim = self.ax.get_ylim()
         x, y = event.xdata, event.ydata
         new_width = (xlim[1] - xlim[0]) * scale
         new_height = (ylim[1] - ylim[0]) * scale
-        if new_width > (self.xlim[1] - self.xlim[0]):
-            new_x_left, new_x_right = self.xlim
+        
+        # Constrain to initial bounds
+        if new_width > bounds["full_width"]:
+            new_x_left, new_x_right = bounds["initial_xlim"]
         else:
             new_x_left = x - new_width * (x - xlim[0]) / (xlim[1] - xlim[0])
             new_x_right = x + new_width * (xlim[1] - x) / (xlim[1] - xlim[0])
-            new_x_left = max(new_x_left, self.xlim[0])
-            new_x_right = min(new_x_right, self.xlim[1])
-        if new_height > (self.ylim[1] - self.ylim[0]):
-            new_y_bottom, new_y_top = self.ylim
+            new_x_left = max(new_x_left, bounds["xmin"])
+            new_x_right = min(new_x_right, bounds["xmax"])
+            
+        if new_height > bounds["full_height"]:
+            new_y_bottom, new_y_top = bounds["initial_ylim"]
         else:
             new_y_bottom = y - new_height * (y - ylim[0]) / (ylim[1] - ylim[0])
             new_y_top = y + new_height * (ylim[1] - y) / (ylim[1] - ylim[0])
-            new_y_bottom = max(new_y_bottom, self.ylim[0])
-            new_y_top = min(new_y_top, self.ylim[1])
+            new_y_bottom = max(new_y_bottom, bounds["ymin"])
+            new_y_top = min(new_y_top, bounds["ymax"])
+            
         self.ax.set_xlim([new_x_left, new_x_right])
         self.ax.set_ylim([new_y_bottom, new_y_top])
         self.draw_idle()
-        if new_width <= self.xlim_min + 70 and not self.labels:
+        
+        # Handle label display based on zoom level
+        if new_width <= bounds["label_threshold"] and not self.labels:
             for node, pos in self.pos.items():
                 if xlim[0] < pos[0] < xlim[1] and ylim[0] < pos[1] < ylim[1]:
                     self.ax.text(
@@ -543,7 +683,7 @@ class LineageCanvas(FigureCanvas):
                         rotation=34,
                     )
             self.labels = True
-        elif new_width > self.xlim_min + 70 and self.labels:
+        elif new_width > bounds["label_threshold"] and self.labels:
             for text in self.ax.texts:
                 text.remove()
             self.labels = False
@@ -553,14 +693,35 @@ class LineageCanvas(FigureCanvas):
         # Safety check: Don't draw if canvas is not properly initialized
         if not hasattr(self, "ax") or self.ax is None:
             return
+            
+        # Don't draw if we don't have lineage data
+        if not hasattr(self, "lT") or self.lT is None:
+            return
+            
+        # Don't draw if we don't have position data
+        if not hasattr(self, "pos") or not self.pos:
+            return
 
-        if not reset:
+        bounds = self._get_bounds_info()
+        if bounds is None:
+            # Fallback: use current axis limits if bounds not yet established
             xlim = self.ax.get_xlim()
             ylim = self.ax.get_ylim()
+            # Use a simple threshold for labels when bounds are not available
+            current_width = xlim[1] - xlim[0]
+            with_labels = current_width <= 70  # Simple fallback threshold
         else:
-            xlim = self.xlim
-            ylim = self.ylim
-        with_labels = (xlim[1] - xlim[0]) <= self.xlim_min + 70
+            if not reset:
+                xlim = bounds["current_xlim"]
+                ylim = bounds["current_ylim"]
+            else:
+                xlim = bounds["initial_xlim"]
+                ylim = bounds["initial_ylim"]
+                
+            # Determine if labels should be shown based on zoom level
+            current_width = xlim[1] - xlim[0]
+            with_labels = current_width <= bounds["label_threshold"]
+            
         self.labels = with_labels
 
         # Handle selection highlighting for quantitative mode
@@ -588,42 +749,30 @@ class LineageCanvas(FigureCanvas):
                 else self.color_of_nodes
             )
 
-        # Choose colors based on whether we're in quantitative mode
-        if getattr(self, "is_quantitative_mode", False) and hasattr(
-            self, "node_colors"
-        ):
-            # Use individual colors from quantitative coloring (dictionary format) for nodes only
-            color_of_nodes = self.node_colors
-        elif self.selected_subtree:
-            # Normal mode with selections - use selection highlighting for nodes
-            color_of_nodes = self.color_of_selection_nodes
+        # Determine node colors based on mode
+        if getattr(self, "is_quantitative_mode", False) and hasattr(self, "node_colors"):
+            # Quantitative mode - use individual node colors from dictionary
+            node_colors = self.node_colors
         else:
-            # Normal mode without selections - don't override default_color, let nodes get their natural colors
-            color_of_nodes = None
+            # Default mode - use uniform color from points layer or fallback
+            color_info = self._extract_current_lineage_color()
+            if color_info and color_info.get("color"):
+                node_colors = color_info["color"]  # String color from points layer
+            else:
+                reader_color = self._extract_node_colors_from_reader()
+                node_colors = reader_color if reader_color is not None else self.color_of_nodes
 
-        # With LineageTree fix: Edge colors are now properly isolated
-        # Always use the user-configured edge color
-        color_of_edges = self.color_of_edges
-
-        # Build draw_tree_graph parameters - simplified thanks to LineageTree fix
-        draw_params = {
-            "lw": float(self.lw),
-            "size": float(self.node_size),
-            "color_of_edges": color_of_edges,  # Will not be contaminated by nodes anymore
-            "default_color": default_color,
-            "selected_nodes": self.selected_subtree,
-            "selected_edges": set(),  # Don't highlight edges - keep them at fixed color
-            "ax": self.ax,
-        }
-        
-        # Only provide color_of_nodes if we have specific node colors to apply
-        if color_of_nodes is not None:
-            draw_params["color_of_nodes"] = color_of_nodes
-
-        self.lT.draw_tree_graph(
-            self.pos,
-            self.lnks_tms,
-            **draw_params
+        # Call the new function
+        self.lT.draw_tree_graph_relax(
+            hier=self.pos,
+            lnks_tms=self.lnks_tms,
+            color_of_nodes=node_colors,  # Dict for quantitative, string for default
+            color_of_edges=self.color_of_edges,  # Always user preference
+            selected_nodes=self.selected_subtree,  # Highlighted nodes
+            color_of_selection=self.color_of_selection_nodes,  # Selection color
+            size=float(self.node_size),
+            lw=float(self.lw),
+            ax=self.ax,
         )
 
         # Draw circle marker for marked cell if specified
