@@ -37,6 +37,20 @@ if TYPE_CHECKING:
 def filter_dicts_of_objects_by_values(
     obj: object, type_of_object: type
 ) -> list[str]:
+    """Finds all attributes of a class if they are of one type.
+
+    Parameters
+    ----------
+    obj : object
+        Any class
+    type_of_object : type
+        The type that is to be pinponted
+
+    Returns
+    -------
+    list[str]
+        list of all the attributes
+    """
     attributes = []
     for attr in obj.__dict__:
         if (
@@ -61,6 +75,8 @@ def filter_dicts_of_objects_by_values(
 
 
 class LineeditCheckbox(QCheckBox):
+    """Custom lineedit box that only accepts floats
+    """
     def __init__(self, parent=None):
         super().__init__("Custom value", parent)
         self.lineedit = QLineEdit()
@@ -81,6 +97,13 @@ class LineeditCheckbox(QCheckBox):
 
 
 class MissingData(QWidget):
+    """How to handle missing data, it has 3 shown checkboxes and 4 hidden ones shown upon clicking on the last checkbox.
+
+    Parameters
+    ----------
+    QWidget : _type_
+        _description_
+    """
     def __init__(
         self,
         parent: QWidget | None = None,
@@ -156,6 +179,9 @@ class MissingData(QWidget):
 
 
 class Quantitative(LayerCorrectorTreeProducer):
+    """The widget to handle the different attributes.
+
+    """
     color_signal = Signal(dict)
 
     def __init__(self, napari_viewer):
@@ -204,7 +230,7 @@ class Quantitative(LayerCorrectorTreeProducer):
         active_layer = _select_correct_layer(self, Points)
         if active_layer is None:
             return
-        
+
         existing_nodes = set(self.lT.__getattribute__(attr).values())
         nonexistingnodes = set(active_layer.metadata["napari2lT"].values()) - existing_nodes
 
