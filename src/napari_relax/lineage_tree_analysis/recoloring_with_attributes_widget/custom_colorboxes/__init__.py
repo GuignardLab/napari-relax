@@ -1,5 +1,4 @@
 from .colorboxlabel import ColorBoxLabel
-from .discrete_colorbox import DiscreteColorbox
+from .matplotlibcompatiblecombobox import MatplotlibCompatibleColorCombobox
 
-
-__all__ = ("ColorBoxLabel", "DiscreteColorbox")
+__all__ = ("ColorBoxLabel", "MatplotlibCompatibleColorCombobox")

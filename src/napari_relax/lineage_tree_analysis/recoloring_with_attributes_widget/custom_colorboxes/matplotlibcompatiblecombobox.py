@@ -1,19 +1,19 @@
+from __future__ import annotations
 from typing import TYPE_CHECKING
 
+import matplotlib.cm as cm
 import numpy as np
-from qtpy.QtCore import QSize, QModelIndex, QRect, Qt
-from qtpy.QtGui import QIcon, QImage, QPixmap, QPainter
+from qtpy.QtCore import QModelIndex, QRect, QSize, Qt
+from qtpy.QtGui import QIcon, QImage, QPainter, QPixmap
 from qtpy.QtWidgets import (
-    QPushButton,
-    QVBoxLayout,
-    QWidget,
     QComboBox,
     QListView,
+    QPushButton,
     QStyledItemDelegate,
     QStyleOptionViewItem,
+    QVBoxLayout,
+    QWidget,
 )
-
-import matplotlib.cm as cm
 
 from ...._util_classes import Containerize
 
@@ -23,8 +23,9 @@ ENTRY_HEIGHT = 24
 PADDING = 2
 
 if TYPE_CHECKING:
-    pass
+    from matplotlib.colors import Colormap
 
+# Discrete matplotlib colormaps
 quant_cmap_names = [
     "Pastel1",
     "Pastel2",
@@ -43,13 +44,37 @@ quant_cmap_names = [
 QUANTITATIVE_CMAPS = {name: cm.get_cmap(name) for name in quant_cmap_names}
 
 
-class DiscreteColorbox(QWidget):
-    def __init__(self, parent: QWidget = None):
-        super().__init__(parent)
-        self.combobox_continuous = CustomQtColormapComboBox(self)
-        self.combobox_continuous.setObjectName("colormapcombobox")
+def make_image(cmap: Colormap, width: int = 64, height: int = 12) -> QImage:
+    gradient = np.tile(np.linspace(0, 1, width), (height, 1))
+    colors = (cmap(gradient) * 255).astype(np.uint8)
+    h, w, ch = colors.shape
+    qimage = QImage(colors.data, w, h, ch * w, QImage.Format_RGBA8888)
+    return qimage
 
-        for name in QUANTITATIVE_CMAPS:
+
+class MatplotlibCompatibleColorCombobox(QWidget):
+    def __init__(
+        self, parent: QWidget = None, dict_of_cmaps: dict[str, Colormap] = None
+    ):
+        """Creates the discrete colorbox
+
+        Parameters
+        ----------
+        dict_of_cmaps : dict[str, Colormap]
+            Any dictionary that works the same way as matplotlib colormaps work, by default None.
+        parent : QWidget, optional
+            The parent widget, by default None
+        """
+        super().__init__(parent)
+        if dict_of_cmaps is None:
+            self.dict_of_cmaps = QUANTITATIVE_CMAPS
+        else:
+            self.dict_of_cmaps = dict_of_cmaps
+        self.combobox_continuous = CustomQtColormapComboBox(
+            self, dict_of_cmaps
+        )
+        self.combobox_continuous.setObjectName("colormapcombobox")
+        for name in self.dict_of_cmaps:
             self.combobox_continuous.addItem(name, name)
 
         self.color_label = QPushButton(self)
@@ -70,24 +95,43 @@ class DiscreteColorbox(QWidget):
         cmap_name = self.combobox_continuous.currentData()
         if not cmap_name:
             return
-        cmap = QUANTITATIVE_CMAPS[cmap_name]
+        cmap = self.dict_of_cmaps[cmap_name]
         icon = self.make_icon(cmap, width=256, height=20)
         self.color_label.setIcon(icon)
         self.color_label.setIconSize(QSize(256, 20))
 
     def make_icon(self, cmap, width: int = 64, height: int = 12) -> QIcon:
-        gradient = np.tile(np.linspace(0, 1, width), (height, 1))
-        h, w, ch = colors.shape
-        qimage = QImage(colors.data, w, h, ch * w, QImage.Format_RGBA8888)
-        qimage = qimage.copy()
+        qimage = make_image(cmap, width=width, height=height)
         pixmap = QPixmap.fromImage(qimage)
         return QIcon(pixmap)
 
 
 class CustomColorStyledDelegate(QStyledItemDelegate):
-    def __init__(self, base_height: int, **kwargs):
+    """This is napari's colormap combobox, slightly modified to
+    accept matplotlib colormaps instead of only napari innate ones.
+    """
+
+    def __init__(
+        self,
+        base_height: int,
+        dict_of_cmaps: dict[str, Colormap] = None,
+        **kwargs,
+    ):
+        """Used for the custom colorcombobox.
+
+        Parameters
+        ----------
+        base_height : int
+            The height of the widget.
+        dict_of_cmaps : dict[str, Colormap]
+            Any dictionary that works the same way as matplotlib colormaps work, by default None.
+        """
         super().__init__(**kwargs)
         self.base_height = base_height
+        if dict_of_cmaps is None:
+            self.dict_of_cmaps = QUANTITATIVE_CMAPS
+        else:
+            self.dict_of_cmaps = dict_of_cmaps
 
     def paint(
         self,
@@ -114,17 +158,11 @@ class CustomColorStyledDelegate(QStyledItemDelegate):
         super().paint(painter, option_copy, index)
 
         cmap_name = index.data(Qt.UserRole)
-        if cmap_name not in QUANTITATIVE_CMAPS:
+        if cmap_name not in self.dict_of_cmaps:
             return
-        cmap = QUANTITATIVE_CMAPS[cmap_name]
 
-        gradient = np.tile(
-            np.linspace(0, 1, cbar_rect.width()), (cbar_rect.height(), 1)
-        )
-        colors = (cmap(gradient) * 255).astype(np.uint8)
-        h, w, ch = colors.shape
-        qimage = QImage(colors.data, w, h, ch * w, QImage.Format_RGBA8888)
-        qimage = qimage.copy()
+        cmap = self.dict_of_cmaps[cmap_name]
+        qimage = make_image(cmap, width=256, height=20)
         painter.drawImage(cbar_rect, qimage)
 
     def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex):
@@ -135,8 +173,21 @@ class CustomColorStyledDelegate(QStyledItemDelegate):
 
 
 class CustomQtColormapComboBox(QComboBox):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, dict_of_cmaps: dict[str, Colormap] = None):
+        """The custom color combobox.
+
+        Parameters
+        ----------
+        dict_of_cmaps : dict[str, Colormap]
+            Any dictionary that works the same way as matplotlib colormaps work, by default None.
+        parent : QWidget, optional
+            The parent widget, by default None
+        """
         super().__init__(parent)
+        if dict_of_cmaps is None:
+            self.dict_of_cmaps = QUANTITATIVE_CMAPS
+        else:
+            self.dict_of_cmaps = dict_of_cmaps
         view = QListView()
         view.setMinimumWidth(COLORMAP_WIDTH + TEXT_WIDTH)
         view.setItemDelegate(CustomColorStyledDelegate(ENTRY_HEIGHT))

@@ -1,13 +1,9 @@
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from magicgui import widgets
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
-from napari.utils.colormaps import AVAILABLE_COLORMAPS
-from .custom_colorboxes.discrete_colorbox import QUANTITATIVE_CMAPS
-
 from napari.layers import Points
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QLabel, QTabWidget, QVBoxLayout, QWidget
@@ -15,7 +11,10 @@ from qtpy.QtWidgets import QLabel, QTabWidget, QVBoxLayout, QWidget
 from ..._util_classes import LayerCorrectorTreeProducer
 from ..._utils import _select_correct_layer
 from .coloring import Coloring
-from .custom_colorboxes.discrete_colorbox import DiscreteColorbox
+from .custom_colorboxes.matplotlibcompatiblecombobox import (
+    QUANTITATIVE_CMAPS,
+    MatplotlibCompatibleColorCombobox,
+)
 
 
 class DisplayDistances(LayerCorrectorTreeProducer):
@@ -119,7 +118,7 @@ class DisplayDistances(LayerCorrectorTreeProducer):
         )
 
         recolor_text = widgets.Label(value="Color map:")
-        self.combobox = DiscreteColorbox(self)
+        self.combobox = MatplotlibCompatibleColorCombobox(self)
         self.cmap_choice = self.combobox.combobox_continuous
         # self.cmap_choice = widgets.ComboBox(
         #     value="Accent", choices=self.qualitative_cmaps

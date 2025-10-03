@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from napari._qt.layer_controls.qt_colormap_combobox import QtColormapComboBox
-from napari.utils.colormaps import ALL_COLORMAPS, categorical_colormap
+from napari.utils.colormaps import ALL_COLORMAPS
 from qtpy.QtGui import QIcon, QImage, QPixmap
 from qtpy.QtWidgets import (
     QPushButton,
@@ -19,6 +19,12 @@ if TYPE_CHECKING:
 
 
 class ColorBoxLabel(QWidget):
+    """A colorbox label that uses the naparis colormaps.
+    If matplotlib is being used, or any other library that works like matplotlib
+    use MatplotlibCompatibleCombobox.
+
+    """
+
     def __init__(self, parent: QWidget):
         super().__init__(parent)
         self.combobox_continuous = QtColormapComboBox(self)
