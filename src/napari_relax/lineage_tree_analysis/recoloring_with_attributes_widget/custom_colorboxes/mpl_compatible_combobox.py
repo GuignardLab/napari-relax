@@ -53,7 +53,7 @@ def make_image(cmap: Colormap, width: int = 64, height: int = 12) -> QImage:
     return qimage
 
 
-class MatplotlibCompatibleColorCombobox(QWidget):
+class MplCompatibleColorCombobox(QWidget):
     def __init__(
         self, parent: QWidget = None, dict_of_cmaps: dict[str, Colormap] = None
     ):

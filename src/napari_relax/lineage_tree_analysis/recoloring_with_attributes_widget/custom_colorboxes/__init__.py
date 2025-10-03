@@ -1,4 +1,4 @@
-from .colorboxlabel import ColorBoxLabel
-from .matplotlibcompatiblecombobox import MatplotlibCompatibleColorCombobox
+from .colorbox_label import ColorBoxLabel
+from .mpl_compatible_combobox import MplCompatibleColorCombobox
 
-__all__ = ("ColorBoxLabel", "MatplotlibCompatibleColorCombobox")
+__all__ = ("ColorBoxLabel", "MplCompatibleColorCombobox")

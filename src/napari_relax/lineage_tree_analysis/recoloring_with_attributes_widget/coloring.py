@@ -27,7 +27,7 @@ from ..._util_classes import (
     LayerCorrectorTreeProducer,
 )
 from ..._utils import _select_correct_layer
-from .custom_colorboxes.colorboxlabel import ColorBoxLabel
+from .custom_colorboxes.colorbox_label import ColorBoxLabel
 
 if TYPE_CHECKING:
     pass
