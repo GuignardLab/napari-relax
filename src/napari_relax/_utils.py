@@ -10,6 +10,63 @@ from qtpy.QtWidgets import (
 )
 
 
+def _convert_color_to_list(color):
+    """Normalize color to a list format.
+
+    Args:
+        color: Color in various formats (numpy array, list, tuple)
+
+    Returns:
+        list: Normalized color as list
+    """
+    if hasattr(color, "tolist"):
+        return color.tolist()
+    else:
+        return list(color)
+
+def _convert_color_to_hex(color):
+    """Convert RGB color values to hex string format.
+
+    Args:
+        color: Color in various formats (numpy array, list, tuple)
+                Values should be in 0-1 range (matplotlib format)
+
+    Returns:
+        str: Hex color string (e.g., "#ff0000")
+    """
+    color = _convert_color_to_list(color)
+
+    # Ensure we have at least 3 values
+    if len(color) < 3:
+        return "#000000"  # Default to black
+
+    # Convert to 0-255 range and then to hex
+    r = int(min(255, max(0, color[0] * 255)))
+    g = int(min(255, max(0, color[1] * 255)))
+    b = int(min(255, max(0, color[2] * 255)))
+    
+    return f"#{r:02x}{g:02x}{b:02x}"
+
+def _convert_hex_color_to_rgba(color, alpha=1.0):
+    """Convert hex color string to RGBA list format.
+
+    Args:
+        color: Hex color string (e.g., "#ff0000")
+        alpha: Alpha value (0-1 range)
+    Returns:
+        list: RGBA color as list (e.g., [255, 0,
+                0, 255] for red with full opacity)
+    """
+    if isinstance(color, str) and color.startswith("#") and len(color) == 7:
+        r = int(color[1:3], 16)
+        g = int(color[3:5], 16)
+        b = int(color[5:7], 16)
+        a = int(min(255, max(0, alpha * 255)))
+        return [r, g, b, a]
+    else:
+        raise ValueError("Invalid hex color format. Expected format: #RRGGBB")
+
+
 def _infer_point_size(lT: "LineageTree"):
     """
     Infer a point size based on nearest neighbor distances.
