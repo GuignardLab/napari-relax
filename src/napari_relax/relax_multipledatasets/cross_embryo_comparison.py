@@ -243,13 +243,15 @@ class EmbryoComparisonsWidget(BaseAnalysisWidget):
             node, lT, self.layers[lineagetree_name].metadata["graphs"][0]
         )
         ax.clear()
-        lT.draw_tree_graph(
-            self.layers[lineagetree_name].metadata["graphs"][1][index],
-            self.layers[lineagetree_name].metadata["graphs"][0][index],
+        lT.draw_tree_graph_relax(
+            hier=self.layers[lineagetree_name].metadata["graphs"][1][index],
+            lnks_tms=self.layers[lineagetree_name].metadata["graphs"][0][index],
+            color_of_nodes=color,  # Use uniform color for all nodes
+            color_of_edges=color,  # Use same color for edges
             selected_nodes=lT.get_subtree_nodes(node),
-            selected_edges=lT.get_subtree_nodes(node),
-            color_of_nodes=color,
-            color_of_edges=color,
+            color_of_selection=color,  # Selection color (though nodes are already colored)
+            size=10,  # Default node size
+            lw=0.3,  # Default line width
             ax=ax,
         )
         self.tree_canvas.draw()

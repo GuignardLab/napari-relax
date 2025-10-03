@@ -318,8 +318,24 @@ def plot_lineages_for_tree_manip(
 
     adjusted_fontsize = fontsize * min(min_width, min_height) / 5
     for i, graph in graphs.items():
-        lT.draw_tree_graph(
-            hier=pos[i], lnks_tms=graph, ax=flat_axes[i], **kwargs
+        # Extract parameters for the new function
+        node_size = kwargs.get("size", kwargs.get("node_size", 10))
+        line_width = kwargs.get("lw", 0.3)
+        edge_color = kwargs.get("color_of_edges", "black")
+        node_color = kwargs.get("color_of_nodes", kwargs.get("default_color", "black"))
+        selection_color = kwargs.get("color_of_selection", "magenta")
+        selected_nodes = kwargs.get("selected_nodes", set())
+        
+        lT.draw_tree_graph_relax(
+            hier=pos[i],
+            lnks_tms=graph,
+            color_of_nodes=node_color,
+            color_of_edges=edge_color,
+            selected_nodes=selected_nodes,
+            color_of_selection=selection_color,
+            size=node_size,
+            lw=line_width,
+            ax=flat_axes[i],
         )
         root = graph["root"]
         ax2root[flat_axes[i]] = root

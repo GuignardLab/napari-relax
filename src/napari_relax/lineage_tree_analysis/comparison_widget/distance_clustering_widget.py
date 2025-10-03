@@ -142,13 +142,15 @@ class InteractiveClusterMapWidget(BaseAnalysisWidget):
                 val_for_graph = self.find_graph_index(
                     cell, lt=self.lT, graphs=active_layer.metadata["graphs"][0]
                 )
-                self.lT.draw_tree_graph(
-                    active_layer.metadata["graphs"][1][val_for_graph],
-                    active_layer.metadata["graphs"][0][val_for_graph],
+                self.lT.draw_tree_graph_relax(
+                    hier=active_layer.metadata["graphs"][1][val_for_graph],
+                    lnks_tms=active_layer.metadata["graphs"][0][val_for_graph],
+                    color_of_nodes=colors[i],  # Use uniform color for all nodes
+                    color_of_edges=colors[i],  # Use same color for edges
                     selected_nodes=self.lT.get_subtree_nodes(cell),
-                    selected_edges=self.lT.get_subtree_nodes(cell),
-                    color_of_nodes=colors[i],
-                    color_of_edges=colors[i],
+                    color_of_selection=colors[i],  # Selection color (though nodes are already colored)
+                    size=10,  # Default node size
+                    lw=0.3,  # Default line width
                     ax=self.axes_for_tree_graphs[i],
                 )
                 self.add_spot_on_graph(
