@@ -42,7 +42,7 @@ class LineageExplorationWidget(BaseAnalysisWidget):
     # in one of two ways:
     # 1. use a parameter called `napari_viewer`, as done here
     # 2. use a type annotation of 'napari.viewer.Viewer' for any parameter
-    name = "Explore and Relabel"
+    name = "Lineage Exploration"
 
     @staticmethod
     def get_sublineage(cell, lT):
@@ -162,14 +162,10 @@ class LineageExplorationWidget(BaseAnalysisWidget):
                 node_id_napari = layer.metadata["lT2napari"][node_id]
 
                 active_layer.selected_data = {node_id_napari}
+                self.canvas.selected_subtree = set()
 
                 # Update the cell ID spinbox to show the clicked cell
                 self.cell_id_spinbox.setValue(node_id_napari)
-
-                # # Clear selections in all layers
-                # for viewer_layer in viewer.layers:
-                #     with contextlib.suppress(Exception):
-                #         viewer_layer.selected_data.clear()
 
                 # Find the graph value for this node
                 val = self.find_graph_index(
@@ -790,7 +786,6 @@ class LineageExplorationWidget(BaseAnalysisWidget):
             print(f"✅ [DEBUG] LineageExplorer received signal hub from parent")
 
         super().__init__(napari_viewer, signal_hub)
-        self.name = "Lineage Exploration"
         
         print(f"🌟 [DEBUG] LineageExplorer using signal_hub: {id(self.signal_hub)} with {len(self.signal_hub.get_registered_widgets())} widgets")
 
@@ -843,12 +838,8 @@ class LineageExplorationWidget(BaseAnalysisWidget):
             self.graph_slider.setOrientation(Qt.Orientation.Horizontal)
             self.range = 0
             self.graph_slider.setMaximum(0)
-        self.graph_slider.valueChanged.connect(self.progeny_diagram_loader)
         remove_label = widgets.Button(text="Remove this label")
-        remove_label.clicked.connect(self.remove_cell_label)
         show_labels = widgets.Button(text="Show Labels")
-        show_labels.clicked.connect(self.show_all_labels)
-        self.w_lineedit.returnPressed.connect(self.label_changer)
         w = widgets.Label(
             value=(
                 "Ctrl-Right click on a Point to compare it to other sub-lineages."
@@ -863,10 +854,8 @@ class LineageExplorationWidget(BaseAnalysisWidget):
         cutoff2.tooltip = "Select the lineage that spawns this node"
         event_filt = DelayedTooltipEventFilter()
         self.installEventFilter(event_filt)
-        cutoff2.clicked.connect(self.points_selector)
         cutoff3 = widgets.Button(text="Select Sub-Lineage")
         cutoff3.tooltip = "Select the sublineage spawned by this node"
-        cutoff3.clicked.connect(self.sub_point_painter)
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignTop)
         layout.setSpacing(0)
@@ -903,14 +892,10 @@ class LineageExplorationWidget(BaseAnalysisWidget):
             QIcon(str(Path(__file__).parent / "gear-bold.svg"))
         )
         self.pop_win = LineageCanvasSetup(self.canvas, self.viewer)
-        self.config_settings.clicked.connect(lambda x: self.pop_win.exec_())
         self.config_settings.setFixedSize(30, 30)
 
         self.config_settings.setParent(self)
-        self.pop_win.sig.connect(self.canvas.change_attributes)
-
-        if self.lT:
-            self.progeny_diagram_loader()
+            
         self.graph_slider.setToolTip(
             f"Currently {self.range+1} lineages present."
         )
@@ -924,10 +909,6 @@ class LineageExplorationWidget(BaseAnalysisWidget):
             "QLabel { background-color: rgb(128, 128, 128); "
             "border: 1px solid black; border-radius: 3px; }"
         )
-
-        # Update color box if lineage data is already loaded
-        if self.lT:
-            self.update_lineage_color_box()
 
         self.slider_box = SimpleContainer(
             [
@@ -956,15 +937,10 @@ class LineageExplorationWidget(BaseAnalysisWidget):
                 "Enter cell ID, then press Enter or click 'Go' to jump to its lineage"
             )
 
-            # Connect the Go button to the selector function
-            self.cell_id_go_button.clicked.connect(self.cell_id_selector)
             self.cell_id_go_button.setEnabled(True)
             self.cell_id_go_button.setToolTip(
                 "Click to jump to the entered cell ID"
             )
-
-            # Also allow Enter key in the spinbox to trigger selection
-            self.cell_id_spinbox.editingFinished.connect(self.cell_id_selector)
         else:
             # Create disabled spinbox and button when no lineage tree is loaded
             self.cell_id_spinbox.setEnabled(False)
@@ -997,28 +973,61 @@ class LineageExplorationWidget(BaseAnalysisWidget):
         self.layout().addWidget(w.native)
 
         show_all = QPushButton("Show all")
-        show_all.clicked.connect(self.show_all)
         hide_all = QPushButton("Hide all")
-        hide_all.clicked.connect(self.hide_all)
         hide_lin = QPushButton("Hide Lineage")
-        hide_lin.clicked.connect(self.hide_lineage)
         show_lin = QPushButton("Show Lineage")
-        show_lin.clicked.connect(self.show_lineage)
 
         shown_cont = SimpleContainer([hide_lin, show_lin, hide_all, show_all])
         self.layout().addWidget(shown_cont)
 
-        self.viewer.mouse_drag_callbacks.append(self.point_click)
-        self.viewer.layers.selection.events.active.connect(self.layer_change)
+        # ================================================================
+        # SETUP EVENT CONNECTIONS - Keep all event connections at the end
+        # ================================================================
+        
+        # Slider connections
+        self.graph_slider.valueChanged.connect(self.progeny_diagram_loader)
+        
+        # Button connections
+        remove_label.clicked.connect(self.remove_cell_label)
+        show_labels.clicked.connect(self.show_all_labels)
+        cutoff2.clicked.connect(self.points_selector)
+        cutoff3.clicked.connect(self.sub_point_painter)
+        self.config_settings.clicked.connect(lambda x: self.pop_win.exec_())
+        show_all.clicked.connect(self.show_all)
+        hide_all.clicked.connect(self.hide_all)
+        hide_lin.clicked.connect(self.hide_lineage)
+        show_lin.clicked.connect(self.show_lineage)
+        
+        # Line edit connections
+        self.w_lineedit.returnPressed.connect(self.label_changer)
+        
+        # Cell ID selector connections (conditional based on lT availability)
+        if self.lT:
+            self.cell_id_go_button.clicked.connect(self.cell_id_selector)
+            self.cell_id_spinbox.editingFinished.connect(self.cell_id_selector)
+        
+        # Canvas and popup connections
+        self.pop_win.sig.connect(self.canvas.change_attributes)
         self.canvas.node_signal.connect(self._click_on_tree_graph)
         self.canvas.quantitative_coloring_applied.connect(
             self.update_lineage_color_box
         )
-        self.canvas.setFocusPolicy(Qt.WheelFocus)
-        self.canvas.setFocus()
+        
+        # Viewer event connections
+        self.viewer.mouse_drag_callbacks.append(self.point_click)
+        self.viewer.layers.selection.events.active.connect(self.layer_change)
         self.viewer.dims.events.emitters["current_step"].connect(
             self.canvas.time_line
         )
+
+        # Update color box if lineage data is already loaded
+        if self.lT:
+            self.progeny_diagram_loader()
+            self.update_lineage_color_box()
+        
+        # Canvas focus setup
+        self.canvas.setFocusPolicy(Qt.WheelFocus)
+        self.canvas.setFocus()
 
     # Enhanced color handling methods for new signal system
     def handle_color_mapping(self, mapping_data: dict) -> None:
