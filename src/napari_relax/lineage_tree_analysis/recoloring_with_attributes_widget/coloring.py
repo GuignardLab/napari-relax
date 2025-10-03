@@ -5,6 +5,7 @@ from warnings import warn
 import numpy as np
 from napari.layers import Points
 from napari.utils.colormaps import AVAILABLE_COLORMAPS
+from napari.utils.notifications import show_warning
 from psygnal import Signal
 from qtpy.QtGui import QDoubleValidator
 from qtpy.QtWidgets import (
@@ -224,17 +225,14 @@ class Quantitative(LayerCorrectorTreeProducer):
         min_val = min(self.lT.__getattribute__(attr).values())
         max_val = max(self.lT.__getattribute__(attr).values())
         active_layer = _select_correct_layer(self, Points)
+        if active_layer is None:
+            return
+        for node, value in self.lT.__getattribute__(attr).items():
+            cell_color[node] = cmap((value - min_val) / (max_val - min_val))
         match selected_method:
             case "Black":
-                for node, value in self.lT.__getattribute__(attr).items():
-                    cell_color[node] = cmap(
-                        (value - min_val) / (max_val - min_val)
-                    )
+                ...
             case "Propagate from Ancestor":
-                for node, value in self.lT.__getattribute__(attr).items():
-                    cell_color[node] = cmap(
-                        (value - min_val) / (max_val - min_val)
-                    )
                 for node in active_layer.metadata["napari2lT"].values():
                     if node not in self.lT.__getattribute__(attr):
                         prev_node = self.lT.get_ancestor_with_attribute(
@@ -246,12 +244,9 @@ class Quantitative(LayerCorrectorTreeProducer):
                             cell_color[node] = [0, 0, 0, 1]
 
             case "Propagate from Sibling":
-                ...
+                show_warning("Not implemented yet!")
+                return
             case "Mean":
-                for node, value in self.lT.__getattribute__(attr).items():
-                    cell_color[node] = cmap(
-                        (value - min_val) / (max_val - min_val)
-                    )
                 mean_val = np.mean(
                     list(self.lT.__getattribute__(attr).values())
                 )
@@ -261,19 +256,11 @@ class Quantitative(LayerCorrectorTreeProducer):
                             (mean_val - min_val) / (max_val - min_val)
                         )
             case "Min":
-                for node, value in self.lT.__getattribute__(attr).items():
-                    cell_color[node] = cmap(
-                        (value - min_val) / (max_val - min_val)
-                    )
                 min_val = np.min(list(self.lT.__getattribute__(attr).values()))
                 for node in active_layer.metadata["napari2lT"].values():
                     if node not in cell_color:
-                        cell_color[node] = cmap(0)
+                        cell_color[node] = cmap(min_val)
             case "Median":
-                for node, value in self.lT.__getattribute__(attr).items():
-                    cell_color[node] = cmap(
-                        (value - min_val) / (max_val - min_val)
-                    )
                 median = np.median(
                     list(self.lT.__getattribute__(attr).values())
                 )
@@ -283,10 +270,6 @@ class Quantitative(LayerCorrectorTreeProducer):
                             (median - min_val) / (max_val - min_val)
                         )
             case val if isinstance(val, float | int):
-                for node, value in self.lT.__getattribute__(attr).items():
-                    cell_color[node] = cmap(
-                        (value - min_val) / (max_val - min_val)
-                    )
                 for node in active_layer.metadata["napari2lT"].values():
                     if node not in cell_color:
                         cell_color[node] = cmap(
