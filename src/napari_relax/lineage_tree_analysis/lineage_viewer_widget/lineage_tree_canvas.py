@@ -77,13 +77,13 @@ class LineageCanvas(FigureCanvas):
                 # If no selection specified, keep existing selection if any
             else:
                 # Exiting quantitative mode - clear selection and individual colors
-                if (
-                    hasattr(self, "selected_subtree")
-                    and self.selected_subtree is not None
-                ):
-                    self.selected_subtree.clear()
-                else:
-                    self.selected_subtree = set()
+                # if (
+                #     hasattr(self, "selected_subtree")
+                #     and self.selected_subtree is not None
+                # ):
+                #     self.selected_subtree.clear()
+                # else:
+                #     self.selected_subtree = set()
 
                 # Clear individual node colors when exiting quantitative mode
                 if hasattr(self, "node_colors"):
