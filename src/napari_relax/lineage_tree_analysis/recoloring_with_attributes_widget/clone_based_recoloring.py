@@ -17,8 +17,7 @@ from .custom_colorboxes.mpl_compatible_combobox import (
 )
 
 
-class DisplayDistances(LayerCorrectorTreeProducer):
-    name = "Attribute Based Recoloring"
+class CloneRecoloring(LayerCorrectorTreeProducer):
 
     def slider_change(self):
         active_layer = _select_correct_layer(self, Points)
@@ -120,9 +119,6 @@ class DisplayDistances(LayerCorrectorTreeProducer):
         recolor_text = widgets.Label(value="Color map:")
         self.combobox = MplCompatibleColorCombobox(self)
         self.cmap_choice = self.combobox.combobox_continuous
-        # self.cmap_choice = widgets.ComboBox(
-        #     value="Accent", choices=self.qualitative_cmaps
-        # )
         self.combobox.native = self.combobox
         cmap = widgets.Container(
             widgets=[
@@ -163,16 +159,7 @@ class DisplayDistances(LayerCorrectorTreeProducer):
             self.time_nodes = self.lT.time_nodes
         else:
             self.time_nodes = None
-
-        layout = QVBoxLayout()
-
-        tabs = QTabWidget()
         self.create_layout()
-        self.clone_based_recoloring = QWidget()
-        self.clone_based_recoloring.setLayout(self.distance_layout)
-        self.coloring_widget = Coloring(self.viewer)
-        tabs.addTab(self.clone_based_recoloring, "Clone based Recoloring")
-        tabs.addTab(self.coloring_widget, "Node based Recoloring")
-        layout.addWidget(tabs)
-        self.setLayout(layout)
+        self.setLayout(self.distance_layout)
+
         self.slider_change()
