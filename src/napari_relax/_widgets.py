@@ -116,7 +116,7 @@ class LineageTreeAnalysisWidget(PluginWidgetBase):
     def _setup_signal_connections(self):
         """Setup signal connections between widgets using the signal hub."""
 
-        explore_widget = self.widget_dictionary["Explore and Relabel"]
+        explore_widget = self.widget_dictionary["Lineage Exploration"]
         distance_widget = self.widget_dictionary["Distance Calculation"]
 
         # Connect line edit return pressed to label update
