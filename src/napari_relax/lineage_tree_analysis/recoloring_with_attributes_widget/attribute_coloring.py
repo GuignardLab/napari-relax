@@ -324,22 +324,14 @@ class QuantitativeColoringWidget(LineageTreeWidgetBase):
         if active_layer is not None:
             original_colors = active_layer.metadata["clone2"]
             active_layer.face_color = original_colors
-
-            # Emit through new structured signals via signal hub
-            # Emit coloring reset
-            self.signal_hub.emit_coloring_reset()
-
-            # DO NOT emit visual settings that override user preferences
-            # The LineageCanvas will use its own user preferences for visual settings
-            # Only emit coloring-related changes, not visual appearance settings
-        else:
-            # Emit reset signals even without active layer using user preferences
-            from ..._util_classes.tree_graph_popup import _get_user_canvas_settings
-            user_settings = _get_user_canvas_settings()
             
-            self.signal_hub.emit_coloring_reset()
-            # DO NOT emit visual settings that override user preferences
-            # Let the LineageCanvas use its own user preferences for edge colors
+            # CRITICAL: Also update the current_face_colors metadata that the canvas uses
+            if "current_face_colors" in active_layer.metadata:
+                active_layer.metadata["current_face_colors"] = original_colors
+                print(f"🔄 [DEBUG] Updated current_face_colors metadata to original colors")
+
+        # Emit reset signal to clear quantitative mode from canvas
+        self.signal_hub.emit_coloring_reset()
 
     def layer_change(self):
         active_layer = _select_active_lt_layer(self.viewer)
