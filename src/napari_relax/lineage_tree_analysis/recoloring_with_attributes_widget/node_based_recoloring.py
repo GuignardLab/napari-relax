@@ -205,6 +205,9 @@ class Quantitative(LayerCorrectorTreeProducer):
         if active_layer is None:
             return
         
+        existing_nodes = set(self.lT.__getattribute__(attr).values())
+        nonexistingnodes = set(active_layer.metadata["napari2lT"].values()) - existing_nodes
+
         for node, value in self.lT.__getattribute__(attr).items():
             cell_color[node] = cmap((value - min_val) / (max_val - min_val))
 
@@ -212,7 +215,7 @@ class Quantitative(LayerCorrectorTreeProducer):
             case "Black":
                 ...
             case "Propagate from Ancestor":
-                for node in active_layer.metadata["napari2lT"].values():
+                for node in nonexistingnodes:
                     if node not in self.lT.__getattribute__(attr):
                         prev_node = self.lT.get_ancestor_with_attribute(
                             node, attr
@@ -229,27 +232,23 @@ class Quantitative(LayerCorrectorTreeProducer):
                 mean_val = (np.nanmean(
                     list(self.lT.__getattribute__(attr).values())
                 )-min_val)/(max_val-min_val)
-                for node in active_layer.metadata["napari2lT"].values():
-                    if node not in cell_color:
+                for node in nonexistingnodes:
                         cell_color[node] = cmap(
                             mean_val
                         )
             case "Min":
-                for node in active_layer.metadata["napari2lT"].values():
-                    if node not in cell_color:
+                for node in nonexistingnodes:
                         cell_color[node] = cmap(0)
             case "Median":
                 median =( np.nanmedian(
                     list(self.lT.__getattribute__(attr).values())
                 )- min_val)/(max_val-min_val)
-                for node in active_layer.metadata["napari2lT"].values():
-                    if node not in cell_color:
+                for node in nonexistingnodes:
                         cell_color[node] = cmap(
                             median
                         )
             case val if isinstance(val, float | int):
-                for node in active_layer.metadata["napari2lT"].values():
-                    if node not in cell_color:
+                for node in nonexistingnodes:
                         cell_color[node] = cmap(
                             (val - min_val) / (max_val - min_val)
                         )
