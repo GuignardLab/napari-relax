@@ -1,22 +1,22 @@
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from magicgui import widgets
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
-from qtpy.QtWidgets import (
-    QVBoxLayout,
-)
 from scipy.spatial import KDTree
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QTabWidget, QWidget, QLabel
+from qtpy.QtWidgets import QLabel, QTabWidget, QVBoxLayout, QWidget
 
 
 from ..._base_widgets import BaseAnalysisWidget
 from ..._signal_hub import PluginSignalHub
 from ..._utils import _select_active_lt_layer
 from .attribute_coloring import AttributeColoringWidget
+from .custom_colorboxes.mpl_compatible_combobox import (
+    QUANTITATIVE_CMAPS,
+    MplCompatibleColorCombobox,
+)
 
 
 class DisplayDistances(BaseAnalysisWidget):
@@ -70,7 +70,7 @@ class DisplayDistances(BaseAnalysisWidget):
         if starting_time < min_t:
             starting_time = min_t
         colors = np.zeros((active_layer.data.shape[0], 4))
-        cmap = mpl.colormaps[self.cmap_choice.value]
+        cmap = QUANTITATIVE_CMAPS[self.cmap_choice.currentData()]
         if active_layer.face_color_mode != "direct":
             active_layer.face_color_mode = "direct"
         for i, c in enumerate(self.time_nodes[starting_time]):
@@ -121,18 +121,22 @@ class DisplayDistances(BaseAnalysisWidget):
         )
 
         recolor_text = widgets.Label(value="Color map:")
-        self.cmap_choice = widgets.ComboBox(
-            value="Accent", choices=self.qualitative_cmaps
-        )
+        self.combobox = MplCompatibleColorCombobox(self)
+        self.cmap_choice = self.combobox.combobox_continuous
+        # self.cmap_choice = widgets.ComboBox(
+        #     value="Accent", choices=self.qualitative_cmaps
+        # )
+        self.combobox.native = self.combobox
         cmap = widgets.Container(
             widgets=[
                 recolor_text,
-                self.cmap_choice,
+                self.combobox,
             ],
             labels=False,
             layout="horizontal",
         )
         self.do_color = widgets.Button(text="Recolor Clones")
+
         w2 = widgets.Container(
             widgets=[
                 cmap,

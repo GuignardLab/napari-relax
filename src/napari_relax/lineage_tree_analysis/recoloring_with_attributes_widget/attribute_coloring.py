@@ -25,7 +25,7 @@ from ..._util_classes import (
     LineageTreeWidgetBase,
 )
 from ..._utils import _select_active_lt_layer
-from .colorboxlabel import ColorBoxLabel
+from .custom_colorboxes.colorbox_label import ColorBoxLabel
 
 if TYPE_CHECKING:
     pass

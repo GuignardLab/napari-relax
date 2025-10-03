@@ -102,6 +102,39 @@ class PointsAdapter(LayerAdapter):
         # Don't modify selection - only control visibility
         self.layer.refresh()
 
+    def hide_nodes(self, node_ids_to_hide: list[int]) -> None:
+        """Hide specific nodes by setting their size to 0, without affecting selection."""
+        if not hasattr(self.layer, "size") or not hasattr(self.layer, "data"):
+            return
+
+        # Get napari indices for nodes to hide
+        indices_to_hide = set()
+        for node_id in node_ids_to_hide:
+            if node_id in self.node_to_napari:
+                indices_to_hide.add(self.node_to_napari[node_id])
+
+        # Set sizes: hidden nodes get size 0, others keep their current size
+        sizes = (
+            self.layer.size.copy()
+            if hasattr(self.layer.size, "copy")
+            else np.array(self.layer.size)
+        )
+
+        # If current sizes are from original state, use them as reference
+        original_sizes = self.original_state.get("size", sizes)
+        original_sizes = np.broadcast_to(original_sizes, sizes.shape)
+
+        for i in range(len(sizes)):
+            if i in indices_to_hide:
+                # Hide these nodes
+                sizes[i] = 0
+            elif sizes[i] == 0:
+                # Restore previously hidden nodes that should now be visible
+                sizes[i] = original_sizes[i]
+
+        self.layer.size = sizes
+        # Don't modify selected_data - keep current selection unchanged
+
     def reset_visibility(self) -> None:
         """Restore original visibility and clear selection."""
         if "shown" in self.original_state:
@@ -120,6 +153,13 @@ class PointsAdapter(LayerAdapter):
             # Show all points
             self.layer.shown = np.ones(len(self.layer.data), dtype=bool)
         self.layer.refresh()
+
+    def update_original_size(self, new_size) -> None:
+        """Update the original size state when user deliberately changes size."""
+        if hasattr(new_size, "copy"):
+            self.original_state["size"] = new_size.copy()
+        else:
+            self.original_state["size"] = new_size
 
     def select_nodes(self, node_ids: list[int]) -> None:
         """Select nodes without hiding others."""
@@ -739,6 +779,11 @@ class InteractionBridge:
     def update_state(self, **kwargs) -> None:
         """Save state parameters for this lineage tree."""
         self.state.update(kwargs)
+
+    def update_original_size(self, new_size) -> None:
+        """Update the original size state in Points adapter when user changes size."""
+        if "points" in self.adapters:
+            self.adapters["points"].update_original_size(new_size)
 
     def get_state(self, key: str = None):
         """Get state value(s) for this lineage tree."""

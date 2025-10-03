@@ -21,6 +21,7 @@ from .._signal_hub import PluginSignalHub
 from .._util_classes import (
     DelayedTooltipEventFilter,
 )
+from .._interaction_bridge import InteractionBridge
 from .._utils import (
     _infer_point_size,
     _select_active_lt_layer,
@@ -97,14 +98,24 @@ class CellSizeControlWidget(BaseAnalysisWidget):
                     )
                     layer.size = value
 
+                    # Update the original size in the InteractionBridge
+                    bridge = InteractionBridge.get_bridge_for_layer(layer)
+                    if bridge:
+                        bridge.update_original_size(value)
+
                     if layer is active_layer:
                         new_size = value
 
         else:
             new_size = value
             # Update only the active layer
-            if active_layer and self.is_lt_layer(active_layer):
+            if active_layer:
                 active_layer.size = new_size
+
+                # Update the original size in the InteractionBridge
+                bridge = InteractionBridge.get_bridge_for_layer(active_layer)
+                if bridge:
+                    bridge.update_original_size(new_size)
 
             self.slider.blockSignals(True)
             # Update the slider position according to the new size
@@ -171,7 +182,6 @@ class CellSizeControlWidget(BaseAnalysisWidget):
             active_layer = _select_active_lt_layer(self.viewer)
             if (
                 active_layer
-                and self.is_lt_layer(active_layer)
                 and len(active_layer.size) > 0
             ):
                 # Currently assuming all sizes are the same
@@ -204,7 +214,6 @@ class CellSizeControlWidget(BaseAnalysisWidget):
         if self.is_lt_layer(layer):
             self._update_layer_slider_range(layer)
             self.viewer.layers.selection.active = layer
-            # self.reset_slider()
 
     def __init__(self, napari_viewer, signal_hub: PluginSignalHub = None):
         # Create signal hub if not provided
@@ -317,7 +326,7 @@ class CellSizeControlWidget(BaseAnalysisWidget):
             layer.name for layer in self.viewer.layers.selection
         ]
 
-        self.viewer.layers.selection.events.connect(self.layer_change)
+        self.viewer.layers.selection.events.active.connect(self.layer_change)
 
         for layer in self.viewer.layers:
             if self.is_lt_layer(layer):
