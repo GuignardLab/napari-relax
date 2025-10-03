@@ -1,21 +1,8 @@
-import matplotlib.pyplot as plt
-import numpy as np
-from magicgui import widgets
-from matplotlib.backends.backend_qt5agg import (
-    FigureCanvasQTAgg as FigureCanvas,
-)
-from napari.layers import Points
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QLabel, QTabWidget, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QTabWidget, QVBoxLayout
 
 from ..._util_classes import LayerCorrectorTreeProducer
-from ..._utils import _select_correct_layer
-from .node_based_recoloring import Coloring
 from .clone_based_recoloring import CloneRecoloring
-from .custom_colorboxes.mpl_compatible_combobox import (
-    QUANTITATIVE_CMAPS,
-    MplCompatibleColorCombobox,
-)
+from .node_based_recoloring import Coloring
 
 
 class RecoloringWidget(LayerCorrectorTreeProducer):

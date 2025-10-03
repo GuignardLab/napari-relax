@@ -6,11 +6,10 @@ from matplotlib.backends.backend_qt5agg import (
 )
 from napari.layers import Points
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QLabel, QTabWidget, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QLabel, QVBoxLayout
 
 from ..._util_classes import LayerCorrectorTreeProducer
 from ..._utils import _select_correct_layer
-from .coloring import Coloring
 from .custom_colorboxes.mpl_compatible_combobox import (
     QUANTITATIVE_CMAPS,
     MplCompatibleColorCombobox,
@@ -18,7 +17,6 @@ from .custom_colorboxes.mpl_compatible_combobox import (
 
 
 class CloneRecoloring(LayerCorrectorTreeProducer):
-
     def slider_change(self):
         active_layer = _select_correct_layer(self, Points)
         if not active_layer and not self.time_nodes:

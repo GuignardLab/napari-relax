@@ -12,7 +12,6 @@ from .recoloring_with_attributes_widget.recoloring_widget import (
     RecoloringWidget,
 )
 
-
 __all__ = (
     "ProgenySelection",
     "RecoloringWidget",
