@@ -115,37 +115,21 @@ class LineageTreeAnalysisWidget(PluginWidgetBase):
 
     def _setup_signal_connections(self):
         """Setup signal connections between widgets using the signal hub."""
-        # Connect "Explore and Relabel" line edit to "Distance Calculation"
-        if (
-            "Explore and Relabel" in self.widget_dictionary
-            and "Distance Calculation" in self.widget_dictionary
-        ):
 
-            explore_widget = self.widget_dictionary["Explore and Relabel"]
-            distance_widget = self.widget_dictionary["Distance Calculation"]
+        explore_widget = self.widget_dictionary["Explore and Relabel"]
+        distance_widget = self.widget_dictionary["Distance Calculation"]
 
-            # Connect line edit return pressed to label update
-            explore_widget.w_lineedit.returnPressed.connect(
-                lambda: self.signal_hub.emit_label_update(
-                    explore_widget.w_lineedit.text()
-                )
+        # Connect line edit return pressed to label update
+        explore_widget.w_lineedit.returnPressed.connect(
+            lambda: self.signal_hub.emit_label_update(
+                explore_widget.w_lineedit.text()
             )
+        )
 
-            # Connect signal hub to distance widget label update
-            self.signal_hub.label_update_requested.connect(
-                distance_widget.label_update
-            )
-
-        # Connect "Attribute Based Recoloring" to "Explore and Relabel" for color updates
-        if (
-            "Attribute Based Recoloring" in self.widget_dictionary
-            and "Explore and Relabel" in self.widget_dictionary
-        ):
-            explore_widget = self.widget_dictionary["Explore and Relabel"]
-
-            # The lineage explorer widget should be automatically connected via signal hub registration
-            # No manual connections needed - the signal hub auto-connects widgets that have enhanced methods
-            # Widget will receive color updates through handle_color_mapping and handle_quantitative_coloring
+        # Connect signal hub to distance widget label update
+        self.signal_hub.label_update_requested.connect(
+            distance_widget.label_update
+        )
 
 
 class CrossEmbryoManagerComparisonWidget(PluginWidgetBase):
