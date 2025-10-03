@@ -204,8 +204,10 @@ class Quantitative(LayerCorrectorTreeProducer):
         active_layer = _select_correct_layer(self, Points)
         if active_layer is None:
             return
+        
         for node, value in self.lT.__getattribute__(attr).items():
             cell_color[node] = cmap((value - min_val) / (max_val - min_val))
+
         match selected_method:
             case "Black":
                 ...
@@ -224,27 +226,26 @@ class Quantitative(LayerCorrectorTreeProducer):
                 show_warning("Not implemented yet!")
                 return
             case "Mean":
-                mean_val = np.mean(
+                mean_val = (np.nanmean(
                     list(self.lT.__getattribute__(attr).values())
-                )
+                )-min_val)/(max_val-min_val)
                 for node in active_layer.metadata["napari2lT"].values():
                     if node not in cell_color:
                         cell_color[node] = cmap(
-                            (mean_val - min_val) / (max_val - min_val)
+                            mean_val
                         )
             case "Min":
-                min_val = np.min(list(self.lT.__getattribute__(attr).values()))
                 for node in active_layer.metadata["napari2lT"].values():
                     if node not in cell_color:
-                        cell_color[node] = cmap(min_val)
+                        cell_color[node] = cmap(0)
             case "Median":
-                median = np.median(
+                median =( np.nanmedian(
                     list(self.lT.__getattribute__(attr).values())
-                )
+                )- min_val)/(max_val-min_val)
                 for node in active_layer.metadata["napari2lT"].values():
                     if node not in cell_color:
                         cell_color[node] = cmap(
-                            (median - min_val) / (max_val - min_val)
+                            median
                         )
             case val if isinstance(val, float | int):
                 for node in active_layer.metadata["napari2lT"].values():
