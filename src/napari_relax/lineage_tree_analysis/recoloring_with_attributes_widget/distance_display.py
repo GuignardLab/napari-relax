@@ -10,7 +10,7 @@ from qtpy.QtWidgets import (
 )
 from scipy.spatial import KDTree
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QTabWidget, QWidget
+from qtpy.QtWidgets import QTabWidget, QWidget, QLabel
 
 
 from ..._base_widgets import BaseAnalysisWidget
@@ -164,10 +164,10 @@ class DisplayDistances(BaseAnalysisWidget):
         # Create signal hub if not provided
         if signal_hub is None:
             signal_hub = PluginSignalHub()
-        super().__init__(napari_viewer)
+        super().__init__(napari_viewer, signal_hub)
         self.name = "Attribute Based Recoloring"
         self.viewer = napari_viewer
-        self.lT = self.get_lT()
+        self.lT = self.get_current_lineage_tree()
         if self.lT:
             self.time_nodes = self.lT.time_nodes
         else:
@@ -184,7 +184,6 @@ class DisplayDistances(BaseAnalysisWidget):
         # Connect coloring widget signals to main signal hub
         # Color updates now handled through central signal hub
         self.do_color.clicked.connect(self.color_clones)
-        self.viewer.mouse_drag_callbacks.append(self.point_click)
         self.viewer.layers.selection.events.connect(self.layer_change)
 
         tabs.addTab(self.clone_based_recoloring, "Clone based Recoloring")
