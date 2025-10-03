@@ -49,7 +49,7 @@ class LayerAdapter(ABC):
             "vertex_colors",
             "opacity",
             "blending",
-            "_track_connex",
+            "track_connex",
         ]:
             if hasattr(self.layer, prop):
                 value = getattr(self.layer, prop)
@@ -419,22 +419,23 @@ class TracksAdapter(LayerAdapter):
                 visible_track_ids.add(self.node_to_napari[node_id])
 
         # Create a mask to hide all tracks first
-        track_connex = np.zeros_like(self.layer._track_connex, dtype=bool)
+        track_connex = np.zeros_like(self.layer.track_connex, dtype=bool)
 
         # Show only the specified tracks by setting their segments to True
         for i, track_id in enumerate(self.layer.data[:, 0]):
             if track_id in visible_track_ids:
-                track_connex[i] = self.layer._track_connex[
+                track_connex[i] = self.layer.track_connex[
                     i
                 ]  # Preserve original connectivity
 
-        self.layer._track_connex = track_connex
-        self.layer.refresh()
+        self.layer._manager._track_connex = track_connex
+        # self.layer.refresh()
+        self.layer.events.rebuild_tracks()
 
     def hide_nodes(self, node_ids: list[int]) -> None:
         """Hide specific tracks while preserving visibility of others."""
         # Get current track_connex state
-        current_track_connex = self.layer._track_connex.copy()
+        currenttrack_connex = self.layer.track_connex.copy()
 
         # Get track IDs for nodes to hide
         track_ids_to_hide = set()
@@ -445,35 +446,41 @@ class TracksAdapter(LayerAdapter):
         # Hide the specified tracks by setting their segments to False
         for i, track_id in enumerate(self.layer.data[:, 0]):
             if track_id in track_ids_to_hide:
-                current_track_connex[i] = False
+                currenttrack_connex[i] = False
 
-        self.layer._track_connex = current_track_connex
-        self.layer.refresh()
+        self.layer._manager._track_connex = currenttrack_connex
+        # self.layer.refresh()
+        self.layer.events.rebuild_tracks()
 
     def reset_visibility(self) -> None:
         """Restore original track visibility."""
-        if "_track_connex" in self.original_state:
-            self.layer._track_connex = self.original_state[
-                "_track_connex"
+        if "track_connex" in self.original_state:
+            self.layer._manager._track_connex = self.original_state[
+                "track_connex"
             ].copy()
-            self.layer.refresh()
+            # self.layer.refresh()
+            self.layer.events.rebuild_tracks()
         else:
             # Restore all track connections - this requires rebuilding tracks
-            self.layer.build_tracks()
+            self.layer._manager.build_tracks()
+            self.layer.events.rebuild_tracks()
 
         if "opacity" in self.original_state:
             self.layer.opacity = self.original_state["opacity"]
 
     def restore_visibility(self) -> None:
         """Restore original track visibility without affecting selection."""
-        if "_track_connex" in self.original_state:
-            self.layer._track_connex = self.original_state[
-                "_track_connex"
+        if "track_connex" in self.original_state:
+            self.layer._manager._track_connex = self.original_state[
+                "track_connex"
             ].copy()
-            self.layer.refresh()
+            # self.layer.refresh()
+            self.layer.events.rebuild_tracks()
         else:
             # Restore all track connections - this requires rebuilding tracks
-            self.layer.build_tracks()
+            self.layer._manager.build_tracks()
+            self.layer.events.rebuild_tracks()
+
 
 
 class InteractionBridge:
