@@ -7,6 +7,8 @@ from matplotlib.backends.backend_qtagg import (
 from psygnal import Signal
 from scipy.spatial import KDTree
 
+from ..._utils import _convert_color_to_hex, _convert_color_to_list
+
 
 def _get_user_canvas_preferences():
     """Get user's preferred canvas settings."""
@@ -17,7 +19,7 @@ def _get_user_canvas_preferences():
 
 class LineageCanvas(FigureCanvas):
     node_signal = Signal(dict)
-    quantitative_coloring_applied = Signal()
+    colors_updated = Signal()
 
     def change_attributes(self, signal):
         """
@@ -94,9 +96,7 @@ class LineageCanvas(FigureCanvas):
         # draw_graph now handles its own canvas initialization checks
         self.draw_graph()
 
-        # Emit signal if quantitative coloring was applied
-        if is_quantitative:
-            self.quantitative_coloring_applied.emit()
+        # Note: colors_updated signal is now emitted from draw_graph to cover all cases
 
     def __init__(
         self,
@@ -301,46 +301,6 @@ class LineageCanvas(FigureCanvas):
 
         return clone2, lT2napari
 
-    def _convert_color_to_list(self, color):
-        """Normalize color to a list format.
-
-        Args:
-            color: Color in various formats (numpy array, list, tuple)
-
-        Returns:
-            list: Normalized color as list
-        """
-        if hasattr(color, "tolist"):
-            return color.tolist()
-        else:
-            return list(color)
-
-    def _convert_color_to_hex(self, color):
-        """Convert RGB color values to hex string format.
-
-        Args:
-            color: Color in various formats (numpy array, list, tuple)
-                  Values should be in 0-1 range (matplotlib format)
-
-        Returns:
-            str: Hex color string (e.g., "#ff0000")
-        """
-        if hasattr(color, "tolist"):
-            color = color.tolist()
-        elif not isinstance(color, (list, tuple)):
-            color = [color]
-
-        # Ensure we have at least 3 values
-        if len(color) < 3:
-            return "#000000"  # Default to black
-
-        # Convert to 0-255 range and then to hex
-        r = int(min(255, max(0, color[0] * 255)))
-        g = int(min(255, max(0, color[1] * 255)))
-        b = int(min(255, max(0, color[2] * 255)))
-        
-        return f"#{r:02x}{g:02x}{b:02x}"
-
     def _extract_node_colors_from_reader(self):
         """Extract node colors from the Points layer metadata created by the reader.
 
@@ -364,7 +324,7 @@ class LineageCanvas(FigureCanvas):
             napari_idx = lT2napari[actual_root]
             if napari_idx < len(clone2):
                 # Convert to hex string for the new function
-                return self._convert_color_to_hex(clone2[napari_idx])
+                return _convert_color_to_hex(clone2[napari_idx])
 
         return None
 
@@ -413,17 +373,18 @@ class LineageCanvas(FigureCanvas):
                 napari_idx = lT2napari[node]
                 if napari_idx < len(current_face_colors):
                     color = current_face_colors[napari_idx]
-                    lineage_colors.append(self._convert_color_to_list(color))
+                    lineage_colors.append(_convert_color_to_list(color))
 
         if not lineage_colors:
             return None
 
         # Check if all colors are the same (uniform lineage color)
         first_color = lineage_colors[0][:3]  # Compare only RGB, ignore alpha
-        is_uniform = all(color[:3] == first_color for color in lineage_colors)
+        # is_uniform = all(color[:3] == first_color for color in lineage_colors)
+        is_uniform = len(set(tuple(color[:3]) for color in lineage_colors)) == 1
 
         return {
-            "color": self._convert_color_to_hex(first_color),
+            "color": _convert_color_to_hex(first_color),
             "is_uniform": is_uniform,
         }
 
@@ -441,10 +402,10 @@ class LineageCanvas(FigureCanvas):
 
         napari_idx = lT2napari[actual_root]
         if napari_idx < len(clone2):
-            color = self._convert_color_to_list(clone2[napari_idx])
+            color = _convert_color_to_list(clone2[napari_idx])
 
             return {
-                "color": self._convert_color_to_hex(color[:3]),
+                "color": _convert_color_to_hex(color[:3]),
                 "is_uniform": True,  # Original colors are always uniform per lineage
             }
 
@@ -796,6 +757,10 @@ class LineageCanvas(FigureCanvas):
         self.ax.set_xlim(xlim)
         self.ax.set_ylim(ylim)
         self.draw()
+        
+        # Always emit signal after drawing to update color box
+        # This covers both quantitative and default coloring cases
+        self.colors_updated.emit()
 
     def _draw_cell_marker(self, cell_id):
         """Draw a circle marker for the specified cell on the lineage graph.

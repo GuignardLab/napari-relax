@@ -30,7 +30,7 @@ from ..._util_classes.tree_graph_popup import (
     LineageCanvasSetup,
     _update_napari_highlight_color,
 )
-from ..._utils import _select_active_lt_layer
+from ..._utils import _select_active_lt_layer, _convert_hex_color_to_rgba
 from .lineage_tree_canvas import LineageCanvas
 
 if TYPE_CHECKING:
@@ -216,6 +216,9 @@ class LineageExplorationWidget(BaseAnalysisWidget):
         if color_info and color_info.get("color"):
             color = color_info["color"]
             is_uniform = color_info.get("is_uniform", True)
+
+            if isinstance(color, str) and color.startswith("#"):
+                color = _convert_hex_color_to_rgba(color)
 
             # Convert to RGB tuple (0-255 range) if needed
             if isinstance(color, list | tuple) and len(color) >= 3:
@@ -1009,7 +1012,7 @@ class LineageExplorationWidget(BaseAnalysisWidget):
         # Canvas and popup connections
         self.pop_win.sig.connect(self.canvas.change_attributes)
         self.canvas.node_signal.connect(self._click_on_tree_graph)
-        self.canvas.quantitative_coloring_applied.connect(
+        self.canvas.colors_updated.connect(
             self.update_lineage_color_box
         )
         

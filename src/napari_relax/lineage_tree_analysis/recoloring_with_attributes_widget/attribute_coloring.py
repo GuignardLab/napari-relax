@@ -289,6 +289,9 @@ class QuantitativeColoringWidget(LineageTreeWidgetBase):
         ]
         active_layer.face_color = face_colors
 
+        active_layer.metadata["current_face_colors"] = face_colors
+        print(f"🎨 [DEBUG] Updated current_face_colors metadata with {len(face_colors)} colors")
+
         # Emit through new structured signals via signal hub
         print(f"🎨 [DEBUG] Emitting color signals for {len(cell_color)} nodes")
         
