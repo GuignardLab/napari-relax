@@ -657,7 +657,6 @@ class LineageExplorationWidget(BaseAnalysisWidget):
                 # Just show the selected points
                 active_layer.shown[selected_points] = True
                 active_layer.refresh()
-                active_layer.refresh()
 
     def cell_id_selector(self):
         """

@@ -50,6 +50,7 @@ class LayerAdapter(ABC):
             "opacity",
             "blending",
             "track_connex",
+            "graph_connex",
         ]:
             if hasattr(self.layer, prop):
                 value = getattr(self.layer, prop)
@@ -413,44 +414,73 @@ class TracksAdapter(LayerAdapter):
         """Show only specified tracks."""
         # For tracks, we manipulate the track_connex property to control visibility
         # Get track IDs for visible nodes
-        visible_track_ids = set()
+        visible_tracksnodes_ids = set()
         for node_id in node_ids:
             if node_id in self.node_to_napari:
-                visible_track_ids.add(self.node_to_napari[node_id])
+                visible_tracksnodes_ids.add(self.node_to_napari[node_id])
 
         # Create a mask to hide all tracks first
-        track_connex = np.zeros_like(self.layer.track_connex, dtype=bool)
-
-        # Show only the specified tracks by setting their segments to True
-        for i, track_id in enumerate(self.layer.data[:, 0]):
-            if track_id in visible_track_ids:
-                track_connex[i] = self.layer.track_connex[
-                    i
-                ]  # Preserve original connectivity
+        self.layer._manager.build_tracks()
+        track_connex = self.layer._manager._track_connex.copy()
+        # track_connex = np.isin(range(len(self.layer.data)), list(visible_tracksnodes_ids))
+        track_connex = np.where(
+            np.isin(range(len(self.layer.data)), list(visible_tracksnodes_ids)),
+            track_connex,
+            False,
+        )
+        
+        # Handle graph connections (divisions)
+        graph_connex = np.zeros_like(self.layer.graph_connex, dtype=bool)
+        
+        # Only show graph connections where both parent and daughter tracks are visible
+        for i, (parent_track_id, daughter_track_id) in enumerate(self.layer.graph.items()):
+            parent_tracksnodes_ids_end = self.layer._manager._vertex_indices_from_id(parent_track_id)[-1]
+            daughter_tracksnodes_ids_start = self.layer._manager._vertex_indices_from_id(daughter_track_id)[0]
+            # Check if both parent and daughter tracks should be visible
+            if parent_tracksnodes_ids_end in visible_tracksnodes_ids and daughter_tracksnodes_ids_start in visible_tracksnodes_ids:
+                graph_connex[2*i] = True  # Parent connection
 
         self.layer._manager._track_connex = track_connex
-        # self.layer.refresh()
+        self.layer._manager._graph_connex = graph_connex
+        
+        # Rebuild both tracks and graph
         self.layer.events.rebuild_tracks()
+        self.layer.events.rebuild_graph()
 
     def hide_nodes(self, node_ids: list[int]) -> None:
         """Hide specific tracks while preserving visibility of others."""
         # Get current track_connex state
-        currenttrack_connex = self.layer.track_connex.copy()
+        self.layer._manager.build_tracks()
+        track_connex = self.layer._manager._track_connex.copy()
 
         # Get track IDs for nodes to hide
-        track_ids_to_hide = set()
+        tracksnodes_ids_to_hide = set()
         for node_id in node_ids:
             if node_id in self.node_to_napari:
-                track_ids_to_hide.add(self.node_to_napari[node_id])
+                tracksnodes_ids_to_hide.add(self.node_to_napari[node_id])
 
-        # Hide the specified tracks by setting their segments to False
-        for i, track_id in enumerate(self.layer.data[:, 0]):
-            if track_id in track_ids_to_hide:
-                currenttrack_connex[i] = False
+        track_connex = np.where(
+            np.isin(range(len(self.layer.data)), list(tracksnodes_ids_to_hide)),
+            False,
+            track_connex,
+        )
 
-        self.layer._manager._track_connex = currenttrack_connex
-        # self.layer.refresh()
+        graph_connex = np.zeros_like(self.layer.graph_connex, dtype=bool)
+
+        # Only show graph connections where both parent and daughter tracks are visible
+        for i, (parent_track_id, daughter_track_id) in enumerate(self.layer.graph.items()):
+            parent_tracksnodes_ids_end = self.layer._manager._vertex_indices_from_id(parent_track_id)[-1]
+            daughter_tracksnodes_ids_start = self.layer._manager._vertex_indices_from_id(daughter_track_id)[0]
+            # Check if both parent and daughter tracks should be visible
+            if parent_tracksnodes_ids_end not in tracksnodes_ids_to_hide and daughter_tracksnodes_ids_start not in tracksnodes_ids_to_hide:
+                graph_connex[2*i] = True  # Parent connection
+
+        self.layer._manager._track_connex = track_connex
+        self.layer._manager._graph_connex = graph_connex
+        
+        # Rebuild both tracks and graph
         self.layer.events.rebuild_tracks()
+        self.layer.events.rebuild_graph()
 
     def reset_visibility(self) -> None:
         """Restore original track visibility."""
@@ -458,12 +488,19 @@ class TracksAdapter(LayerAdapter):
             self.layer._manager._track_connex = self.original_state[
                 "track_connex"
             ].copy()
+            self.layer._manager._graph_connex = self.original_state[
+                "graph_connex"
+            ].copy()
             # self.layer.refresh()
             self.layer.events.rebuild_tracks()
+            self.layer.events.rebuild_graph()
         else:
             # Restore all track connections - this requires rebuilding tracks
             self.layer._manager.build_tracks()
             self.layer.events.rebuild_tracks()
+
+            self.layer._manager.build_graph()
+            self.layer.events.rebuild_graph()
 
         if "opacity" in self.original_state:
             self.layer.opacity = self.original_state["opacity"]
@@ -474,12 +511,19 @@ class TracksAdapter(LayerAdapter):
             self.layer._manager._track_connex = self.original_state[
                 "track_connex"
             ].copy()
+            self.layer._manager._graph_connex = self.original_state[
+                "graph_connex"
+            ].copy()
             # self.layer.refresh()
             self.layer.events.rebuild_tracks()
+            self.layer.events.rebuild_graph()
         else:
             # Restore all track connections - this requires rebuilding tracks
             self.layer._manager.build_tracks()
             self.layer.events.rebuild_tracks()
+
+            self.layer._manager.build_graph()
+            self.layer.events.rebuild_graph()
 
 
 
