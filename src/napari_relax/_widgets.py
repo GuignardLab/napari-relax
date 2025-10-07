@@ -86,7 +86,7 @@ class ReLAXWidget(QWidget):
         self.viewer = napari_viewer
         main_control = self.__make_widget_combobox()
         layout = QVBoxLayout()
-        layout.addStretch(1)
+        # layout.addStretch(1)
         layout.setSpacing(0)
         self.setLayout(layout)
         self.layout().addWidget(main_control.native)
@@ -94,6 +94,8 @@ class ReLAXWidget(QWidget):
             self.layout().addWidget(
                 self.module.__overall_widget__(self.viewer)
             )
+        layout.addStretch(1)
+        
 
 
 class LineageTreeAnalysisWidget(ReLAXWidget):
