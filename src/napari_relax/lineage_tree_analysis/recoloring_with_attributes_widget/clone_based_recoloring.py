@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 from magicgui import widgets
@@ -8,18 +10,15 @@ from napari.layers import Points
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QLabel, QVBoxLayout
 
-from ..._util_classes import LayerCorrectorTreeProducer
+from ..._util_classes import (
+    LayerCorrectorTreeProducer,
+    TooltipButton,
+)
 from ..._utils import _select_correct_layer
 from .custom_colorboxes.mpl_compatible_combobox import (
     QUANTITATIVE_CMAPS,
     MplCompatibleColorCombobox,
 )
-
-from ..._util_classes import (
-    LayerCorrectorTreeProducer,
-    TooltipButton,
-)
-import os
 
 
 class CloneRecoloring(LayerCorrectorTreeProducer):
@@ -175,36 +174,15 @@ class CloneRecoloring(LayerCorrectorTreeProducer):
         ) as f:
             txt = f.read()
         self.clone_tooltip = TooltipButton(txt)
-        self.clone_tooltip.setParent(self.clone_based_recoloring)
+        self.clone_tooltip.setParent(self)
         self.clone_tooltip.move(
-            self.clone_based_recoloring.width() - self.clone_tooltip.width(),
+            self.width() - self.clone_tooltip.width(),
             0,
         )
 
-        with open(
-            os.path.join(current_dir, "node_recolor.html"),
-            encoding="utf-8",
-        ) as f:
-            txt = f.read()
-        self.node_tooltip = TooltipButton(txt)
-        self.node_tooltip.setParent(self.coloring_widget)
-        self.node_tooltip.move(
-            self.coloring_widget.width() - self.node_tooltip.width(), 0
-        )
-        self.clone_tooltip.move(
-            self.clone_based_recoloring.width() - self.clone_tooltip.width(), 0
-        )
-        self.node_tooltip.move(
-            self.coloring_widget.width() - self.node_tooltip.width(), 0
-        )
-        self.clone_based_recoloring.resizeEvent = self.resizeEvent
-        self.coloring_widget.resizeEvent = self.resizeEvent
+        self.clone_tooltip.move(self.width() - self.clone_tooltip.width(), 0)
+        self.resizeEvent = self.resizeEvent
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        self.clone_tooltip.move(
-            self.clone_based_recoloring.width() - self.clone_tooltip.width(), 0
-        )
-        self.node_tooltip.move(
-            self.coloring_widget.width() - self.node_tooltip.width(), 0
-        )
+        self.clone_tooltip.move(self.width() - self.clone_tooltip.width(), 0)

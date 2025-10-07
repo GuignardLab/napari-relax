@@ -1,3 +1,4 @@
+import os
 from numbers import Number
 from typing import TYPE_CHECKING
 from warnings import warn
@@ -7,6 +8,7 @@ from napari.layers import Points
 from napari.utils.colormaps import AVAILABLE_COLORMAPS
 from napari.utils.notifications import show_warning
 from psygnal import Signal
+from qtpy.QtCore import Qt
 from qtpy.QtGui import QDoubleValidator
 from qtpy.QtWidgets import (
     QButtonGroup,
@@ -22,10 +24,11 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from qtpy.QtCore import Qt
+
 from ..._util_classes import (
     Containerize,
     LayerCorrectorTreeProducer,
+    TooltipButton,
 )
 from ..._utils import _select_correct_layer
 from .custom_colorboxes.colorbox_label import ColorBoxLabel
@@ -75,8 +78,8 @@ def filter_dicts_of_objects_by_values(
 
 
 class LineeditCheckbox(QCheckBox):
-    """Custom lineedit box that only accepts floats
-    """
+    """Custom lineedit box that only accepts floats"""
+
     def __init__(self, parent=None):
         super().__init__("Custom value", parent)
         self.lineedit = QLineEdit()
@@ -104,6 +107,7 @@ class MissingData(QWidget):
     QWidget : _type_
         _description_
     """
+
     def __init__(
         self,
         parent: QWidget | None = None,
@@ -179,9 +183,8 @@ class MissingData(QWidget):
 
 
 class Quantitative(LayerCorrectorTreeProducer):
-    """The widget to handle the different attributes.
+    """The widget to handle the different attributes."""
 
-    """
     color_signal = Signal(dict)
 
     def __init__(self, napari_viewer):
@@ -232,7 +235,9 @@ class Quantitative(LayerCorrectorTreeProducer):
             return
 
         existing_nodes = set(self.lT.__getattribute__(attr).values())
-        nonexistingnodes = set(active_layer.metadata["napari2lT"].values()) - existing_nodes
+        nonexistingnodes = (
+            set(active_layer.metadata["napari2lT"].values()) - existing_nodes
+        )
 
         for node, value in self.lT.__getattribute__(attr).items():
             cell_color[node] = cmap((value - min_val) / (max_val - min_val))
@@ -255,29 +260,27 @@ class Quantitative(LayerCorrectorTreeProducer):
                 show_warning("Not implemented yet!")
                 return
             case "Mean":
-                mean_val = (np.nanmean(
-                    list(self.lT.__getattribute__(attr).values())
-                )-min_val)/(max_val-min_val)
+                mean_val = (
+                    np.nanmean(list(self.lT.__getattribute__(attr).values()))
+                    - min_val
+                ) / (max_val - min_val)
                 for node in nonexistingnodes:
-                        cell_color[node] = cmap(
-                            mean_val
-                        )
+                    cell_color[node] = cmap(mean_val)
             case "Min":
                 for node in nonexistingnodes:
-                        cell_color[node] = cmap(0)
+                    cell_color[node] = cmap(0)
             case "Median":
-                median =( np.nanmedian(
-                    list(self.lT.__getattribute__(attr).values())
-                )- min_val)/(max_val-min_val)
+                median = (
+                    np.nanmedian(list(self.lT.__getattribute__(attr).values()))
+                    - min_val
+                ) / (max_val - min_val)
                 for node in nonexistingnodes:
-                        cell_color[node] = cmap(
-                            median
-                        )
+                    cell_color[node] = cmap(median)
             case val if isinstance(val, float | int):
                 for node in nonexistingnodes:
-                        cell_color[node] = cmap(
-                            (val - min_val) / (max_val - min_val)
-                        )
+                    cell_color[node] = cmap(
+                        (val - min_val) / (max_val - min_val)
+                    )
 
         self.color_signal.emit(
             {
@@ -355,3 +358,18 @@ class Coloring(LayerCorrectorTreeProducer):
         layout.addWidget(stack)
         layout.addStretch(1)
         self.setLayout(layout)
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(
+            os.path.join(current_dir, "node_recolor.html"),
+            encoding="utf-8",
+        ) as f:
+            txt = f.read()
+        self.node_tooltip = TooltipButton(txt)
+        self.node_tooltip.setParent(self)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
+        self.resizeEvent = self.resizeEvent
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
