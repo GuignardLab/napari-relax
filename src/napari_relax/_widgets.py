@@ -32,7 +32,13 @@ Replace code below according to your needs.
 from typing import TYPE_CHECKING
 
 from magicgui import widgets
-from qtpy.QtWidgets import QComboBox, QStackedWidget, QVBoxLayout, QWidget
+from qtpy.QtWidgets import (
+    QApplication,
+    QComboBox,
+    QStackedWidget,
+    QVBoxLayout,
+    QWidget,
+)
 
 from . import lineage_tree_analysis, relax_multipledatasets
 
@@ -94,6 +100,12 @@ class ReLAXWidget(QWidget):
             self.layout().addWidget(
                 self.module.__overall_widget__(self.viewer)
             )
+        screen = QApplication.primaryScreen()
+        dpi = screen.logicalDotsPerInch()
+        scale = dpi / 96
+        font = self.font()
+        font.setPointSizeF(font.pointSizeF() * scale)
+        self.setFont(font)
 
 
 class LineageTreeAnalysisWidget(ReLAXWidget):
