@@ -1,49 +1,17 @@
-import os
-import pickle
-from itertools import combinations
-from pathlib import Path
-from time import sleep
 
-import matplotlib.pyplot as plt
-import mplcursors
-import numpy as np
-import seaborn as sns
-from lineagetree.tree_approximation import tree_style
-from magicgui import widgets
-from matplotlib.backends.backend_qt5agg import (
-    FigureCanvasQTAgg as FigureCanvas,
-)
-from matplotlib.figure import Figure
-from napari._qt.qthreading import thread_worker
-from napari.layers import Points
-from napari.utils import notifications, progress
-from qtpy.QtCore import QRegExp
-from qtpy.QtGui import QIntValidator, QRegExpValidator
+from napari.utils import progress
 from qtpy.QtWidgets import (
-    QButtonGroup,
-    QCheckBox,
-    QLineEdit,
-    QListWidget,
     QPushButton,
     QTabWidget,
     QVBoxLayout,
-    QWidget,
 )
-from scipy.cluster.hierarchy import dendrogram, linkage
-from scipy.spatial.distance import squareform
-
-from napari_relax._util_classes import containerize
 
 from ..._util_classes import (
     Containerize,
-    DelayedTooltipEventFilter,
     LayerCorrectorTreeProducer,
-    TooltipButton,
 )
-from ..._utils import _select_correct_layer
-
-from .config import ConfigurationPanel
 from .clustermap import OnlineClustermap
+from .config import ConfigurationPanel
 
 
 class ComparisonsHandler(LayerCorrectorTreeProducer):

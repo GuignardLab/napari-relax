@@ -3,9 +3,9 @@ from napari.layers import Points
 from qtpy.QtWidgets import (
     QWidget,
 )
-from .eventfilter_for_delayed_tooltip import DelayedTooltipEventFilter
 
 from .._utils import _select_correct_layer
+from .eventfilter_for_delayed_tooltip import DelayedTooltipEventFilter
 
 
 class LayerCorrectorTreeProducer(QWidget):
