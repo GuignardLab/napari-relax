@@ -66,7 +66,7 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
             self.clustermap.norms,
             self.clustermap.times,
         ) = product
-        self.clustermap.time_slider.max = len(self.comps) - 1
+        self.clustermap.time_slider.max = len(self.clustermap.comps) - 1
         self.clustermap._clustermap_creator()
         if self.pbr:
             self.pbr.update()
@@ -80,6 +80,8 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
         self.naming = []
         self.norms = []
         self.worker = self.config.thread_worker()
+        self.worker.aborted.connect(self.kill_thread)
+
         self.config.times_selector()
         # if (
         #     max([self.lT.time[root] for root in self.specific_roots])
