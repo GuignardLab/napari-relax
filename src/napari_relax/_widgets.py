@@ -104,7 +104,14 @@ class LineageTreeAnalysisWidget(ReLAXWidget):
         self.widget_dictionary[
             "Explore and Relabel"
         ].w_lineedit.returnPressed.connect(
-            self.widget_dictionary["Distance Calculation"].label_update
+            self.widget_dictionary["ComparisonsHandler"].config.label_update
+        )
+        self.widget_dictionary[
+            "Explore and Relabel"
+        ].w_lineedit.returnPressed.connect(
+            self.widget_dictionary[
+                "ComparisonsHandler"
+            ].clustermap.receive_new_labels
         )
         self.widget_dictionary[
             "Attribute Based Recoloring"

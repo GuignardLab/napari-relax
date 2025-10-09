@@ -47,48 +47,7 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
     plot Clustermaps and letting the user select respective Lineages.
     """
 
-    name = "Distance Calculation"
-
-    def update_dictionary(self, product):
-        """
-        This function will read the yielded product from the thread_worker and will update the user interface
-        Args:
-            product [list]: [pairwise comparisons: name for each comparison]
-        """
-        self.comps, self.naming, self.norms = product
-        self.time_slider.max = len(self.comps) - 1
-        self._clustermap_creator()
-        if self.pbr:
-            self.pbr.update()
-
-    def thread_handler(self):
-        """
-        This function will start the thread worker and connect the yielded  product to the update
-        dictionary function. Also will set the run comparisons button checked, so it cannot be pressed again.
-        """
-        self.comps = []
-        self.naming = []
-        self.norms = []
-        self.worker = self.thread_worker()
-        self.times_selector()
-        # if (
-        #     max([self.lT.time[root] for root in self.specific_roots])
-        #     > self.times[0]
-        # ):
-        #     self.kill_thread()
-        #     self.runbutton.setChecked(False)
-        #     notifications.show_error(
-        #         "Do not use a starting point before the roots"
-        #     )
-        #     return
-        if not self.times:
-            self.worker.quit()
-            return
-        self.pbr = progress(self.times)
-        self.worker.yielded.connect(self.update_dictionary)
-        self.worker.start()
-        self.runbutton.setChecked(True)
-        self.stopbutton.setChecked(False)
+    name = "ConfigurationPanel"
 
     @thread_worker
     def thread_worker(self):
@@ -144,13 +103,9 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
             all_comps.append(comparison)
             all_names.append(name)
             all_norms.append(norms)
-            yield (all_comps, all_names, all_norms)
+            yield (all_comps, all_names, all_norms, self.times)
             sleep(0.1)
-        self.worker.quit()
-        self.runbutton.setChecked(False)
-        self.stopbutton.setChecked(True)
-        self.pbr.close()
-        self.pbr = None
+        return None
 
     def times_selector(self):
         """
@@ -170,24 +125,11 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
                 notifications.show_error(
                     "Starting timepoint cannot be smaller than the first timepoint of the dataset."
                 )
-                self.kill_thread()
                 return
             if step == 0 or start == stop:
                 self.times = [start]
             else:
                 self.times = list(range(start, stop, step))
-
-    def kill_thread(self):
-        """
-        Function to kill the thread if the user decides to.
-        """
-        self.worker.quit()
-        self.stopbutton.setChecked(True)
-        self.runbutton.setChecked(False)
-        if self.pbr:
-            self.pbr.clear()
-            self.pbr.close()
-            self.pbr = None
 
     def specific_roots_selector(self):
         """
@@ -265,7 +207,6 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
             self.names_of_nodes = None
             self.names_of_roots = None
             self.label_update()
-            self.tab1.layout().update()
             self.layout().update()
 
     def update_tree_style(self):
@@ -282,10 +223,6 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
             napari_viewer (napari.Viewer): the parent napari viewer
         """
         super().__init__(napari_viewer)
-        self.comps = []
-        event_filt = DelayedTooltipEventFilter()
-        self.installEventFilter(event_filt)
-        self.pbr = None
         self.times = []
         self.viewer = napari_viewer
         self.lT = self.get_lT()
@@ -316,79 +253,11 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
         self.range = 1
         self.names_of_nodes = None
         self.names_of_roots = None
-        self.runbutton = QPushButton("Run Comparisons")
-        self.runbutton.native = self.runbutton
-        self.runbutton.name = "runbutton"
-        self.runbutton.setCheckable(True)
-        self.stopbutton = QPushButton("Stop Processing")
-        self.stopbutton.native = self.stopbutton
-        self.stopbutton.name = "stopbutton"
-        self.stopbutton.setCheckable(True)
-        self.button_container = widgets.Container(
-            widgets=[self.runbutton, self.stopbutton],
-            layout="horizontal",
-            labels=False,
-        )
-        self.time_slider = widgets.IntSlider(min=0, max=self.range)
-        self.time_slider.changed.connect(self.time_changer)
-        self.save_pkl = widgets.FileEdit(
-            mode="w", value=Path(".").absolute(), filter="*.pkl*"
-        )
-        self.save_button = QPushButton("Save Comparisons")
-        self.save_button.native = self.save_button
-        self.save_button.name = "save_button"
-        self.save_button.pressed.connect(self.save_dictionary)
-        container = widgets.Container(
-            widgets=[self.save_pkl, self.save_button],
-            layout="horizontal",
-            labels=False,
-        )
-        self.reset_colors = QPushButton("Reset Colors")
         self.norm_combo = widgets.ComboBox(
             value="max",
             choices=["max", "sum", "None"],
         )
         self.norm_dict = {"max": max, "sum": sum, "None": lambda x: 1}
-        self.colormap = widgets.ComboBox(
-            value="viridis",
-            choices=[
-                "viridis",
-                "plasma",
-                "inferno",
-                "magma",
-                "cividis",
-                "Greys",
-                "Purples",
-                "Blues",
-                "Greens",
-                "Oranges",
-                "Reds",
-                "YlOrBr",
-                "YlOrRd",
-                "OrRd",
-                "PuRd",
-                "RdPu",
-                "BuPu",
-                "GnBu",
-                "PuBu",
-                "YlGnBu",
-                "PuBuGn",
-                "BuGn",
-                "YlGn",
-            ],
-        )
-        self.norm_color_cont = Containerize(
-            [self.norm_combo.native, self.colormap.native]
-        )
-        self.colormap.changed.connect(self._clustermap_creator)
-        self.norm_combo.changed.connect(self._clustermap_creator)
-        self.time_mover = widgets.Checkbox(value=False)
-        time_mover_text = widgets.Label(value="Move in time")
-        self.time_mover_box = widgets.Container(
-            widgets=[time_mover_text, self.time_mover],
-            layout="horizontal",
-            labels=False,
-        )
         self.list_widget = QListWidget()
         self.list_widget.setSelectionMode(QListWidget.MultiSelection)
         if self.lT:
@@ -418,15 +287,6 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
         self.list_widget.itemSelectionChanged.connect(
             self.specific_roots_selector
         )
-        # For plot tab#
-        self.figures, self.axes_for_tree_graphs = plt.subplots(
-            nrows=1, ncols=2, figsize=(1, 2), sharey=True
-        )
-        for ax in self.axes_for_tree_graphs:
-            ax.axis("off")
-        self.figures.set_frameon(False)
-        self.figures.subplots_adjust(wspace=0, hspace=0)
-        self.tree_canvas = FigureCanvas(self.figures)
         self.time_cropper = QLineEdit(
             placeholderText="Cropping time of the dataset.",
             clearButtonEnabled=True,
@@ -469,12 +329,11 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
         self.time_group.setExclusive(True)
 
         # Layout of 1st tab
-        self.tab1 = QWidget()
-        layout1 = QVBoxLayout()
-        self.tab1.setLayout(layout1)
-        self.tab1.layout().addWidget(time_slice)
-        self.tab1.layout().addWidget(time_list)
-        self.tab1.layout().addWidget(
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+        self.layout().addWidget(time_slice)
+        self.layout().addWidget(time_list)
+        self.layout().addWidget(
             Containerize(
                 [
                     widgets.Label(
@@ -484,17 +343,10 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
                 ]
             )
         )
-        self.tab1.layout().addWidget(label_for_style.native)
-        self.tab1.layout().addWidget(self.styl_combobox)
-        self.tab1.layout().addWidget(
+        self.layout().addWidget(label_for_style.native)
+        self.layout().addWidget(self.styl_combobox)
+        self.layout().addWidget(
             widgets.Label(value="\nSelect roots to be compared:").native
         )
-        self.tab1.layout().addWidget(self.list_widget)
-
-        self.colorbar = None
-
-        self.layout().addWidget(self.tabs)
-        self.layout().addWidget(self.button_container.native)
-        self.runbutton.released.connect(self.thread_handler)
-        self.stopbutton.released.connect(self.kill_thread)
-        self.stopbutton.setChecked(True)
+        self.layout().addWidget(self.list_widget)
+        self.viewer.layers.selection.events.active.connect(self.c_layer_change)
