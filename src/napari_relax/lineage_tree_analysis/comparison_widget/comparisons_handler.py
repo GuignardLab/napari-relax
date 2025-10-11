@@ -1,4 +1,3 @@
-
 from napari.utils import progress
 from qtpy.QtWidgets import (
     QPushButton,
@@ -51,16 +50,6 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
         self.worker.aborted.connect(self.kill_thread)
 
         self.config.times_selector()
-        # if (
-        #     max([self.lT.time[root] for root in self.specific_roots])
-        #     > self.times[0]
-        # ):
-        #     self.kill_thread()
-        #     self.runbutton.setChecked(False)
-        #     notifications.show_error(
-        #         "Do not use a starting point before the roots"
-        #     )
-        #     return
         if not self.config.times:
             self.worker.quit()
             return
@@ -78,10 +67,9 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
         self.worker.quit()
         self.stopbutton.setChecked(True)
         self.runbutton.setChecked(False)
-        if self.pbr:
-            self.pbr.clear()
-            self.pbr.close()
-            self.pbr = None
+        self.pbr.clear()
+        self.pbr.close()
+        self.pbr = None
 
     def __init__(self, napari_viewer):
         """
