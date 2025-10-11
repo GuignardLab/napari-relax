@@ -533,28 +533,14 @@ class InteractionBridge:
             True if any compatible layers were found
         """
 
-        self.adapters.clear()
-
-        # Find the primary Points layer with LineageTree metadata
         if primary_points is None:
-            for layer in viewer.layers:
-                if (
-                    isinstance(layer, Points)
-                    and hasattr(layer, "metadata")
-                    and "LineageTree" in layer.metadata
-                ):
-                    primary_points = layer
-                    break
+            return
 
-        if not primary_points or not isinstance(primary_points, Points):
-            return False
+        self.adapters.clear()
 
         # Extract mappings from Points layer
         node_to_napari = primary_points.metadata.get("lT2napari", {})
         napari_to_node = primary_points.metadata.get("napari2lT", {})
-
-        if not node_to_napari or not napari_to_node:
-            return False
 
         # Register Points adapter
         self.adapters["points"] = PointsAdapter(
@@ -589,8 +575,6 @@ class InteractionBridge:
                 adapter = TracksAdapter(layer)
                 self.adapters["tracks"] = adapter
                 break
-
-        return len(self.adapters) > 0
 
     def show_only_lineages(self, node_ids: list[int]) -> None:
         """Show only the specified lineages across all registered layers."""
