@@ -20,6 +20,7 @@ from ..._util_classes import (
     Containerize,
     LayerCorrectorTreeProducer,
 )
+from ..._util_classes.tooltip import TooltipButton
 
 
 class ConfigurationPanel(LayerCorrectorTreeProducer):
@@ -167,7 +168,7 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
             )
             self.list_widget.update()
 
-    def c_layer_change(self, event):
+    def layer_change(self, event):
         """Handles the layer change event.
 
         Args:
@@ -330,4 +331,18 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
             widgets.Label(value="\nSelect roots to be compared:").native
         )
         self.layout().addWidget(self.list_widget)
-        self.viewer.layers.selection.events.active.connect(self.c_layer_change)
+        self.viewer.layers.selection.events.active.connect(self.layer_change)
+
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(
+            os.path.join(current_dir, "config.html"),
+            encoding="utf-8",
+        ) as f:
+            txt = f.read()
+        self.node_tooltip = TooltipButton(txt)
+        self.node_tooltip.setParent(self)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)

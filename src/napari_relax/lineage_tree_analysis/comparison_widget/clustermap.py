@@ -1,3 +1,4 @@
+import os
 import pickle
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -23,6 +24,7 @@ from scipy.spatial.distance import squareform
 from ..._util_classes import (
     Containerize,
     LayerCorrectorTreeProducer,
+    TooltipButton,
 )
 from ..._utils import _select_correct_layer
 
@@ -437,3 +439,16 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
             "button_press_event", self._click
         )
         self.viewer.layers.selection.events.active.connect(self.layer_change)
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(
+            os.path.join(current_dir, "clustermap.html"),
+            encoding="utf-8",
+        ) as f:
+            txt = f.read()
+        self.node_tooltip = TooltipButton(txt)
+        self.node_tooltip.setParent(self)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
