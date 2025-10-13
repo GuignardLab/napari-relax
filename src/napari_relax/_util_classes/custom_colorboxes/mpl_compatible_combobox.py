@@ -16,7 +16,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from ...._util_classes import Containerize
+from ..._util_classes import Containerize
 
 COLORMAP_WIDTH = 150
 TEXT_WIDTH = 130
@@ -107,6 +107,9 @@ class MplCompatibleColorCombobox(QWidget):
         qimage = make_image(cmap, width=width, height=height)
         pixmap = QPixmap.fromImage(qimage)
         return QIcon(pixmap)
+
+    def get_cmap(self):
+        return self.dict_of_cmaps[self.combobox_continuous.currentData()]
 
 
 class CustomColorStyledDelegate(QStyledItemDelegate):

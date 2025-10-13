@@ -12,7 +12,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from ...._util_classes import (
+from ..._util_classes import (
     Containerize,
 )
 

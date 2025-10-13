@@ -4,7 +4,6 @@ from warnings import warn
 
 import numpy as np
 from napari.layers import Points
-from napari.utils.colormaps import AVAILABLE_COLORMAPS
 from napari.utils.notifications import show_warning
 from psygnal import Signal
 from qtpy.QtCore import Qt
@@ -220,7 +219,7 @@ class Quantitative(LayerCorrectorTreeProducer):
     def generate_colors(self):
         cell_color = {}
         selected_method = self.miss_data.selected()
-        _cmap = AVAILABLE_COLORMAPS[self.combobox_continuous.currentData()]
+        _cmap = self.colorbox.get()
 
         def cmap(x):
             return _cmap.map(x)[0]

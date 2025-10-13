@@ -16,7 +16,6 @@ from ..._util_classes import (
 )
 from ..._utils import _select_correct_layer
 from ..._util_classes.custom_colorboxes import (
-    QUANTITATIVE_CMAPS,
     MplCompatibleColorCombobox,
 )
 
@@ -70,7 +69,7 @@ class CloneRecoloring(LayerCorrectorTreeProducer):
         if starting_time < min_t:
             starting_time = min_t
         colors = np.zeros((active_layer.data.shape[0], 4))
-        cmap = QUANTITATIVE_CMAPS[self.cmap_choice.currentData()]
+        cmap = self.combobox.get_cmap()
         if active_layer.face_color_mode != "direct":
             active_layer.face_color_mode = "direct"
         for i, c in enumerate(self.time_nodes[starting_time]):
