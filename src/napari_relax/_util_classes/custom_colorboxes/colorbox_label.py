@@ -57,3 +57,6 @@ class ColorBoxLabel(QWidget):
         icon = QIcon(pixmap)
         self.color_label.setIcon(icon)
         self.color_label.setIconSize(pixmap.size())
+
+    def get_cmap(self):
+        return ALL_COLORMAPS[self.combobox_continuous.currentData()]

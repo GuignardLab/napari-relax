@@ -219,7 +219,7 @@ class Quantitative(LayerCorrectorTreeProducer):
     def generate_colors(self):
         cell_color = {}
         selected_method = self.miss_data.selected()
-        _cmap = self.colorbox.get()
+        _cmap = self.colorbox.get_cmap()
 
         def cmap(x):
             return _cmap.map(x)[0]

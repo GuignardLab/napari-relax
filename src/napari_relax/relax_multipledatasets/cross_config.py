@@ -44,6 +44,7 @@ from .._util_classes import (
 )
 
 from .cell_size import MinimalCellSize
+from .._util_classes.custom_colorboxes import MplCompatibleColorCombobox
 
 
 class Embryo_comparisons(LayerCorrectorTreeProducer):
@@ -204,8 +205,6 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
 
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
-        self.tabs = QTabWidget()
-        self.tab_dictionary = {}
         self.viewer = napari_viewer
         self.norm_combo = widgets.ComboBox(
             value="max",
