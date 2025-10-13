@@ -30,7 +30,7 @@ from ..._util_classes import (
     TooltipButton,
 )
 from ..._utils import _select_correct_layer
-from .custom_colorboxes.colorbox_label import ColorBoxLabel
+from ..._util_classes.custom_colorboxes import ColorBoxLabel
 
 
 def filter_dicts_of_objects_by_values(

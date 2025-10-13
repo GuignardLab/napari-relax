@@ -15,7 +15,7 @@ from ..._util_classes import (
     TooltipButton,
 )
 from ..._utils import _select_correct_layer
-from .custom_colorboxes.mpl_compatible_combobox import (
+from ..._util_classes.custom_colorboxes import (
     QUANTITATIVE_CMAPS,
     MplCompatibleColorCombobox,
 )
