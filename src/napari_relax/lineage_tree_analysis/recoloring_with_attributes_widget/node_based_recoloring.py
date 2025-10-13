@@ -1,5 +1,5 @@
+import os
 from numbers import Number
-from typing import TYPE_CHECKING
 from warnings import warn
 
 import numpy as np
@@ -7,6 +7,7 @@ from napari.layers import Points
 from napari.utils.colormaps import AVAILABLE_COLORMAPS
 from napari.utils.notifications import show_warning
 from psygnal import Signal
+from qtpy.QtCore import Qt
 from qtpy.QtGui import QDoubleValidator
 from qtpy.QtWidgets import (
     QButtonGroup,
@@ -26,12 +27,10 @@ from qtpy.QtWidgets import (
 from ..._util_classes import (
     Containerize,
     LayerCorrectorTreeProducer,
+    TooltipButton,
 )
 from ..._utils import _select_correct_layer
 from .custom_colorboxes.colorbox_label import ColorBoxLabel
-
-if TYPE_CHECKING:
-    pass
 
 
 def filter_dicts_of_objects_by_values(
@@ -198,7 +197,12 @@ class Quantitative(LayerCorrectorTreeProducer):
         else:
             self.selected_attribute.addItem("None")
         layout = QVBoxLayout()
-        layout.addWidget(self.selected_attribute)
+        self.colorbox.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        layout.addWidget(
+            Containerize(
+                [QLabel("Selected attribute"), self.selected_attribute]
+            )
+        )
         self.miss_data = MissingData()
         color_button = QPushButton("Recolor Dataset")
         color_button.pressed.connect(self.generate_colors)
@@ -346,10 +350,26 @@ class Coloring(LayerCorrectorTreeProducer):
         self.quant = Quantitative(napari_viewer)
         qual = Qualitative()
         stack.addWidget(self.quant)
+        self.combobox.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.combobox.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         stack.addWidget(qual)
         self.combobox.currentIndexChanged.connect(stack.setCurrentIndex)
         layout = QVBoxLayout()
-        layout.addWidget(self.combobox)
+        layout.addWidget(self.combobox, alignment=Qt.AlignLeft)
         layout.addWidget(stack)
         layout.addStretch(1)
         self.setLayout(layout)
+
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(
+            os.path.join(current_dir, "node_recolor.html"),
+            encoding="utf-8",
+        ) as f:
+            txt = f.read()
+        self.node_tooltip = TooltipButton(txt)
+        self.node_tooltip.setParent(self)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
