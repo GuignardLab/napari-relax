@@ -1,58 +1,34 @@
 from __future__ import annotations
-import copy
-import pickle
-from functools import partial
-from itertools import combinations
-from pathlib import Path
-from time import sleep
-from typing import TYPE_CHECKING
-import matplotlib.cm as cm
 
+import pickle
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import mplcursors
 import numpy as np
-import seaborn as sns
-from lineagetree.tree_approximation import tree_style
 from magicgui import widgets
 from matplotlib.backends.backend_qtagg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
 from matplotlib.figure import Figure
-from napari._qt.qthreading import thread_worker
-from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
-    QComboBox,
-    QHBoxLayout,
-    QListWidget,
     QPushButton,
-    QSizePolicy,
-    QSlider,
-    QSplitter,
-    QTabWidget,
     QVBoxLayout,
-    QWidget,
 )
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
 
-from napari_relax._util_classes.custom_colorboxes.colorbox_label import (
-    ColorBoxLabel,
-)
 from napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox import (
     MplCompatibleColorCombobox,
 )
 
 from .._reader import layer_preparation
 from .._util_classes import (
-    BigDatasetNamesDialog,
     Containerize,
-    DelayedTooltipEventFilter,
     LayerCorrectorTreeProducer,
-    QtViewerWrap,
-    TabTemplate,
 )
-
-from .cell_size import MinimalCellSize
 
 if TYPE_CHECKING:
     from napari.components.viewer_model import ViewerModel
@@ -288,17 +264,8 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         self.labels_node = [self.labels_node[i] for i in order]
         self.labels_root = [self.labels_root[i] for i in order]
 
-        clustermap = sns.clustermap(
-            hierarchy,
-            xticklabels=self.labels_of_clustermap,
-            yticklabels=self.labels_of_clustermap,
-            cmap="vlag",
-            row_linkage=linkage_data,
-            col_linkage=linkage_data,
-        )
-        clustermap1 = clustermap.data2d
-        self.plot = np.array(clustermap1)
-        plot = self.ax1.imshow(clustermap1, cmap=self.colormap.get_cmap())
+        self.plot = hierarchy[np.ix_(order, order)]
+        plot = self.ax1.imshow(self.plot, cmap=self.colormap.get_cmap())
         if self.colorbar:
             self.colorbar.remove()
         self.colorbar = self.figure.colorbar(plot, ax=self.ax1)

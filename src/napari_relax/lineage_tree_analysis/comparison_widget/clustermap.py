@@ -3,10 +3,10 @@ import pickle
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import mplcursors
 import numpy as np
-import seaborn as sns
 from magicgui import widgets
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
@@ -26,9 +26,8 @@ from ..._util_classes import (
     LayerCorrectorTreeProducer,
     TooltipButton,
 )
-from ..._utils import _select_correct_layer
-import matplotlib.cm as cm
 from ..._util_classes.custom_colorboxes import MplCompatibleColorCombobox
+from ..._utils import _select_correct_layer
 
 DICT_OF_CMAPS: list[str] = [
     "viridis",
@@ -242,16 +241,16 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         condensed_dist_matrix = squareform(hierarchy)
 
         linkage_data = linkage(condensed_dist_matrix, method="ward")
-        clustermap = sns.clustermap(
-            hierarchy,
-            xticklabels=labels_of_node_real,
-            yticklabels=labels_of_node_real,
-            cmap="vlag",
-            row_linkage=linkage_data,
-            col_linkage=linkage_data,
-        )
-        clustermap1 = clustermap.data2d
-        self.plot = np.array(clustermap1)
+        # clustermap = sns.clustermap(
+        #     hierarchy,
+        #     xticklabels=labels_of_node_real,
+        #     yticklabels=labels_of_node_real,
+        #     cmap="vlag",
+        #     row_linkage=linkage_data,
+        #     col_linkage=linkage_data,
+        # )
+        # clustermap1 = clustermap.data2d
+        # self.plot = np.array(clustermap1)
         order = dendrogram(linkage_data, no_plot=True)["leaves"]
         labels_of_roots = [labels_of_roots[i] for i in order]
         labels_of_nodes = [labels_of_nodes[i] for i in order]
@@ -259,8 +258,12 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         self.names_of_nodes = labels_of_nodes
         self.names_of_roots = labels_of_roots
         self.labels_of_node_real = labels_of_node_real
+        # plot = self.ax_of_clustermap.imshow(
+        #     clustermap1, cmap=self.colormap.get_cmap()
+        # )
+        self.plot = hierarchy[np.ix_(order, order)]
         plot = self.ax_of_clustermap.imshow(
-            clustermap1, cmap=self.colormap.get_cmap()
+            self.plot, cmap=self.colormap.get_cmap()
         )
         if self.colorbar:
             self.colorbar.remove()
@@ -282,7 +285,6 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
             f"Comparisons for Timepoint: {self.times[time]}"
         )
         self.ax_of_clustermap.set_aspect("auto")
-        self.figure.tight_layout()
         self.canvas.draw()
         cursor = mplcursors.cursor(
             self.ax_of_clustermap,

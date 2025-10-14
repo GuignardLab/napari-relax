@@ -34,7 +34,6 @@ dependencies = [
     "matplotlib",
     "lineagetree>=3.0.4",
     "mplcursors",
-    "seaborn",
 ]
 
 [project.optional-dependencies]

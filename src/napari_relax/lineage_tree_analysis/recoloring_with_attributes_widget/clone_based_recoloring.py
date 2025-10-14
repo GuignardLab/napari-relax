@@ -14,10 +14,10 @@ from ..._util_classes import (
     LayerCorrectorTreeProducer,
     TooltipButton,
 )
-from ..._utils import _select_correct_layer
 from ..._util_classes.custom_colorboxes import (
     MplCompatibleColorCombobox,
 )
+from ..._utils import _select_correct_layer
 
 
 class CloneRecoloring(LayerCorrectorTreeProducer):

@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
 import numpy as np
 from napari._qt.layer_controls.widgets.qt_colormap_control import (
     QtColormapComboBox,

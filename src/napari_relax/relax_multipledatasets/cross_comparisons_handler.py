@@ -1,51 +1,21 @@
-import copy
-from napari.utils import progress
-import pickle
-from functools import partial
-from itertools import combinations
-from pathlib import Path
-from time import sleep
 
-import matplotlib.pyplot as plt
-import mplcursors
-import numpy as np
-import seaborn as sns
-from lineagetree.tree_approximation import tree_style
 from magicgui import widgets
-from matplotlib.backends.backend_qtagg import (
-    FigureCanvasQTAgg as FigureCanvas,
-)
-from matplotlib.figure import Figure
-from napari._qt.qthreading import thread_worker
 from napari.components.viewer_model import ViewerModel
+from napari.utils import progress
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
-    QComboBox,
-    QHBoxLayout,
-    QListWidget,
     QPushButton,
-    QSizePolicy,
-    QSlider,
     QSplitter,
     QTabWidget,
     QVBoxLayout,
     QWidget,
 )
-from scipy.cluster.hierarchy import dendrogram, linkage
-from scipy.spatial.distance import squareform
 
-from napari_relax.relax_multipledatasets import manager_widget
-
-from .._reader import layer_preparation
 from .._util_classes import (
     BigDatasetNamesDialog,
-    Containerize,
-    DelayedTooltipEventFilter,
     LayerCorrectorTreeProducer,
     QtViewerWrap,
-    TabTemplate,
 )
-
 from .cell_size import MinimalCellSize
 from .cross_config import CrossConfig
 from .cross_embryo_comparison import Embryo_comparisons
