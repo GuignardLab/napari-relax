@@ -395,7 +395,7 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         layout = QVBoxLayout()
         layout.addStretch(1)
         self.setLayout(layout)
-        self.figure = Figure(figsize=(4, 4), constrained_layout=True)
+        self.figure = Figure(constrained_layout=True)
         self.canvas = FigureCanvas(self.figure)
         self.colorbar = None
         self.ax1 = self.figure.add_subplot(111)

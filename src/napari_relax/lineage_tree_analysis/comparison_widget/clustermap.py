@@ -422,9 +422,7 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
 
         layout = QVBoxLayout()
         self.setLayout(layout)
-        self.figure = Figure(
-            figsize=(4, 4),
-        )
+        self.figure = Figure(constrained_layout=True)
         self.canvas = FigureCanvas(self.figure)
         self.ax_of_clustermap = self.figure.add_subplot(111)
         self.layout().setContentsMargins(2, 1, 2, 0)
