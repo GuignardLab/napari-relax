@@ -81,12 +81,17 @@ class MplCompatibleColorCombobox(QWidget):
             self.combobox_continuous.addItem(name, name)
 
         self.color_label = QPushButton(self)
-        self.color_label.setFixedHeight(28)
+        self.color_label.setFixedHeight(self.combobox_continuous.height())
         self.combobox_continuous.currentTextChanged.connect(
             self.change_color_label
         )
         self.color_label.clicked.connect(self.combobox_continuous.showPopup)
-
+        self.color_label.setStyleSheet(
+            "border-top-right-radius: 0; border-bottom-right-radius: 0;"
+        )
+        self.combobox_continuous.setStyleSheet(
+            "border-top-left-radius: 0; border-bottom-left-radius: 0; margin-left: -1px;"
+        )
         color_cont = Containerize([self.color_label, self.combobox_continuous])
         layout = QVBoxLayout(self)
         layout.addWidget(color_cont)
@@ -196,5 +201,9 @@ class CustomQtColormapComboBox(QComboBox):
             self.dict_of_cmaps = dict_of_cmaps
         view = QListView()
         view.setMinimumWidth(COLORMAP_WIDTH + TEXT_WIDTH)
-        view.setItemDelegate(CustomColorStyledDelegate(ENTRY_HEIGHT))
+        view.setItemDelegate(
+            CustomColorStyledDelegate(
+                ENTRY_HEIGHT, dict_of_cmaps=dict_of_cmaps
+            )
+        )
         self.setView(view)

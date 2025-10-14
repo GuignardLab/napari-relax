@@ -1,5 +1,5 @@
+from __future__ import annotations
 from typing import TYPE_CHECKING
-
 import numpy as np
 from napari._qt.layer_controls.widgets.qt_colormap_control import (
     QtColormapComboBox,
@@ -17,7 +17,7 @@ from ..._util_classes import (
 )
 
 if TYPE_CHECKING:
-    pass
+    from matplotlib.colors import Colormap
 
 
 class ColorBoxLabel(QWidget):
@@ -39,6 +39,12 @@ class ColorBoxLabel(QWidget):
             self.change_color_label
         )
         self.color_label.clicked.connect(self.combobox_continuous.showPopup)
+        self.color_label.setStyleSheet(
+            "border-top-right-radius: 0; border-bottom-right-radius: 0;"
+        )
+        self.combobox_continuous.setStyleSheet(
+            "border-top-left-radius: 0; border-bottom-left-radius: 0; margin-left: -1px;"
+        )
         color_cont = Containerize([self.color_label, self.combobox_continuous])
         self.setLayout(QVBoxLayout())
         self.change_color_label()
@@ -58,5 +64,8 @@ class ColorBoxLabel(QWidget):
         self.color_label.setIcon(icon)
         self.color_label.setIconSize(pixmap.size())
 
-    def get_cmap(self):
+    def get_cmap(self) -> Colormap:
         return ALL_COLORMAPS[self.combobox_continuous.currentData()]
+
+    def value(self):
+        return self.combobox_continuous.currentText()

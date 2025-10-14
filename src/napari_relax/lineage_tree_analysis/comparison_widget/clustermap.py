@@ -27,6 +27,35 @@ from ..._util_classes import (
     TooltipButton,
 )
 from ..._utils import _select_correct_layer
+import matplotlib.cm as cm
+from ..._util_classes.custom_colorboxes import MplCompatibleColorCombobox
+
+DICT_OF_CMAPS: list[str] = [
+    "viridis",
+    "plasma",
+    "inferno",
+    "magma",
+    "cividis",
+    "Greys",
+    "Purples",
+    "Blues",
+    "Greens",
+    "Oranges",
+    "Reds",
+    "YlOrBr",
+    "YlOrRd",
+    "OrRd",
+    "PuRd",
+    "RdPu",
+    "BuPu",
+    "GnBu",
+    "PuBu",
+    "YlGnBu",
+    "PuBuGn",
+    "BuGn",
+    "YlGn",
+]
+
 
 if TYPE_CHECKING:
     from .config import ConfigurationPanel
@@ -178,9 +207,9 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         Called by the time_slider widget, will handle the time change and create the correct clustermap.
         """
         self.time = self.time_slider.value
-        self._clustermap_creator()
+        self.clustermap_creator()
 
-    def _clustermap_creator(self):
+    def clustermap_creator(self):
         """
         Plots the clustermap for the timepoint specified by the time slider, where each element is the pairwise comparison of all the sublineages present in
         the timepoint selected.
@@ -231,7 +260,7 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         self.names_of_roots = labels_of_roots
         self.labels_of_node_real = labels_of_node_real
         plot = self.ax_of_clustermap.imshow(
-            clustermap1, cmap=self.colormap.value
+            clustermap1, cmap=self.colormap.get_cmap()
         )
         if self.colorbar:
             self.colorbar.remove()
@@ -308,7 +337,7 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
 
     def receive_new_labels(self):
         self.labels = self.lT.labels
-        self._clustermap_creator()
+        self.clustermap_creator()
 
     def __init__(
         self, napari_viewer, configuration: "ConfigurationPanel" = None
@@ -356,39 +385,18 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
             choices=["max", "sum", "None"],
         )
         self.norm_dict = {"max": max, "sum": sum, "None": lambda x: 1}
-        self.colormap = widgets.ComboBox(
-            value="viridis",
-            choices=[
-                "viridis",
-                "plasma",
-                "inferno",
-                "magma",
-                "cividis",
-                "Greys",
-                "Purples",
-                "Blues",
-                "Greens",
-                "Oranges",
-                "Reds",
-                "YlOrBr",
-                "YlOrRd",
-                "OrRd",
-                "PuRd",
-                "RdPu",
-                "BuPu",
-                "GnBu",
-                "PuBu",
-                "YlGnBu",
-                "PuBuGn",
-                "BuGn",
-                "YlGn",
-            ],
+        self.colormap = MplCompatibleColorCombobox(
+            self,
+            {i: cm.get_cmap(i) for i in DICT_OF_CMAPS},
         )
         self.norm_color_cont = Containerize(
-            [self.norm_combo.native, self.colormap.native]
+            [self.norm_combo.native, self.colormap]
         )
-        self.colormap.changed.connect(self._clustermap_creator)
-        self.norm_combo.changed.connect(self._clustermap_creator)
+        self.colormap.combobox_continuous.currentIndexChanged.connect(
+            self.clustermap_creator
+        )
+
+        self.norm_combo.changed.connect(self.clustermap_creator)
         self.time_mover = widgets.Checkbox(value=False)
         time_mover_text = widgets.Label(value="Move in time")
         self.time_mover_box = widgets.Container(
@@ -415,7 +423,7 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         layout = QVBoxLayout()
         self.setLayout(layout)
         self.figure = Figure(
-            figsize=(3, 3),
+            figsize=(4, 4),
         )
         self.canvas = FigureCanvas(self.figure)
         self.ax_of_clustermap = self.figure.add_subplot(111)

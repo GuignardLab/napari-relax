@@ -34,7 +34,7 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
             self.clustermap.times,
         ) = product
         self.clustermap.time_slider.max = len(self.clustermap.comps) - 1
-        self.clustermap._clustermap_creator()
+        self.clustermap.clustermap_creator()
         if self.pbr:
             self.pbr.update()
 
@@ -67,9 +67,10 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
         self.worker.quit()
         self.stopbutton.setChecked(True)
         self.runbutton.setChecked(False)
-        self.pbr.clear()
-        self.pbr.close()
-        self.pbr = None
+        if self.pbr:
+            self.pbr.clear()
+            self.pbr.close()
+            self.pbr = None
 
     def __init__(self, napari_viewer):
         """

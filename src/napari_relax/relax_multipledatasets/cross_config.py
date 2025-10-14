@@ -47,8 +47,8 @@ from .cell_size import MinimalCellSize
 from .._util_classes.custom_colorboxes import MplCompatibleColorCombobox
 
 
-class Embryo_comparisons(LayerCorrectorTreeProducer):
-    name = "Embryo comparisons"
+class CrossConfig(LayerCorrectorTreeProducer):
+    name = "CrossConfig"
 
     def get_lt_manager(self, signal):
         """
@@ -66,10 +66,32 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
             for layer in self.viewer.layers
         }
 
+    def tab_maker(self):
+        selected_items = self.lineagetree_list.selectedItems()
+        self.tab_dictionary = {}
+        for _ in range(self.root_tabs.count()):
+            self.root_tabs.removeTab(0)
+        if len(selected_items) < 1:
+            default_tab = QWidget()
+            default_layout = QVBoxLayout()
+            default_layout.addStretch(1)
+            default_tab.setLayout(default_layout)
+            self.root_tabs.addTab(default_tab, "Empty Layout")
+        else:
+            for item in selected_items:
+                self.tab_dictionary[item.text()] = TabTemplate(
+                    self.manager.lineagetrees[item.text()], item.text()
+                )
+                self.root_tabs.addTab(
+                    self.tab_dictionary[item.text()], item.text()
+                )
+
+        self.root_tabs.update()
+        self.layout().update()
+
     @thread_worker
     def roots_selector(self):
         roots = {}
-        times = {}
         end_times = {}
         all_comparisons = []
         all_names = []
@@ -77,11 +99,11 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         local_manager = copy.copy(self.manager)
         for tab in self.tab_dictionary:
             roots[tab] = self.tab_dictionary[tab].show_roots()
-            times[tab] = self.tab_dictionary[tab].ret_times()
+            # self.times[tab] = self.tab_dictionary[tab].ret_times()
             end_times[tab] = self.tab_dictionary[tab].time_crop
         minimum_length = 1_000
-        for tab in times:
-            minimum_length = min(len(times[tab]), minimum_length)
+        for tab in self.times:
+            minimum_length = min(len(self.times[tab]), minimum_length)
         for t in range(int(minimum_length)):
             comparisons = {}
             self.all_roots = [
@@ -93,7 +115,7 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
                 for lt in roots
                 for node in roots[lt]
                 for selected_root in local_manager.lineagetrees[lt].nodes_at_t(
-                    times[lt][t], int(node)
+                    self.times[lt][t], int(node)
                 )
             ]
             names = dict(enumerate(self.all_roots))
@@ -123,9 +145,6 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
             all_names.append(names)
             all_norms.append(norms)
             yield all_comparisons, all_names, all_norms
-        self.worker.quit()
-        self.runbutton.setChecked(False)
-        self.stopbutton.setChecked(True)
 
     @property
     def lcm(self):
@@ -148,32 +167,9 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         self.stopbutton.setChecked(True)
         self.runbutton.setChecked(False)
 
-    def thread_handler(self):
-        continue_comps = True
-        self.comparisons = []
-        self.names = []
-        self.norms = []
-        for lineagetree in self.manager.lineagetrees:
-            if len(lineagetree) > 6:
-                continue_comps = BigDatasetNamesDialog()
-                continue_comps.exec_()
-                continue_comps = continue_comps.continue_proccess
-                break
-        if continue_comps:
-            self.worker = self.roots_selector()
-            self.worker.yielded.connect(self.update_comparisons)
-            self.worker.start()
-            self.runbutton.setChecked(True)
-            self.stopbutton.setChecked(False)
-
     def update_comparisons(self, product):
         self.comparisons, self.names, self.norms = product
         self.time_slider.max = len(product[0]) - 1
-        self.clustermap_creator()
-
-    def time_changer(self):
-        self.time = self.time_slider.value
-        self.clustermap_creator()
 
     def update_tree_style(self):
         self.downsampling_widget.setVisible(False)
@@ -206,6 +202,7 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
         self.viewer = napari_viewer
+        self.tab_dictionary = {}
         self.norm_combo = widgets.ComboBox(
             value="max",
             choices=["max", "sum", "None"],
@@ -240,8 +237,6 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
                 "YlGn",
             ],
         )
-        self.colormap.changed.connect(self.clustermap_creator)
-        self.norm_combo.changed.connect(self.clustermap_creator)
         self.comp_style = "simple"
         self.possible_styles = tree_style.list_names()
         self.lineagetree_list = QListWidget()
@@ -272,61 +267,13 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         label_for_style = widgets.Label(
             value="Select approximation for tree comparison.\n"
         )
+        self.root_tabs = QTabWidget()
 
-        self.range = 0
-
-        self.tab1.setLayout(layout_1)
-        self.tab1.layout().addWidget(label_for_style.native)
-        self.tab1.layout().addWidget(self.styl_combobox)
-        self.tab1.layout().addWidget(self.lineagetree_list)
-        self.tab1.layout().addWidget(self.root_tabs)
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+        self.layout().addWidget(label_for_style.native)
+        self.layout().addWidget(self.styl_combobox)
+        self.layout().addWidget(self.lineagetree_list)
+        self.layout().addWidget(self.root_tabs)
         self.tab_maker()
-
-        self.tab2 = QWidget()
-        layout_2 = QVBoxLayout()
-        layout_2.addStretch(1)
-        self.tab2.setLayout(layout_2)
-        self.figure = Figure(figsize=(3, 3), constrained_layout=True)
-        self.canvas = FigureCanvas(self.figure)
-        self.colorbar = None
-        self.ax1 = self.figure.add_subplot(111)
-        self.tab2.layout().addWidget(self.tree_canvas)
-
-        self.tab2.layout().addWidget(
-            Containerize([self.norm_combo.native, self.colormap.native])
-        )
-        self.tab2.layout().addWidget(self.time_mover_box.native)
-        self.tab2.layout().addWidget(self.time_mover_box.native)
-        self.tab2.layout().addWidget(self.canvas)
-        self.tab2.layout().addWidget(self.time_slider.native)
-
-        whole_layout = QVBoxLayout()
-        whole_layout.addStretch(1)
-        self.widget = QWidget()
-        self.widget.setLayout(whole_layout)
-        self.tabs.addTab(self.tab1, "Configuration")
-        self.tabs.addTab(self.tab2, "Plots")
-
-        self.widget.layout().addWidget(self.tabs)
-        self.widget.layout().addWidget(self.button_container.native)
-        all_splitter.addWidget(viewer_splitter)
-        all_splitter.addWidget(self.widget)
-        all_layout = QVBoxLayout()
-        self.setLayout(all_layout)
-        all_layout.addWidget(all_splitter)
-        self.stopbutton.released.connect(self.kill_thread)
-        self.stopbutton.setChecked(True)
-        self.figure.canvas.mpl_connect("button_press_event", self._click)
-        self.save_pkl = widgets.FileEdit(
-            mode="w", value=Path(".").absolute(), filter="*.pkl*"
-        )
-        self.save_button = QPushButton("Save Comparisons")
-        self.save_button.native = self.save_button
-        self.save_button.name = "save_button"
-        self.save_button.pressed.connect(self.save_dictionary)
-        container = widgets.Container(
-            widgets=[self.save_pkl, self.save_button],
-            layout="horizontal",
-            labels=False,
-        )
-        self.tab2.layout().addWidget(container.native)
+        layout.addStretch(1)
