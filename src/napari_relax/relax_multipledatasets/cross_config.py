@@ -179,40 +179,6 @@ class CrossConfig(LayerCorrectorTreeProducer):
         super().__init__(napari_viewer)
         self.viewer = napari_viewer
         self.tab_dictionary = {}
-        self.norm_combo = widgets.ComboBox(
-            value="max",
-            choices=["max", "sum", "None"],
-        )
-        self.norm_dict = {"max": max, "sum": sum, "None": lambda x: 1}
-
-        self.colormap = widgets.ComboBox(
-            value="viridis",
-            choices=[
-                "viridis",
-                "plasma",
-                "inferno",
-                "magma",
-                "cividis",
-                "Greys",
-                "Purples",
-                "Blues",
-                "Greens",
-                "Oranges",
-                "Reds",
-                "YlOrBr",
-                "YlOrRd",
-                "OrRd",
-                "PuRd",
-                "RdPu",
-                "BuPu",
-                "GnBu",
-                "PuBu",
-                "YlGnBu",
-                "PuBuGn",
-                "BuGn",
-                "YlGn",
-            ],
-        )
         self.comp_style = "simple"
         self.possible_styles = tree_style.list_names()
         self.lineagetree_list = QListWidget()
