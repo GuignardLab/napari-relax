@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import pickle
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -28,6 +29,7 @@ from .._reader import layer_preparation
 from .._util_classes import (
     Containerize,
     LayerCorrectorTreeProducer,
+    TooltipButton,
 )
 
 if TYPE_CHECKING:
@@ -366,6 +368,7 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         self.canvas = FigureCanvas(self.figure)
         self.colorbar = None
         self.ax1 = self.figure.add_subplot(111)
+        layout.addSpacing(50)
         self.layout().addWidget(self.tree_canvas)
 
         self.layout().addWidget(
@@ -395,3 +398,16 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
             labels=False,
         )
         self.layout().addWidget(container.native)
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(
+            os.path.join(current_dir, "cross_comparison.html"),
+            encoding="utf-8",
+        ) as f:
+            txt = f.read()
+        self.node_tooltip = TooltipButton(txt)
+        self.node_tooltip.setParent(self)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)

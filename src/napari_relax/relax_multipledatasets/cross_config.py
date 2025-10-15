@@ -1,4 +1,5 @@
 import copy
+import os
 from itertools import combinations
 from time import sleep
 
@@ -18,6 +19,7 @@ from .._util_classes import (
     Containerize,
     LayerCorrectorTreeProducer,
     TabTemplate,
+    TooltipButton,
 )
 
 
@@ -251,3 +253,16 @@ class CrossConfig(LayerCorrectorTreeProducer):
         self.layout().addWidget(self.root_tabs)
         self.tab_maker()
         layout.addStretch(1)
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(
+            os.path.join(current_dir, "cross_config.html"),
+            encoding="utf-8",
+        ) as f:
+            txt = f.read()
+        self.node_tooltip = TooltipButton(txt)
+        self.node_tooltip.setParent(self)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
