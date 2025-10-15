@@ -1,4 +1,3 @@
-
 from magicgui import widgets
 from napari.components.viewer_model import ViewerModel
 from napari.utils import progress

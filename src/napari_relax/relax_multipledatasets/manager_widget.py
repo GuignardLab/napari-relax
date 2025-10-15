@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from lineagetree import LineageTree, LineageTreeManager
@@ -10,7 +11,6 @@ from qtpy.QtWidgets import (
     QPushButton,
     QVBoxLayout,
 )
-import os
 
 from .._reader import layer_preparation
 from .._util_classes import (
