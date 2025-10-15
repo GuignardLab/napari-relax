@@ -228,8 +228,9 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.canvas.setFocus()
         if self.lT is not None:
             root_id = self.roots[int(self.graph_slider.value())]
+            normal_label = "Unlabeled"
             self.w_lineedit.setPlaceholderText(
-                f"ID of root: {root_id} - Label: {self.lT.labels[root_id]}"
+                f"ID of root: {root_id} - Label: {self.lT.labels.get(root_id, normal_label)}"
             )
         self.w_lineedit.clear()
         self.w_lineedit.update()
@@ -405,7 +406,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 self.w_lineedit.update()
 
                 # Store the selected_subtree from bridge state to restore after slider triggers progeny_diagram_loader
-                bridge_selected_subtree = None
+                bridge_selected_subtree = {}
                 if (
                     self.bridge
                     and "selected_subtree" in self.bridge.state
@@ -426,14 +427,13 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                     self.progeny_diagram_loader()
 
                 # Now restore the highlighting state after the slider change has completed
-                if bridge_selected_subtree and hasattr(self, "canvas"):
-                    # Set the selected subtree and redraw to show highlighting
-                    self.canvas.selected_subtree = bridge_selected_subtree
-                    self.canvas.draw_graph()
+                # Set the selected subtree and redraw to show highlighting
+                self.canvas.selected_subtree = bridge_selected_subtree
+                self.canvas.draw_graph()
 
-                    # Also restore highlighting on companion layers
-                    selected_node_ids = list(bridge_selected_subtree)
-                    self.bridge.highlight_lineages(selected_node_ids)
+                # Also restore highlighting on companion layers
+                selected_node_ids = list(bridge_selected_subtree)
+                self.bridge.highlight_lineages(selected_node_ids)
 
                 # Restore other state
                 if self.bridge:
@@ -464,8 +464,8 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         if hasattr(self, "canvas") and hasattr(self.canvas, "selected_subtree"):
             selected_subtree = self.canvas.selected_subtree.copy() if self.canvas.selected_subtree else None
         
-        # Reset visibility (this will clear the selection)
-        self.bridge.reset_visibility()
+        # # Reset visibility (this will clear the selection)
+        # self.bridge.reset_visibility()
         
         # After resetting visibility, restore the selection for the currently selected lineage
         if selected_subtree:
