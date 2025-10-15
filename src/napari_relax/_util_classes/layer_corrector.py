@@ -39,7 +39,6 @@ class LayerCorrectorTreeProducer(QWidget):
     def get_lT(self) -> LineageTree:
         """
         Function that reads the LineageTree structure through one of the layers.
-
         """
         active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is None:
