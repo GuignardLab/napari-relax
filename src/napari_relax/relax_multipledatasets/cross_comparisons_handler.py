@@ -21,7 +21,7 @@ from .cross_embryo_comparison import Embryo_comparisons
 
 
 class CrossHandler(LayerCorrectorTreeProducer):
-    name = "Embryo comparisons"
+    name = "Cross Distance Calculation"
 
     def get_lt_manager(self, signal):
         """

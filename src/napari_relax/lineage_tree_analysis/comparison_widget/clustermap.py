@@ -241,16 +241,6 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         condensed_dist_matrix = squareform(hierarchy)
 
         linkage_data = linkage(condensed_dist_matrix, method="ward")
-        # clustermap = sns.clustermap(
-        #     hierarchy,
-        #     xticklabels=labels_of_node_real,
-        #     yticklabels=labels_of_node_real,
-        #     cmap="vlag",
-        #     row_linkage=linkage_data,
-        #     col_linkage=linkage_data,
-        # )
-        # clustermap1 = clustermap.data2d
-        # self.plot = np.array(clustermap1)
         order = dendrogram(linkage_data, no_plot=True)["leaves"]
         labels_of_roots = [labels_of_roots[i] for i in order]
         labels_of_nodes = [labels_of_nodes[i] for i in order]
@@ -258,9 +248,6 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         self.names_of_nodes = labels_of_nodes
         self.names_of_roots = labels_of_roots
         self.labels_of_node_real = labels_of_node_real
-        # plot = self.ax_of_clustermap.imshow(
-        #     clustermap1, cmap=self.colormap.get_cmap()
-        # )
         self.plot = hierarchy[np.ix_(order, order)]
         plot = self.ax_of_clustermap.imshow(
             self.plot, cmap=self.colormap.get_cmap()

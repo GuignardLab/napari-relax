@@ -24,7 +24,7 @@ from .._util_classes import (
 
 
 class CrossConfig(LayerCorrectorTreeProducer):
-    name = "CrossConfig"
+    name = "Cross Distance Calculation"
 
     def get_lt_manager(self, signal):
         """

@@ -115,11 +115,11 @@ class LineageTreeAnalysisWidget(ReLAXWidget):
         super().__init__(napari_viewer)
         explore_and_relabel = self.widget_dictionary["Explore and Relabel"]
         explore_and_relabel.w_lineedit.returnPressed.connect(
-            self.widget_dictionary["ComparisonsHandler"].config.label_update
+            self.widget_dictionary["Distance Calculation"].config.label_update
         )
         explore_and_relabel.w_lineedit.returnPressed.connect(
             self.widget_dictionary[
-                "ComparisonsHandler"
+                "Distance Calculation"
             ].clustermap.receive_new_labels
         )
         self.widget_dictionary[
@@ -137,5 +137,5 @@ class CrossEmbryoComparisonWidget(ReLAXWidget):
         self.widget_dictionary[
             "Manager Manipulation"
         ].send_manager_to_classes.connect(
-            self.widget_dictionary["Embryo comparisons"].get_lt_manager
+            self.widget_dictionary["Cross Distance Calculation"].get_lt_manager
         )

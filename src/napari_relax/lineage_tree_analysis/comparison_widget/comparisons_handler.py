@@ -1,9 +1,5 @@
 from napari.utils import progress
-from qtpy.QtWidgets import (
-    QPushButton,
-    QTabWidget,
-    QVBoxLayout,
-)
+from qtpy.QtWidgets import QPushButton, QTabWidget, QVBoxLayout, QApplication
 
 from ..._util_classes import (
     Containerize,
@@ -12,6 +8,8 @@ from ..._util_classes import (
 from .clustermap import OnlineClustermap
 from .config import ConfigurationPanel
 
+from qtpy.QtCore import QTimer
+
 
 class ComparisonsHandler(LayerCorrectorTreeProducer):
     """
@@ -19,7 +17,7 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
     plot Clustermaps and letting the user select respective Lineages.
     """
 
-    name = "ComparisonsHandler"
+    name = "Distance Calculation"
 
     def update_dictionary(self, product):
         """
@@ -46,31 +44,32 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
         self.comps = []
         self.naming = []
         self.norms = []
+        self.pbr = progress(self.clustermap.times)
+        QApplication.processEvents()
+        self.pbr.update(0)
         self.worker = self.config.thread_worker()
         self.worker.aborted.connect(self.kill_thread)
 
         self.config.times_selector()
         if not self.config.times:
-            self.worker.quit()
+            self.kill_thread()
             return
-        self.pbr = progress(self.clustermap.times)
         self.worker.yielded.connect(self.update_dictionary)
+        self.worker.returned.connect(self.kill_thread)
+        self.worker.errored.connect(self.kill_thread)
         self.worker.start()
         self.runbutton.setChecked(True)
         self.stopbutton.setChecked(False)
-        self.worker.returned.connect(self.kill_thread)
 
     def kill_thread(self, dummy_event=None):
         """
         Function to kill the thread if the user decides to.
         """
+        if hasattr(self, "pbr"):
+            self.pbr.close()
         self.worker.quit()
         self.stopbutton.setChecked(True)
         self.runbutton.setChecked(False)
-        if self.pbr:
-            self.pbr.clear()
-            self.pbr.close()
-            self.pbr = None
 
     def __init__(self, napari_viewer):
         """
@@ -80,7 +79,7 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
             napari_viewer (napari.Viewer): the parent napari viewer
         """
         super().__init__(napari_viewer)
-        self.pbr = None
+
         self.runbutton = QPushButton("Run Comparisons")
         self.runbutton.native = self.runbutton
         self.runbutton.name = "runbutton"
