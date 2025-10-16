@@ -97,11 +97,6 @@ class CellSize(LayerCorrectorTreeProducer):
                     )
                     layer.size = value
 
-                    # Update the original size in the InteractionBridge
-                    bridge = InteractionBridge.get_bridge_for_layer(layer)
-                    if bridge:
-                        bridge.update_original_size(value)
-
                     if layer is active_layer:
                         new_size = value
 
@@ -110,11 +105,6 @@ class CellSize(LayerCorrectorTreeProducer):
             # Update only the active layer
             if active_layer:
                 active_layer.size = new_size
-
-                # Update the original size in the InteractionBridge
-                bridge = InteractionBridge.get_bridge_for_layer(active_layer)
-                if bridge:
-                    bridge.update_original_size(new_size)
 
             self.slider.blockSignals(True)
             # Update the slider position according to the new size
