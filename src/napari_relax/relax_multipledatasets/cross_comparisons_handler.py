@@ -17,10 +17,12 @@ from .._util_classes import (
 )
 from .cell_size import MinimalCellSize
 from .cross_config import CrossConfig
-from .cross_embryo_comparison import Embryo_comparisons
+from .cross_embryo_comparison import CrossClustermap
 
 
 class CrossHandler(LayerCorrectorTreeProducer):
+    """Class to laod the widgets for comparing lineages across datasets."""
+
     name = "Cross Distance Calculation"
 
     def get_lt_manager(self, signal):
@@ -132,7 +134,7 @@ class CrossHandler(LayerCorrectorTreeProducer):
         )
         self.config = CrossConfig(self.viewer)
 
-        self.comparisonswidget = Embryo_comparisons(
+        self.comparisonswidget = CrossClustermap(
             self.viewer, dataset_viewers=viewers
         )
 

@@ -62,7 +62,7 @@ DICT_OF_CMAPS: list[str] = [
 ]
 
 
-class Embryo_comparisons(LayerCorrectorTreeProducer):
+class CrossClustermap(LayerCorrectorTreeProducer):
     name = "clustermap"
 
     def get_lt_manager(self, signal):
@@ -346,7 +346,7 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         self.norm_dict = {"max": max, "sum": sum, "None": lambda x: 1}
 
         self.figures, self.axes = plt.subplots(
-            nrows=1, ncols=2, figsize=(4, 3)
+            nrows=1, ncols=2, figsize=(4, 3), sharey=True
         )
         for ax in self.axes:
             ax.axis("off")
@@ -378,8 +378,6 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         self.colormap.combobox_continuous.currentIndexChanged.connect(
             self.clustermap_creator
         )
-
-        self.layout().addWidget(self.time_mover_box.native)
         self.layout().addWidget(self.time_mover_box.native)
         self.layout().addWidget(self.canvas)
         self.layout().addWidget(self.time_slider.native)

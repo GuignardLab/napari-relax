@@ -24,10 +24,7 @@ from ..._util_classes.tooltip import TooltipButton
 
 
 class ConfigurationPanel(LayerCorrectorTreeProducer):
-    """
-    Widget to produce and load comparisons between lineages, which are used to
-    plot Clustermaps and letting the user select respective Lineages.
-    """
+    """Widget to calculate the pairwise comparisons of any configuration selected."""
 
     name = "ConfigurationPanel"
 

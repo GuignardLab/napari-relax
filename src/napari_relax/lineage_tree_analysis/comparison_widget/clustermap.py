@@ -60,11 +60,8 @@ if TYPE_CHECKING:
     from .config import ConfigurationPanel
 
 
-class OnlineClustermap(LayerCorrectorTreeProducer):
-    """
-    Widget to produce and load comparisons between lineages, which are used to
-    plot Clustermaps and letting the user select respective Lineages.
-    """
+class Clustermap(LayerCorrectorTreeProducer):
+    """Contains the clustermap and its interactions."""
 
     name = "Distance Calculation"
 
@@ -395,7 +392,7 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         )
         # For plot tab#
         self.figures, self.axes_for_tree_graphs = plt.subplots(
-            nrows=1, ncols=2, figsize=(1, 2), sharey=True
+            nrows=1, ncols=2, figsize=(4, 3), sharey=True
         )
         for ax in self.axes_for_tree_graphs:
             ax.axis("off")

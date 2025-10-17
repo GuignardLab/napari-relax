@@ -5,12 +5,15 @@ from ..._util_classes import (
     Containerize,
     LayerCorrectorTreeProducer,
 )
-from .clustermap import OnlineClustermap
+from .clustermap import Clustermap
 from .config import ConfigurationPanel
 
 
 class ComparisonsHandler(LayerCorrectorTreeProducer):
-    """ """
+    """Class to laod the widgets for comparing lineages.
+    The 2 widgets loaded are:
+    ConfigurationPanel: It contains the configuration options and runs the comparisons.
+    Clustermap: It shows the result on a clustermap."""
 
     name = "Distance Calculation"
 
@@ -86,7 +89,7 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
         tabs = QTabWidget()
         self.config = ConfigurationPanel(self.viewer)
 
-        self.clustermap = OnlineClustermap(self.viewer, self.config)
+        self.clustermap = Clustermap(self.viewer, self.config)
         tabs.addTab(self.config, "Configuration Panel")
         tabs.addTab(self.clustermap, "Clustermap")
         self.setLayout(layout)
