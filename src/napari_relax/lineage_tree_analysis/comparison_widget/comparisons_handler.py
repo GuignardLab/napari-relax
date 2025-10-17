@@ -10,10 +10,7 @@ from .config import ConfigurationPanel
 
 
 class ComparisonsHandler(LayerCorrectorTreeProducer):
-    """
-    Widget to produce and load comparisons between lineages, which are used to
-    plot Clustermaps and letting the user select respective Lineages.
-    """
+    """ """
 
     name = "Distance Calculation"
 
@@ -44,8 +41,9 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
         self.norms = []
         self.config.times_selector()
         if not self.config.times:
+            self.kill_thread()
             return
-        self.pbr = progress(range(len(self.clustermap.times)))
+        self.pbr = progress(range(len(self.config.times)))
         self.worker = self.config.thread_worker()
         self.worker.aborted.connect(self.kill_thread)
         self.worker.returned.connect(self.kill_thread)
@@ -59,9 +57,10 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
         """
         Function to kill the thread if the user decides to.
         """
-        if hasattr(self, "pbr"):
+        if self.pbr:
             self.pbr.close()
             self.pbr.clear()
+            self.pbr = None
         self.worker.quit()
         self.stopbutton.setChecked(True)
         self.runbutton.setChecked(False)
@@ -74,7 +73,7 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
             napari_viewer (napari.Viewer): the parent napari viewer
         """
         super().__init__(napari_viewer)
-
+        self.pbr = None
         self.runbutton = QPushButton("Run Comparisons")
         self.runbutton.native = self.runbutton
         self.runbutton.name = "runbutton"
