@@ -1,5 +1,5 @@
 from napari.utils import progress
-from qtpy.QtWidgets import QPushButton, QTabWidget, QVBoxLayout, QApplication
+from qtpy.QtWidgets import QPushButton, QTabWidget, QVBoxLayout
 
 from ..._util_classes import (
     Containerize,
@@ -7,8 +7,6 @@ from ..._util_classes import (
 )
 from .clustermap import OnlineClustermap
 from .config import ConfigurationPanel
-
-from qtpy.QtCore import QTimer
 
 
 class ComparisonsHandler(LayerCorrectorTreeProducer):
@@ -44,19 +42,15 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
         self.comps = []
         self.naming = []
         self.norms = []
-        self.pbr = progress(self.clustermap.times)
-        QApplication.processEvents()
-        self.pbr.update(0)
-        self.worker = self.config.thread_worker()
-        self.worker.aborted.connect(self.kill_thread)
-
         self.config.times_selector()
         if not self.config.times:
-            self.kill_thread()
             return
-        self.worker.yielded.connect(self.update_dictionary)
+        self.pbr = progress(range(len(self.clustermap.times)))
+        self.worker = self.config.thread_worker()
+        self.worker.aborted.connect(self.kill_thread)
         self.worker.returned.connect(self.kill_thread)
         self.worker.errored.connect(self.kill_thread)
+        self.worker.yielded.connect(self.update_dictionary)
         self.worker.start()
         self.runbutton.setChecked(True)
         self.stopbutton.setChecked(False)
@@ -67,6 +61,7 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
         """
         if hasattr(self, "pbr"):
             self.pbr.close()
+            self.pbr.clear()
         self.worker.quit()
         self.stopbutton.setChecked(True)
         self.runbutton.setChecked(False)
@@ -100,7 +95,6 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
         self.layout().addWidget(
             Containerize([self.runbutton, self.stopbutton])
         )
-
         self.setLayout(layout)
         self.runbutton.released.connect(self.thread_handler)
         self.stopbutton.released.connect(self.kill_thread)

@@ -1,7 +1,6 @@
 from .cells_size import (
     CellSize,
 )
-from .comparison_widget.clustermap import OnlineClustermap
 from .comparison_widget.comparisons_handler import ComparisonsHandler
 from .lineage_viewer_widget.progeny_selection import ProgenySelection
 from .recoloring_with_attributes_widget.recoloring_widget import (

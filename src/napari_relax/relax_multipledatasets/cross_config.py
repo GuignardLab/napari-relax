@@ -75,7 +75,6 @@ class CrossConfig(LayerCorrectorTreeProducer):
         local_manager = copy.copy(self.manager)
         for tab in self.tab_dictionary:
             roots[tab] = self.tab_dictionary[tab].show_roots()
-            # self.times[tab] = self.tab_dictionary[tab].ret_times()
             end_times[tab] = self.tab_dictionary[tab].time_crop
         minimum_length = 1_000
         for tab in self.times:

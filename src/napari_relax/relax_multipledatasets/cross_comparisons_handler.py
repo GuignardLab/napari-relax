@@ -41,7 +41,7 @@ class CrossHandler(LayerCorrectorTreeProducer):
             for layer in self.viewer.layers
         }
 
-    def kill_thread(self):
+    def kill_thread(self, dummy_event=None):
         """
         Function to kill the thread if the user decides to.
         """
@@ -78,11 +78,12 @@ class CrossHandler(LayerCorrectorTreeProducer):
             self.pbr = progress(range(minimum_length))
             self.worker = self.config.roots_selector()
             self.worker.aborted.connect(self.kill_thread)
+            self.worker.returned.connect(self.kill_thread)
+            self.worker.errored.connect(self.kill_thread)
             self.worker.yielded.connect(self.update_comparisons)
             self.worker.start()
             self.runbutton.setChecked(True)
             self.stopbutton.setChecked(False)
-            self.worker.returned.connect(self.kill_thread)
 
     def update_comparisons(self, product):
         (
