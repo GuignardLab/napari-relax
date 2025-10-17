@@ -85,11 +85,11 @@ class Clustermap(LayerCorrectorTreeProducer):
             pos_after = active_layer.metadata["graphs"][1][val][after]
 
             tmp_pos = np.array(pos_prev) - np.array([0, prev_cycle])
-            ax.scatter(*tmp_pos, c=color, s=0.2, zorder=1001)
+            ax.scatter(*tmp_pos, color=color, s=0.2, zorder=1001)
             ax.plot(
                 (tmp_pos[0], pos_after[0]),
                 (tmp_pos[1], pos_after[1]),
-                c=color,
+                color=color,
                 linewidth=0.4,
                 zorder=1000,
             )
