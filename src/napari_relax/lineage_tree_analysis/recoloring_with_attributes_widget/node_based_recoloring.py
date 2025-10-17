@@ -75,8 +75,8 @@ def filter_dicts_of_objects_by_values(
 
 
 class LineeditCheckbox(QCheckBox):
-    """Custom lineedit box that only accepts floats
-    """
+    """Custom lineedit box that only accepts floats"""
+
     def __init__(self, parent=None):
         super().__init__("Custom value", parent)
         self.lineedit = QLineEdit()
@@ -104,6 +104,7 @@ class MissingData(QWidget):
     QWidget : _type_
         _description_
     """
+
     def __init__(
         self,
         parent: QWidget | None = None,
@@ -179,9 +180,8 @@ class MissingData(QWidget):
 
 
 class Quantitative(LayerCorrectorTreeProducer):
-    """The widget to handle the different attributes.
+    """The widget to handle the different attributes."""
 
-    """
     color_signal = Signal(dict)
 
     def __init__(self, napari_viewer):
@@ -232,7 +232,9 @@ class Quantitative(LayerCorrectorTreeProducer):
             return
 
         existing_nodes = set(self.lT.__getattribute__(attr).values())
-        nonexistingnodes = set(active_layer.metadata["napari2lT"].values()) - existing_nodes
+        nonexistingnodes = (
+            set(active_layer.metadata["napari2lT"].values()) - existing_nodes
+        )
 
         for node, value in self.lT.__getattribute__(attr).items():
             cell_color[node] = cmap((value - min_val) / (max_val - min_val))
@@ -255,29 +257,27 @@ class Quantitative(LayerCorrectorTreeProducer):
                 show_warning("Not implemented yet!")
                 return
             case "Mean":
-                mean_val = (np.nanmean(
-                    list(self.lT.__getattribute__(attr).values())
-                )-min_val)/(max_val-min_val)
+                mean_val = (
+                    np.nanmean(list(self.lT.__getattribute__(attr).values()))
+                    - min_val
+                ) / (max_val - min_val)
                 for node in nonexistingnodes:
-                        cell_color[node] = cmap(
-                            mean_val
-                        )
+                    cell_color[node] = cmap(mean_val)
             case "Min":
                 for node in nonexistingnodes:
-                        cell_color[node] = cmap(0)
+                    cell_color[node] = cmap(0)
             case "Median":
-                median =( np.nanmedian(
-                    list(self.lT.__getattribute__(attr).values())
-                )- min_val)/(max_val-min_val)
+                median = (
+                    np.nanmedian(list(self.lT.__getattribute__(attr).values()))
+                    - min_val
+                ) / (max_val - min_val)
                 for node in nonexistingnodes:
-                        cell_color[node] = cmap(
-                            median
-                        )
+                    cell_color[node] = cmap(median)
             case val if isinstance(val, float | int):
                 for node in nonexistingnodes:
-                        cell_color[node] = cmap(
-                            (val - min_val) / (max_val - min_val)
-                        )
+                    cell_color[node] = cmap(
+                        (val - min_val) / (max_val - min_val)
+                    )
 
         self.color_signal.emit(
             {
