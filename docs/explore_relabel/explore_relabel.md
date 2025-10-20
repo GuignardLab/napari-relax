@@ -9,14 +9,14 @@ The core parts of this Exploration and Relabeling are:
 This component contains features for navigating the lineages using both the Lineage Viewer and the Napari viewer and renaming lineages.
 
 
-The Lineage Viewer is the plugin's first component, enabling lineage exploration, relabeling, and navigation through the viewer's time data.
+The Lineage Viewer is the plugin's first component, enabling lineage exploration, relabelling, and navigation through the combination of both viewers.
 
 ![exploration_panel](./exploration.png)
 
 1. **Lineage Viewer configuration button**: Press to open the configuration window
 
 - **Lineage Viewer configuration window**: Using this window, the user may change the Lineage viewers: node size, node color, edge size, label fontsize, and the color of the selected cells.
-- **The Lineage Viewer**: Using this viewer, the user may inspect all the lineages that exist in a dataset. It is zoomable and pannable; if zoomed in enough, the user may also see the label for each node. **Left + Clicking** on the viewer, the user can select the nodes of subtrees by clicking on the graph in both viewers. Also, when clicking, the user may use component 5 to change the label of any subtree.
+- **The Lineage Viewer**: Using this viewer, the user can inspect all the lineages that have a height of 75% of the dataset. It is zoomable and pannable; if zoomed in enough, the user may also see the label for each node. **Left + Clicking** on the viewer, the user can select the nodes of subtrees by clicking on the graph in both viewers. Also, when clicking, the user may use component 5 to change the label of any subtree.
 
     *Controls of the viewer:*
 
