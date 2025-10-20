@@ -32,7 +32,13 @@ Replace code below according to your needs.
 from typing import TYPE_CHECKING
 
 from magicgui import widgets
-from qtpy.QtWidgets import QComboBox, QStackedWidget, QVBoxLayout, QWidget
+from qtpy.QtWidgets import (
+    QApplication,
+    QComboBox,
+    QStackedWidget,
+    QVBoxLayout,
+    QWidget,
+)
 
 from . import lineage_tree_analysis, relax_multipledatasets
 
@@ -86,7 +92,6 @@ class ReLAXWidget(QWidget):
         self.viewer = napari_viewer
         main_control = self.__make_widget_combobox()
         layout = QVBoxLayout()
-        layout.addStretch(1)
         layout.setSpacing(0)
         self.setLayout(layout)
         self.layout().addWidget(main_control.native)
@@ -94,6 +99,12 @@ class ReLAXWidget(QWidget):
             self.layout().addWidget(
                 self.module.__overall_widget__(self.viewer)
             )
+        screen = QApplication.primaryScreen()
+        dpi = screen.logicalDotsPerInch()
+        scale = dpi / 96
+        font = self.font()
+        font.setPointSizeF(font.pointSizeF() * scale)
+        self.setFont(font)
 
 
 class LineageTreeAnalysisWidget(ReLAXWidget):
@@ -101,17 +112,19 @@ class LineageTreeAnalysisWidget(ReLAXWidget):
 
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
-        self.widget_dictionary[
-            "Explore and Relabel"
-        ].w_lineedit.returnPressed.connect(
-            self.widget_dictionary["Distance Calculation"].label_update
+        explore_and_relabel = self.widget_dictionary["Explore and Relabel"]
+        explore_and_relabel.w_lineedit.returnPressed.connect(
+            self.widget_dictionary["Distance Calculation"].config.label_update
+        )
+        explore_and_relabel.w_lineedit.returnPressed.connect(
+            self.widget_dictionary[
+                "Distance Calculation"
+            ].clustermap.receive_new_labels
         )
         self.widget_dictionary[
-            "Attribute Recoloring"
+            "Attribute Based Recoloring"
         ].coloring_widget.quant.color_signal.connect(
-            self.widget_dictionary[
-                "Explore and Relabel"
-            ].canvas.change_attributes
+            explore_and_relabel.canvas.change_attributes
         )
 
 
@@ -123,5 +136,5 @@ class CrossEmbryoComparisonWidget(ReLAXWidget):
         self.widget_dictionary[
             "Manager Manipulation"
         ].send_manager_to_classes.connect(
-            self.widget_dictionary["Embryo comparisons"].get_lt_manager
+            self.widget_dictionary["Cross Distance Calculation"].get_lt_manager
         )

@@ -9,6 +9,9 @@ contributions:
     - id: napari-relax.get_reader
       python_name: napari_relax._reader:napari_get_reader
       title: LineageTree reader
+    - id: napari-relax.get_writer
+      python_name: napari_relax._writer:write_single_image
+      title: LineageTree writer
     - id: napari-relax.lineage_tree_analysis
       python_name: napari_relax._widgets:LineageTreeAnalysisWidget
       title: Lineage tree analysis
@@ -18,16 +21,27 @@ contributions:
     - id: napari-relax.load_demo
       python_name: napari_relax.demo_data:load_demo
       title: Load data
+    - id: napari-relax.load_celegans
+      python_name: napari_relax.demo_data:load_celegans
+      title: Load C. elegans
 
   readers:
     - command: napari-relax.get_reader
       accepts_directories: false
       filename_patterns: ["*.lT", "*.lt", "*.LT", "*.mastodon", "*.xml"]
 
+  writers:
+    - command: napari-relax.get_writer
+      layer_types: ["points"]
+      filename_extensions: [".lt", ".lT", ".LT"]
+
   sample_data:
     - command: napari-relax.load_demo
       display_name: demo lineageTree dataset
       key: unique_id.6
+    - command: napari-relax.load_celegans
+      display_name: C. elegans dataset
+      key: unique_id.7
 
   widgets:
     - command: napari-relax.lineage_tree_analysis

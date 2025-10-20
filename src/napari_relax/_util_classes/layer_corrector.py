@@ -1,13 +1,14 @@
-from LineageTree import lineageTree
+from lineagetree import LineageTree
 from napari.layers import Points
 from qtpy.QtWidgets import (
     QWidget,
 )
 
 from .._utils import _select_correct_layer
+from .eventfilter_for_delayed_tooltip import DelayedTooltipEventFilter
 
 
-class Layer_corrector_Tree_Producer(QWidget):
+class LayerCorrectorTreeProducer(QWidget):
     """
     Parent Class that is called inside the plugin, it produces no interface.
     Contains functions that are useful for the used Widgets inside the plugin:
@@ -27,7 +28,7 @@ class Layer_corrector_Tree_Producer(QWidget):
         active_layer = _select_correct_layer(self, Points)
         if not active_layer.selected_data:
             return 0
-        lT = active_layer.metadata["lineageTree"]
+        lT = active_layer.metadata["LineageTree"]
         cell = active_layer.selected_data.pop()
         active_layer.selected_data = {cell}
         scores = lT.get_subtree_nodes(active_layer.metadata["napari2lT"][cell])
@@ -37,15 +38,15 @@ class Layer_corrector_Tree_Producer(QWidget):
             )
         active_layer.refresh()
 
-    def get_lT(self) -> lineageTree:
+    def get_lT(self) -> LineageTree:
         """
-        Function that reads the lineageTree structure through one of the layers.
+        Function that reads the LineageTree structure through one of the layers.
 
         """
         active_layer = _select_correct_layer(self, Points)
         if active_layer is None:
             return None
-        return active_layer.metadata.get("lineageTree", None)
+        return active_layer.metadata.get("LineageTree", None)
 
     def paint_nodes_of_same_tree(self, val):
         """
@@ -90,3 +91,5 @@ class Layer_corrector_Tree_Producer(QWidget):
     def __init__(self, napari_viewer):
         super().__init__()
         self.viewer = napari_viewer
+        event_filt = DelayedTooltipEventFilter()
+        self.installEventFilter(event_filt)

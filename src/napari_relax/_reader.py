@@ -9,17 +9,16 @@ https://napari.org/stable/plugins/guides.html?#readers
 from pathlib import Path
 
 import numpy as np
-from LineageTree import (
-    lineageTree,
-    read_from_ASTEC,
-    read_from_mamut_xml,
-    read_from_mastodon,
-    read_from_tgmm_xml,
-    utils,
+from lineagetree import (
+    LOADERS,
+    LineageTree,
 )
+from lineagetree._core import utils
 from napari.utils import colormaps
+from napari.utils.notifications import show_warning
 
-from ._util_classes import loading_dialog, time_res_dialog
+from ._util_classes import LoadingDialog, TimeResDialog
+from ._utils import _infer_point_size
 
 
 def napari_get_reader(path):
@@ -44,12 +43,7 @@ def napari_get_reader(path):
 
     # if we know we cannot read the file, we immediately return None.
 
-    if (
-        path.endswith(".lT")
-        or path.lower().endswith(".mastodon")
-        or path.lower().endswith(".xml")
-        or path.lower().endswith(".csv")
-    ):
+    if path.lower().endswith(".lt") or path.lower().split(".")[-1] in LOADERS:
         return reader_function
 
     # otherwise we return the *function* that can read ``path``.
@@ -78,37 +72,36 @@ def reader_function(path: str):
         layer. Both "meta", and "layer_type" are optional. napari will
         default to layer_type=="image" if not provided
     """
-    # handle both a string and a list of strings
-    loaders = {
-        "mamut": read_from_mamut_xml,
-        "ASTEC": read_from_ASTEC,
-        "tgmm": read_from_tgmm_xml,
-    }
-    if isinstance(path, list):
-        lT = lineageTree(file_format=path, file_type="mastodon")
-    elif path.lower().endswith(".lt"):
-        lT = lineageTree.load(path)
-    elif path.lower().endswith(".mastodon"):
-        lT = read_from_mastodon(path)
-    elif path.lower().endswith(".xml"):
-        selector = loading_dialog()
-        selector.exec_()
-        file_type = selector.value_selected
-        if file_type is None:
-            raise Warning("Please select one type.")
-        lT = loaders[file_type](
-            path
-        )  # lineageTree(file_format=path, file_type=file_type)
+    if path.lower().endswith(".lt"):
+        lT = LineageTree.load(path)
+    else:
+        extension = path.lower().split(".")[-1]
+        options = LOADERS[extension]
+
+        if len(options) > 1:
+            selector = LoadingDialog(options.keys())
+            selector.exec_()
+            value_selected = selector.value_selected
+            if value_selected:
+                loader = options[selector.value_selected]
+            else:
+                raise Warning("Please select one reader function.")
+        else:
+            loader = next(iter(options.values()))
+
+        lT = loader(path)
+
     if not hasattr(lT, "time_resolution") or lT.time_resolution == 0:
-        t_res = time_res_dialog()
+        t_res = TimeResDialog()
         t_res.exec_()
         lT.time_resolution = t_res.value_selected
-        if t_res.check_resave:
+        if t_res.check_resave.isChecked():
             lT.write(path)
+
     return layer_preparation(lT, path)
 
 
-def layer_preparation(lT: lineageTree, path: str = ""):
+def layer_preparation(lT: LineageTree, path: str = "", from_cross=False):
     tracks = lT.all_chains
     first_c_to_track = {}
     last_c_of_track = {}
@@ -131,6 +124,7 @@ def layer_preparation(lT: lineageTree, path: str = ""):
             c_id += 1
     here_to_lT = {v: k for k, v in lT_to_here.items()}
     data = np.array(data, dtype=float)
+    data[:, 2:] -= data[:, 2:].mean(axis=0)
 
     clone = np.zeros(len(data))
     roots = lT.roots
@@ -152,6 +146,10 @@ def layer_preparation(lT: lineageTree, path: str = ""):
             if len(lT.get_subtree_nodes(root)) > (lT.t_e - lT.t_b) / 4
         }
     )
+    if not from_cross:
+        show_warning(
+            "Only lineages with height larger than 1/4 of the total timepoints will be shown on the lineage Viewer."
+        )
     pos = {
         i: utils.hierarchical_pos(
             g, g["root"], ycenter=-int(lT.time[g["root"]]), vert_gap=1
@@ -162,14 +160,18 @@ def layer_preparation(lT: lineageTree, path: str = ""):
     for t, c in last_c_of_track.items():
         for di in lT.successor.get(c, []):
             graph.setdefault(first_c_to_track[di], []).append(t)
+
+    # optimal point size infered from heuristics on nearest neighbor distances
+    _, optimal_size, _ = _infer_point_size(lT)
+
     add_kwargs_point = {
-        "size": 100,
+        "size": optimal_size,
         "properties": {
             "clone": clone,
             "Selection": np.zeros_like(clone),
         },
         "metadata": {
-            "lineageTree": lT,
+            "LineageTree": lT,
             "lT2napari": lT_to_here,
             "napari2lT": here_to_lT,
             "clone2": clone2,

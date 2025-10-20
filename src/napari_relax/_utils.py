@@ -2,11 +2,77 @@ from collections.abc import Iterable
 
 import matplotlib.pyplot as plt
 import numpy as np
-from LineageTree import lineageTree
+from lineagetree import LineageTree
 from napari.qt import get_current_stylesheet
 from qtpy.QtWidgets import (
     QMessageBox,
 )
+
+
+def _infer_point_size(lT: "LineageTree"):
+    """
+    Infer a point size based on nearest neighbor distances.
+
+    Heuristics:
+    - minimal size: 0.01 * optimal size
+    - optimal size: half of minimum median nearest neighbor distance
+                    across all time points
+    - maximal size: half of maximum nearest neighbor distance across
+                    all time points
+    """
+
+    optimal_dist = float("inf")
+    maximal_dist = 0
+
+    for t in lT.time_nodes:
+        nodes = lT.time_nodes[t]
+        if len(nodes) > 1:
+            idx3d, nodes = lT.get_idx3d(t)
+
+            nn_dists = idx3d.query(idx3d.data, k=2)[0][:, 1]
+
+            optimal_dist = np.nanmin(
+                [optimal_dist, np.nanmedian(nn_dists) / 2]
+            )
+
+            maximal_dist = np.nanmax([maximal_dist, np.nanmax(nn_dists) / 2])
+
+    if optimal_dist == float("inf"):
+        optimal_dist = 100
+    if maximal_dist <= optimal_dist:
+        maximal_dist = 10 * optimal_dist
+
+    minimal_dist = 0.01 * optimal_dist
+
+    print(
+        f"Inferred point sizes: {minimal_dist:.2f}, {optimal_dist:.2f}, {maximal_dist:.2f}"
+    )
+
+    return minimal_dist, optimal_dist, maximal_dist
+
+
+def _transform_slider_int_value_to_float(
+    int_value, min_float_value, max_float_value
+):
+    if min_float_value and max_float_value:
+        return min_float_value + (max_float_value - min_float_value) * (
+            int_value / 100
+        )
+    else:
+        return float(int_value)
+
+
+def _transform_float_value_to_slider_int(
+    float_value, min_float_value, max_float_value
+):
+    if min_float_value and max_float_value:
+        return int(
+            100
+            * (float_value - min_float_value)
+            / (max_float_value - min_float_value)
+        )
+    else:
+        return int(float_value)
 
 
 def _select_correct_layer(self, layer_type):
@@ -84,8 +150,8 @@ def error_cell_selection():
     msg.exec_()
 
 
-def extract_lineage(main_lT: lineageTree, roots: int | list | set):
-    new_lT = lineageTree()
+def extract_lineage(main_lT: LineageTree, roots: int | list | set):
+    new_lT = LineageTree()
     if not isinstance(roots, Iterable):
         roots = [roots]
     for r in roots:
@@ -118,7 +184,7 @@ def extract_lineage(main_lT: lineageTree, roots: int | list | set):
 
 
 def inject_lineage(
-    main_lineageTree: lineageTree, extracted_lineageTree: lineageTree
+    main_lineageTree: LineageTree, extracted_lineageTree: LineageTree
 ):
     main_lineageTree.nodes.update(extracted_lineageTree.nodes)
     main_lineageTree.predecessor.update(extracted_lineageTree.predecessor)
@@ -156,7 +222,7 @@ def rotate_3d(
     return R
 
 
-def create_links_and_chains(lT: lineageTree, roots: list | set | int):
+def create_links_and_chains(lT: LineageTree, roots: list | set | int):
     """Generates a dictionary containing the links and the lengths of each chain.
     Similar to simple tree, mainly used for tree manip app.
 

@@ -1,18 +1,19 @@
+import os
 from numbers import Number
-from typing import TYPE_CHECKING
 from warnings import warn
 
 import numpy as np
-from magicgui import widgets
-from matplotlib.pyplot import colormaps
 from napari.layers import Points
+from napari.utils.notifications import show_warning
 from psygnal import Signal
+from qtpy.QtCore import Qt
 from qtpy.QtGui import QDoubleValidator
 from qtpy.QtWidgets import (
     QButtonGroup,
     QCheckBox,
     QComboBox,
     QHBoxLayout,
+    QLabel,
     QLineEdit,
     QPushButton,
     QSizePolicy,
@@ -23,18 +24,31 @@ from qtpy.QtWidgets import (
 )
 
 from ..._util_classes import (
-    Layer_corrector_Tree_Producer,
-    containerize,
+    Containerize,
+    LayerCorrectorTreeProducer,
+    TooltipButton,
 )
+from ..._util_classes.custom_colorboxes import ColorBoxLabel
 from ..._utils import _select_correct_layer
-
-if TYPE_CHECKING:
-    pass
 
 
 def filter_dicts_of_objects_by_values(
     obj: object, type_of_object: type
 ) -> list[str]:
+    """Finds all attributes of a class if they are of one type.
+
+    Parameters
+    ----------
+    obj : object
+        Any class
+    type_of_object : type
+        The type that is to be pinponted
+
+    Returns
+    -------
+    list[str]
+        list of all the attributes
+    """
     attributes = []
     for attr in obj.__dict__:
         if (
@@ -58,7 +72,9 @@ def filter_dicts_of_objects_by_values(
     return attributes
 
 
-class lineedit_checkbox(QCheckBox):
+class LineeditCheckbox(QCheckBox):
+    """Custom lineedit box that only accepts floats"""
+
     def __init__(self, parent=None):
         super().__init__("Custom value", parent)
         self.lineedit = QLineEdit()
@@ -78,7 +94,15 @@ class lineedit_checkbox(QCheckBox):
         self.lineedit.setText(str(value))
 
 
-class missing_data(QWidget):
+class MissingData(QWidget):
+    """How to handle missing data, it has 3 shown checkboxes and 4 hidden ones shown upon clicking on the last checkbox.
+
+    Parameters
+    ----------
+    QWidget : _type_
+        _description_
+    """
+
     def __init__(
         self,
         parent: QWidget | None = None,
@@ -99,7 +123,7 @@ class missing_data(QWidget):
 
         self.buttongroup_default = QButtonGroup()
         self.buttongroup_default.setExclusive(True)
-        self.custom = lineedit_checkbox(self)
+        self.custom = LineeditCheckbox(self)
         self.mean = QCheckBox("Mean", self)
         self.median = QCheckBox("Median", self)
         self.min = QCheckBox("Min", self)
@@ -153,39 +177,15 @@ class missing_data(QWidget):
             return None
 
 
-class Quantitative(Layer_corrector_Tree_Producer):
+class Quantitative(LayerCorrectorTreeProducer):
+    """The widget to handle the different attributes."""
+
     color_signal = Signal(dict)
 
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
-        self.combobox_continuous = widgets.ComboBox(
-            value="Blues",
-            choices=[
-                "viridis",
-                "plasma",
-                "inferno",
-                "magma",
-                "cividis",
-                "Greys",
-                "Purples",
-                "Blues",
-                "Greens",
-                "Oranges",
-                "Reds",
-                "YlOrBr",
-                "YlOrRd",
-                "OrRd",
-                "PuRd",
-                "RdPu",
-                "BuPu",
-                "GnBu",
-                "PuBu",
-                "YlGnBu",
-                "PuBuGn",
-                "BuGn",
-                "YlGn",
-            ],
-        )
+        self.colorbox = ColorBoxLabel(self)
+        self.combobox_continuous = self.colorbox.combobox_continuous
         self.lT = self.get_lT()
         self.selected_attribute = QComboBox()
         if self.lT:
@@ -196,14 +196,21 @@ class Quantitative(Layer_corrector_Tree_Producer):
         else:
             self.selected_attribute.addItem("None")
         layout = QVBoxLayout()
-        layout.addWidget(self.selected_attribute)
-        self.miss_data = missing_data()
-        color_button = QPushButton("Color Nodes")
+        self.colorbox.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        layout.addWidget(
+            Containerize(
+                [QLabel("Selected attribute"), self.selected_attribute]
+            )
+        )
+        self.miss_data = MissingData()
+        color_button = QPushButton("Recolor Dataset")
         color_button.pressed.connect(self.generate_colors)
-        reset_color_button = QPushButton("Reset color Nodes")
+        reset_color_button = QPushButton("Reset Color of Dataset")
         reset_color_button.pressed.connect(self.reset_button_pr)
-        cont = containerize([color_button, reset_color_button])
-        layout.addWidget(self.combobox_continuous.native)
+        cont = Containerize([color_button, reset_color_button])
+        layout.addWidget(
+            Containerize([QLabel("Select Colormap"), self.colorbox])
+        )
         layout.addWidget(self.miss_data)
         layout.addWidget(cont)
         self.setLayout(layout)
@@ -212,7 +219,11 @@ class Quantitative(Layer_corrector_Tree_Producer):
     def generate_colors(self):
         cell_color = {}
         selected_method = self.miss_data.selected()
-        cmap = colormaps[self.combobox_continuous.value]
+        _cmap = self.colorbox.get_cmap()
+
+        def cmap(x):
+            return _cmap.map(x)[0]
+
         attr = self.selected_attribute.currentText()
         if attr == "None":
             warn("Please select a valid attribute", stacklevel=2)
@@ -220,18 +231,22 @@ class Quantitative(Layer_corrector_Tree_Producer):
         min_val = min(self.lT.__getattribute__(attr).values())
         max_val = max(self.lT.__getattribute__(attr).values())
         active_layer = _select_correct_layer(self, Points)
+        if active_layer is None:
+            return
+
+        existing_nodes = set(self.lT.__getattribute__(attr).values())
+        nonexistingnodes = (
+            set(active_layer.metadata["napari2lT"].values()) - existing_nodes
+        )
+
+        for node, value in self.lT.__getattribute__(attr).items():
+            cell_color[node] = cmap((value - min_val) / (max_val - min_val))
+
         match selected_method:
             case "Black":
-                for node, value in self.lT.__getattribute__(attr).items():
-                    cell_color[node] = cmap(
-                        (value - min_val) / (max_val - min_val)
-                    )
+                ...
             case "Propagate from Ancestor":
-                for node, value in self.lT.__getattribute__(attr).items():
-                    cell_color[node] = cmap(
-                        (value - min_val) / (max_val - min_val)
-                    )
-                for node in active_layer.metadata["napari2lT"].values():
+                for node in nonexistingnodes:
                     if node not in self.lT.__getattribute__(attr):
                         prev_node = self.lT.get_ancestor_with_attribute(
                             node, attr
@@ -242,52 +257,30 @@ class Quantitative(Layer_corrector_Tree_Producer):
                             cell_color[node] = [0, 0, 0, 1]
 
             case "Propagate from Sibling":
-                ...
+                show_warning("Not implemented yet!")
+                return
             case "Mean":
-                for node, value in self.lT.__getattribute__(attr).items():
-                    cell_color[node] = cmap(
-                        (value - min_val) / (max_val - min_val)
-                    )
-                mean_val = np.mean(
-                    list(self.lT.__getattribute__(attr).values())
-                )
-                for node in active_layer.metadata["napari2lT"].values():
-                    if node not in cell_color:
-                        cell_color[node] = cmap(
-                            (mean_val - min_val) / (max_val - min_val)
-                        )
+                mean_val = (
+                    np.nanmean(list(self.lT.__getattribute__(attr).values()))
+                    - min_val
+                ) / (max_val - min_val)
+                for node in nonexistingnodes:
+                    cell_color[node] = cmap(mean_val)
             case "Min":
-                for node, value in self.lT.__getattribute__(attr).items():
-                    cell_color[node] = cmap(
-                        (value - min_val) / (max_val - min_val)
-                    )
-                min_val = np.min(list(self.lT.__getattribute__(attr).values()))
-                for node in active_layer.metadata["napari2lT"].values():
-                    if node not in cell_color:
-                        cell_color[node] = cmap(0)
+                for node in nonexistingnodes:
+                    cell_color[node] = cmap(0)
             case "Median":
-                for node, value in self.lT.__getattribute__(attr).items():
-                    cell_color[node] = cmap(
-                        (value - min_val) / (max_val - min_val)
-                    )
-                median = np.median(
-                    list(self.lT.__getattribute__(attr).values())
-                )
-                for node in active_layer.metadata["napari2lT"].values():
-                    if node not in cell_color:
-                        cell_color[node] = cmap(
-                            (median - min_val) / (max_val - min_val)
-                        )
+                median = (
+                    np.nanmedian(list(self.lT.__getattribute__(attr).values()))
+                    - min_val
+                ) / (max_val - min_val)
+                for node in nonexistingnodes:
+                    cell_color[node] = cmap(median)
             case val if isinstance(val, float | int):
-                for node, value in self.lT.__getattribute__(attr).items():
+                for node in nonexistingnodes:
                     cell_color[node] = cmap(
-                        (value - min_val) / (max_val - min_val)
+                        (val - min_val) / (max_val - min_val)
                     )
-                for node in active_layer.metadata["napari2lT"].values():
-                    if node not in cell_color:
-                        cell_color[node] = cmap(
-                            (val - min_val) / (max_val - min_val)
-                        )
 
         self.color_signal.emit(
             {
@@ -344,7 +337,7 @@ class Quantitative(Layer_corrector_Tree_Producer):
 class Qualitative(QWidget): ...
 
 
-class Coloring(Layer_corrector_Tree_Producer):
+class Coloring(LayerCorrectorTreeProducer):
     name = "coloring"
 
     def __init__(self, napari_viewer):
@@ -356,10 +349,26 @@ class Coloring(Layer_corrector_Tree_Producer):
         self.quant = Quantitative(napari_viewer)
         qual = Qualitative()
         stack.addWidget(self.quant)
+        self.combobox.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.combobox.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         stack.addWidget(qual)
         self.combobox.currentIndexChanged.connect(stack.setCurrentIndex)
         layout = QVBoxLayout()
-        layout.addWidget(self.combobox)
+        layout.addWidget(self.combobox, alignment=Qt.AlignLeft)
         layout.addWidget(stack)
         layout.addStretch(1)
         self.setLayout(layout)
+
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(
+            os.path.join(current_dir, "node_recolor.html"),
+            encoding="utf-8",
+        ) as f:
+            txt = f.read()
+        self.node_tooltip = TooltipButton(txt)
+        self.node_tooltip.setParent(self)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
