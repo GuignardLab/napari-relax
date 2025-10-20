@@ -13,11 +13,7 @@ from matplotlib.backends.backend_qt5agg import (
 )
 from matplotlib.figure import Figure
 from napari.layers import Points
-from qtpy.QtWidgets import (
-    QLineEdit,
-    QPushButton,
-    QVBoxLayout,
-)
+from qtpy.QtWidgets import QLineEdit, QPushButton, QVBoxLayout, QWidget
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
 
@@ -410,6 +406,10 @@ class Clustermap(LayerCorrectorTreeProducer):
         self.setLayout(layout)
         self.figure = Figure(constrained_layout=True)
         self.canvas = FigureCanvas(self.figure)
+        self.canvas.setSizePolicy(
+            QWidget.sizePolicy(self.canvas).Expanding,
+            QWidget.sizePolicy(self.canvas).Expanding,
+        )
         self.ax_of_clustermap = self.figure.add_subplot(111)
         self.layout().setContentsMargins(2, 1, 2, 0)
         self.layout().addWidget(self.tree_canvas)
