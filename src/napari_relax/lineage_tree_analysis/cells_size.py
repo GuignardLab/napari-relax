@@ -101,9 +101,9 @@ class CellSize(LayerCorrectorTreeProducer):
                     hasattr(layer, "metadata")
                     and "size_display_bounds" in layer.metadata
                 ):
-                    slider_float_range = layer.metadata["size_display_bounds"]
+                    min_size, _, max_size = layer.metadata["size_display_bounds"]
                     value = _transform_slider_int_value_to_float(
-                        self.slider.value(), *slider_float_range
+                        self.slider.value(), min_size, max_size
                     )
                     layer.size = value
 
