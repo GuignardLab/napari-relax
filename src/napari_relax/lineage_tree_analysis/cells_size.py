@@ -54,15 +54,13 @@ class CellSize(LayerCorrectorTreeProducer):
         point_layer = _select_correct_layer(self, Points)
 
         optimal_size = value
-        
-        if (
-            value is None
-            and point_layer
-            and hasattr(point_layer, "metadata")
-        ):
+
+        if value is None and point_layer and hasattr(point_layer, "metadata"):
             if "size_display_bounds" in point_layer.metadata:
-                _, optimal_size, _ = point_layer.metadata["size_display_bounds"]
-        
+                _, optimal_size, _ = point_layer.metadata[
+                    "size_display_bounds"
+                ]
+
             elif "LineageTree" in point_layer.metadata:
                 lT = point_layer.metadata["LineageTree"]
                 min_size, optimal_size, max_size = _infer_point_size(lT)
@@ -71,7 +69,7 @@ class CellSize(LayerCorrectorTreeProducer):
                     optimal_size,
                     max_size,
                 )
-        
+
         self._changes(None, value=optimal_size)
 
     def _changes(self, event, value=None):
@@ -88,9 +86,8 @@ class CellSize(LayerCorrectorTreeProducer):
 
             if self.toggle_all.value:
                 for layer in self.viewer.layers:
-                    if isinstance(layer, Points):
-                        if self.is_lt_layer(layer):
-                            layers_to_update.append(layer)
+                    if isinstance(layer, Points) and self.is_lt_layer(layer):
+                        layers_to_update.append(layer)
             else:
                 # Update only the active layer
                 if active_layer and self.is_lt_layer(active_layer):
@@ -101,7 +98,9 @@ class CellSize(LayerCorrectorTreeProducer):
                     hasattr(layer, "metadata")
                     and "size_display_bounds" in layer.metadata
                 ):
-                    min_size, _, max_size = layer.metadata["size_display_bounds"]
+                    min_size, _, max_size = layer.metadata[
+                        "size_display_bounds"
+                    ]
                     value = _transform_slider_int_value_to_float(
                         self.slider.value(), min_size, max_size
                     )
@@ -118,9 +117,9 @@ class CellSize(LayerCorrectorTreeProducer):
 
             self.slider.blockSignals(True)
             # Update the slider position according to the new size
-            min_size, _, max_size = (
-                active_layer.metadata["size_display_bounds"]
-            )
+            min_size, _, max_size = active_layer.metadata[
+                "size_display_bounds"
+            ]
             self.slider.setValue(
                 _transform_float_value_to_slider_int(
                     new_size, min_size, max_size
@@ -164,11 +163,14 @@ class CellSize(LayerCorrectorTreeProducer):
                 self.see_all_layers()
             # Update the slider values according to the new active layer
             active_layer = _select_correct_layer(self, Points)
-            if active_layer and self.is_lt_layer(active_layer):
-                if len(active_layer.size) > 0:
-                    # Currently assuming all sizes are the same
-                    # TODO: discuss this
-                    self.reset_slider(value=active_layer.size[0])
+            if (
+                active_layer
+                and self.is_lt_layer(active_layer)
+                and len(active_layer.size) > 0
+            ):
+                # Currently assuming all sizes are the same
+                # TODO: discuss this
+                self.reset_slider(value=active_layer.size[0])
 
     def write_embryo(self):
         lT = self.get_lT()
