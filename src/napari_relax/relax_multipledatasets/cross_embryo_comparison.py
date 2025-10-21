@@ -220,7 +220,7 @@ class CrossClustermap(LayerCorrectorTreeProducer):
             self.ax1.tick_params(axis="y", colors="cyan")
             plt.setp(
                 self.ax1.get_xticklabels(),
-                rotation=45,
+                rotation=0,
                 ha="center",
             )
             self.canvas.draw()
