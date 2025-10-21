@@ -105,6 +105,7 @@ class ReLAXWidget(QWidget):
         font = self.font()
         font.setPointSizeF(font.pointSizeF() * scale)
         self.setFont(font)
+        layout.addStretch(1)
 
 
 class LineageTreeAnalysisWidget(ReLAXWidget):
