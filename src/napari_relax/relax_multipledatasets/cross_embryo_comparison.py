@@ -193,6 +193,7 @@ class CrossClustermap(LayerCorrectorTreeProducer):
 
     def _click(self, event):
         if event.button == 1:
+            self.canvas.figure.set_constrained_layout(False)
             layers = [
                 self.labels_lT[int(event.xdata + 0.5)],
                 self.labels_lT[int(event.ydata + 0.5)],
@@ -227,7 +228,7 @@ class CrossClustermap(LayerCorrectorTreeProducer):
     def clustermap_creator(self):
         plt.close("all")
         time = int(self.time_slider.value)
-
+        self.canvas.figure.set_constrained_layout(True)
         self.range = len(self.comparisons)
 
         len_all_trees = len(self.names[time].keys())
