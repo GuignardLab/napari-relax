@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.84d31ad4.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -405,15 +405,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#histograms" class="md-nav__link">
-    <span class="md-ellipsis">
-      Histograms
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -579,15 +570,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#histograms" class="md-nav__link">
-    <span class="md-ellipsis">
-      Histograms
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -606,21 +588,21 @@
 
   <h1>Distance Calculation</h1>
 
-<p>The <em>Distance Calculation</em> component enables users to calculate unordered tree edit distances online, using various <a href="https://guignardlab.github.io/LineageTree/uted/">pre-made approximation methods</a>. Once the distances have been computed, users may choose to inspect and compare the lineages using both the napari viewer and the clustermap results. Some algorithms are very fast but not precise, while others are slow but much more precise.</p>
+<p>The <em>Distance Calculation</em> component enables users to calculate unordered tree edit distances, using various <a href="https://guignardlab.github.io/LineageTree/uted/">approximation methods</a>. Once the distances have been computed, users may choose to inspect and compare the lineages using both the napari viewer and the clustermap results. Some algorithms are very fast but not precise, while others are slow but much more precise.</p>
 <p>This component focuses on calculating UTED systematically with different approximations and showcasing the results.</p>
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
 <p>Using this component the user can calculate the unordered tree edit distance for any lineage or sublineage and the sublineages spawned by their ancestors.</p>
-<p><img alt="config" src="../config_uted_celegans.png" style="height:500px;" /></p>
+<p><img alt="config" src="../config_uted.png" style="height:500px;" /></p>
 <ol>
 <li>
-<p><strong>Subtree selection</strong>: Specific lineages may be selected to compare. Some subtrees might begin later in the dataset due to tracking or imaging issues; they can still be included if they exist at the selected timepoint.</p>
+<p><strong>Levels of comparison selected</strong>: For every selected lineage, their subtrees can also be compared. This setting allows users to specify subtrees rooted at a specific timepoint. The top section lets users choose a timepoint range, while the bottom section allows manual entry of specific timepoints. For example, if two lineages begin at timepoint 0 and both divide before or at timepoint 5, selecting comparisons at timepoint 5 results in four sublineages to be compared. The user may choose manual or a range of distances by using the corresponding checkboxes.</p>
 </li>
 <li>
-<p><strong>Levels of comparison selected</strong>: Levels of comparison selected: For every selected lineage, their subtrees can also be compared. This setting allows users to specify subtrees rooted at a specific timepoint. The top section lets users choose a timepoint range, while the bottom section allows manual entry of specific timepoints. For example, if two lineages begin at timepoint 0 and both divide before or at timepoint 5, selecting comparisons at timepoint 5 results in four sublineages to be compared. The user may choose manual or a range of distances by using the corresponding checkboxes.</p>
+<p><strong>Time crop</strong>: The last timepoint to be included in the analysis.</p>
 </li>
-<li><strong>Time crop</strong>: The last timepoint to be included in the analysis.</li>
-<li><strong>Start/stop Comparisons</strong>: The user can start calculating the comparisons. While the comparisons are being run the rest of the plugin and napari remain responsive. At any point, the user may decide to stop the processing by clicking <code>Stop Processing</code>.</li>
-<li><a href="https://guignardlab.github.io/LineageTree/uted/#different-tree-approximations"><strong>Approximation/Style selection</strong></a>: The approximation to be used in the analysis. CAUTION: Different algorithms have different uses, for more information visit <a href="https://guignardlab.github.io/LineageTree/uted/#different-tree-approximations">LineageTree Tree approximatons</a></li>
+<li><a href="https://guignardlab.github.io/LineageTree/uted/#different-tree-approximations"><strong>Approximation/Style selection</strong></a>: The approximation to be used in the analysis. CAUTION: Different algorithms have different uses, for more information visit <a href="https://guignardlab.github.io/LineageTree/uted/#different-tree-approximations">LineageTree Tree approximatons</a>. Full tree is not recommended for napari uses.</li>
+<li><strong>Subtree selection</strong>: Specific lineages may be selected to calculate their pairwise distance. Some lineages may spawn later than the first timepoint selected due to tracking or imaging issues; they can still be included if they exist at the any if the selected timepoints.</li>
+<li><strong>Start/stop Comparisons</strong>: The user can start calculating the comparisons. While the comparisons are being run the rest of the plugin and napari remain responsive. At any point, the user may decide to stop the processing by clicking <code>Stop Processing</code>. To check the progress of the comparison calculation a progress bar is also implemented.</li>
 </ol>
 <h2 id="clustermap">Clustermap<a class="headerlink" href="#clustermap" title="Permanent link">&para;</a></h2>
 <p>The comparisons that are being calculated are shown on a clustermap. This clustermap is interactive and allows user to click on it to inspect the morphology of the compared lineages.</p>
@@ -634,28 +616,23 @@
 </li>
 <li><strong>Clustermap</strong>: The clustermap was produced by the systematic comparisons. There is a clustermap for each and every timepoint selected in 1 of the configuration components. This clustermap is normalized by 2. Interaction with the clustermap is done by using Left click on any element on the plot to create the tree graphs in 3, and recolor the selected embryo according to the compared sublineages</li>
 </ol>
-<h2 id="histograms">Histograms<a class="headerlink" href="#histograms" title="Permanent link">&para;</a></h2>
-<p>When analyzing multiple lineages, clustermaps can become large and difficult to interpret. This component allows users to generate and filter histograms to make the data more manageable.</p>
-<p><img alt="histogram" src="../histograms_celegans.png" style="height:500px;" /></p>
-<ol>
-<li>
-<p><strong>Master Controls</strong>:</p>
-<ul>
-<li><strong>Top</strong>: The global slider that changes all histograms in sync.</li>
-<li><strong>Bottom</strong>: The bins controller is used to define the number of bins on the histograms. All the histograms will have the same number of bins as the master histogram (2.) even if it is set on <code>auto</code>.</li>
-</ul>
-</li>
-<li>
-<p><strong>Master Histogram</strong>: The <strong>Master Histogram</strong> is generated immediately when comparison calculations begin. It aggregates all computed comparisons into a single, comprehensive graph. Any additional histograms created afterward are derived from this Master Histogram and represent subsets of its data. On the top left the user can change the normalization method. On the top right the roots used to produce it are visible and using the slider on the bottom the user can inspect the same sublineages across multiple times. In this example a C.elegans embryo is used and the analysis starts from the point that only 4 cells exist (P2, EMS, ABp, ABa).</p>
-</li>
-<li>
-<p><strong>Histogram spawned by the Master Histogram</strong>: This histograms has the same controls apart from the <code>X</code> on the top right, which is used to delete the histogram. This specific histogram contains only ABp and ABa, 2 very similar lineages. Specifically, in this histogram there are no ABp-ABa comparisons, the only comparisons shown are between sublineages of ABp and between sublineages of ABa.</p>
-</li>
-<li>
-<p><strong>Add a new Histogram</strong>: Pressing this button will spawn the pop-up window shown in 5.</p>
-</li>
-<li><strong>Configure the new Histogram to be spawned</strong>: Using this window the user can filter out the data, so that they may become interpretable. Any lineage can be selected and then may filter out the distances in-between or cross lineages. If <code>seperate labels</code> is not selected all comparisons will be shown as the same color, otherwise the will be one color for each comparisons as shown in (3.)</li>
-</ol>
+<!-- 
+## Histograms
+
+When analyzing multiple lineages, clustermaps can become large and difficult to interpret. This component allows users to generate and filter histograms to make the data more manageable.
+
+![histogram](./histograms_celegans.png){: style="height:500px;"}
+
+1. **Master Controls**:
+    - **Top**: The global slider that changes all histograms in sync.
+    - **Bottom**: The bins controller is used to define the number of bins on the histograms. All the histograms will have the same number of bins as the master histogram (2.) even if it is set on `auto`.
+
+- **Master Histogram**: The **Master Histogram** is generated immediately when comparison calculations begin. It aggregates all computed comparisons into a single, comprehensive graph. Any additional histograms created afterward are derived from this Master Histogram and represent subsets of its data. On the top left the user can change the normalization method. On the top right the roots used to produce it are visible and using the slider on the bottom the user can inspect the same sublineages across multiple times. In this example a C.elegans embryo is used and the analysis starts from the point that only 4 cells exist (P2, EMS, ABp, ABa).
+
+- **Histogram spawned by the Master Histogram**: This histograms has the same controls apart from the `X` on the top right, which is used to delete the histogram. This specific histogram contains only ABp and ABa, 2 very similar lineages. Specifically, in this histogram there are no ABp-ABa comparisons, the only comparisons shown are between sublineages of ABp and between sublineages of ABa.
+
+- **Add a new Histogram**: Pressing this button will spawn the pop-up window shown in 5.
+- **Configure the new Histogram to be spawned**: Using this window the user can filter out the data, so that they may become interpretable. Any lineage can be selected and then may filter out the distances in-between or cross lineages. If `seperate labels` is not selected all comparisons will be shown as the same color, otherwise the will be one color for each comparisons as shown in (3.) -->
 
 
 
@@ -704,10 +681,10 @@
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.path", "navigation.expand", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.path", "navigation.expand", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
       
     
   </body>

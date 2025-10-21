@@ -14,7 +14,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
     
     
       
@@ -22,7 +22,7 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.84d31ad4.min.css">
       
         
         <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
@@ -575,32 +575,33 @@
 <h1 id="welcome-to-relax">Welcome to ReLAX<a class="headerlink" href="#welcome-to-relax" title="Permanent link">&para;</a></h1>
 <p style="text-align: justify;">
 
-This napari plugin extends the functionality of the <a href="https://guignardlab.github.io/LineageTree/" target="_blank">LineageTree</a> project by providing a comprehensive Graphical User Interface (GUI). Leveraging napari’s interactive visualization capabilities and Qt’s flexible framework, it enables users to import and explore tracking datasets, called <b>lineagetrees</b> from now on, directly into the napari viewer. With this plugin, users can intuitively navigate spatial and temporal tracking data. Beyond data exploration, it also offers features such as:
+This napari plugin extends the functionality of the <a href="https://guignardlab.github.io/LineageTree/" target="_blank">LineageTree</a> project by providing a comprehensive Graphical User Interface (GUI). Leveraging napari’s interactive visualization capabilities and Qt’s flexible framework, it enables users to import and explore tracking datasets, called <b>LineageTrees</b> directly into the napari viewer. With this plugin, users can intuitively navigate spatial and temporal tracking data. Beyond data exploraxtion, it also offers features such as:
 </p>
 
 <ul>
 <li>
-<p><strong>Node Recoloring</strong>: Customize node colors based on lineage attributes for better insights into the embryo.</p>
+<p><strong>Node Recoloring</strong>: Customize node colors based on lineage attributes for better insights into datasets.</p>
 </li>
 <li>
-<p><strong>Tree Distance Calculation</strong>: Compute distances between different lineage trees to assess their similarity or dissimilarity, using <strong>Unordered Tree Edit Distance (UTED)</strong>.</p>
+<p><strong>Tree Distance Calculation</strong>: Compute pairwise distances of lineages inside the LineageTrees, to assess their similarity or dissimilarity, using <a href="https://gitlab.ub.uni-bielefeld.de/bpaassen/python-edit-distances/-/tree/master" target="_blank"><strong>Unordered Tree Edit Distance (UTED)</strong></a>
+.</p>
 </li>
 <li>
-<p><strong>Morphology Inspection</strong>: Visually compare tree structures to analyze morphological differences.</p>
+<p><strong>Morphology Inspection</strong>: The core feature of this plugin is its capability to connect analysis of tracked data with the morphology of the dataset.</p>
 </li>
 </ul>
 <p>This integration enhances lineage analysis by combining the powerful visualization of Napari with quantitative comparison tools in an interactive environment.</p>
 <h2 id="what-does-this-combination-of-lineagetree-and-napari-offer">What does this combination of LineageTree and Napari offer<a class="headerlink" href="#what-does-this-combination-of-lineagetree-and-napari-offer" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Viewer</strong>: The 3-D positional data are loaded into the napari viewer and can be interacted with.</li>
-<li><strong>Interaction with huge datasets</strong>: Huge datasets contain hundreds of annotations/nodes per chain/branch, the plugin offers the capability to explore lineages on an interactive lineage viewer</li>
-<li><strong>No need for programming knowledge</strong>: This plugin does not require programming capabilities, thus comparing lineagetrees is possible even for the untrained user.</li>
+<li><strong>Viewer</strong>: The positional data are loaded into the napari viewer and can be interacted with.</li>
+<li><strong>Interaction with huge datasets</strong>: Big datasets contain hundreds of annotations/nodes per chain/branch, the plugin offers the capability to explore large lineages on an interactive lineage viewer</li>
+<li><strong>No need for programming knowledge</strong>: This plugin does not require programming knowledge, thus comparing LineageTrees is possible even for the untrained user.</li>
 </ul>
 <p>This plugin consists of 4 components:</p>
 <ul>
-<li><a href="./explore_relabel.md">Explore and Relabel</a>: Explore the lineages with its interactive <strong>Lineage Viewer</strong>, relabel lineages of interest.</li>
-<li><a href="./attribute.md">Attribute recoloring</a>: Recolor nodes on both the <strong>Lineage Viewer</strong> and the <strong>Napari standard Viewer</strong>, using the distance or precomputed attributes.</li>
-<li><a href="./distance.md">Distance Calculation</a>: Calculate the unordered tree edit distance, inspect the distances on  the <strong>Napari Standard Viewer</strong> and create histograms to compare lineages through their sublineages.</li>
+<li><a href="explore_relabel/explore_relabel/">Explore and Relabel</a>: Explore the lineages with its interactive <strong>Lineage Viewer</strong>, relabel lineages of interest.</li>
+<li><a href="attribute/attribute/">Attribute recoloring</a>: Recolor nodes on both the <strong>Lineage Viewer</strong> and the <strong>Napari standard Viewer</strong>, using the distance or precomputed attributes.</li>
+<li><a href="distance/distance/">Distance Calculation</a>: Calculate the unordered tree edit distance, inspect the distances on  the <strong>Napari Standard Viewer</strong> and create histograms to compare lineages through their sublineages.</li>
 </ul>
 
 
@@ -650,10 +651,10 @@ This napari plugin extends the functionality of the <a href="https://guignardlab
     
     
       
-      <script id="__config" type="application/json">{"base": ".", "features": ["navigation.path", "navigation.expand", "content.code.annotate"], "search": "assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": ".", "features": ["navigation.path", "navigation.expand", "content.code.annotate"], "search": "assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.56ea9cef.min.js"></script>
+      <script src="assets/javascripts/bundle.f55a23d4.min.js"></script>
       
     
   </body>

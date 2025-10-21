@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.84d31ad4.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -515,8 +515,8 @@
 <li><strong>Relabel</strong> any chain in a lineage</li>
 <li><strong>Combine</strong> the <strong>Lineage Viewer</strong> with the <strong>Napari standard Viewer</strong></li>
 </ul>
-<p>This component contains features for navigating the lineages using both the Lineage Viewer and the Napari viewer and renaming lineages.</p>
-<p>The Lineage Viewer is the plugin's first component, enabling lineage exploration, relabeling, and navigation through the viewer's time data.</p>
+<p>This component contains features for efficiently navigating and renaming lineages using both the Lineage Viewer and the Napari viewer.</p>
+<p>The Lineage Viewer is the plugin's first component, enabling lineage exploration, relabelling, and navigation through the combination of both viewers.</p>
 <p><img alt="exploration_panel" src="../exploration.png" /></p>
 <ol>
 <li>
@@ -526,25 +526,25 @@
 <p><strong>Lineage Viewer configuration window</strong>: Using this window, the user may change the Lineage viewers: node size, node color, edge size, label fontsize, and the color of the selected cells.</p>
 </li>
 <li>
-<p><strong>The Lineage Viewer</strong>: Using this viewer, the user may inspect all the lineages that exist in a dataset. It is zoomable and pannable; if zoomed in enough, the user may also see the label for each node. <strong>Left + Clicking</strong> on the viewer, the user can select the nodes of subtrees by clicking on the graph in both viewers. Also, when clicking, the user may use component 5 to change the label of any subtree.</p>
-<p><em>Controls of the viewer:</em></p>
+<p><strong>The Lineage Viewer</strong>: Using this viewer, the user may inspect all the lineages that have a height of at least 25% of the dataset. The user may zoom (<strong>scroll</strong>) and pan (<strong>Right Click + Drag</strong>) the viewer; if zoomed in enough, the user may also see the label for each node. <strong>Left + Clicking</strong> on the viewer, the user can select the nodes of sublineages by clicking on the graph in both viewers. Also, when clicking, the user may use component 5 to change the label of any sublineage.</p>
+<p><em>Controling the Lineage Viewer:</em></p>
 <ul>
-<li><strong>Left click</strong>: Using the left click, the user will select a subtree on the plot and the corresponding Points on the napari viewer.</li>
-<li><strong>Double Left click</strong>: Clicking twice on a node on the Lineage Viewer will show the first timepoint this clicked cell started existing on the <a href="../../viewer/viewer/">Napari Viewer</a>.</li>
-<li><strong>Mouse wheel</strong>: Using the mouse wheel, the user can zoom in on the graph to observe specific details. If the user zooms in enough, the labels of each node will be shown on screen.</li>
-<li><strong>Right click</strong> and <strong>drag</strong>: Edge pan to see different segments of the lineage if the plot is zoomed in.</li>
+<li><strong>Left click</strong>: Using the left click, the user will select a sublineage on both viewers.</li>
+<li><strong>Double Left click</strong>: Clicking twice on a node on the Lineage Viewer will show the first timepoint the clicked cell spawned on the <a href="../../viewer/viewer/">Napari Viewer</a>.</li>
+<li><strong>Mouse wheel</strong>: Using the mouse wheel, the user can zoom in on the Lineage viewer to observe specific details. If the user zooms in enough, the labels of each node will be shown on screen.</li>
+<li><strong>Right click</strong> and <strong>drag</strong>: Pan to see different segments of the lineage if the plot is zoomed in.</li>
 <li><strong>Z</strong>: Reset the view regardless of panning or zoom.</li>
 </ul>
 </li>
 <li>
-<p><strong>The Lineage Viewer slider</strong>: Using this slider, the user may inspect different lineages that exist in the dataset</p>
+<p><strong>The Lineage Viewer slider</strong>: Use the slider to inspect different lineages that exist in the dataset</p>
 </li>
-<li><strong>Label manipulation</strong>: Change a label by entering a name, show all labels, or remove an existing label.</li>
-<li><strong>Select Lineage/Sublineage</strong>: After the user has selected a point on the napari viewer, they may decide to select the whole lineage this node belongs to or the subtree by pressing the corresponding button. This will also update the plot. The user may also decide to change the colors of all nodes selected. Using panel 1 of. layer controls</li>
+<li><strong>Label manipulation</strong>: Change the label of any node, remove an existing label from a node or show all labels.</li>
+<li><strong>Select Lineage/Sublineage</strong>: After the user has selected a point on the napari viewer, they may decide to select the whole lineage this node belongs to or its sublineage by pressing the corresponding button. This will also update the plot. The user may also decide to change the colors of all nodes selected. Using panel 1 of. layer controls</li>
 <li><strong>Show/Hide Lineages</strong>: The user can hide/show selected lineages. or even all lineages. Lineages that are hidden may be selected using the Lineage viewer.</li>
 <li><strong>General helping buttons</strong>: <ul>
 <li><strong>Top</strong>: Change the size of all the Points on a selected layer or all layers. The same value will be applied across all points modified.</li>
-<li><strong>Middle</strong> <strong>Left</strong>: Toggle the visibility of other layers; this button may serve as a shortcut.</li>
+<li><strong>Middle</strong> <strong>Left</strong>: Toggle the visibility of other layers; The same result may be achieved by <strong>Alt+Click</strong> on a layer.</li>
 <li><strong>Middle</strong> <strong>Right</strong>: Add a tracks layer to the Points layer for visualization purposes.</li>
 <li><strong>Bottom</strong>: Save the LineageTree.
 An example of a Tracks Layer:</li>
@@ -600,10 +600,10 @@ An example of a Tracks Layer:</li>
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.path", "navigation.expand", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.path", "navigation.expand", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
       
     
   </body>

@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.84d31ad4.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -572,7 +572,7 @@
 
 <p style="text-align: justify;">
 
-The <a href="https://napari.org/stable/tutorials/fundamentals/quick_start.html#napari-quick-start" target="_blank">Napari standard viewer</a>  is a crucial part of this plugin, as it is used throughout the whole plugin. Using the viewer, **multiple datasets** may be loaded simultaneously. These datasets may be rotated, zoomed in or out, recolored, rescaled, among other things, thoroughly described in the napari documentation.
+The <a href="https://napari.org/stable/tutorials/fundamentals/quick_start.html#napari-quick-start" target="_blank">Napari standard viewer</a>  is a crucial part of this plugin, making the visualization of any tracking dataset quick and hassle free. Using the viewer, **multiple datasets** may be loaded simultaneously. These datasets may be interacted with as it is described in the napari documentation.
 </p>
 
 <p style="text-align: justify;">
@@ -580,18 +580,17 @@ The <a href="https://napari.org/stable/tutorials/fundamentals/quick_start.html#n
 Usually, the datasets loaded overlap with each other, so it's recommended to use the grid mode <b>(Ctrl+G)</b> to remove overlapping or hide all the other layers. The user may manually turn on/off the visibility of layers or use alt+left click on the layer of interest to hide every other layer.
 </p>
 
-<p>For this plugin the [Points Layer] (https://napari.org/stable/howtos/layers/points.html) is mainly used.</p>
+<p>For this plugin the Points Layer is the most common and important type of layer, so it may be useful to read napari's <a href="https://napari.org/stable/howtos/layers/points.html">documentation</a> on that. The most important controls will be shown on this page.</p>
 <p><img alt="viewer" src="../viewer.png" /></p>
 <h2 id="important-napari-viewer-controls-panel">Important Napari Viewer controls panel:<a class="headerlink" href="#important-napari-viewer-controls-panel" title="Permanent link">&para;</a></h2>
 <ol>
 <li>
-<p><strong>Napari Terminal</strong>: Turn the Napari integrated terminal on or off. This terminal can prove extremely useful for small modifications of the dataset (rotation, translation, scaling), and can also be used as a Jupyter notebook with the correct configuration.
-Sample code to manipulate the dataset:</p>
+<p><strong>Napari Terminal</strong>: Open the Napari integrated terminal, extremely useful for quick modifications of the dataset (rotation, translation, scaling), however its not recommended for users with no coding experience.</p>
 </li>
 <li>
 <p><strong>3-D viewer</strong>: Toggle 3-D view, essential for navigating 3-D/4D datasets <strong>(Ctrl+Y)</strong>.</p>
 </li>
-<li><strong>Grid view</strong>: The grid view is only important if multiple specimens are shown in the same viewer and they should not overlap <strong>(Ctrl+G)</strong>.</li>
+<li><strong>Grid view</strong>: The grid view will place datasets in different views that are still contolled with the same controls, it is only important if multiple datasets are shown simultaneously on viewer, which overlap <strong>(Ctrl+G)</strong>.</li>
 <li><strong>Napari Viewer</strong>: The datasets imported will be shown on this viewer, and its visualization and navigation capailities are harnessed throughout the whole plugin. Some <strong>important buttons</strong>:<ul>
 <li>Drag Left Click: Rotate the dataset.</li>
 <li>Shift Left Click: Move the dataset</li>
@@ -600,7 +599,7 @@ Sample code to manipulate the dataset:</p>
 </ul>
 </li>
 </ol>
-<p>Using the time slider on the Napari Viewer will also show the corresponding timepoint on the viewer. </p>
+<p>Using the time slider on the Napari Viewer will also show the corresponding timepoint on the <a href="../../explore_relabel/explore_relabel/">Lineage Viewer</a>. </p>
 
 
 
@@ -649,10 +648,10 @@ Sample code to manipulate the dataset:</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.path", "navigation.expand", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.path", "navigation.expand", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
       
     
   </body>
