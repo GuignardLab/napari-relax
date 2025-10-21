@@ -5,6 +5,7 @@ from qtpy.QtWidgets import (
 )
 
 from .._utils import _select_correct_layer
+from .eventfilter_for_delayed_tooltip import DelayedTooltipEventFilter
 
 
 class LayerCorrectorTreeProducer(QWidget):
@@ -90,3 +91,5 @@ class LayerCorrectorTreeProducer(QWidget):
     def __init__(self, napari_viewer):
         super().__init__()
         self.viewer = napari_viewer
+        event_filt = DelayedTooltipEventFilter()
+        self.installEventFilter(event_filt)

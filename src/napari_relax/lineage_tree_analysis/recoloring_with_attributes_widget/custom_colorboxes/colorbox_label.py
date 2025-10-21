@@ -30,8 +30,9 @@ class ColorBoxLabel(QWidget):
     """A colorbox label that uses the naparis colormaps.
     If matplotlib is being used, or any other library that works like matplotlib
     use MatplotlibCompatibleCombobox.
-
     """
+
+    name = "ColorBoxLabel"
 
     def __init__(self, parent: QWidget):
         super().__init__(parent)
