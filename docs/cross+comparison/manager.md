@@ -1,4 +1,4 @@
-If a user want to compare multiple embryos, there are multiple parameters they have to take into account like time resolution. Thus, we developed this manager to handle such calculations on the background,such as the users can perform their analysis hassle free.
+When comparing multiple datasets, users must account for various parameters, one of the most critical being temporal resolution. Recent advances in imaging and acquisition techniques have enabled significantly improved time resolution, leading to increased adoption of these modern tools. Consequently, integrating or comparing legacy datasets with newer, high-resolution data has become challenging. This component is designed specifically to address this issue by managing differences in temporal resolution, thereby allowing users to concentrate on the analysis and interpretation of the data rather than on preprocessing or alignment tasks.
 
 ![manager](./manager.png)
 

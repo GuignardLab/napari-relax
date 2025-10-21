@@ -1,4 +1,5 @@
 site_name: ReLAX (Reconstructed Lineage Analysis & eXploration)
+docs_dir: docs
 theme:
   name: material
   palette:

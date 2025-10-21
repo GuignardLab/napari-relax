@@ -1,20 +1,23 @@
-This component is mainly focused on showcasing different features and attributes of the embryo using the viewer.
+This component is mainly focused on showcasing quantitative and qualitative features of the dataset by recoloring the dataset or its lineages.
 There are 2 sections:
 
-- One is for qucikly comparing different lineages between themselves, using the unordered tree edit distance algorithm
-- The other is about showcasing precomputed features on both the viewers and the lineage Viewer.
+- One is for recoloring any dataset according to the number of sublineages in a specific timepoint
+- The other is about using precomputed features to recolor both viewers.
 
-![distance_image](./distance_display_componentn.png)
+These two components are thoroughly discussed below:
 
-1. **The recolored clones**. This specific example was colored using the accent colormap at the timepoint, only 15 cells existed, while the dataset started from 8 cells.
+    ![distance_image](./distance_display_componentn.png)
 
-- **Controlling the recoloring of the dataset**:
+1. Using the slider, the user can select a timepoint where ```n``` clones exist. By pressing ```Recolor Clones``` each clone will be colored with a color specified in the colormap. In this specific example the image was recolored according to the clones that existed on timepoint 7.
 
-    - **Top** Using the slider, the user can select a timepoint on the population graph to serve as the reference (first timepoint) for all lineages. The starting cells may have divided into m cells by this time, resulting in m distinct sublineages. After choosing a colormap, the user may recolor the clones accordingly—this recoloring applies only to the napari viewer, creating the result of panel B.
-    - **Bottom** The user can also select any precomputed feature from the imported LineageTree to color all nodes based on this feature. If certain nodes lack this feature, the user can choose to color them using one of the following options: 
-        - Inherit the color from their ancestor
-        - Leave them black. 
-        - Use a default color
+    ![jacquard_image](./jacqard.png)
 
-- **The results of this feature-based coloring** (2-bottom) are shown . This coloring affects both viewers simultaneously. This specific result is a *Parhyale hawaiensis* dataset colored by an attribute that has to do with cell-to-cell movement.
-- **Quick distance calculation**: Using Ctrl+Right Click the user can select any descendant of a clone to compare the subtree spawned by this clone to all others that start from timepoint n. The results of the comparisons may be projected on size a or on color b. In both examples, the lineage Elp has been clicked (magenta in a,blue in b ) and it is easily observable that the most similar clone is its symmetric one Erp (cyan in a, red in b).
+2. The user can select any quantitaive attribute and recolor it according to its value.***On the left*** the configuration screen and the colored viewer are shown. ***On the right*** one lineage on the lineage viewer, which is also recolored is shown. The important settings the user may manipulate are how to propagate the coloring. The options are:
+    1. ***Black***: If a node has no value no color it will be shown in black color.
+    - ***Propagate from Ancestor***: Each node with no value will inherit its value from its ancestor and colored the same color.
+    - ***Propagate from Sibling***: Each node with no value will get the same valu as their sibling if they do have a color.
+    - ***Default Value***: More settings are available here, as the user can select a value to color each node that has no color.
+        1. ***Custom  Value***: The user can just input any value, so these nodes will get this value
+        2. ***Mean***: Each node will be colored with just the mean value.
+        3. ***Median***:  Each node will be colored with just the median value.
+        4. ***Min***: Each node will be colored with just the mean value.
