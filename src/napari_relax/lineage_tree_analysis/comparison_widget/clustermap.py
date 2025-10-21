@@ -3,10 +3,10 @@ import pickle
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import mplcursors
 import numpy as np
-import seaborn as sns
 from magicgui import widgets
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
@@ -26,7 +26,35 @@ from ..._util_classes import (
     LayerCorrectorTreeProducer,
     TooltipButton,
 )
+from ..._util_classes.custom_colorboxes import MplCompatibleColorCombobox
 from ..._utils import _select_correct_layer
+
+DICT_OF_CMAPS: list[str] = [
+    "viridis",
+    "plasma",
+    "inferno",
+    "magma",
+    "cividis",
+    "Greys",
+    "Purples",
+    "Blues",
+    "Greens",
+    "Oranges",
+    "Reds",
+    "YlOrBr",
+    "YlOrRd",
+    "OrRd",
+    "PuRd",
+    "RdPu",
+    "BuPu",
+    "GnBu",
+    "PuBu",
+    "YlGnBu",
+    "PuBuGn",
+    "BuGn",
+    "YlGn",
+]
+
 
 if TYPE_CHECKING:
     from .config import ConfigurationPanel
@@ -178,9 +206,9 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         Called by the time_slider widget, will handle the time change and create the correct clustermap.
         """
         self.time = self.time_slider.value
-        self._clustermap_creator()
+        self.clustermap_creator()
 
-    def _clustermap_creator(self):
+    def clustermap_creator(self):
         """
         Plots the clustermap for the timepoint specified by the time slider, where each element is the pairwise comparison of all the sublineages present in
         the timepoint selected.
@@ -213,16 +241,16 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         condensed_dist_matrix = squareform(hierarchy)
 
         linkage_data = linkage(condensed_dist_matrix, method="ward")
-        clustermap = sns.clustermap(
-            hierarchy,
-            xticklabels=labels_of_node_real,
-            yticklabels=labels_of_node_real,
-            cmap="vlag",
-            row_linkage=linkage_data,
-            col_linkage=linkage_data,
-        )
-        clustermap1 = clustermap.data2d
-        self.plot = np.array(clustermap1)
+        # clustermap = sns.clustermap(
+        #     hierarchy,
+        #     xticklabels=labels_of_node_real,
+        #     yticklabels=labels_of_node_real,
+        #     cmap="vlag",
+        #     row_linkage=linkage_data,
+        #     col_linkage=linkage_data,
+        # )
+        # clustermap1 = clustermap.data2d
+        # self.plot = np.array(clustermap1)
         order = dendrogram(linkage_data, no_plot=True)["leaves"]
         labels_of_roots = [labels_of_roots[i] for i in order]
         labels_of_nodes = [labels_of_nodes[i] for i in order]
@@ -230,8 +258,12 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         self.names_of_nodes = labels_of_nodes
         self.names_of_roots = labels_of_roots
         self.labels_of_node_real = labels_of_node_real
+        # plot = self.ax_of_clustermap.imshow(
+        #     clustermap1, cmap=self.colormap.get_cmap()
+        # )
+        self.plot = hierarchy[np.ix_(order, order)]
         plot = self.ax_of_clustermap.imshow(
-            clustermap1, cmap=self.colormap.value
+            self.plot, cmap=self.colormap.get_cmap()
         )
         if self.colorbar:
             self.colorbar.remove()
@@ -253,7 +285,6 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
             f"Comparisons for Timepoint: {self.times[time]}"
         )
         self.ax_of_clustermap.set_aspect("auto")
-        self.figure.tight_layout()
         self.canvas.draw()
         cursor = mplcursors.cursor(
             self.ax_of_clustermap,
@@ -308,7 +339,7 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
 
     def receive_new_labels(self):
         self.labels = self.lT.labels
-        self._clustermap_creator()
+        self.clustermap_creator()
 
     def __init__(
         self, napari_viewer, configuration: "ConfigurationPanel" = None
@@ -356,39 +387,18 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
             choices=["max", "sum", "None"],
         )
         self.norm_dict = {"max": max, "sum": sum, "None": lambda x: 1}
-        self.colormap = widgets.ComboBox(
-            value="viridis",
-            choices=[
-                "viridis",
-                "plasma",
-                "inferno",
-                "magma",
-                "cividis",
-                "Greys",
-                "Purples",
-                "Blues",
-                "Greens",
-                "Oranges",
-                "Reds",
-                "YlOrBr",
-                "YlOrRd",
-                "OrRd",
-                "PuRd",
-                "RdPu",
-                "BuPu",
-                "GnBu",
-                "PuBu",
-                "YlGnBu",
-                "PuBuGn",
-                "BuGn",
-                "YlGn",
-            ],
+        self.colormap = MplCompatibleColorCombobox(
+            self,
+            {i: cm.get_cmap(i) for i in DICT_OF_CMAPS},
         )
         self.norm_color_cont = Containerize(
-            [self.norm_combo.native, self.colormap.native]
+            [self.norm_combo.native, self.colormap]
         )
-        self.colormap.changed.connect(self._clustermap_creator)
-        self.norm_combo.changed.connect(self._clustermap_creator)
+        self.colormap.combobox_continuous.currentIndexChanged.connect(
+            self.clustermap_creator
+        )
+
+        self.norm_combo.changed.connect(self.clustermap_creator)
         self.time_mover = widgets.Checkbox(value=False)
         time_mover_text = widgets.Label(value="Move in time")
         self.time_mover_box = widgets.Container(
@@ -414,9 +424,7 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
 
         layout = QVBoxLayout()
         self.setLayout(layout)
-        self.figure = Figure(
-            figsize=(3, 3),
-        )
+        self.figure = Figure(constrained_layout=True)
         self.canvas = FigureCanvas(self.figure)
         self.ax_of_clustermap = self.figure.add_subplot(111)
         self.layout().setContentsMargins(2, 1, 2, 0)

@@ -1,145 +1,67 @@
-import copy
-import pickle
-from functools import partial
-from itertools import combinations
-from pathlib import Path
-from time import sleep
+from __future__ import annotations
 
+import pickle
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import mplcursors
 import numpy as np
-import seaborn as sns
-from lineagetree.tree_approximation import tree_style
 from magicgui import widgets
 from matplotlib.backends.backend_qtagg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
 from matplotlib.figure import Figure
-from napari._qt.qthreading import thread_worker
-from napari.components.viewer_model import ViewerModel
-from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
-    QComboBox,
-    QHBoxLayout,
-    QListWidget,
     QPushButton,
-    QSizePolicy,
-    QSlider,
-    QSplitter,
-    QTabWidget,
     QVBoxLayout,
-    QWidget,
 )
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
 
-from .._reader import layer_preparation
-from .._util_classes import (
-    BigDatasetNamesDialog,
-    Containerize,
-    DelayedTooltipEventFilter,
-    LayerCorrectorTreeProducer,
-    QtViewerWrap,
-    TabTemplate,
+from napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox import (
+    MplCompatibleColorCombobox,
 )
 
+from .._reader import layer_preparation
+from .._util_classes import (
+    Containerize,
+    LayerCorrectorTreeProducer,
+)
 
-class MinimalCellSize(LayerCorrectorTreeProducer):
-    def change(
-        self,
-        viewer: QtViewerWrap,
-        slider,
-        other_viewer,
-        other_slider,
-        event,
-    ):
-        if active_layer := viewer.layers.selection.active:
-            if not self.toggle_all.value:
-                new_size = slider.value()  # type: ignore
-                active_layer.size = new_size
-                slider.setToolTip(
-                    f"Change the size of the spheres on the viewer. Current size {slider.value()}"
-                )
-            else:
-                new_size = slider.value()  # type: ignore
-                active_layer.size = new_size
-                other_viewer.layers.selection.active.size = new_size
-                other_slider.setValue(new_size)
-                slider.setToolTip(
-                    f"Change the size of the spheres on the viewer. Current size {slider.value()}"
-                )
-                other_slider.setToolTip(
-                    f"Change the size of the spheres on the viewer. Current size {slider.value()}"
-                )
+if TYPE_CHECKING:
+    from napari.components.viewer_model import ViewerModel
 
-    def __init__(self, napari_viewer, napari_viewer_1, napari_viewer_2):
-        super().__init__(napari_viewer)
-        event_filt = DelayedTooltipEventFilter()
-        self.installEventFilter(event_filt)
-        self.viewer_1 = napari_viewer_1
-        self.viewer_2 = napari_viewer_2
-        self.toggle_all = widgets.CheckBox(value=False)
-        toggle_container = widgets.Container(
-            widgets=[
-                widgets.Label(value="Both viewers"),
-                self.toggle_all,
-            ],
-            layout="vertical",
-            labels=False,
-        )
-        layout = QHBoxLayout()
-        layout.addStretch(1)
-        self.setLayout(layout)
-        self.slider_1 = QSlider()
-        self.slider_1.setOrientation(Qt.Orientation.Horizontal)
-        self.slider_1.setTickInterval(1)
-        self.slider_1.setMinimum(0)
-        self.slider_1.setMaximum(2000)
-        self.slider_1.setValue(200)
-        self.slider_1.setToolTip(
-            f"Change the size of the spheres on the viewer. Current size {self.slider_1.value()}"
-        )
-        self.slider_2 = QSlider()
-        self.slider_2.setOrientation(Qt.Orientation.Horizontal)
-        self.slider_2.setTickInterval(1)
-        self.slider_2.setMinimum(0)
-        self.slider_2.setMaximum(2000)
-        self.slider_2.setValue(200)
-        self.slider_2.setToolTip(
-            f"Change the size of the spheres on the viewer. Current size {self.slider_2.value()}"
-        )
-
-        self.change_size_2 = partial(
-            self.change,
-            self.viewer_2,
-            self.slider_2,
-            self.viewer_1,
-            self.slider_1,
-        )
-        self.slider_2.valueChanged.connect(self.change_size_2)
-        self.change_size_1 = partial(
-            self.change,
-            self.viewer_1,
-            self.slider_1,
-            self.viewer_2,
-            self.slider_2,
-        )
-        self.slider_1.valueChanged.connect(self.change_size_1)
-
-        slid_container = Containerize(
-            [self.slider_1, self.slider_2], horizontal=False
-        )
-        slid_container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.slider_1.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.slider_2.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.layout().addWidget(widgets.Label(value="Size of spheres").native)
-        self.layout().addWidget(slid_container)
-        self.layout().addWidget(toggle_container.native)
+DICT_OF_CMAPS: list[str] = [
+    "viridis",
+    "plasma",
+    "inferno",
+    "magma",
+    "cividis",
+    "Greys",
+    "Purples",
+    "Blues",
+    "Greens",
+    "Oranges",
+    "Reds",
+    "YlOrBr",
+    "YlOrRd",
+    "OrRd",
+    "PuRd",
+    "RdPu",
+    "BuPu",
+    "GnBu",
+    "PuBu",
+    "YlGnBu",
+    "PuBuGn",
+    "BuGn",
+    "YlGn",
+]
 
 
 class Embryo_comparisons(LayerCorrectorTreeProducer):
-    name = "Embryo comparisons"
+    name = "clustermap"
 
     def get_lt_manager(self, signal):
         """
@@ -147,38 +69,6 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         changed Manager class.
         """
         self.manager = signal
-        self.lineagetree_list.clear()
-        self.lineagetree_list.addItems(
-            [f"{key}" for key in self.manager.lineagetrees]
-        )
-        self.lineagetree_list.update()
-        self.layers = {
-            layer.metadata.get("name_for_manager", ""): layer
-            for layer in self.viewer.layers
-        }
-
-    def tab_maker(self):
-        selected_items = self.lineagetree_list.selectedItems()
-        self.tab_dictionary = {}
-        for _ in range(self.root_tabs.count()):
-            self.root_tabs.removeTab(0)
-        if len(selected_items) < 1:
-            default_tab = QWidget()
-            default_layout = QVBoxLayout()
-            default_layout.addStretch(1)
-            default_tab.setLayout(default_layout)
-            self.root_tabs.addTab(default_tab, "Empty Layout")
-        else:
-            for item in selected_items:
-                self.tab_dictionary[item.text()] = TabTemplate(
-                    self.manager.lineagetrees[item.text()], item.text()
-                )
-                self.root_tabs.addTab(
-                    self.tab_dictionary[item.text()], item.text()
-                )
-
-        self.root_tabs.update()
-        self.tab1.layout().update()
 
     def add_spot_on_graph(self, cell, index, lineagetree_name):
         """Adds a spot on the graph on the correct place if it does not exist on the graph.
@@ -265,6 +155,7 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
             data = layer_preparation(
                 self.manager.lineagetrees[lineagetree_name],
                 path=lineagetree_name + ".lT",
+                from_cross=True,
             )[0]
             data[1]["metadata"]["name_for_manager"] = lineagetree_name
             self.viewer.add_points(data[0], **data[1])
@@ -273,6 +164,7 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         data = layer_preparation(
             self.manager.lineagetrees[lineagetree_name],
             path=lineagetree_name + ".lT",
+            from_cross=True,
         )[0]
         data[1]["metadata"]["name_for_manager"] = lineagetree_name
         viewer.add_points(data[0], **data[1])
@@ -294,8 +186,8 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
                 active_layer.metadata["lT2napari"][val]
             )
         active_layer.face_color[list(active_layer.selected_data)] = color
-        active_layer.refresh()
         active_layer.selected_data.clear()
+        active_layer.refresh()
 
     def _click(self, event):
         if event.button == 1:
@@ -372,17 +264,8 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         self.labels_node = [self.labels_node[i] for i in order]
         self.labels_root = [self.labels_root[i] for i in order]
 
-        clustermap = sns.clustermap(
-            hierarchy,
-            xticklabels=self.labels_of_clustermap,
-            yticklabels=self.labels_of_clustermap,
-            cmap="vlag",
-            row_linkage=linkage_data,
-            col_linkage=linkage_data,
-        )
-        clustermap1 = clustermap.data2d
-        self.plot = np.array(clustermap1)
-        plot = self.ax1.imshow(clustermap1, cmap=self.colormap.value)
+        self.plot = hierarchy[np.ix_(order, order)]
+        plot = self.ax1.imshow(self.plot, cmap=self.colormap.get_cmap())
         if self.colorbar:
             self.colorbar.remove()
         self.colorbar = self.figure.colorbar(plot, ax=self.ax1)
@@ -443,159 +326,16 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         with open(str(self.save_pkl.value), "wb") as f:
             pickle.dump(data, f)
 
-    @thread_worker
-    def roots_selector(self):
-        roots = {}
-        times = {}
-        end_times = {}
-        all_comparisons = []
-        all_names = []
-        all_norms = []
-        local_manager = copy.copy(self.manager)
-        for tab in self.tab_dictionary:
-            roots[tab] = self.tab_dictionary[tab].show_roots()
-            times[tab] = self.tab_dictionary[tab].ret_times()
-            end_times[tab] = self.tab_dictionary[tab].time_crop
-        minimum_length = 1_000
-        for tab in times:
-            minimum_length = min(len(times[tab]), minimum_length)
-        for t in range(int(minimum_length)):
-            comparisons = {}
-            self.all_roots = [
-                (
-                    lt,
-                    selected_root,
-                    int(node),
-                )
-                for lt in roots
-                for node in roots[lt]
-                for selected_root in local_manager.lineagetrees[lt].nodes_at_t(
-                    times[lt][t], int(node)
-                )
-            ]
-            names = dict(enumerate(self.all_roots))
-            norms = {}
-            combs = combinations(names.keys(), 2)
-            for sleep_timer, (n1, n2) in enumerate(combs):
-                (
-                    comparisons[n1, n2],
-                    norms[n1, n2],
-                ) = local_manager.cross_lineage_edit_distance(
-                    names[n1][1],
-                    names[n1][0],
-                    names[n2][1],
-                    names[n2][0],
-                    end_times[names[n1][0]],
-                    end_times[names[n2][0]],
-                    style=self.comp_style,
-                    downsample=int(
-                        self.downsampling_widget.currentText().split(" ")[0]
-                    ),
-                    return_norms=True,
-                )
-
-                if sleep_timer % 5 == 0:
-                    sleep(0.1)
-            all_comparisons.append(comparisons)
-            all_names.append(names)
-            all_norms.append(norms)
-            yield all_comparisons, all_names, all_norms
-        self.worker.quit()
-        self.runbutton.setChecked(False)
-        self.stopbutton.setChecked(True)
-
-    @property
-    def lcm(self):
-        tmp_tr = []
-        for item in self.lineagetree_list.selectedItems():
-            tmp_tr.append(
-                int(self.manager.lineagetrees[item.text()]._time_resolution)
-            )
-        if len(tmp_tr) == 1:
-            return tmp_tr.pop()
-        elif tmp_tr:
-            return np.lcm.reduce(tmp_tr)
-        return 1
-
-    def kill_thread(self):
-        """
-        Function to kill the thread if the user decides to.
-        """
-        self.worker.quit()
-        self.stopbutton.setChecked(True)
-        self.runbutton.setChecked(False)
-
-    def thread_handler(self):
-        continue_comps = True
-        self.comparisons = []
-        self.names = []
-        self.norms = []
-        for lineagetree in self.manager.lineagetrees:
-            if len(lineagetree) > 6:
-                continue_comps = BigDatasetNamesDialog()
-                continue_comps.exec_()
-                continue_comps = continue_comps.continue_proccess
-                break
-        if continue_comps:
-            self.worker = self.roots_selector()
-            self.worker.yielded.connect(self.update_comparisons)
-            self.worker.start()
-            self.runbutton.setChecked(True)
-            self.stopbutton.setChecked(False)
-
-    def update_comparisons(self, product):
-        self.comparisons, self.names, self.norms = product
-        self.time_slider.max = len(product[0]) - 1
-        self.clustermap_creator()
-
     def time_changer(self):
         self.time = self.time_slider.value
         self.clustermap_creator()
 
-    def update_tree_style(self):
-        self.downsampling_widget.setVisible(False)
-        self.comp_style = self.tree_style_combobox.current_choice
-        if self.comp_style == "downsampled":
-            self.downsampling_widget.setVisible(True)
-
-    def change_downsampling_rates(self):
-        self.downsampling_widget.clear()
-        for i in [f"{i} downsampling rate" for i in range(1, 30)]:
-            self.downsampling_widget.addItem(i)
-
-    def change_tooltip_for_downsample(self):
-        cur_text = self.downsampling_widget.currentText().split(" ")
-        if cur_text[0]:
-            down_factor = int(cur_text[0])
-            list_of_selected_emryos = [
-                f"{lt.text()} with downsampling: {down_factor*self.lcm/self.manager.lineagetrees[lt.text()]._time_resolution}"
-                for lt in self.lineagetree_list.selectedItems()
-            ]
-
-            self.downsampling_widget.setToolTip(
-                "\n".join(
-                    ["Real downsampling rates:\n", *list_of_selected_emryos]
-                )
-            )
-        else:
-            self.downsampling_widget.setToolTip("")
-
-    def __init__(self, napari_viewer):
+    def __init__(self, napari_viewer, dataset_viewers: list[ViewerModel]):
         super().__init__(napari_viewer)
-        self.tabs = QTabWidget()
-        self.tab_dictionary = {}
-        self.viewer = napari_viewer
-        all_splitter = QSplitter()
-        self.viewer_model1 = ViewerModel(title="SPC 1")
-        self.viewer_model2 = ViewerModel(title="SPC 2")
-        self.viewers = [self.viewer_model1, self.viewer_model2]
-        self.qt_viewer1 = QtViewerWrap(napari_viewer, self.viewer_model1)
-        self.qt_viewer2 = QtViewerWrap(napari_viewer, self.viewer_model2)
-        viewer_splitter = QSplitter()
-        viewer_splitter.setOrientation(Qt.Vertical)
-        viewer_splitter.addWidget(self.qt_viewer1)
-        sliders = MinimalCellSize(
-            napari_viewer, self.viewer_model1, self.viewer_model2
+        self.viewers = dataset_viewers
+        self.colormap = MplCompatibleColorCombobox(
+            self,
+            {i: cm.get_cmap(i) for i in DICT_OF_CMAPS},
         )
         self.norm_combo = widgets.ComboBox(
             value="max",
@@ -603,83 +343,6 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         )
         self.norm_dict = {"max": max, "sum": sum, "None": lambda x: 1}
 
-        self.colormap = widgets.ComboBox(
-            value="viridis",
-            choices=[
-                "viridis",
-                "plasma",
-                "inferno",
-                "magma",
-                "cividis",
-                "Greys",
-                "Purples",
-                "Blues",
-                "Greens",
-                "Oranges",
-                "Reds",
-                "YlOrBr",
-                "YlOrRd",
-                "OrRd",
-                "PuRd",
-                "RdPu",
-                "BuPu",
-                "GnBu",
-                "PuBu",
-                "YlGnBu",
-                "PuBuGn",
-                "BuGn",
-                "YlGn",
-            ],
-        )
-        self.colormap.changed.connect(self.clustermap_creator)
-        self.norm_combo.changed.connect(self.clustermap_creator)
-        viewer_splitter.addWidget(sliders)
-        viewer_splitter.addWidget(self.qt_viewer2)
-        viewer_splitter.setContentsMargins(0, 0, 0, 0)
-        self.comp_style = "simple"
-        self.possible_styles = tree_style.list_names()
-        self.lineagetree_list = QListWidget()
-        self.lineagetree_list.setSelectionMode(QListWidget.MultiSelection)
-        self.lineagetree_list.itemSelectionChanged.connect(self.tab_maker)
-        self.downsampling_widget = QComboBox()
-        self.downsampling_widget.addItems(
-            [
-                f"{i} downsampling rate"
-                for i in range(1, self.lcm * 30, self.lcm)
-            ]
-        )
-        self.downsampling_widget.setVisible(False)
-        self.downsampling_widget.currentIndexChanged.connect(
-            self.change_tooltip_for_downsample
-        )
-        self.lineagetree_list.itemSelectionChanged.connect(
-            self.change_downsampling_rates
-        )
-        self.tree_style_combobox = widgets.ComboBox(
-            value="simple", choices=self.possible_styles
-        )
-        self.styl_combobox = Containerize(
-            [self.tree_style_combobox.native, self.downsampling_widget]
-        )
-        self.tree_style_combobox.changed.connect(self.update_tree_style)
-        self.downsampling_widget.visible = False
-        label_for_style = widgets.Label(
-            value="Select approximation for tree comparison.\n"
-        )
-        self.runbutton = QPushButton("Run Comparisons")
-        self.runbutton.native = self.runbutton
-        self.runbutton.name = "runbutton"
-        self.runbutton.clicked.connect(self.thread_handler)
-        self.runbutton.setCheckable(True)
-        self.stopbutton = QPushButton("Stop Processing")
-        self.stopbutton.native = self.stopbutton
-        self.stopbutton.name = "stopbutton"
-        self.stopbutton.setCheckable(True)
-        self.button_container = widgets.Container(
-            widgets=[self.runbutton, self.stopbutton],
-            layout="horizontal",
-            labels=False,
-        )
         self.figures, self.axes = plt.subplots(
             nrows=1, ncols=2, figsize=(4, 3)
         )
@@ -696,51 +359,28 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         self.range = 0
         self.time_slider = widgets.IntSlider(min=0, max=self.range)
         self.time_slider.changed.connect(self.time_changer)
-        self.tab1 = QWidget()
-        self.root_tabs = QTabWidget()
-        layout_1 = QVBoxLayout()
-        layout_1.addStretch(1)
-        self.tab1.setLayout(layout_1)
-        self.tab1.layout().addWidget(label_for_style.native)
-        self.tab1.layout().addWidget(self.styl_combobox)
-        self.tab1.layout().addWidget(self.lineagetree_list)
-        self.tab1.layout().addWidget(self.root_tabs)
-        self.tab_maker()
-
-        self.tab2 = QWidget()
-        layout_2 = QVBoxLayout()
-        layout_2.addStretch(1)
-        self.tab2.setLayout(layout_2)
-        self.figure = Figure(figsize=(3, 3), constrained_layout=True)
+        layout = QVBoxLayout()
+        layout.addStretch(1)
+        self.setLayout(layout)
+        self.figure = Figure(constrained_layout=True)
         self.canvas = FigureCanvas(self.figure)
         self.colorbar = None
         self.ax1 = self.figure.add_subplot(111)
-        self.tab2.layout().addWidget(self.tree_canvas)
+        self.layout().addWidget(self.tree_canvas)
 
-        self.tab2.layout().addWidget(
-            Containerize([self.norm_combo.native, self.colormap.native])
+        self.layout().addWidget(
+            Containerize([self.norm_combo.native, self.colormap])
         )
-        self.tab2.layout().addWidget(self.time_mover_box.native)
-        self.tab2.layout().addWidget(self.time_mover_box.native)
-        self.tab2.layout().addWidget(self.canvas)
-        self.tab2.layout().addWidget(self.time_slider.native)
+        self.norm_combo.changed.connect(self.clustermap_creator)
+        self.colormap.combobox_continuous.currentIndexChanged.connect(
+            self.clustermap_creator
+        )
 
-        whole_layout = QVBoxLayout()
-        whole_layout.addStretch(1)
-        self.widget = QWidget()
-        self.widget.setLayout(whole_layout)
-        self.tabs.addTab(self.tab1, "Configuration")
-        self.tabs.addTab(self.tab2, "Plots")
+        self.layout().addWidget(self.time_mover_box.native)
+        self.layout().addWidget(self.time_mover_box.native)
+        self.layout().addWidget(self.canvas)
+        self.layout().addWidget(self.time_slider.native)
 
-        self.widget.layout().addWidget(self.tabs)
-        self.widget.layout().addWidget(self.button_container.native)
-        all_splitter.addWidget(viewer_splitter)
-        all_splitter.addWidget(self.widget)
-        all_layout = QVBoxLayout()
-        self.setLayout(all_layout)
-        all_layout.addWidget(all_splitter)
-        self.stopbutton.released.connect(self.kill_thread)
-        self.stopbutton.setChecked(True)
         self.figure.canvas.mpl_connect("button_press_event", self._click)
         self.save_pkl = widgets.FileEdit(
             mode="w", value=Path(".").absolute(), filter="*.pkl*"
@@ -754,4 +394,4 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
             layout="horizontal",
             labels=False,
         )
-        self.tab2.layout().addWidget(container.native)
+        self.layout().addWidget(container.native)

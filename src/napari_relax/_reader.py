@@ -101,7 +101,7 @@ def reader_function(path: str):
     return layer_preparation(lT, path)
 
 
-def layer_preparation(lT: LineageTree, path: str = ""):
+def layer_preparation(lT: LineageTree, path: str = "", from_cross=False):
     tracks = lT.all_chains
     first_c_to_track = {}
     last_c_of_track = {}
@@ -146,9 +146,10 @@ def layer_preparation(lT: LineageTree, path: str = ""):
             if len(lT.get_subtree_nodes(root)) > (lT.t_e - lT.t_b) / 4
         }
     )
-    show_warning(
-        "Only lineages with height larger than 1/4 of the total timepoints will be shown on the lineage Viewer."
-    )
+    if not from_cross:
+        show_warning(
+            "Only lineages with height larger than 1/4 of the total timepoints will be shown on the lineage Viewer."
+        )
     pos = {
         i: utils.hierarchical_pos(
             g, g["root"], ycenter=-int(lT.time[g["root"]]), vert_gap=1
