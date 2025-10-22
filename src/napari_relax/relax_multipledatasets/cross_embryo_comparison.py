@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import pickle
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -28,6 +29,7 @@ from .._reader import layer_preparation
 from .._util_classes import (
     Containerize,
     LayerCorrectorTreeProducer,
+    TooltipButton,
 )
 
 if TYPE_CHECKING:
@@ -60,7 +62,7 @@ DICT_OF_CMAPS: list[str] = [
 ]
 
 
-class Embryo_comparisons(LayerCorrectorTreeProducer):
+class CrossClustermap(LayerCorrectorTreeProducer):
     name = "clustermap"
 
     def get_lt_manager(self, signal):
@@ -191,6 +193,7 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
 
     def _click(self, event):
         if event.button == 1:
+            self.canvas.figure.set_constrained_layout(False)
             layers = [
                 self.labels_lT[int(event.xdata + 0.5)],
                 self.labels_lT[int(event.ydata + 0.5)],
@@ -217,7 +220,7 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
             self.ax1.tick_params(axis="y", colors="cyan")
             plt.setp(
                 self.ax1.get_xticklabels(),
-                rotation=45,
+                rotation=0,
                 ha="center",
             )
             self.canvas.draw()
@@ -225,7 +228,7 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
     def clustermap_creator(self):
         plt.close("all")
         time = int(self.time_slider.value)
-
+        self.canvas.figure.set_constrained_layout(True)
         self.range = len(self.comparisons)
 
         len_all_trees = len(self.names[time].keys())
@@ -344,7 +347,7 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         self.norm_dict = {"max": max, "sum": sum, "None": lambda x: 1}
 
         self.figures, self.axes = plt.subplots(
-            nrows=1, ncols=2, figsize=(4, 3)
+            nrows=1, ncols=2, figsize=(4, 3), sharey=True
         )
         for ax in self.axes:
             ax.axis("off")
@@ -366,6 +369,7 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         self.canvas = FigureCanvas(self.figure)
         self.colorbar = None
         self.ax1 = self.figure.add_subplot(111)
+        layout.addSpacing(50)
         self.layout().addWidget(self.tree_canvas)
 
         self.layout().addWidget(
@@ -375,8 +379,6 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
         self.colormap.combobox_continuous.currentIndexChanged.connect(
             self.clustermap_creator
         )
-
-        self.layout().addWidget(self.time_mover_box.native)
         self.layout().addWidget(self.time_mover_box.native)
         self.layout().addWidget(self.canvas)
         self.layout().addWidget(self.time_slider.native)
@@ -395,3 +397,16 @@ class Embryo_comparisons(LayerCorrectorTreeProducer):
             labels=False,
         )
         self.layout().addWidget(container.native)
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(
+            os.path.join(current_dir, "cross_comparison.html"),
+            encoding="utf-8",
+        ) as f:
+            txt = f.read()
+        self.node_tooltip = TooltipButton(txt)
+        self.node_tooltip.setParent(self)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)

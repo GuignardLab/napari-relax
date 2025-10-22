@@ -1,25 +1,21 @@
 from napari.utils import progress
-from qtpy.QtWidgets import (
-    QPushButton,
-    QTabWidget,
-    QVBoxLayout,
-)
+from qtpy.QtWidgets import QPushButton, QTabWidget, QVBoxLayout
 
 from ..._util_classes import (
     Containerize,
     LayerCorrectorTreeProducer,
 )
-from .clustermap import OnlineClustermap
+from .clustermap import Clustermap
 from .config import ConfigurationPanel
 
 
 class ComparisonsHandler(LayerCorrectorTreeProducer):
-    """
-    Widget to produce and load comparisons between lineages, which are used to
-    plot Clustermaps and letting the user select respective Lineages.
-    """
+    """Class to laod the widgets for comparing lineages.
+    The 2 widgets loaded are:
+    ConfigurationPanel: It contains the configuration options and runs the comparisons.
+    Clustermap: It shows the result on a clustermap."""
 
-    name = "ComparisonsHandler"
+    name = "Distance Calculation"
 
     def update_dictionary(self, product):
         """
@@ -46,31 +42,31 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
         self.comps = []
         self.naming = []
         self.norms = []
-        self.worker = self.config.thread_worker()
-        self.worker.aborted.connect(self.kill_thread)
-
         self.config.times_selector()
         if not self.config.times:
-            self.worker.quit()
+            self.kill_thread()
             return
-        self.pbr = progress(self.clustermap.times)
+        self.pbr = progress(range(len(self.config.times)))
+        self.worker = self.config.thread_worker()
+        self.worker.aborted.connect(self.kill_thread)
+        self.worker.returned.connect(self.kill_thread)
+        self.worker.errored.connect(self.kill_thread)
         self.worker.yielded.connect(self.update_dictionary)
         self.worker.start()
         self.runbutton.setChecked(True)
         self.stopbutton.setChecked(False)
-        self.worker.returned.connect(self.kill_thread)
 
     def kill_thread(self, dummy_event=None):
         """
         Function to kill the thread if the user decides to.
         """
+        if self.pbr:
+            self.pbr.close()
+            self.pbr.clear()
+            self.pbr = None
         self.worker.quit()
         self.stopbutton.setChecked(True)
         self.runbutton.setChecked(False)
-        if self.pbr:
-            self.pbr.clear()
-            self.pbr.close()
-            self.pbr = None
 
     def __init__(self, napari_viewer):
         """
@@ -93,7 +89,7 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
         tabs = QTabWidget()
         self.config = ConfigurationPanel(self.viewer)
 
-        self.clustermap = OnlineClustermap(self.viewer, self.config)
+        self.clustermap = Clustermap(self.viewer, self.config)
         tabs.addTab(self.config, "Configuration Panel")
         tabs.addTab(self.clustermap, "Clustermap")
         self.setLayout(layout)
@@ -101,7 +97,6 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
         self.layout().addWidget(
             Containerize([self.runbutton, self.stopbutton])
         )
-
         self.setLayout(layout)
         self.runbutton.released.connect(self.thread_handler)
         self.stopbutton.released.connect(self.kill_thread)

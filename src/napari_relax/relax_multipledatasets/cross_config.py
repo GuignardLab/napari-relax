@@ -1,4 +1,5 @@
 import copy
+import os
 from itertools import combinations
 from time import sleep
 
@@ -18,11 +19,12 @@ from .._util_classes import (
     Containerize,
     LayerCorrectorTreeProducer,
     TabTemplate,
+    TooltipButton,
 )
 
 
 class CrossConfig(LayerCorrectorTreeProducer):
-    name = "CrossConfig"
+    name = "Cross Distance Calculation"
 
     def get_lt_manager(self, signal):
         """
@@ -73,7 +75,6 @@ class CrossConfig(LayerCorrectorTreeProducer):
         local_manager = copy.copy(self.manager)
         for tab in self.tab_dictionary:
             roots[tab] = self.tab_dictionary[tab].show_roots()
-            # self.times[tab] = self.tab_dictionary[tab].ret_times()
             end_times[tab] = self.tab_dictionary[tab].time_crop
         minimum_length = 1_000
         for tab in self.times:
@@ -177,40 +178,6 @@ class CrossConfig(LayerCorrectorTreeProducer):
         super().__init__(napari_viewer)
         self.viewer = napari_viewer
         self.tab_dictionary = {}
-        self.norm_combo = widgets.ComboBox(
-            value="max",
-            choices=["max", "sum", "None"],
-        )
-        self.norm_dict = {"max": max, "sum": sum, "None": lambda x: 1}
-
-        self.colormap = widgets.ComboBox(
-            value="viridis",
-            choices=[
-                "viridis",
-                "plasma",
-                "inferno",
-                "magma",
-                "cividis",
-                "Greys",
-                "Purples",
-                "Blues",
-                "Greens",
-                "Oranges",
-                "Reds",
-                "YlOrBr",
-                "YlOrRd",
-                "OrRd",
-                "PuRd",
-                "RdPu",
-                "BuPu",
-                "GnBu",
-                "PuBu",
-                "YlGnBu",
-                "PuBuGn",
-                "BuGn",
-                "YlGn",
-            ],
-        )
         self.comp_style = "simple"
         self.possible_styles = tree_style.list_names()
         self.lineagetree_list = QListWidget()
@@ -251,3 +218,16 @@ class CrossConfig(LayerCorrectorTreeProducer):
         self.layout().addWidget(self.root_tabs)
         self.tab_maker()
         layout.addStretch(1)
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(
+            os.path.join(current_dir, "cross_config.html"),
+            encoding="utf-8",
+        ) as f:
+            txt = f.read()
+        self.node_tooltip = TooltipButton(txt)
+        self.node_tooltip.setParent(self)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)

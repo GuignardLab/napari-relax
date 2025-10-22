@@ -13,11 +13,7 @@ from matplotlib.backends.backend_qt5agg import (
 )
 from matplotlib.figure import Figure
 from napari.layers import Points
-from qtpy.QtWidgets import (
-    QLineEdit,
-    QPushButton,
-    QVBoxLayout,
-)
+from qtpy.QtWidgets import QLineEdit, QPushButton, QVBoxLayout, QWidget
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
 
@@ -60,11 +56,8 @@ if TYPE_CHECKING:
     from .config import ConfigurationPanel
 
 
-class OnlineClustermap(LayerCorrectorTreeProducer):
-    """
-    Widget to produce and load comparisons between lineages, which are used to
-    plot Clustermaps and letting the user select respective Lineages.
-    """
+class Clustermap(LayerCorrectorTreeProducer):
+    """Contains the clustermap and its interactions."""
 
     name = "Distance Calculation"
 
@@ -88,11 +81,11 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
             pos_after = active_layer.metadata["graphs"][1][val][after]
 
             tmp_pos = np.array(pos_prev) - np.array([0, prev_cycle])
-            ax.scatter(*tmp_pos, c=color, s=0.2, zorder=1001)
+            ax.scatter(*tmp_pos, color=color, s=0.2, zorder=1001)
             ax.plot(
                 (tmp_pos[0], pos_after[0]),
                 (tmp_pos[1], pos_after[1]),
-                c=color,
+                color=color,
                 linewidth=0.4,
                 zorder=1000,
             )
@@ -112,6 +105,7 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
             active_layer = _select_correct_layer(self, Points)
             if not active_layer:
                 return
+            self.canvas.figure.set_constrained_layout(False)
             active_layer.face_color = "white"
             lineages = [
                 self.names_of_nodes[int(event.xdata + 0.5)],
@@ -216,6 +210,8 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         plt.close("all")
         if not self.comps:
             return
+        self.canvas.figure.set_constrained_layout(True)
+
         time = int(self.time_slider.value)
         comparisons = self.comps
         names = self.naming
@@ -241,16 +237,6 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         condensed_dist_matrix = squareform(hierarchy)
 
         linkage_data = linkage(condensed_dist_matrix, method="ward")
-        # clustermap = sns.clustermap(
-        #     hierarchy,
-        #     xticklabels=labels_of_node_real,
-        #     yticklabels=labels_of_node_real,
-        #     cmap="vlag",
-        #     row_linkage=linkage_data,
-        #     col_linkage=linkage_data,
-        # )
-        # clustermap1 = clustermap.data2d
-        # self.plot = np.array(clustermap1)
         order = dendrogram(linkage_data, no_plot=True)["leaves"]
         labels_of_roots = [labels_of_roots[i] for i in order]
         labels_of_nodes = [labels_of_nodes[i] for i in order]
@@ -258,9 +244,6 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         self.names_of_nodes = labels_of_nodes
         self.names_of_roots = labels_of_roots
         self.labels_of_node_real = labels_of_node_real
-        # plot = self.ax_of_clustermap.imshow(
-        #     clustermap1, cmap=self.colormap.get_cmap()
-        # )
         self.plot = hierarchy[np.ix_(order, order)]
         plot = self.ax_of_clustermap.imshow(
             self.plot, cmap=self.colormap.get_cmap()
@@ -408,7 +391,7 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         )
         # For plot tab#
         self.figures, self.axes_for_tree_graphs = plt.subplots(
-            nrows=1, ncols=2, figsize=(1, 2), sharey=True
+            nrows=1, ncols=2, figsize=(4, 3), sharey=True
         )
         for ax in self.axes_for_tree_graphs:
             ax.axis("off")
@@ -426,6 +409,10 @@ class OnlineClustermap(LayerCorrectorTreeProducer):
         self.setLayout(layout)
         self.figure = Figure(constrained_layout=True)
         self.canvas = FigureCanvas(self.figure)
+        self.canvas.setSizePolicy(
+            QWidget.sizePolicy(self.canvas).Expanding,
+            QWidget.sizePolicy(self.canvas).Expanding,
+        )
         self.ax_of_clustermap = self.figure.add_subplot(111)
         self.layout().setContentsMargins(2, 1, 2, 0)
         self.layout().addWidget(self.tree_canvas)

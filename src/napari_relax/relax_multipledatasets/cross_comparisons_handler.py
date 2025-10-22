@@ -1,4 +1,3 @@
-
 from magicgui import widgets
 from napari.components.viewer_model import ViewerModel
 from napari.utils import progress
@@ -18,11 +17,13 @@ from .._util_classes import (
 )
 from .cell_size import MinimalCellSize
 from .cross_config import CrossConfig
-from .cross_embryo_comparison import Embryo_comparisons
+from .cross_embryo_comparison import CrossClustermap
 
 
 class CrossHandler(LayerCorrectorTreeProducer):
-    name = "Embryo comparisons"
+    """Class to laod the widgets for comparing lineages across datasets."""
+
+    name = "Cross Distance Calculation"
 
     def get_lt_manager(self, signal):
         """
@@ -42,7 +43,7 @@ class CrossHandler(LayerCorrectorTreeProducer):
             for layer in self.viewer.layers
         }
 
-    def kill_thread(self):
+    def kill_thread(self, dummy_event=None):
         """
         Function to kill the thread if the user decides to.
         """
@@ -79,11 +80,12 @@ class CrossHandler(LayerCorrectorTreeProducer):
             self.pbr = progress(range(minimum_length))
             self.worker = self.config.roots_selector()
             self.worker.aborted.connect(self.kill_thread)
+            self.worker.returned.connect(self.kill_thread)
+            self.worker.errored.connect(self.kill_thread)
             self.worker.yielded.connect(self.update_comparisons)
             self.worker.start()
             self.runbutton.setChecked(True)
             self.stopbutton.setChecked(False)
-            self.worker.returned.connect(self.kill_thread)
 
     def update_comparisons(self, product):
         (
@@ -132,7 +134,7 @@ class CrossHandler(LayerCorrectorTreeProducer):
         )
         self.config = CrossConfig(self.viewer)
 
-        self.comparisonswidget = Embryo_comparisons(
+        self.comparisonswidget = CrossClustermap(
             self.viewer, dataset_viewers=viewers
         )
 
