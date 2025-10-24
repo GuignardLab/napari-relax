@@ -1,14 +1,17 @@
-This section is focused on quick guides on usual tasks the users may want to do using this plugin.
+---
+Below you’ll find links to individual guides, each focusing on a specific aspect of the workflow.
 
+---
 
-- How to relabel and save a lineagetree X
+## 📚 Tutorials Overview
 
-- Hide and show the ectodermal lineages X
+> ### 💾 [Saving Progress in LineageTree](./saving/saving_tut.md)
+> Learn how to preserve manual labels and pairwise distance calculations after modifying a LineageTree.  
+> Covers node selection, label editing, and saving options.
 
-- Color according to an attribute and reset (not important)
- 
-- Compare in random lineages in Parhyale and find them. (Bad)
+---
 
-- Compare specific lineages in c elegans and create histograms that are useful for interpretation. (Did it)
+> ### 👁️ [Managing Lineage Visibility in 3D Datasets](./show_and_hide/show_and_hide_tut.md)
+> Discover how to hide or show specific lineages to better visualize overlapping layers in complex 3D datasets.
 
-- Do a cross comparison. Ok...
+---
