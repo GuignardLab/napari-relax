@@ -90,7 +90,7 @@ def _select_correct_layer(self, layer_type):
         active_layer = self.viewer.layers.selection.active
         if isinstance(active_layer, layer_type):
             return active_layer
-        else:
+        elif "link" in active_layer.metadata:
             for layer in self.viewer.layers:
                 if "link" in layer.metadata:
                     return active_layer.metadata["link"]

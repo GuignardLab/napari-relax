@@ -52,7 +52,7 @@ nav:
   - Explore and Relabel: ./explore_relabel/explore_relabel.md 
   - Attribute Recoloring: ./attribute/attribute.md
   - Distance Calculation:  ./distance/distance.md
-  - Cross_dataset_Distances: 
+  - Cross dataset Distances: 
     - Manager: ./cross+comparison/manager.md
     - Distance Calculation: ./cross+comparison/distance_cross.md
   - Guides: ./guides/guides.md
