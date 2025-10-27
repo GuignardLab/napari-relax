@@ -60,3 +60,4 @@ nav:
     - Opening a dataset: ./guides/loading_data.md
     - Saving Progress: ./guides/saving/saving_tut.md
     - Hiding lineages: ./guides/show_and_hide/show_and_hide_tut.md
+    - Comparing lineages: ./guides/comparing/blind_comparing.md
