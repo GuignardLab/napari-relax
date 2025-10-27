@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../../explore_relabel/explore_relabel/">
+        <link rel="prev" href="../guides/">
       
       
-        <link rel="next" href="../../distance/distance/">
+        <link rel="next" href="../saving/saving_tut/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Attribute Recoloring - ReLAX (Reconstructed Lineage Analysis & eXploration)</title>
+        <title>Opening a dataset - ReLAX (Reconstructed Lineage Analysis & eXploration)</title>
       
     
     
@@ -105,7 +105,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Attribute Recoloring
+              Opening a dataset
             
           </span>
         </div>
@@ -312,17 +312,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../attribute/attribute/" class="md-nav__link">
         
   
   
@@ -333,7 +326,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -457,20 +449,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
         
           
           <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
@@ -486,7 +478,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             Guides
@@ -500,7 +492,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/guides/" class="md-nav__link">
+      <a href="../guides/" class="md-nav__link">
         
   
   
@@ -520,10 +512,17 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../guides/loading_data/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -534,6 +533,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -546,7 +546,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/saving/saving_tut/" class="md-nav__link">
+      <a href="../saving/saving_tut/" class="md-nav__link">
         
   
   
@@ -569,7 +569,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/show_and_hide/show_and_hide_tut/" class="md-nav__link">
+      <a href="../show_and_hide/show_and_hide_tut/" class="md-nav__link">
         
   
   
@@ -592,7 +592,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/comparing/blind_comparing/" class="md-nav__link">
+      <a href="../comparing/blind_comparing/" class="md-nav__link">
         
   
   
@@ -647,35 +647,10 @@
 
 
 
-  <h1>Attribute Recoloring</h1>
+  <h1>Opening a dataset</h1>
 
-<p>This component is mainly focused on showcasing quantitative and qualitative features of the dataset by recoloring the dataset or its lineages.
-There are 2 sections:</p>
-<ul>
-<li>One is for recoloring any dataset according to the number of sublineages in a specific timepoint</li>
-<li>The other is about using precomputed features to recolor both viewers.</li>
-</ul>
-<p>These two components are thoroughly discussed below:</p>
-<p><img alt="distance_image" src="../distance_display_componentn.png" /></p>
-<ul>
-<li>Using the slider, the user can select a timepoint where <code>n</code> clones exist. By pressing <code>Recolor Clones</code> each clone will be colored with a color specified in the colormap. In this specific example the image was recolored according to the clones that existed on timepoint 7.</li>
-</ul>
-<p><img alt="jacquard_image" src="../jacqard.png" /></p>
-<ul>
-<li>The user can select any quantitaive attribute and recolor it according to its value.<strong><em>On the left</em></strong> the configuration screen and the colored viewer are shown. <strong><em>On the right</em></strong> one lineage on the lineage viewer, which is also recolored is shown. The important settings the user may manipulate are how to propagate the coloring. The options are:<ol>
-<li><strong><em>Black</em></strong>: If a node has no value no color it will be shown in black color.</li>
-<li><strong><em>Propagate from Ancestor</em></strong>: Each node with no value will inherit its value from its ancestor and colored the same color.</li>
-<li><strong><em>Propagate from Sibling</em></strong>: Each node with no value will get the same valu as their sibling if they do have a color.</li>
-<li><strong><em>Default Value</em></strong>: More settings are available here, as the user can select a value to color each node that has no color.<ol>
-<li><strong><em>Custom  Value</em></strong>: The user can just input any value, so these nodes will get this value</li>
-<li><strong><em>Mean</em></strong>: Each node will be colored with just the mean value.</li>
-<li><strong><em>Median</em></strong>:  Each node will be colored with just the median value.</li>
-<li><strong><em>Min</em></strong>: Each node will be colored with just the mean value.</li>
-</ol>
-</li>
-</ol>
-</li>
-</ul>
+<p>Importing data is one of the most important aspects of this plugin. All the supported formats can be easily opened using <strong>Drag and Drop</strong> .
+If the is no available data the user may use one of the sample data  <strong>File&gt;Open Sample&gt;demo LineageTree dataset</strong> the plugin comes with.</p>
 
 
 
