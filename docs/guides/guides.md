@@ -1,6 +1,5 @@
 ---
 Below you’ll find links to individual guides, each focusing on a specific aspect of the workflow.
-
 ---
 
 ## 📚 Tutorials Overview
@@ -15,3 +14,17 @@ Below you’ll find links to individual guides, each focusing on a specific aspe
 > Discover how to hide or show specific lineages to better visualize overlapping layers in complex 3D datasets.
 
 ---
+
+> ### 📂 [Opening a Dataset](./loading_data.md)
+> Step-by-step instructions on how to load datasets into ReLAX.  
+> Covers supported file formats, importing lineage data, and troubleshooting common loading issues.
+
+---
+
+> ### 🧬 [Comparing Lineages Automatically](./comparing/blind_comparing.md)
+> Learn how to perform **blind comparisons** across all possible lineage pairs to identify clusters of similar sublineages.  
+> Includes guidance on timepoint selection, dataset cropping, distance style configuration, and result interpretation.
+
+---
+
+_Use these guides to explore each part of the ReLAX workflow — from loading and visualizing datasets to performing complex comparisons and saving results._
