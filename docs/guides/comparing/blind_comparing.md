@@ -3,6 +3,11 @@
 By calculating the distance between two lineages, users can identify which lineages or sublineages are similar or dissimilar. Manually selecting pairs for comparison can be tedious and time-consuming.  
 This guide demonstrates how to **automatically compare every possible pair of lineages** to reveal clusters of similar lineages.
 
+
+### 0. (Optional) Label the dataset:
+
+The imported dataset may not contain predefined labels. However, adding labels can greatly enhance the interpretation and comparison of lineages. To learn how to assign and save labels, follow the instructions in [Relabelling and Saving Progress](../saving/saving_tut.md)
+
 ---
 
 ### 1. Select Timepoints
@@ -29,7 +34,7 @@ To minimize this, **crop the dataset** at a timepoint where most lineages of int
 ![config_3](./config_3.png){ width="300" }
 
 Choose the method for distance calculation.  
-For blind discovery of similar lineages, the **`Reduced`** or **`Normalized Reduced`** styles are highly recommended.
+For blind discovery of similar lineages, the **full tree is highly not recommended**.
 
 ---
 
