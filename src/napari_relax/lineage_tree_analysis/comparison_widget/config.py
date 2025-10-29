@@ -83,7 +83,6 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
             all_names.append(name)
             all_norms.append(norms)
             yield (all_comps, all_names, all_norms, self.times)
-        # return None
 
     def times_selector(self):
         """

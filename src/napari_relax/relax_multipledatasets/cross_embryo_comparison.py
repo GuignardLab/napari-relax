@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 import os
 import pickle
 from pathlib import Path
@@ -310,21 +311,22 @@ class CrossClustermap(LayerCorrectorTreeProducer):
         self.canvas.draw()
 
     def save_dictionary(self):
-        roots = {}
-        times = {}
-        end_times = {}
-        for tab in self.tab_dictionary:
-            roots[tab] = self.tab_dictionary[tab].show_roots()
-            times[tab] = self.tab_dictionary[tab].ret_times()
-            end_times[tab] = self.tab_dictionary[tab].time_crop
+        for _, lT in self.manager:
+            if hasattr(lT, "_protected_predecessor"):
+                del lT._protected_predecessor
+            if hasattr(lT, "_protected_successor"):
+                del lT._protected_successor
+            if hasattr(lT, "_protected_time"):
+                del lT._protected_time
 
         data = {
-            "roots": roots,
-            "times": times,
-            "end_times": end_times,
+            # "roots": roots,
+            "times": self.time,
+            # "end_times": end_times,
             "comparisons": self.comparisons,
             "norms": self.norms,
             "names": self.names,
+            "ltm": self.manager,
         }
         with open(str(self.save_pkl.value), "wb") as f:
             pickle.dump(data, f)
