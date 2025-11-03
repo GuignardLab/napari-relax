@@ -162,7 +162,7 @@ def layer_preparation(lT: LineageTree, path: str = "", from_cross=False):
             graph.setdefault(first_c_to_track[di], []).append(t)
 
     # optimal point size infered from heuristics on nearest neighbor distances
-    _, optimal_size, _ = _infer_point_size(lT)
+    min_size, optimal_size, max_size = _infer_point_size(lT)
 
     add_kwargs_point = {
         "size": optimal_size,
@@ -185,6 +185,7 @@ def layer_preparation(lT: LineageTree, path: str = "", from_cross=False):
                     "Selection": np.ones_like(clone),
                 },
             },
+            "size_display_bounds": (min_size, optimal_size, max_size),
         },
         "name": path,
         "face_color": clone2,
