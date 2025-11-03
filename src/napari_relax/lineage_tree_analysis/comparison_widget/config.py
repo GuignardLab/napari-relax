@@ -37,9 +37,13 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
         all_names = []
         all_norms = []
         if self.crop and self.crop != 0:
-            times = [i for i in self.times if i < self.crop]
+            times = [
+                i
+                for i in self.times
+                if i < self.crop and len(self.lT.time_nodes[i]) > 1
+            ]
         else:
-            times = self.times
+            times = [i for i in self.times if len(self.lT.time_nodes[i]) > 1]
 
         local_lT = self.lT
         for t in times:
