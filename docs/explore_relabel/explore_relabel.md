@@ -1,8 +1,9 @@
 
-The core parts of this Exploration and Relabeling are:
+This plugin is focused on the interaction with temporal data and interaction with chain level data insead of node level.
+The core features of this component are:
 
-- The interactive **Lineage Viewer**
-- **Relabel** any chain in a lineage
+- EXplore temporal data efficiently with the **Lineage Viewer**
+- **Relabel** any chain in a lineageTree dataset.
 - **Combine** the **Lineage Viewer** with the **Napari standard Viewer**
 
 

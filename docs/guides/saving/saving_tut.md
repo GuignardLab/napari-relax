@@ -21,7 +21,7 @@ or select the desired node directly from the **Lineage Viewer** panel.
 ![saving_2](./saving_2.png)
 
 Enter the appropriate label in the **Label Editor**.  
-If pairwise comparisons have been executed, the results are automatically saved within the LineageTree file, as detailed in the [Pairwise Distance Tutorial](./comparing/comparison.md).
+If pairwise comparisons have been executed, the results are automatically saved within the LineageTree file, as detailed in the [Pairwise Distance Tutorial](../comparing/blind_comparing.md).
 
 ---
 

@@ -49,9 +49,10 @@ nav:
   - Overview: index.md
   - Quick Start: ./quick_start/q_start.md
   - Napari Viewer: ./viewer/viewer.md
-  - Explore and Relabel: ./explore_relabel/explore_relabel.md 
-  - Attribute Recoloring: ./attribute/attribute.md
-  - Distance Calculation:  ./distance/distance.md
+  - Single dataset Analysis:
+    - Lineage Viewer - Explore and Relabel: ./explore_relabel/explore_relabel.md 
+    - Attribute Recoloring: ./attribute/attribute.md
+    - Distance Calculation:  ./distance/distance.md
   - Cross dataset Distances: 
     - Manager: ./cross+comparison/manager.md
     - Distance Calculation: ./cross+comparison/distance_cross.md
