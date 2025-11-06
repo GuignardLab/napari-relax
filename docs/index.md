@@ -2,7 +2,7 @@
 
 <p style="text-align: justify;">
 
-This napari plugin extends the functionality of the <a href="https://guignardlab.github.io/LineageTree/" target="_blank">LineageTree</a> project by providing a comprehensive Graphical User Interface (GUI). Leveraging napari’s interactive visualization capabilities and Qt’s flexible framework, it enables users to import and explore tracking datasets, called <b>LineageTrees</b> directly into the napari viewer. This project as well as LineageTree lie at the interface between graph theory and biology, thus a useful <a href="https://guignardlab.github.io/LineageTree/glossary/" target="_blank">glossary</a> was created to accomodate users who are not familiar with either of the fields
+This <a href="https://napari.org/dev/index.html" target="_blank">napari</a> plugin extends the functionality of the <a href="https://guignardlab.github.io/LineageTree/" target="_blank">LineageTree</a> project by providing a comprehensive Graphical User Interface (GUI). Leveraging napari’s interactive visualization capabilities and Qt’s flexible framework, it enables users to import and explore tracking datasets, called <b>LineageTrees</b> directly into the Napari viewer. This project as well as LineageTree lie at the interface between graph theory and biology, thus a useful <a href="https://guignardlab.github.io/LineageTree/glossary/" target="_blank">glossary</a> was created to accomodate users who are not familiar with either of the fields
 
 </p>
 
