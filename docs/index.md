@@ -27,7 +27,7 @@ This integration enhances lineage analysis by combining the powerful visualizati
 - **Interaction with big datasets**: Big datasets contain hundreds of annotations/nodes per chain/branch, the plugin offers the capability to explore large lineages on an interactive Lineage Viewer
 - **No need for programming knowledge**: This plugin does not require programming knowledge, thus comparing LineageTrees is possible even for the untrained user.
 
-This plugin consists of 2 components, one tailored for single dataset analysis and inspection and one for multiple dataset **UTED** analysis:
+This plugin consists of 2 components, one tailored for single dataset analysis and inspection and one for multiple dataset analysis:
 
 - Single dataset analysis: 
     - [Explore and Relabel](./explore_relabel/explore_relabel.md): Explore the lineages with its interactive **Lineage Viewer**, relabel lineages of interest.

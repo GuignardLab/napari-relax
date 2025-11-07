@@ -1,5 +1,5 @@
 site_name: ReLAX (Reconstructed Lineage Analysis & eXploration)
-docs_dir: docs
+docs_dir: docs/
 theme:
   name: material
   palette:
@@ -28,15 +28,18 @@ plugins:
         options:
           show_submodules: true
           docstring_style: numpy
+extra_css:
+  - styles/extra.css
 
 markdown_extensions:
   - abbr
-  - attr_list
   - md_in_html
   - admonition
-  # - pymdownx.extra
+  - pymdownx.extra
   - pymdownx.details
+  - pymdownx.inlinehilite
   - pymdownx.snippets
+  - attr_list
   - pymdownx.highlight
   - pymdownx.superfences
   - pymdownx.tabbed:

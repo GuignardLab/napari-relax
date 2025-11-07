@@ -1,41 +1,71 @@
+# Lineage-Level Analysis Plugin
 
-This plugin is focused on the interaction with temporal data and interaction with chain level data insead of node level.
-The core features of this component are:
+This component focuses on **interacting with chain-level temporal data** rather than node-level data. This approach makes **plotting and analyzing lineages faster and more efficient**.
 
-- EXplore temporal data efficiently with the **Lineage Viewer**
-- **Relabel** any chain in a lineageTree dataset.
-- **Combine** the **Lineage Viewer** with the **Napari standard Viewer**
+## Core Features
+
+The main capabilities of this component include:
+
+- **Explore temporal data efficiently** using the **Lineage Viewer**.
+- **Relabel** any chain in a **LineageTree** dataset.
+- **Combination** of the **Lineage Viewer** with the **Napari Viewer** for easy exploration of both temporal and spatial data.
+- **Iterate though all lineages** existing in a dataset using a slider.
+
+---
+
+## Controls
 
 
-This component contains features for efficiently navigating and renaming lineages using both the Lineage Viewer and the Napari viewer.
+<div class="split-container">
+  <div >
+
+<ol>
+  <li>
+    <strong>Lineage Viewer configuration button</strong>: Press to open the configuration window
+      <li>
+        <strong>Lineage Viewer configuration window</strong>: Using this window, the user may change the Lineage Viewer's properties.
+      </li>
+      <li>
+        <strong>The Lineage Viewer</strong>: Using this viewer, the user may inspect all the lineages in the dataset.
+        <p><em>Controlling the Lineage Viewer:</em></p>
+        <ul>
+          <li><strong>Left click</strong>: Using the left click, the user can select a sublineage spawned from node on both viewers.</li>
+          <li><strong>Double Left click</strong>: Clicking twice on a node on the Lineage Viewer will show the first timepoint the clicked cell spawned on the <a href="../viewer/viewer.md">Napari Viewer</a>.</li>
+          <li><strong>Mouse wheel</strong>: Using the mouse wheel, the user can zoom in on the Lineage viewer to observe specific details. If zoomed in enough, the labels of each node will be shown on screen.</li>
+          <li><strong>Right click and drag</strong>: Pan to see different segments of the lineage if the plot is zoomed in.</li>
+          <li><strong>Z</strong>: Reset the view regardless of panning or zoom.</li>
+        </ul>
+      </li>
+      <li><strong>The Lineage Viewer slider</strong>: Use the slider to inspect different lineages that exist in the dataset.</li>
+      <li><strong>Label manipulation</strong>: Change the label of any node, remove an existing label from a node, or show all labels.</li>
+      <li>
+        <strong>Select Lineage/Sublineage</strong>: After the user has selected a point on the Napari Viewer, they may decide to select the whole lineage this node belongs to or its sublineage by pressing the corresponding button. This will also update the plot. The user may also decide to change the colors of all nodes selected using panel 1 of layer controls.
+      </li>
+      <li>
+        <strong>Show/Hide Lineages</strong>: The user can hide/show selected lineages or even all lineages. Lineages that are hidden may be selected using the Lineage Viewer.
+      </li>
+      <li>
+        <strong>General helping buttons</strong>:
+        <ul>
+          <li><strong>Top</strong>: Change the size of all the Points on a selected layer or all layers. The same value will be applied across all points modified.</li>
+          <li><strong>Middle Left</strong>: Toggle the visibility of other layers; the same result may be achieved by <strong>Alt+Click</strong> on a layer in the layer control panel.</li>
+          <li><strong>Middle Right</strong>: Add a tracks layer to the Points layer for visualization purposes.</li>
+          <li><strong>Bottom</strong>: Save the LineageTree.</li>
+        </ul>
+      </li>
+  </li>
+</ol>
 
 
-The Lineage Viewer is the plugin's first component, enabling lineage exploration, relabelling, and navigation through the combination of both viewers.
+  </div>
+  <div class="fixed-right">
+    <img src="../exploration.png" alt="My Image"> 
+  </div>
+</div>
 
-![exploration_panel](./exploration.png)
+---
+## The tracks layer of a dataset.
 
-1. **Lineage Viewer configuration button**: Press to open the configuration window
+This layer was produced by pressing on ```Add Tracks``` while a viable layer (contains a LineageTree) was selected
 
-- **Lineage Viewer configuration window**: Using this window, the user may change the Lineage viewers: node size, node color, edge size, label fontsize, and the color of the selected cells.
-- **The Lineage Viewer**: Using this viewer, the user may inspect all the lineages that have a height of at least 25% of the dataset. The user may zoom (**scroll**) and pan (**Right Click + Drag**) the viewer; if zoomed in enough, the user may also see the label for each node. **Left + Clicking** on the viewer, the user can select the nodes of sublineages by clicking on the graph in both viewers. Also, when clicking, the user may use component 5 to change the label of any sublineage.
-
-    *Controling the Lineage Viewer:*
-
-    - **Left click**: Using the left click, the user will select a sublineage on both viewers.
-    - **Double Left click**: Clicking twice on a node on the Lineage Viewer will show the first timepoint the clicked cell spawned on the [Napari Viewer](../viewer/viewer.md).
-    - **Mouse wheel**: Using the mouse wheel, the user can zoom in on the Lineage viewer to observe specific details. If the user zooms in enough, the labels of each node will be shown on screen.
-    - **Right click** and **drag**: Pan to see different segments of the lineage if the plot is zoomed in.
-    - **Z**: Reset the view regardless of panning or zoom.
-
-- **The Lineage Viewer slider**: Use the slider to inspect different lineages that exist in the dataset
-- **Label manipulation**: Change the label of any node, remove an existing label from a node or show all labels.
-- **Select Lineage/Sublineage**: After the user has selected a point on the napari viewer, they may decide to select the whole lineage this node belongs to or its sublineage by pressing the corresponding button. This will also update the plot. The user may also decide to change the colors of all nodes selected. Using panel 1 of. layer controls
-- **Show/Hide Lineages**: The user can hide/show selected lineages. or even all lineages. Lineages that are hidden may be selected using the Lineage viewer.
-- **General helping buttons**: 
-    - **Top**: Change the size of all the Points on a selected layer or all layers. The same value will be applied across all points modified.
-    - **Middle** **Left**: Toggle the visibility of other layers; The same result may be achieved by **Alt+Click** on a layer.
-    - **Middle** **Right**: Add a tracks layer to the Points layer for visualization purposes.
-    - **Bottom**: Save the LineageTree.
-An example of a Tracks Layer:
-
-![tracks](./tracks.png)
+![tracks](./tracks.png) 
