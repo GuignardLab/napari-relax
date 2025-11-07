@@ -1,8 +1,8 @@
 This component is mainly focused on showcasing quantitative and qualitative features of the dataset by recoloring the dataset or its lineages.
 There are 2 sections:
 
-- One is for recoloring any dataset according to the number of sublineages in a specific timepoint
-- The other is about using precomputed features to recolor both viewers.
+- One is for recoloring any dataset according to the number of sublineages existing in a specific timepoint
+- The other is about using precomputed features to recolor both viewers on n node level.
 
 These two components:
 <!-- 
@@ -26,9 +26,7 @@ These two components:
 <div class="split-container1">
   <div class = "scrollable-left1" >
 <p>
-  Using the slider, the user can select a timepoint where <code>n</code> clones exist. 
-  By pressing <code>Recolor Clones</code>, each clone will be colored with a color specified in the colormap. 
-  In this specific example, the image was recolored according to the clones that existed on timepoint 7.
+  Using the slider, the user can select a timepoint in the dataset and recolor the whole dataset according to the number of clones existing on this timepoint. For example if the user selects timepoint 2 in the <code>demo C. Elegans</code> dataset, two colors will be shown, one for each sublineage in timepoint 2. The user can also change the colormap if they prefer an other array of colors.
 </p>
 
   </div>
