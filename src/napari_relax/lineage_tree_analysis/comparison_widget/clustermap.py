@@ -105,6 +105,7 @@ class Clustermap(LayerCorrectorTreeProducer):
             active_layer = _select_correct_layer(self, Points)
             if not active_layer:
                 return
+            self.canvas.figure.set_constrained_layout(False)
             active_layer.face_color = "white"
             lineages = [
                 self.names_of_nodes[int(event.xdata + 0.5)],
@@ -209,6 +210,8 @@ class Clustermap(LayerCorrectorTreeProducer):
         plt.close("all")
         if not self.comps:
             return
+        self.canvas.figure.set_constrained_layout(True)
+
         time = int(self.time_slider.value)
         comparisons = self.comps
         names = self.naming
