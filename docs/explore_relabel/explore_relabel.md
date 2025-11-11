@@ -68,4 +68,4 @@ The main capabilities of this component include:
 
 This layer was produced by pressing on ```Add Tracks``` while a viable layer (contains a LineageTree) was selected
 
-![tracks](./tracks.png) 
+![tracks](./tracks.png){: style="width:400px;"}
