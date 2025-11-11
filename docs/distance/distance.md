@@ -117,3 +117,8 @@ The results of these comparisons will be shown on a clustermap, which the user c
     <img src="../clustermap_analysis_celegans.png" alt="My Image"> 
   </div>
 </div>
+
+---
+
+Go to [Starting page](./index.md)                                           
+Go to [Tutorials](./guides/guides.md)

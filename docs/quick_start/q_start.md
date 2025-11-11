@@ -31,3 +31,8 @@ Other datasets will also be available in [citation].
 [positional data](), [gene expression data]()
 
 ![demo_dataset](./demo_dataset_import.png)
+
+---
+
+Go to [Starting page](./index.md)                                           
+Go to [Tutorials](./guides/guides.md)

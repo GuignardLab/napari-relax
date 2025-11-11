@@ -57,4 +57,7 @@ These two components:
   </div>
 </div>
 
-[./go_to_index.md]
+---
+
+Go to [Starting page](./index.md)                                           
+Go to [Tutorials](./guides/guides.md)
