@@ -197,8 +197,11 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.canvas.setFocusPolicy(Qt.WheelFocus)
         self.canvas.setFocus()
         if self.lT is not None:
+            label = self.lT.labels.get(
+                self.roots[int(self.graph_slider.value())], "Unlabeled"
+            )
             self.w_lineedit.setPlaceholderText(
-                f"ID of root: {self.roots[int(self.graph_slider.value())]} - Label: {self.lT.labels[self.roots[int(self.graph_slider.value())]]}"
+                f"ID of root: {self.roots[int(self.graph_slider.value())]} - Label: {label}"
             )
         self.w_lineedit.clear()
         self.w_lineedit.update()
@@ -303,9 +306,11 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 self.graph_slider.setMinimum(0)
                 self.graph_slider.setMaximum(self.range)
                 self.graph_slider.setValue(0)
+                label = self.lT.labels.get(self.roots[0], "Unlabeled")
                 self.w_lineedit.setPlaceholderText(
-                    f"ID of root: {self.roots[0]} - Label: {self.lT.labels[self.roots[0]]}"
+                    f"ID of root: {self.roots[int(self.graph_slider.value())]} - Label: {label}"
                 )
+
                 self.graph_slider.setToolTip(
                     f"Currently {self.range+1} lineages present."
                 )
