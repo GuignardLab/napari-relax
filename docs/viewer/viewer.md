@@ -41,5 +41,5 @@ For this plugin the ```Points Layer``` is the most common and important type of 
 
 ---
 
-Go to [Starting page](./index.md)                                           
-Go to [Tutorials](./guides/guides.md)
+Go to [Starting page](../index.md)                                           
+Go to [Tutorials](../guides/guides.md)

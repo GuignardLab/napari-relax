@@ -54,25 +54,37 @@
   object-fit: contain;
 }
 .fixed-right3 {
-  flex: 0 0 600px;            /* right column width */
-  display: flex;               /* flex for vertical centering */
+  flex: 1;          /* right column width */
+  display: flex;            
   flex-direction: column;
-  justify-content: center;     /* vertical centering inside right column */
-  align-items: center;         /* horizontal centering of image */
-  height: 150%;                /* match parent container height */
-  padding: 0;                  /* optional */
+  justify-content: flex-start;  /* align to top */
+  align-items: flex-start;      /* align to left */
+  height: 350%;                
+  padding: 0;
+  position: sticky;
+
 }
+
 .fixed-right3 img {
-  width: 150%;
-  height: 150%;
-  object-fit: contain;
+  width: 300%;                 /* or any size you like */
+  flex: none;
 }
+.split-container3 {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  max-width: auto;
+  min-height: 10vh;
+  /* overflow: hidden; */
+}
+
+
 
 .split-container {
   display: flex;
   align-items: flex-start;
   position: relative;
-  max-width: 1500px;
+  /* max-width: 1500px; */
   min-height: 90vh;
   /* overflow: hidden; */
 }
@@ -102,7 +114,14 @@
   max-height: 90vh;
   object-fit: contain;
 }
-
+.split-container1 {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  max-width: 1500px;
+  min-height: 10vh;
+  /* overflow: hidden; */
+  }
 /* Right sidebar flush to the right window edge */
 .md-sidebar--secondary {
     right: 0 !important;          /* flush against right edge */

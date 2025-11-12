@@ -27,12 +27,12 @@ There are also 2 demo datasets easily accessible from ***File>Open Sample>demo L
 Other datasets will also be available in [citation].
 
 - The first demo dataset contains 3 descendants of Er lineage of *Parhyale hawaiensis* across the first 100 timepoints of their development.
-- While the other contains a C. elegans embryo starting from P0 with multiple geneexpressions (from other datasets) imported.
+- While the other contains a C. elegans embryo starting from P0 with gene expressions from multiple experiments (from other datasets) imported.
 [positional data](), [gene expression data]()
 
 ![demo_dataset](./demo_dataset_import.png)
 
 ---
 
-Go to [Starting page](./index.md)                                           
-Go to [Tutorials](./guides/guides.md)
+Go to [Starting page](../index.md)                                           
+Go to [Tutorials](../guides/guides.md)

@@ -19,18 +19,22 @@ This <a href="https://napari.org/dev/index.html" target="_blank">napari</a> plug
 
 ---
 
+[Here are guides](./guides/guides.md) available for tutorials on specific aspects of workflows available in the plugin.
+
+---
+
 This integration enhances lineage analysis by combining the powerful visualization of Napari with quantitative comparison tools in an interactive environment.
 
 ## What does this combination of LineageTree and Napari offer
 
-- **Viewer**: The spatial data are loaded into the napari viewer and can be interacted with.
-- **Interaction with big datasets**: Big datasets contain hundreds of annotations/nodes per chain/branch, the plugin offers the capability to explore large lineages on an interactive Lineage Viewer
-- **No need for programming knowledge**: This plugin does not require programming knowledge, thus comparing LineageTrees is possible even for the untrained user.
+- **The Viewer**: The spatial data are loaded into the napari viewer and can be interacted with.
+- **Interaction with big datasets**: Big datasets contain hundreds of annotations/nodes per chain/branch, the plugin offers the capability to explore large lineages on the interactive Lineage Viewer
+- **No need for programming knowledge**: This plugin does not require programming knowledge, thus comparing LineageTrees is accessible even for the untrained user.
 
 This plugin consists of 2 components, one tailored for single dataset analysis and inspection and one for multiple dataset analysis:
 
 - Single dataset analysis: 
-    - [Explore and Relabel](./explore_relabel/explore_relabel.md): Explore the lineages with its interactive **Lineage Viewer**, relabel lineages of interest.
+    - [Lineage Viewer - Explore and Relabel](./explore_relabel/explore_relabel.md): Explore the lineages with its interactive **Lineage Viewer**, relabel lineages of interest.
     - [Attribute recoloring](./attribute/attribute.md): Recolor nodes on both the **Lineage Viewer** and the **Napari standard Viewer**, using the distance or precomputed attributes.
     - [Distance Calculation](./distance/distance.md): Calculate the unordered tree edit distance, inspect the distances on  the **Napari Standard Viewer** and create histograms to compare lineages through their sublineages.
 
@@ -39,5 +43,3 @@ This plugin consists of 2 components, one tailored for single dataset analysis a
     - [Cross Dataset Comparison](./cross+comparison/distance_cross.md): Easily calculate the unordered tree edit distance of lineages or sublineages across datasets.
 
 ---
-
-[Here are guides](./guides/guides.md) available for tutorials on specific aspects of workflows available in the plugin.

@@ -20,7 +20,7 @@ The results of these comparisons will be shown on a clustermap, which the user c
 - [**Approximation/Style selection**](https://guignardlab.github.io/LineageTree/uted/#different-tree-approximations): The approximation to be used in the analysis. CAUTION: Different algorithms have different uses, for more information visit [LineageTree Tree approximatons](https://guignardlab.github.io/LineageTree/uted/#different-tree-approximations). Full tree is not recommended for large LineageTrees.
 - **Subtree selection**: Specific lineages may be selected to calculate their pairwise distance. Some lineages may spawn later than the first timepoint selected due to tracking or imaging issues; they can still be included if they exist at the any if the selected timepoints.
 - **Start/stop Comparisons**: The user can start calculating the comparisons. While the comparisons are being run the rest of the plugin and napari remain responsive. At any point, the user may decide to stop the processing by clicking `Stop Processing`. To check the progress of the comparison calculation a progress bar is also implemented. -->
-<div class="split-container">
+<div class="split-container3">
   <div class="scrollable-left1">
 <p>
     This Tab is responsible for setting up the systematic pairwise distance parameters.</p>
@@ -120,5 +120,5 @@ The results of these comparisons will be shown on a clustermap, which the user c
 
 ---
 
-Go to [Starting page](./index.md)                                           
-Go to [Tutorials](./guides/guides.md)
+Go to [Starting page](../index.md)                                           
+Go to [Tutorials](../guides/guides.md)
