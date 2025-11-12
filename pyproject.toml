@@ -71,7 +71,7 @@ include-package-data = true
 where = ["src"]
 
 [tool.setuptools.package-data]
-"*" = ["*.yaml"]
+"*" = ["*.yaml","*.html"]
 
 [tool.setuptools_scm]
 write_to = "src/napari_relax/_version.py"

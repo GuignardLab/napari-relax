@@ -299,8 +299,9 @@ class Clustermap(LayerCorrectorTreeProducer):
             "times": self.times,
             "comparisons": self.comps,
             "norms": self.norms,
-            "names": self.names_of_nodes,
+            "names": self.naming,
             "end_time": self.crop,
+            "labels": self.lT.labels,
         }
         with open(str(self.save_pkl.value), "wb") as f:
             pickle.dump(data, f)
