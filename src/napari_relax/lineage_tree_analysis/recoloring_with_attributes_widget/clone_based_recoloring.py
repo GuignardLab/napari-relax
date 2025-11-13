@@ -15,6 +15,7 @@ from ..._util_classes.custom_colorboxes import (
     MplCompatibleColorCombobox,
 )
 from ..._utils import _select_active_lt_layer
+from ..._util_classes import LayerCorrectorTreeProducer, TooltipButton
 
 
 class CloneRecoloring(LayerCorrectorTreeProducer):
