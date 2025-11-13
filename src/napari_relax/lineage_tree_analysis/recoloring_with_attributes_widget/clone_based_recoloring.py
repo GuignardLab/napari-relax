@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 from magicgui import widgets
@@ -8,12 +10,11 @@ from scipy.spatial import KDTree
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QLabel, QVBoxLayout
 
-from ..._util_classes import LayerCorrectorTreeProducer
-from ..._utils import _select_active_lt_layer
-from .custom_colorboxes.mpl_compatible_combobox import (
-    QUANTITATIVE_CMAPS,
+
+from ..._util_classes.custom_colorboxes import (
     MplCompatibleColorCombobox,
 )
+from ..._utils import _select_active_lt_layer
 
 
 class CloneRecoloring(LayerCorrectorTreeProducer):
@@ -65,7 +66,7 @@ class CloneRecoloring(LayerCorrectorTreeProducer):
         if starting_time < min_t:
             starting_time = min_t
         colors = np.zeros((active_layer.data.shape[0], 4))
-        cmap = QUANTITATIVE_CMAPS[self.cmap_choice.currentData()]
+        cmap = self.combobox.get_cmap()
         if active_layer.face_color_mode != "direct":
             active_layer.face_color_mode = "direct"
         for i, c in enumerate(self.time_nodes[starting_time]):
@@ -82,6 +83,11 @@ class CloneRecoloring(LayerCorrectorTreeProducer):
             self.slider_change()
         else:
             self.time_nodes = None
+
+    def reset_colors(self):
+        active_layer = _select_correct_layer(self, Points)
+        if active_layer is not None:
+            active_layer.face_color = active_layer.metadata["clone2"]
 
     def create_layout(self):
         """Creates the layout for this widget."""
@@ -126,17 +132,21 @@ class CloneRecoloring(LayerCorrectorTreeProducer):
             labels=False,
             layout="horizontal",
         )
-        self.do_color = widgets.Button(text="Recolor Clones")
-
+        do_color = widgets.Button(text="Recolor Clones")
+        reset_colors = widgets.Button(text="Reset Coloring")
+        reset_colors.clicked.connect(self.reset_colors)
+        recoloring_cont = widgets.Container(
+            widgets=[do_color, reset_colors], layout="horizontal"
+        )
         w2 = widgets.Container(
             widgets=[
                 cmap,
-                self.do_color,
+                recoloring_cont,
             ],
             labels=False,
             layout="vertical",
         )
-        self.do_color.clicked.connect(self.color_clones)
+        do_color.clicked.connect(self.color_clones)
         self.viewer.layers.selection.events.connect(self.layer_change)
         self.distance_layout = QVBoxLayout()
         self.distance_layout.addWidget(
@@ -161,3 +171,20 @@ class CloneRecoloring(LayerCorrectorTreeProducer):
         self.setLayout(self.distance_layout)
 
         self.slider_change()
+
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(
+            os.path.join(current_dir, "clone_recolor.html"),
+            encoding="utf-8",
+        ) as f:
+            txt = f.read()
+        self.clone_tooltip = TooltipButton(txt)
+        self.clone_tooltip.setParent(self)
+        self.clone_tooltip.move(
+            self.width() - self.clone_tooltip.width(),
+            0,
+        )
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.clone_tooltip.move(self.width() - self.clone_tooltip.width(), 0)

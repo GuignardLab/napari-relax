@@ -12,7 +12,7 @@
 A plugin to visualise and manipulate cell lineage trees
 
 ----------------------------------
-
+Documentation: [https://guignardlab.github.io/napari-relax/](https://guignardlab.github.io/napari-relax/)
 This [napari] plugin was generated with [copier] using the [napari-plugin-template].
 
 <!--

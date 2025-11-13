@@ -150,7 +150,7 @@ def _extract_napari_surface_from_lT(lT: LineageTree):
     return all_vertices, all_faces
 
 
-def layer_preparation(lT: LineageTree, points_layer_name: str | Path):
+def layer_preparation(lT: LineageTree, points_layer_name: str | Path, from_cross=False):
     tracks = lT.all_chains
     first_c_to_track = {}
     last_c_of_track = {}
@@ -209,10 +209,10 @@ def layer_preparation(lT: LineageTree, points_layer_name: str | Path):
             if len(lT.get_subtree_nodes(root)) > (lT.t_e - lT.t_b) / 4
         }
     )
-
-    show_warning(
-        "Only lineages with height larger than 1/4 of the total timepoints will be shown on the lineage Viewer."
-    )
+    if not from_cross:
+        show_warning(
+            "Only lineages with height larger than 1/4 of the total timepoints will be shown on the lineage Viewer."
+        )
     pos = {
         i: utils.hierarchical_pos(
             g, g["root"], ycenter=-int(lT.time[g["root"]]), vert_gap=1
@@ -225,7 +225,7 @@ def layer_preparation(lT: LineageTree, points_layer_name: str | Path):
             graph.setdefault(first_c_to_track[di], []).append(t)
 
     # optimal point size infered from heuristics on nearest neighbor distances
-    _, optimal_size, _ = _infer_point_size(lT)
+    min_size, optimal_size, max_size = _infer_point_size(lT)
 
     add_kwargs_point = {
         "size": optimal_size,
@@ -249,6 +249,7 @@ def layer_preparation(lT: LineageTree, points_layer_name: str | Path):
                     "Selection": np.ones_like(clone),
                 },
             },
+            "size_display_bounds": (min_size, optimal_size, max_size),
         },
         "name": points_layer_name,
         "face_color": clone2,

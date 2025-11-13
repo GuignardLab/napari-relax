@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from lineagetree import LineageTree, LineageTreeManager
@@ -16,6 +17,7 @@ from .._util_classes import (
     Containerize,
     LayerCorrectorTreeProducer,
     TimeResDialog,
+    TooltipButton,
 )
 
 
@@ -218,3 +220,16 @@ class CrossEmbryo(LayerCorrectorTreeProducer):
         self.add_emb.pressed.connect(self.add_a_new_embryo)
         self.load_manager.pressed.connect(self.load_a_manager)
         self.create_manager.pressed.connect(self.create_a_manager)
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(
+            os.path.join(current_dir, "manager.html"),
+            encoding="utf-8",
+        ) as f:
+            txt = f.read()
+        self.node_tooltip = TooltipButton(txt)
+        self.node_tooltip.setParent(self)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)

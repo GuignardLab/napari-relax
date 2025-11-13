@@ -22,8 +22,17 @@ def _infer_point_size(lT: "LineageTree"):
                     all time points
     """
 
-    optimal_dist = float("inf")
-    maximal_dist = 0
+    # Vectorized approach: collect all values first, then compute min/max
+    all_medians = []
+    all_maxes = []
+
+    timepoints = list(lT.time_nodes.keys())
+    if len(timepoints) > 100:
+        # Sample evenly across the timeline
+        step = len(timepoints) // 10
+        sampled_timepoints = timepoints[::step]
+    else:
+        sampled_timepoints = timepoints
 
     timepoints = list(lT.time_nodes.keys())
     if len(timepoints) > 100:
@@ -40,11 +49,22 @@ def _infer_point_size(lT: "LineageTree"):
 
             nn_dists = idx3d.query(idx3d.data, k=2)[0][:, 1]
 
-            optimal_dist = np.nanmin(
-                [optimal_dist, np.nanmedian(nn_dists) / 2]
-            )
+            all_medians.append(np.nanmedian(nn_dists) / 2)
+            all_maxes.append(np.nanmax(nn_dists) / 2)
 
-            maximal_dist = np.nanmax([maximal_dist, np.nanmax(nn_dists) / 2])
+    # Vectorized computation of optimal and maximal distances
+    if all_medians:
+        optimal_dist = np.nanmin(all_medians)
+        maximal_dist = np.nanmax(all_maxes)
+
+        # Handle cases where nanmin/nanmax return nan
+        if np.isnan(optimal_dist):
+            optimal_dist = float("inf")
+        if np.isnan(maximal_dist):
+            maximal_dist = 0
+    else:
+        optimal_dist = float("inf")
+        maximal_dist = 0
 
     if optimal_dist == float("inf"):
         optimal_dist = 100
