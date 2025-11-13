@@ -307,8 +307,8 @@ def layer_preparation(
 
         # Barycenter is removed here to match points layer centering.
         # This is debatable if several meshes of the same objects are loaded,
-        # as barycenters are infered from meshes centroids, which
-        # won't necessatily coincide for diffenrent meshes of the same embryo.
+        # as barycenters are inferred from meshes centroids, which won't
+        # necessarily coincide for different mesh files from the same embryo.
         all_vertices[:, 1:] -= barycenter
 
         napari_surface = (all_vertices, all_faces)
