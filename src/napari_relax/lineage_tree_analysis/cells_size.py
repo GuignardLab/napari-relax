@@ -20,7 +20,6 @@ from .._util_classes import (
     DelayedTooltipEventFilter,
     LayerCorrectorTreeProducer,
 )
-from .._interaction_bridge import InteractionBridge
 from .._utils import (
     _infer_point_size,
     _select_active_lt_layer,
@@ -169,10 +168,7 @@ class CellSize(LayerCorrectorTreeProducer):
 
             # Update the slider values according to the new active layer
             active_layer = _select_active_lt_layer(self.viewer)
-            if (
-                active_layer
-                and len(active_layer.size) > 0
-            ):
+            if active_layer and len(active_layer.size) > 0:
                 # Currently assuming all sizes are the same
                 # TODO: discuss this
                 self.reset_slider(value=active_layer.size[0])

@@ -6,16 +6,14 @@ from magicgui import widgets
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
-from scipy.spatial import KDTree
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QLabel, QVBoxLayout
 
-
+from ..._util_classes import LayerCorrectorTreeProducer, TooltipButton
 from ..._util_classes.custom_colorboxes import (
     MplCompatibleColorCombobox,
 )
 from ..._utils import _select_active_lt_layer
-from ..._util_classes import LayerCorrectorTreeProducer, TooltipButton
 
 
 class CloneRecoloring(LayerCorrectorTreeProducer):
@@ -86,7 +84,7 @@ class CloneRecoloring(LayerCorrectorTreeProducer):
             self.time_nodes = None
 
     def reset_colors(self):
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is not None:
             active_layer.face_color = active_layer.metadata["clone2"]
 

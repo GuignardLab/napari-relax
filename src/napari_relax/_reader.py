@@ -150,7 +150,9 @@ def _extract_napari_surface_from_lT(lT: LineageTree):
     return all_vertices, all_faces
 
 
-def layer_preparation(lT: LineageTree, points_layer_name: str | Path, from_cross=False):
+def layer_preparation(
+    lT: LineageTree, points_layer_name: str | Path, from_cross=False
+):
     tracks = lT.all_chains
     first_c_to_track = {}
     last_c_of_track = {}

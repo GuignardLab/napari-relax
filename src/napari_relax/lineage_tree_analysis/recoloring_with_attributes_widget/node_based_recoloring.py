@@ -3,7 +3,6 @@ from numbers import Number
 from warnings import warn
 
 import numpy as np
-from napari.layers import Points
 from napari.utils.notifications import show_warning
 from psygnal import Signal
 from qtpy.QtCore import Qt
@@ -28,8 +27,8 @@ from ..._util_classes import (
     LayerCorrectorTreeProducer,
     TooltipButton,
 )
-from ..._utils import _select_active_lt_layer
 from ..._util_classes.custom_colorboxes import ColorBoxLabel
+from ..._utils import _select_active_lt_layer
 
 
 def filter_dicts_of_objects_by_values(

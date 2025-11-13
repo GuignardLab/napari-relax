@@ -12,7 +12,6 @@ from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
 from matplotlib.figure import Figure
-from napari.layers import Points
 from qtpy.QtWidgets import QLineEdit, QPushButton, QVBoxLayout, QWidget
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
@@ -22,8 +21,8 @@ from ..._util_classes import (
     LayerCorrectorTreeProducer,
     TooltipButton,
 )
-from ..._utils import _select_active_lt_layer
 from ..._util_classes.custom_colorboxes import MplCompatibleColorCombobox
+from ..._utils import _select_active_lt_layer
 
 DICT_OF_CMAPS: list[str] = [
     "viridis",
