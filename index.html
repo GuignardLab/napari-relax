@@ -14,7 +14,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.23">
     
     
       
@@ -45,6 +45,8 @@
     
     
       <link rel="stylesheet" href="assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="styles/extra.css">
     
     <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -346,13 +348,53 @@
   
   
   
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Single dataset Analysis
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Single dataset Analysis
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="explore_relabel/explore_relabel/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Explore and Relabel
+    Lineage Viewer - Explore and Relabel
     
   </span>
   
@@ -361,9 +403,10 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
@@ -383,9 +426,10 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
@@ -402,6 +446,14 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -423,10 +475,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   
@@ -439,8 +491,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             Cross dataset Distances
           </label>
@@ -516,10 +568,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
         
           
-          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
             
   
   
@@ -532,8 +584,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             Guides
           </label>
@@ -738,34 +790,52 @@
 <h1 id="welcome-to-relax">Welcome to ReLAX<a class="headerlink" href="#welcome-to-relax" title="Permanent link">&para;</a></h1>
 <p style="text-align: justify;">
 
-This napari plugin extends the functionality of the <a href="https://guignardlab.github.io/LineageTree/" target="_blank">LineageTree</a> project by providing a comprehensive Graphical User Interface (GUI). Leveraging napari’s interactive visualization capabilities and Qt’s flexible framework, it enables users to import and explore tracking datasets, called <b>LineageTrees</b> directly into the napari viewer. With this plugin, users can intuitively navigate spatial and temporal tracking data. Beyond data exploraxtion, it also offers features such as:
+This <a href="https://napari.org/dev/index.html" target="_blank">napari</a> plugin extends the functionality of the <a href="https://guignardlab.github.io/LineageTree/" target="_blank">LineageTree</a> project by providing a comprehensive Graphical User Interface (GUI). Leveraging napari’s interactive visualization capabilities and Qt’s flexible framework, it enables users to import and explore tracking datasets, called <b>LineageTrees</b> directly into the Napari viewer. This project as well as LineageTree lie at the interface between graph theory and biology, thus a useful <a href="https://guignardlab.github.io/LineageTree/glossary/" target="_blank">glossary</a> was created to accomodate users who are not familiar with either of the fields
+
 </p>
 
+<hr />
+<p>With this plugin the user has access to features like:</p>
 <ul>
 <li>
-<p><strong>Node Recoloring</strong>: Customize node colors based on lineage attributes for better insights into datasets.</p>
+<p><strong>Spatial and Temporal data exploration</strong>: The user can interact with the <strong><a href="viewer/viewer/">Napari viewer</a></strong> and the <strong><a href="explore_relabel/explore_relabel/">Lineage Viewer</a></strong> simultaneously.</p>
 </li>
 <li>
-<p><strong>Tree Distance Calculation</strong>: Compute pairwise distances of lineages inside the LineageTrees, to assess their similarity or dissimilarity, using <a href="https://gitlab.ub.uni-bielefeld.de/bpaassen/python-edit-distances/-/tree/master" target="_blank"><strong>Unordered Tree Edit Distance (UTED)</strong></a>
-.</p>
+<p><strong>Node Recoloring</strong>: Recolor node colors based on lineage attributes for better insights into any dataset.</p>
 </li>
 <li>
-<p><strong>Morphology Inspection</strong>: The core feature of this plugin is its capability to connect analysis of tracked data with the morphology of the dataset.</p>
+<p><strong>Unordered Tree Edit Distance Calculation</strong>: Compute pairwise distances of lineages and sublineages in datasets, to assess their similarity or dissimilarity, using <strong><a href="https://gitlab.ub.uni-bielefeld.de/bpaassen/python-edit-distances/-/tree/master">Unordered Tree Edit Distance (UTED)</a></strong>.</p>
 </li>
 </ul>
+<hr />
+<p><a href="guides/guides/">Here are guides</a> available for tutorials on specific aspects of workflows available in the plugin.</p>
+<hr />
 <p>This integration enhances lineage analysis by combining the powerful visualization of Napari with quantitative comparison tools in an interactive environment.</p>
 <h2 id="what-does-this-combination-of-lineagetree-and-napari-offer">What does this combination of LineageTree and Napari offer<a class="headerlink" href="#what-does-this-combination-of-lineagetree-and-napari-offer" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Viewer</strong>: The positional data are loaded into the napari viewer and can be interacted with.</li>
-<li><strong>Interaction with huge datasets</strong>: Big datasets contain hundreds of annotations/nodes per chain/branch, the plugin offers the capability to explore large lineages on an interactive lineage viewer</li>
-<li><strong>No need for programming knowledge</strong>: This plugin does not require programming knowledge, thus comparing LineageTrees is possible even for the untrained user.</li>
+<li><strong>The Viewer</strong>: The spatial data are loaded into the napari viewer and can be interacted with.</li>
+<li><strong>Interaction with big datasets</strong>: Big datasets contain hundreds of annotations/nodes per chain/branch, the plugin offers the capability to explore large lineages on the interactive Lineage Viewer</li>
+<li><strong>No need for programming knowledge</strong>: This plugin does not require programming knowledge, thus comparing LineageTrees is accessible even for the untrained user.</li>
 </ul>
-<p>This plugin consists of 4 components:</p>
+<p>This plugin consists of 2 components, one tailored for single dataset analysis and inspection and one for multiple dataset analysis:</p>
 <ul>
-<li><a href="explore_relabel/explore_relabel/">Explore and Relabel</a>: Explore the lineages with its interactive <strong>Lineage Viewer</strong>, relabel lineages of interest.</li>
+<li>
+<p>Single dataset analysis: </p>
+<ul>
+<li><a href="explore_relabel/explore_relabel/">Lineage Viewer - Explore and Relabel</a>: Explore the lineages with its interactive <strong>Lineage Viewer</strong>, relabel lineages of interest.</li>
 <li><a href="attribute/attribute/">Attribute recoloring</a>: Recolor nodes on both the <strong>Lineage Viewer</strong> and the <strong>Napari standard Viewer</strong>, using the distance or precomputed attributes.</li>
 <li><a href="distance/distance/">Distance Calculation</a>: Calculate the unordered tree edit distance, inspect the distances on  the <strong>Napari Standard Viewer</strong> and create histograms to compare lineages through their sublineages.</li>
 </ul>
+</li>
+<li>
+<p>Multiple dataset analysis:</p>
+<ul>
+<li><a href="cross%2Bcomparison/manager/">Manager</a>: A manager to handle and save multiple embryos.</li>
+<li><a href="cross%2Bcomparison/distance_cross/">Cross Dataset Comparison</a>: Easily calculate the unordered tree edit distance of lineages or sublineages across datasets.</li>
+</ul>
+</li>
+</ul>
+<hr />
 
 
 
