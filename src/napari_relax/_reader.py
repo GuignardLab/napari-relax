@@ -305,7 +305,11 @@ def layer_preparation(
 
         all_vertices, all_faces = _extract_napari_surface_from_lT(lT)
 
-        # all_vertices[:, 1:] -= barycenter #TODO think about barycenter
+        # Barycenter is removed here to match points layer centering.
+        # This is debatable if several meshes of the same objects are loaded,
+        # as barycenters are infered from meshes centroids, which
+        # won't necessatily coincide for diffenrent meshes of the same embryo.
+        all_vertices[:, 1:] -= barycenter
 
         napari_surface = (all_vertices, all_faces)
 
