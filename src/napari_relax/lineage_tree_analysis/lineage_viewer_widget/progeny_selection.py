@@ -149,12 +149,13 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             if result:
                 layer, node_id = result
                 node_id_napari = layer.metadata["lT2napari"][node_id]
-                active_layer.selected_data = {node_id_napari}
 
                 # Clear selections in all layers
                 for viewer_layer in viewer.layers:
                     with contextlib.suppress(Exception):
                         viewer_layer.selected_data.clear()
+
+                active_layer.selected_data = {node_id_napari}
 
                 # Find the graph value for this node
                 val = self.val_finder(
