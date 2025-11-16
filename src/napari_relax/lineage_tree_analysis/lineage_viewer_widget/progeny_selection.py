@@ -158,7 +158,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
                 # Find the graph value for this node
                 val = self.val_finder(
-                    node_id_napari,
+                    node_id,
                     self.lT,
                     layer.metadata["graphs"][0],
                 )
