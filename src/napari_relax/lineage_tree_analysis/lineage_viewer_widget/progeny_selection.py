@@ -79,17 +79,12 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
         napari_node_id = next(iter(active_layer.selected_data))
         lt_node_id = active_layer.metadata["napari2lT"][napari_node_id]
-        active_layer.selected_data = {napari_node_id}
         scores = self.get_sublineage(
             lt_node_id, self.lT
         )
 
         # Get node IDs for the selected lineage
         selected_node_ids = list(scores.keys())
-        selected_node_ids.insert(
-            0, 
-            selected_node_ids.pop(selected_node_ids.index(lt_node_id))
-        )
         # Use interaction bridge for coordinated multi-layer selection
         self.bridge.highlight_lineages(selected_node_ids)
         val = self.val_finder(
