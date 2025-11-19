@@ -77,7 +77,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         if self.lT is None:
             return
 
-        napari_node_id = active_layer.selected_data.pop()
+        napari_node_id = next(iter(active_layer.selected_data))
         lt_node_id = active_layer.metadata["napari2lT"][napari_node_id]
         active_layer.selected_data = {napari_node_id}
         scores = self.get_sublineage(
@@ -271,7 +271,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer:
             return
-        napari_node_id = active_layer.selected_data.pop()
+        napari_node_id = next(iter(active_layer.selected_data))
         lt_node_id = active_layer.metadata["napari2lT"][napari_node_id]
         val = self.val_finder(
             lt_node_id,
@@ -283,12 +283,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 self.lT.get_predecessors(
                     lt_node_id
                 )[0]
-            )
-            selected_node_ids.insert(
-                0,
-                selected_node_ids.pop(
-                    selected_node_ids.index(lt_node_id)
-                ),
             )
             self.graph_slider.setValue(val)
             self.ax_for_tree_graph.clear()
@@ -302,7 +296,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             )
             self.canvas.selected_subtree = set(selected_node_ids)
             self.canvas.draw_graph()
-            active_layer.selected_data = {napari_node_id}
 
             # Save state to bridge
             self.bridge.update_state(
