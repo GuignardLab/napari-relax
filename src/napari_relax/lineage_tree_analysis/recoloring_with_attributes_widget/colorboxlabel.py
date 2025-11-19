@@ -1,7 +1,15 @@
 from typing import TYPE_CHECKING
 
 import numpy as np
-from napari._qt.layer_controls.qt_colormap_combobox import QtColormapComboBox
+
+try:
+    from napari._qt.layer_controls.widgets.qt_colormap_control import (
+        QtColormapComboBox,
+    )
+except ModuleNotFoundError:
+    from napari._qt.layer_controls.qt_colormap_combobox import (
+        QtColormapComboBox,
+    )
 from napari.utils.colormaps import AVAILABLE_COLORMAPS
 from qtpy.QtGui import QIcon, QImage, QPixmap
 from qtpy.QtWidgets import (
