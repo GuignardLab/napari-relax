@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from copy import deepcopy
 import os
 import pickle
 from pathlib import Path
@@ -8,7 +7,8 @@ from typing import TYPE_CHECKING
 
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
-import mplcursors
+
+# import mplcursors
 import numpy as np
 from magicgui import widgets
 from matplotlib.backends.backend_qtagg import (
@@ -287,27 +287,6 @@ class CrossClustermap(LayerCorrectorTreeProducer):
             ha="right",
         )
         self.ax1.set_aspect("auto")
-        cursor = mplcursors.cursor(
-            self.ax1,
-            hover=2,  # Transient
-            annotation_kwargs={
-                "bbox": {
-                    "boxstyle": "square,pad=0.2",
-                    "facecolor": "white",
-                    "alpha": 0.2,
-                    "edgecolor": "#ddd",
-                    "linewidth": 0.3,
-                },
-                "linespacing": 1,
-                "arrowprops": None,
-            },
-        )
-        cursor.connect(
-            "add",
-            lambda sel: sel.annotation.set_text(
-                f"Value: {str(np.round(self.plot[[sel.index][0]],2))}\nNodes: {self.labels_of_clustermap[[sel.index][0][0]]} ,({self.labels_node[[sel.index][0][0]]}, Time: {self.manager.lineagetrees[self.labels_lT[[sel.index][0][0]]].time[self.labels_node[[sel.index][0][0]]]}) \nvs\n{self.labels_of_clustermap[[sel.index][0][1]]}({self.labels_node[[sel.index][0][1]]}, Time: {self.manager.lineagetrees[self.labels_lT[[sel.index][0][1]]].time[self.labels_node[[sel.index][0][1]]]})"
-            ),
-        )
         self.canvas.draw()
 
     def save_dictionary(self):
