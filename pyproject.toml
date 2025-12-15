@@ -33,7 +33,6 @@ dependencies = [
     "numpy",
     "matplotlib",
     "lineagetree>=3.0.4",
-    "mplcursors",
 ]
 
 [project.optional-dependencies]

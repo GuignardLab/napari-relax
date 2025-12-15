@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 
-# import mplcursors
 import numpy as np
 from magicgui import widgets
 from matplotlib.backends.backend_qt5agg import (
