@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
-import mplcursors
+
 import numpy as np
 from magicgui import widgets
 from matplotlib.backends.backend_qt5agg import (
@@ -269,27 +269,6 @@ class Clustermap(LayerCorrectorTreeProducer):
         )
         self.ax_of_clustermap.set_aspect("auto")
         self.canvas.draw()
-        cursor = mplcursors.cursor(
-            self.ax_of_clustermap,
-            hover=2,  # Transient
-            annotation_kwargs={
-                "bbox": {
-                    "boxstyle": "square,pad=0.2",
-                    "facecolor": "white",
-                    "alpha": 0.2,
-                    "edgecolor": "#ddd",
-                    "linewidth": 0.3,
-                },
-                "linespacing": 1,
-                "arrowprops": None,
-            },
-        )
-        cursor.connect(
-            "add",
-            lambda sel: sel.annotation.set_text(
-                f"Value: {str(np.round(self.plot[[sel.index][0]],2))}\nNodes: {self.labels_of_node_real[[sel.index][0][0]]} ({self.names_of_nodes[[sel.index][0][0]]}) vs {self.labels_of_node_real[[sel.index][0][1]]}({self.names_of_nodes[[sel.index][0][1]]})"
-            ),
-        )
 
     def save_dictionary(self):
         """
