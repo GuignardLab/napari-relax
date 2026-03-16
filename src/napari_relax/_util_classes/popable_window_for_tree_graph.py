@@ -9,6 +9,7 @@ from qtpy.QtWidgets import (
     QPushButton,
     QVBoxLayout,
 )
+from .._config import rlx_config
 
 from .._util_classes import Containerize
 from ..lineage_tree_analysis.lineage_viewer_widget.canvas_for_progeny import (
@@ -37,18 +38,14 @@ class ColoredPushButton(QPushButton):
 class Setup(QDialog):
     sig = Signal(dict)
 
-    def __init__(self, canvas: SingleTreeProgeny):
+    def __init__(self):
         super().__init__()
         self.setStyleSheet(get_current_stylesheet())
         self.setWindowTitle("Config Tree graph")
         layout = QVBoxLayout()
         double_validator = QDoubleValidator()
-        self.color_of_nodes = str(canvas.color_of_nodes)
-        self.color_of_edges = str(canvas.color_of_edges)
-        self.node_size = str(canvas.node_size)
-        self.lw = str(canvas.lw)
-        self.fontsize = str(canvas.fontsize)
-        self.color_of_selection = str(canvas.color_of_selection_nodes)
+        self.config = rlx_config()
+        self.read_conf()
 
         reset_but = QPushButton(text="Reset Settings")
         reset_but.pressed.connect(self.reset)
@@ -66,34 +63,34 @@ class Setup(QDialog):
 
         label_node_size = QLabel("Node Size:")
         self.edit_node_size = QLineEdit(
-            placeholderText=self.node_size,
+            placeholderText=str(self.node_size),
             clearButtonEnabled=True,
         )  # type: ignore
-        self.edit_node_size.setText(self.node_size)
+        self.edit_node_size.setText(str(self.node_size))
         self.edit_node_size.setValidator(double_validator)
         nod_size_cont = Containerize([label_node_size, self.edit_node_size])
 
         edit_col_edg = ColoredPushButton(color=self.color_of_edges)
         edit_col_edg.color_change.connect(
-            lambda event: setattr(self, "color_of_nodes", event)
+            lambda event: setattr(self, "color_of_edges", event)
         )
 
         label_edge_size = QLabel("Edge Size:")
         self.edit_edge_size = QLineEdit(
-            placeholderText=self.lw,
+            placeholderText=str(self.lw),
             clearButtonEnabled=True,
         )  # type: ignore
-        self.edit_edge_size.setText(self.lw)
+        self.edit_edge_size.setText(str(self.lw))
         self.edit_edge_size.setValidator(double_validator)
 
         edge_size_cont = Containerize([label_edge_size, self.edit_edge_size])
 
         label_fontsize_size = QLabel("Fontsize for labels:")
         self.edit_fontsize_size = QLineEdit(
-            placeholderText=self.node_size,
+            placeholderText=str(self.node_size),
             clearButtonEnabled=True,
         )  # type: ignore
-        self.edit_fontsize_size.setText(self.fontsize)
+        self.edit_fontsize_size.setText(str(self.fontsize))
         self.edit_fontsize_size.setValidator(double_validator)
 
         fontsize_cont = Containerize(
@@ -118,29 +115,31 @@ class Setup(QDialog):
 
     def reset(self):
         """Resets the colors of the tree graph."""
-        self.sig.emit(
-            {
-                "color_of_nodes": "black",
-                "color_of_edges": "black",
-                "node_size": 10,
-                "lw": 0.3,
-                "fontsize": 6,
-                "color_of_selection": "magenta",
-            }
-        )
+        self.config.settings_file.reset_to_defaults()
+        self.sig.emit(self.config.settings_file.get_dict())
         self.accept()
 
     def apply(self):
         """Sets the colors of the tree graph."""
-        self.sig.emit(
-            {
-                "color_of_nodes": self.color_of_nodes,
-                "color_of_edges": self.color_of_edges,
-                "node_size": self.edit_node_size.text(),
-                "lw": self.edit_edge_size.text(),
-                "fontsize": self.edit_fontsize_size.text(),
-                "color_of_selection": self.color_of_selection,
-                "all_selected": False,
-            }
-        )
+        self.config.current_settings = {
+            "color_of_nodes": self.color_of_nodes,
+            "color_of_edges": self.color_of_edges,
+            "node_size": self.edit_node_size.text(),
+            "lw": self.edit_edge_size.text(),
+            "fontsize": self.edit_fontsize_size.text(),
+            "color_of_selection_nodes": self.color_of_selection,
+            "color_of_selection_edges": self.color_of_selection,
+            "all_selected": False,
+        }
+        self.sig.emit(self.config.settings_file.get_dict())
+        self.config.write_config(self.config.settings_file.get_dict())
         self.accept()
+
+    def read_conf(self):
+        tmp = self.config.settings_file.get_dict()
+        self.color_of_nodes = tmp["color_of_nodes"]
+        self.color_of_edges = tmp["color_of_edges"]
+        self.node_size = tmp["node_size"]
+        self.lw = tmp["lw"]
+        self.fontsize = tmp["fontsize"]
+        self.color_of_selection = tmp["color_of_selection_nodes"]

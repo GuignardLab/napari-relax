@@ -469,7 +469,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.config_settings.setIcon(
             QIcon(str(Path(__file__).parent / "gear-bold.svg"))
         )
-        self.pop_win = Setup(self.canvas)
+        self.pop_win = Setup()
         self.config_settings.clicked.connect(lambda x: self.pop_win.exec_())
         self.config_settings.setFixedSize(30, 30)
 

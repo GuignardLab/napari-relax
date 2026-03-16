@@ -33,7 +33,7 @@ dependencies = [
     "numpy",
     "matplotlib",
     "lineagetree>=3.0.4",
-    "mplcursors",
+    "napari"
 ]
 
 [project.optional-dependencies]
@@ -121,6 +121,7 @@ exclude = [
     "venv",
     "*vendored*",
     "*_vendor*",
+    "*.lock"
 ]
 
 target-version = "py310"

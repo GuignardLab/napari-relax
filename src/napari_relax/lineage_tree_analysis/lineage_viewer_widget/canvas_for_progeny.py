@@ -6,18 +6,22 @@ from matplotlib.backends.backend_qtagg import (
 )
 from psygnal import Signal
 from scipy.spatial import KDTree
+from ..._config import rlx_config
 
 
 class SingleTreeProgeny(FigureCanvas):
     node_signal = Signal(dict)
-    color_of_nodes = "black"
-    color_of_edges = "black"
-    node_size = 10
-    lw = 0.3
-    fontsize = 6
-    color_of_selection_nodes = "magenta"
-    color_of_selection_edges = "magenta"
+    cfg = rlx_config()
+    cfg = cfg.settings_file.get_dict()
+    color_of_nodes = cfg["color_of_nodes"]
+    color_of_edges = cfg["color_of_edges"]
+    node_size = cfg["node_size"]
+    lw = cfg["lw"]
+    fontsize = cfg["fontsize"]
+    color_of_selection_nodes = cfg["color_of_selection_nodes"]
+    color_of_selection_edges = cfg["color_of_selection_edges"]
     all_selected = False
+    selected_subtree = set()
 
     def change_attributes(self, signal):
         """
@@ -27,19 +31,28 @@ class SingleTreeProgeny(FigureCanvas):
         self.color_of_edges = signal.get("color_of_edges", self.color_of_edges)
         self.node_size = signal.get("node_size", self.node_size)
         self.lw = signal.get("lw", self.lw)
-        self.color_of_selection_nodes = signal.get(
-            "color_of_selection", self.color_of_selection_nodes
-        )
-        self.color_of_selection_edges = signal.get(
-            "color_of_selection", self.color_of_selection_edges
-        )
+        if "color_of_selection_nodes" in signal:
+            self.color_of_selection_nodes = signal.get(
+                "color_of_selection_nodes", self.color_of_selection_nodes
+            )
+            self.color_of_selection_edges = signal.get(
+                "color_of_selection_edges", self.color_of_selection_edges
+            )
+        elif "color_of_selection" in signal:
+            self.color_of_selection_nodes = signal.get(
+                "color_of_selection", self.color_of_selection_nodes
+            )
+            self.color_of_selection_edges = signal.get(
+                "color_of_selection", self.color_of_selection_edges
+            )
         self.fontsize = signal.get("fontsize", self.fontsize)
         self.all_selected = signal.get("all_selected", False)
-        if self.all_selected is True:
+        if "selected_nodes" in signal and self.all_selected is True:
             self.selected_subtree = signal["selected_nodes"]
         else:
             self.selected_subtree.clear()
-        self.draw_graph()
+        if hasattr(self, "ax"):
+            self.draw_graph()
 
     def __init__(
         self,
@@ -66,6 +79,11 @@ class SingleTreeProgeny(FigureCanvas):
             self.lT.draw_tree_graph(
                 self.pos,
                 self.graph,
+                lw=float(self.lw),
+                size=float(self.node_size),
+                color_of_nodes=self.color_of_selection_nodes,
+                color_of_edges=self.color_of_selection_edges,
+                default_color=self.color_of_nodes,
                 ax=self.ax,
             )
             self.draw()
@@ -99,7 +117,9 @@ class SingleTreeProgeny(FigureCanvas):
                 right=1,
                 left=0,
             )
-            self.draw_graph()
+            self.flush_events()
+            self.change_attributes(self.cfg)
+            self.flush_events()
 
     def time_line(self, time):
         if hasattr(self, "ax") and self.ax:
