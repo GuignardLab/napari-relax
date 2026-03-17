@@ -25,7 +25,7 @@ class CloneRecoloring(LayerCorrectorTreeProducer):
         times = list(range(lT.t_b, lT.t_e))
         nb_cells = [len(self.time_nodes[t]) for t in times]
         target_time = self.time_slider.value * (max(times) - min(times)) + (
-            min(times) / (max(times) - min(times))
+            min(times)
         )
         if self.time_nodes:
             if active_layer != self.previous_layer:
