@@ -86,14 +86,16 @@ class PointsAdapter(LayerAdapter):
     def show_only_nodes(self, node_ids: list[int]) -> None:
         """Hide unselected lineages by setting their visibility."""
         # Get napari indices for visible nodes
-        visible_indices = [self.node_to_napari[node_id] for node_id in node_ids if node_id in self.node_to_napari]
+        visible_indices = [
+            self.node_to_napari[node_id]
+            for node_id in node_ids
+            if node_id in self.node_to_napari
+        ]
 
         # set visibility: visible nodes = True, others = False
-        shown = np.zeros(len(self.layer.data), dtype=bool)
-        shown[visible_indices] = True
+        # shown = np.zeros(len(self.layer.data), dtype=bool)
+        self.layer.shown[visible_indices] = True
 
-        self.layer.shown = shown
-        # Don't modify selection - only control visibility
         self.layer.refresh()
 
     def reset_visibility(self) -> None:
@@ -118,7 +120,11 @@ class PointsAdapter(LayerAdapter):
     def select_nodes(self, node_ids: list[int]) -> None:
         """Select nodes without hiding others."""
         # Get napari indices for the nodes to select
-        selected_indices = {self.node_to_napari[node_id] for node_id in node_ids if node_id in self.node_to_napari}
+        selected_indices = {
+            self.node_to_napari[node_id]
+            for node_id in node_ids
+            if node_id in self.node_to_napari
+        }
         # selected_indices = set()
         # for node_id in node_ids:
         #     if node_id in self.node_to_napari:
@@ -130,7 +136,11 @@ class PointsAdapter(LayerAdapter):
     def hide_nodes(self, node_ids: list[int]) -> None:
         """Hide specific nodes while preserving visibility of others."""
         # Get napari indices for nodes to hide
-        indices_to_hide = [self.node_to_napari[node_id] for node_id in node_ids if node_id in self.node_to_napari]
+        indices_to_hide = [
+            self.node_to_napari[node_id]
+            for node_id in node_ids
+            if node_id in self.node_to_napari
+        ]
 
         # Get current visibility state or assume all visible
         current_shown = self.layer.shown.copy()
@@ -404,7 +414,11 @@ class TracksAdapter(LayerAdapter):
         """Show only specified tracks."""
         # For tracks, we manipulate the track_connex property to control visibility
         # Get track IDs for visible nodes
-        visible_track_ids = [self.node_to_napari[node_id] for node_id in node_ids if node_id in self.node_to_napari]
+        visible_track_ids = [
+            self.node_to_napari[node_id]
+            for node_id in node_ids
+            if node_id in self.node_to_napari
+        ]
 
         # Create a mask to hide all tracks first
         track_connex = np.zeros_like(self.layer._track_connex, dtype=bool)
@@ -425,7 +439,11 @@ class TracksAdapter(LayerAdapter):
         current_track_connex = self.layer._track_connex.copy()
 
         # Get track IDs for nodes to hide
-        track_ids_to_hide = [self.node_to_napari[node_id] for node_id in node_ids if node_id in self.node_to_napari]
+        track_ids_to_hide = [
+            self.node_to_napari[node_id]
+            for node_id in node_ids
+            if node_id in self.node_to_napari
+        ]
 
         # Hide the specified tracks by setting their segments to False
         for i, track_id in enumerate(self.layer.data[:, 0]):
