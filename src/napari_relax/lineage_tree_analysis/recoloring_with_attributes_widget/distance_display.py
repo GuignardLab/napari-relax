@@ -5,22 +5,21 @@ from magicgui import widgets
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
-from napari.layers import Points
 from qtpy.QtWidgets import (
     QVBoxLayout,
 )
 from scipy.spatial import KDTree
 
 from ..._util_classes import LayerCorrectorTreeProducer
-from ..._utils import _select_correct_layer
-from .coloring import Coloring
+from ..._utils import _select_active_lt_layer
+from .node_based_recoloring import Coloring
 
 
 class DisplayDistances(LayerCorrectorTreeProducer):
     name = "Attribute Based Recoloring"
 
     def point_click(self, viewer, event):
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
 
         if (
             event.button == 2
@@ -103,7 +102,7 @@ class DisplayDistances(LayerCorrectorTreeProducer):
                 ), np.percentile(new_colors[new_colors != 0], 95)
                 new_colors[new_colors == 0] = baseline
                 new_colors = 0.5 + (new_colors - min_) / (2 * (max_ - min_))
-                
+
                 if not self.change_size.value:
                     active_layer.properties["clone"][:] = new_colors[:]
                     active_layer.face_color = "clone"
@@ -120,7 +119,7 @@ class DisplayDistances(LayerCorrectorTreeProducer):
                 active_layer.refresh()
 
     def slider_change(self):
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer and not self.time_nodes:
             return
         lT = active_layer.metadata["LineageTree"]
@@ -152,7 +151,7 @@ class DisplayDistances(LayerCorrectorTreeProducer):
         self.fig.canvas.draw()
 
     def color_clones(self, *args, **kwargs):
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer or not self.time_nodes:
             return
         lT = active_layer.metadata["LineageTree"]

@@ -127,7 +127,7 @@ class LineageTreeAnalysisWidget(ReLAXWidget):
         ].coloring_widget.quant.color_signal.connect(
             explore_and_relabel.canvas.change_attributes
         )
-        
+
         # Also update the lineage color box when colors change
         self.widget_dictionary[
             "Attribute Based Recoloring"
