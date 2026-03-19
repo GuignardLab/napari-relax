@@ -12,7 +12,6 @@ from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
 from matplotlib.figure import Figure
-from napari.layers import Points
 from qtpy.QtWidgets import QLineEdit, QPushButton, QVBoxLayout, QWidget
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
@@ -23,7 +22,7 @@ from ..._util_classes import (
     TooltipButton,
 )
 from ..._util_classes.custom_colorboxes import MplCompatibleColorCombobox
-from ..._utils import _select_correct_layer
+from ..._utils import _select_active_lt_layer
 
 DICT_OF_CMAPS: list[str] = [
     "viridis",
@@ -70,7 +69,7 @@ class Clustermap(LayerCorrectorTreeProducer):
         cell (int): id of the cell
         val (int): the index of the list of networkx graphs.
         """
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer:
             return
         if cell not in active_layer.metadata["graphs"][1][val]:
@@ -102,7 +101,7 @@ class Clustermap(LayerCorrectorTreeProducer):
         """
         if event.button == 1 and event.inaxes:
             self.figure.canvas.mpl_disconnect(self.click_signal)
-            active_layer = _select_correct_layer(self, Points)
+            active_layer = _select_active_lt_layer(self.viewer)
             if not active_layer:
                 return
             self.canvas.figure.set_constrained_layout(False)
@@ -189,7 +188,7 @@ class Clustermap(LayerCorrectorTreeProducer):
         """
         Resets colors of points.
         """
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer:
             return
         active_layer.face_color = active_layer.metadata["clone2"]

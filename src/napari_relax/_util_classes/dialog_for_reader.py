@@ -14,9 +14,7 @@ class LoadingDialog(QDialog):
         label = QLabel("Please select the method used to produce the dataset.")
 
         checkboxes = [QCheckBox(opt, self) for opt in options]
-        self.match = {
-            cb: opt for cb, opt in zip(checkboxes, options, strict=False)
-        }
+        self.match = dict(zip(checkboxes, options, strict=False))
         layout.addWidget(label)
         for cb in checkboxes:
             layout.addWidget(cb)

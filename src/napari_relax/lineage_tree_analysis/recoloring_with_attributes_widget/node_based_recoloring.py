@@ -3,7 +3,6 @@ from numbers import Number
 from warnings import warn
 
 import numpy as np
-from napari.layers import Points
 from napari.utils.notifications import show_warning
 from psygnal import Signal
 from qtpy.QtCore import Qt
@@ -29,7 +28,7 @@ from ..._util_classes import (
     TooltipButton,
 )
 from ..._util_classes.custom_colorboxes import ColorBoxLabel
-from ..._utils import _select_correct_layer
+from ..._utils import _select_active_lt_layer
 
 
 def filter_dicts_of_objects_by_values(
@@ -230,7 +229,7 @@ class Quantitative(LayerCorrectorTreeProducer):
             return
         min_val = min(self.lT.__getattribute__(attr).values())
         max_val = max(self.lT.__getattribute__(attr).values())
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is None:
             return
 
@@ -307,7 +306,7 @@ class Quantitative(LayerCorrectorTreeProducer):
                 "color_of_selection": "magenta",
             }
         )
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is not None:
             active_layer.face_color = active_layer.metadata["clone2"]
 
