@@ -43,10 +43,7 @@ def napari_get_reader(path):
 
     # if we know we cannot read the file, we immediately return None.
 
-    if (
-        path.lower().endswith(".lt")
-        or path.lower().split(".")[-1] in LOADERS
-    ):
+    if path.lower().endswith(".lt") or path.lower().split(".")[-1] in LOADERS:
         return reader_function
 
     # otherwise we return the *function* that can read ``path``.
@@ -104,7 +101,7 @@ def reader_function(path: str):
     return layer_preparation(lT, path)
 
 
-def layer_preparation(lT: LineageTree, path: str = ""):
+def layer_preparation(lT: LineageTree, path: str = "", from_cross=False):
     tracks = lT.all_chains
     first_c_to_track = {}
     last_c_of_track = {}
@@ -149,9 +146,10 @@ def layer_preparation(lT: LineageTree, path: str = ""):
             if len(lT.get_subtree_nodes(root)) > (lT.t_e - lT.t_b) / 4
         }
     )
-    show_warning(
-        "Only lineages with height larger than 1/4 of the total timepoints will be shown on the lineage Viewer."
-    )
+    if not from_cross:
+        show_warning(
+            "Only lineages with height larger than 1/4 of the total timepoints will be shown on the lineage Viewer."
+        )
     pos = {
         i: utils.hierarchical_pos(
             g, g["root"], ycenter=-int(lT.time[g["root"]]), vert_gap=1
@@ -164,7 +162,7 @@ def layer_preparation(lT: LineageTree, path: str = ""):
             graph.setdefault(first_c_to_track[di], []).append(t)
 
     # optimal point size infered from heuristics on nearest neighbor distances
-    _, optimal_size, _ = _infer_point_size(lT)
+    min_size, optimal_size, max_size = _infer_point_size(lT)
 
     add_kwargs_point = {
         "size": optimal_size,
@@ -187,6 +185,7 @@ def layer_preparation(lT: LineageTree, path: str = ""):
                     "Selection": np.ones_like(clone),
                 },
             },
+            "size_display_bounds": (min_size, optimal_size, max_size),
         },
         "name": path,
         "face_color": clone2,

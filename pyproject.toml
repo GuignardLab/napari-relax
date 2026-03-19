@@ -5,8 +5,9 @@ description = "A plugin to visualise and manipulate cell lineage trees"
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
-  {name = "Léo Guignard"},
-  {email = "leo.guignard@univ-amu.fr"},
+  {name = "Léo Guignard", email = "leo.guignard@univ-amu.fr"},
+  {name = "Giannis Liaskas"},
+  {name = "Jules Vanaret"},
 ]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
@@ -30,12 +31,8 @@ requires-python = ">=3.10"
 # See best practices: https://napari.org/stable/plugins/building_a_plugin/best_practices.html
 dependencies = [
     "numpy",
-    "magicgui",
-    "qtpy",
     "matplotlib",
-    "lineagetree>=3.0.0",
-    "mplcursors",
-    "seaborn",
+    "lineagetree>=3.0.4",
 ]
 
 [project.optional-dependencies]
@@ -73,7 +70,7 @@ include-package-data = true
 where = ["src"]
 
 [tool.setuptools.package-data]
-"*" = ["*.yaml"]
+"*" = ["*.yaml","*.html"]
 
 [tool.setuptools_scm]
 write_to = "src/napari_relax/_version.py"

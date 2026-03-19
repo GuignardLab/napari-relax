@@ -8,7 +8,6 @@ Replace code below according to your needs.
 """
 
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import numpy as np
 from magicgui import widgets
@@ -22,15 +21,12 @@ from .._util_classes import (
     LayerCorrectorTreeProducer,
 )
 from .._utils import (
+    _infer_point_size,
     _select_correct_layer,
     _transform_float_value_to_slider_int,
     _transform_slider_int_value_to_float,
-    _infer_point_size
 )
-    
-DEFAULT_MIN_POINT_SIZE = 1
-DEFAULT_MAX_POINT_SIZE = 2000
-DEFAULT_OPTIMAL_POINT_SIZE = 200
+
 
 class CellSize(LayerCorrectorTreeProducer):
     """
@@ -49,24 +45,32 @@ class CellSize(LayerCorrectorTreeProducer):
                 np.array(active.metadata["data"]),
                 **data,
             )
-    
-    def _get_lT_from_layer(self):
-        point_layer = _select_correct_layer(self, Points)
-        if point_layer and hasattr(point_layer, "metadata") and "LineageTree" in point_layer.metadata:
-            return point_layer.metadata["LineageTree"]
-        return None
-    
+
     def reset_slider(self, value=None):
         """Update the slider values after the update button has been pushed.
         The Points layer holding the lineageTree is used to infer the values.
         """
-        lT = self._get_lT_from_layer()
-        if lT:
-            if value is None:
-                _, optimal_size, _ = _infer_point_size(lT)
-            else:
-                optimal_size = value
-            self._changes(None, value=optimal_size)
+
+        point_layer = _select_correct_layer(self, Points)
+
+        optimal_size = value
+
+        if value is None and point_layer and hasattr(point_layer, "metadata"):
+            if "size_display_bounds" in point_layer.metadata:
+                _, optimal_size, _ = point_layer.metadata[
+                    "size_display_bounds"
+                ]
+
+            elif "LineageTree" in point_layer.metadata:
+                lT = point_layer.metadata["LineageTree"]
+                min_size, optimal_size, max_size = _infer_point_size(lT)
+                point_layer.metadata["size_display_bounds"] = (
+                    min_size,
+                    optimal_size,
+                    max_size,
+                )
+
+        self._changes(None, value=optimal_size)
 
     def _changes(self, event, value=None):
         """
@@ -79,22 +83,26 @@ class CellSize(LayerCorrectorTreeProducer):
 
         if value is None:
             layers_to_update = []
-            
+
             if self.toggle_all.value:
                 for layer in self.viewer.layers:
-                    if isinstance(layer, Points):
-                        if self.is_lt_layer(layer):
-                            layers_to_update.append(layer)
+                    if isinstance(layer, Points) and self.is_lt_layer(layer):
+                        layers_to_update.append(layer)
             else:
                 # Update only the active layer
                 if active_layer and self.is_lt_layer(active_layer):
                     layers_to_update.append(active_layer)
-                
+
             for layer in layers_to_update:
-                if hasattr(layer, "metadata") and "slider_float_range" in layer.metadata:
-                    slider_float_range = layer.metadata["slider_float_range"]
+                if (
+                    hasattr(layer, "metadata")
+                    and "size_display_bounds" in layer.metadata
+                ):
+                    min_size, _, max_size = layer.metadata[
+                        "size_display_bounds"
+                    ]
                     value = _transform_slider_int_value_to_float(
-                        self.slider.value(), *slider_float_range
+                        self.slider.value(), min_size, max_size
                     )
                     layer.size = value
 
@@ -109,13 +117,16 @@ class CellSize(LayerCorrectorTreeProducer):
 
             self.slider.blockSignals(True)
             # Update the slider position according to the new size
+            min_size, _, max_size = active_layer.metadata[
+                "size_display_bounds"
+            ]
             self.slider.setValue(
                 _transform_float_value_to_slider_int(
-                    new_size, *active_layer.metadata["slider_float_range"]
+                    new_size, min_size, max_size
                 )
             )
             self.slider.blockSignals(False)
-        
+
         # Update tooltip with current size
         self.slider.setToolTip(
             f"Change the size of the spheres on the viewer. Current size {new_size}"
@@ -138,19 +149,28 @@ class CellSize(LayerCorrectorTreeProducer):
         currently_selected_layer_names = [
             layer.name for layer in self.viewer.layers.selection
         ]
-        if len(currently_selected_layer_names) == 1 and currently_selected_layer_names != self.currently_selected_layer_names:
-            self.currently_selected_layer_names = currently_selected_layer_names
+        if (
+            len(currently_selected_layer_names) == 1
+            and currently_selected_layer_names
+            != self.currently_selected_layer_names
+        ):
+            self.currently_selected_layer_names = (
+                currently_selected_layer_names
+            )
             if self.vis_button.value:
                 self.see_one_layer()
             else:
                 self.see_all_layers()
             # Update the slider values according to the new active layer
             active_layer = _select_correct_layer(self, Points)
-            if active_layer and self.is_lt_layer(active_layer):
-                if 0 < len(active_layer.size):
-                    # Currently assuming all sizes are the same
-                    # TODO: discuss this
-                    self.reset_slider(value=active_layer.size[0])
+            if (
+                active_layer
+                and self.is_lt_layer(active_layer)
+                and len(active_layer.size) > 0
+            ):
+                # Currently assuming all sizes are the same
+                # TODO: discuss this
+                self.reset_slider(value=active_layer.size[0])
 
     def write_embryo(self):
         lT = self.get_lT()
@@ -159,21 +179,27 @@ class CellSize(LayerCorrectorTreeProducer):
             lT.write(str(txt))
 
     def is_lt_layer(self, layer):
-        return isinstance(layer, Points) and hasattr(layer, "metadata") and "LineageTree" in layer.metadata
-    
-    def _update_layer_slider_range(self, layer: Points):
-        lT = layer.metadata["LineageTree"]
-        min_size, _, max_size = _infer_point_size(lT)
-        layer.metadata["slider_float_range"] = (min_size, max_size)
+        return (
+            isinstance(layer, Points)
+            and hasattr(layer, "metadata")
+            and "LineageTree" in layer.metadata
+        )
 
+    def _update_layer_slider_range(self, layer: Points):
+        if "size_display_bounds" not in layer.metadata:
+            lT = layer.metadata["LineageTree"]
+            min_size, optimal_size, max_size = _infer_point_size(lT)
+            layer.metadata["size_display_bounds"] = (
+                min_size,
+                optimal_size,
+                max_size,
+            )
 
     def force_viewer_select_if_lt_layer(self, event):
         layer = event.value
         if self.is_lt_layer(layer):
-
             self._update_layer_slider_range(layer)
             self.viewer.layers.selection.active = layer
-            # self.reset_slider()
 
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
@@ -185,7 +211,7 @@ class CellSize(LayerCorrectorTreeProducer):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         self.setLayout(layout)
-        
+
         ### Slider: Change size of spheres
         self.count = widgets.Label(value="Size of spheres.")
         self.slider = QSlider()
@@ -193,17 +219,12 @@ class CellSize(LayerCorrectorTreeProducer):
         self.slider.setTickInterval(1)
         self.slider.setContentsMargins(0, 0, 0, 0)
 
-            # The slider always has values between 1 and 100, but these values
-            # are mapped to a float range that can be changed according to the
-            # heuristics on the nearest neighbor distances of the lineageTree
+        # The slider always has values between 1 and 100, but these values
+        # are mapped to a float range that can be changed according to the
+        # heuristics on the nearest neighbor distances of the lineageTree
         self.slider.setMinimum(1)
         self.slider.setMaximum(100)
         self.slider.setValue(20)
-            # slider_float_range is used to store the actual float range
-        self.slider_float_range = (
-            DEFAULT_MIN_POINT_SIZE,
-            DEFAULT_MAX_POINT_SIZE,
-        )
         self.slider.valueChanged.connect(self._changes)
 
         ### Button: reset slider values according to current layer
@@ -253,7 +274,12 @@ class CellSize(LayerCorrectorTreeProducer):
         self.layout().setSpacing(0)
 
         cont = Containerize(
-            [self.count.native, self.slider, reset_slider_button.native, all_container.native]
+            [
+                self.count.native,
+                self.slider,
+                reset_slider_button.native,
+                all_container.native,
+            ]
         )
         cont.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().addWidget(cont)
@@ -287,5 +313,3 @@ class CellSize(LayerCorrectorTreeProducer):
         )
 
         self.reset_slider()
-
-    

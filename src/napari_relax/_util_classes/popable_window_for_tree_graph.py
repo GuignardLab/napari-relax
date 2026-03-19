@@ -1,4 +1,3 @@
-
 from napari.qt import get_current_stylesheet
 from napari.settings import get_settings
 import numpy as np
