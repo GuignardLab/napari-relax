@@ -22,7 +22,7 @@ from .._util_classes import (
 )
 from .._utils import (
     _infer_point_size,
-    _select_correct_layer,
+    _select_active_lt_layer,
     _transform_float_value_to_slider_int,
     _transform_slider_int_value_to_float,
 )
@@ -36,7 +36,7 @@ class CellSize(LayerCorrectorTreeProducer):
 
     def add_tracks(self, event):
         "Adds the tracks layer of a specific LineageTree points layer."
-        active = _select_correct_layer(self, Points)
+        active = _select_active_lt_layer(self.viewer)
         if active:
             data = active.metadata["graph_to_create_tracks"]
             data["metadata"] = {"link": active}
@@ -51,20 +51,20 @@ class CellSize(LayerCorrectorTreeProducer):
         The Points layer holding the lineageTree is used to infer the values.
         """
 
-        point_layer = _select_correct_layer(self, Points)
+        points_layer = _select_active_lt_layer(self.viewer)
 
         optimal_size = value
 
-        if value is None and point_layer and hasattr(point_layer, "metadata"):
-            if "size_display_bounds" in point_layer.metadata:
-                _, optimal_size, _ = point_layer.metadata[
+        if value is None and points_layer:
+            if "size_display_bounds" in points_layer.metadata:
+                _, optimal_size, _ = points_layer.metadata[
                     "size_display_bounds"
                 ]
 
-            elif "LineageTree" in point_layer.metadata:
-                lT = point_layer.metadata["LineageTree"]
+            elif "LineageTree" in points_layer.metadata:
+                lT = points_layer.metadata["LineageTree"]
                 min_size, optimal_size, max_size = _infer_point_size(lT)
-                point_layer.metadata["size_display_bounds"] = (
+                points_layer.metadata["size_display_bounds"] = (
                     min_size,
                     optimal_size,
                     max_size,
@@ -79,14 +79,14 @@ class CellSize(LayerCorrectorTreeProducer):
         """
 
         new_size = None
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
 
         if value is None:
             layers_to_update = []
 
             if self.toggle_all.value:
                 for layer in self.viewer.layers:
-                    if isinstance(layer, Points) and self.is_lt_layer(layer):
+                    if self.is_lt_layer(layer):
                         layers_to_update.append(layer)
             else:
                 # Update only the active layer
@@ -112,7 +112,7 @@ class CellSize(LayerCorrectorTreeProducer):
         else:
             new_size = value
             # Update only the active layer
-            if active_layer and self.is_lt_layer(active_layer):
+            if active_layer:
                 active_layer.size = new_size
 
             self.slider.blockSignals(True)
@@ -159,15 +159,16 @@ class CellSize(LayerCorrectorTreeProducer):
             )
             if self.vis_button.value:
                 self.see_one_layer()
-            else:
-                self.see_all_layers()
+
+            # I don't think the lines below are useful, because
+            # if vis_button is not pressed in the first place,
+            # there is no reason to make invisible layers visible again.
+            # else:
+            #     self.see_all_layers()
+
             # Update the slider values according to the new active layer
-            active_layer = _select_correct_layer(self, Points)
-            if (
-                active_layer
-                and self.is_lt_layer(active_layer)
-                and len(active_layer.size) > 0
-            ):
+            active_layer = _select_active_lt_layer(self.viewer)
+            if active_layer and len(active_layer.size) > 0:
                 # Currently assuming all sizes are the same
                 # TODO: discuss this
                 self.reset_slider(value=active_layer.size[0])
@@ -302,7 +303,7 @@ class CellSize(LayerCorrectorTreeProducer):
             layer.name for layer in self.viewer.layers.selection
         ]
 
-        self.viewer.layers.selection.events.connect(self.layer_change)
+        self.viewer.layers.selection.events.active.connect(self.layer_change)
 
         for layer in self.viewer.layers:
             if self.is_lt_layer(layer):

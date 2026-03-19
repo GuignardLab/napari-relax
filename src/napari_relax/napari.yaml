@@ -28,7 +28,7 @@ contributions:
   readers:
     - command: napari-relax.get_reader
       accepts_directories: false
-      filename_patterns: ["*.lT", "*.lt", "*.LT", "*.mastodon", "*.xml"]
+      filename_patterns: ["*.lT", "*.lt", "*.LT", "*.mastodon", "*.xml", "*.bmf"]
 
   writers:
     - command: napari-relax.get_writer

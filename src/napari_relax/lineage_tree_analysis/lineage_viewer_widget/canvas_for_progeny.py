@@ -498,6 +498,10 @@ class SingleTreeProgeny(FigureCanvas):
         self.draw()
 
     def draw_graph(self, reset=False):
+        # Safety check: Don't draw if canvas is not properly initialized
+        if not hasattr(self, "ax") or self.ax is None:
+            return
+
         if not reset:
             xlim = self.ax.get_xlim()
             ylim = self.ax.get_ylim()

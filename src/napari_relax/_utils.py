@@ -3,6 +3,7 @@ from collections.abc import Iterable
 import matplotlib.pyplot as plt
 import numpy as np
 from lineagetree import LineageTree
+from napari.layers import Points
 from napari.qt import get_current_stylesheet
 from qtpy.QtWidgets import (
     QMessageBox,
@@ -24,6 +25,14 @@ def _infer_point_size(lT: "LineageTree"):
     # Vectorized approach: collect all values first, then compute min/max
     all_medians = []
     all_maxes = []
+
+    timepoints = list(lT.time_nodes.keys())
+    if len(timepoints) > 100:
+        # Sample evenly across the timeline
+        step = len(timepoints) // 10
+        sampled_timepoints = timepoints[::step]
+    else:
+        sampled_timepoints = timepoints
 
     timepoints = list(lT.time_nodes.keys())
     if len(timepoints) > 100:
@@ -64,10 +73,6 @@ def _infer_point_size(lT: "LineageTree"):
 
     minimal_dist = 0.01 * optimal_dist
 
-    print(
-        f"Inferred point sizes: {minimal_dist:.2f}, {optimal_dist:.2f}, {maximal_dist:.2f}"
-    )
-
     return minimal_dist, optimal_dist, maximal_dist
 
 
@@ -95,25 +100,31 @@ def _transform_float_value_to_slider_int(
         return int(float_value)
 
 
-def _select_correct_layer(self, layer_type):
+def _select_active_lt_layer(viewer):
     """
-    Swaps Layers of the same origin, using the metadata property called "link".
-
-    REDUNDANT UNTIL WE ADD TRACKS LAYER AGAIN.
-
-    Args:
-        layer_type (Points/Tracks): The layer the script needs to use.
-    Returns:
-        layer_type (Points/Tracks): The correct layer.
+    Finds the correct layer of the specified type that corresponds to the currently active layer.
+    If the active layer is already of the correct type, returns it.
+    Otherwise, looks for a 'link' metadata in the active layer pointing to the correct layer.
     """
-    if len(self.viewer.layers.selection) == 1:
-        active_layer = self.viewer.layers.selection.active
-        if isinstance(active_layer, layer_type):
+    if len(viewer.layers.selection) == 1:
+        active_layer = viewer.layers.selection.active
+        if (
+            isinstance(active_layer, Points)
+            and hasattr(active_layer, "metadata")
+            and "LineageTree" in active_layer.metadata
+        ):
             return active_layer
         else:
-            for layer in self.viewer.layers:
-                if "link" in layer.metadata:
-                    return active_layer.metadata["link"]
+            # Look for a 'link' metadata in the active layer
+            if (
+                hasattr(active_layer, "metadata")
+                and "link" in active_layer.metadata
+                and isinstance(active_layer.metadata["link"], Points)
+            ):
+                return active_layer.metadata["link"]
+
+    # Fallback: return None if no matching layer found
+    return None
 
 
 def error_image_selection():

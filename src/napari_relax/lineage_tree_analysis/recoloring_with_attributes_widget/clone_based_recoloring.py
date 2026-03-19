@@ -6,23 +6,19 @@ from magicgui import widgets
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
-from napari.layers import Points
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QLabel, QVBoxLayout
 
-from ..._util_classes import (
-    LayerCorrectorTreeProducer,
-    TooltipButton,
-)
+from ..._util_classes import LayerCorrectorTreeProducer, TooltipButton
 from ..._util_classes.custom_colorboxes import (
     MplCompatibleColorCombobox,
 )
-from ..._utils import _select_correct_layer
+from ..._utils import _select_active_lt_layer
 
 
 class CloneRecoloring(LayerCorrectorTreeProducer):
     def slider_change(self):
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer and not self.time_nodes:
             return
         lT = active_layer.metadata["LineageTree"]
@@ -59,7 +55,7 @@ class CloneRecoloring(LayerCorrectorTreeProducer):
         self.fig.canvas.draw()
 
     def color_clones(self, *args, **kwargs):
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer or not self.time_nodes:
             return
         lT = active_layer.metadata["LineageTree"]
@@ -88,7 +84,7 @@ class CloneRecoloring(LayerCorrectorTreeProducer):
             self.time_nodes = None
 
     def reset_colors(self):
-        active_layer = _select_correct_layer(self, Points)
+        active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is not None:
             active_layer.face_color = active_layer.metadata["clone2"]
 
