@@ -6,7 +6,11 @@ from lineagetree.tree_approximation import tree_style
 from magicgui import widgets
 from napari._qt.qthreading import thread_worker
 from napari.utils import notifications
-from qtpy.QtCore import QRegExp
+
+try:
+    from qtpy.QtCore import QRegExp
+except:
+    from qtpy.QtCore import QRegularExpression as QRegExp
 from qtpy.QtGui import QIntValidator, QRegExpValidator
 from qtpy.QtWidgets import (
     QButtonGroup,
