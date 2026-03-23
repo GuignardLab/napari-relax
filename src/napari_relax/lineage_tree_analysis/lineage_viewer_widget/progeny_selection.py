@@ -185,7 +185,10 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                     self.canvas.marked_cell_id = active_layer.metadata[
                         "napari2lT"
                     ][node_id_napari]
-
+                    # if not hasattr(self, "face_colors_handler"):
+                    self.face_colors_handler = active_layer.events.emitters[
+                        "current_face_color"
+                    ].connect(self.progeny_diagram_loader)
                     self.canvas.draw_graph()
                 else:
                     self.canvas.ax.clear()
@@ -299,7 +302,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         # Ensure selected_subtree is properly set and draw
         if preserve_subtree:
             self.canvas.selected_subtree = preserve_subtree
-            self.canvas.draw_graph()
 
         self.canvas.setFocusPolicy(Qt.WheelFocus)
         self.canvas.setFocus()
@@ -315,6 +317,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
         # Update the lineage color box
         self.update_lineage_color_box()
+        self.canvas.draw_graph()
 
     def _click_on_tree_graph(self, event):
         """This functions handle the left-click interaction with the tree graph. Finds the node clicked
@@ -374,9 +377,10 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         # Only move time slider on double click (original behavior)
         if event["dblclick"]:
             self.update_time_slider_for_cell(cell_id)
-        self.face_colors_handler = active_layer.events.emitters[
-            "current_face_color"
-        ].connect(self.progeny_diagram_loader)
+        if not hasattr(self, "face_colors_handler"):
+            self.face_colors_handler = active_layer.events.emitters[
+                "current_face_color"
+            ].connect(self.progeny_diagram_loader)
 
     def sub_point_painter(self):
         """Paints specific part of the lineagetree when a sublineage is selected"""
@@ -438,6 +442,13 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is None:
             return
+        try:
+            self.face_colors_handler.disconnect()
+            self.face_colors_handler = active_layer.events.emitters[
+                "current_face_color"
+            ].connect(self.progeny_diagram_loader)
+        except:
+            pass
 
         # Save current state to the previous bridge
         if self.bridge:
@@ -458,8 +469,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         else:
             # If bridge already exists, make sure links are established for any new companion layers
             self.bridge._establish_layer_links()
-        if hasattr(self, "face_color_handler"):
-            self.face_colors_handler.disconnect()
         if len(self.viewer.layers.selection) == 1:
             self.lT: LineageTree = self.get_lT()
             if self.lT:

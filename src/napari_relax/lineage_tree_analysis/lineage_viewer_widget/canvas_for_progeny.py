@@ -422,7 +422,6 @@ class SingleTreeProgeny(FigureCanvas):
                 self.selected_subtree.clear()
                 self.marked_cell_id = None
 
-                plt.close("all")
                 self.draw_graph()
                 self.node_signal.emit({})
                 return
@@ -515,6 +514,7 @@ class SingleTreeProgeny(FigureCanvas):
         self.draw()
 
     def draw_graph(self, reset=False):
+        plt.close("all")
         # Safety check: Don't draw if canvas is not properly initialized
         if not hasattr(self, "ax") or self.ax is None:
             return
