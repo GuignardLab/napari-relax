@@ -428,6 +428,7 @@ class SingleTreeProgeny(FigureCanvas):
                 return
             cell = list(self.pos.keys())[ind]
             self.node_signal.emit({"value": cell, "dblclick": event.dblclick})
+            self.marked_cell_id = cell
             if not self.all_selected:
                 self.selected_subtree = set(self.lT.get_subtree_nodes(cell))
             self.draw_graph()

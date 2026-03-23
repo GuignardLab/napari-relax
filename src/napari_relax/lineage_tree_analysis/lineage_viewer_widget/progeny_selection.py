@@ -147,14 +147,13 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 event.position, event.view_direction, event.dims_displayed
             )
 
-            # Update the cell ID spinbox to show the clicked cell
-            cell_id = active_layer.metadata["napari2lT"][result[1]]
-            self.cell_id_spinbox.setValue(cell_id)
-
             if result:
                 layer, node_id = result
                 node_id_napari = layer.metadata["lT2napari"][node_id]
                 self.cell_id_spinbox.setValue(node_id_napari)
+
+                # Update the cell ID spinbox to show the clicked cell
+                self.cell_id_spinbox.setValue(node_id)
 
                 # Clear selections in all layers
                 for viewer_layer in viewer.layers:
@@ -375,6 +374,9 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         # Only move time slider on double click (original behavior)
         if event["dblclick"]:
             self.update_time_slider_for_cell(cell_id)
+        self.face_colors_handler = active_layer.events.emitters[
+            "current_face_color"
+        ].connect(self.progeny_diagram_loader)
 
     def sub_point_painter(self):
         """Paints specific part of the lineagetree when a sublineage is selected"""
@@ -456,7 +458,8 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         else:
             # If bridge already exists, make sure links are established for any new companion layers
             self.bridge._establish_layer_links()
-
+        if hasattr(self, "face_color_handler"):
+            self.face_colors_handler.disconnect()
         if len(self.viewer.layers.selection) == 1:
             self.lT: LineageTree = self.get_lT()
             if self.lT:
