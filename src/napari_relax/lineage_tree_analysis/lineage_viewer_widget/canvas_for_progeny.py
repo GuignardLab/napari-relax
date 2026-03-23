@@ -271,6 +271,10 @@ class SingleTreeProgeny(FigureCanvas):
             first_color = lineage_colors[0][
                 :3
             ]  # Compare only RGB, ignore alpha
+
+            # Fix for colormap comparisons
+            if first_color == [1, 1, 1]:
+                first_color = [0, 0, 0]
             is_uniform = all(
                 color[:3] == first_color for color in lineage_colors
             )
