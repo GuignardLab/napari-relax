@@ -161,18 +161,18 @@ class SingleTreeProgeny(FigureCanvas):
         """Get the color and node mappings from metadata.
 
         Returns:
-            tuple: (clone2, lT2napari) or (None, None) if not available.
+            tuple: (default_colors, lT2napari) or (None, None) if not available.
         """
         if not self.points_layer_metadata:
             return None, None
 
-        clone2 = self.points_layer_metadata.get("clone2")
+        default_colors = self.points_layer_metadata.get("default_colors")
         lT2napari = self.points_layer_metadata.get("lT2napari")
 
-        if clone2 is None or lT2napari is None:
+        if default_colors is None or lT2napari is None:
             return None, None
 
-        return clone2, lT2napari
+        return default_colors, lT2napari
 
     def _convert_color_to_list(self, color):
         """Normalize color to a list format.
@@ -198,20 +198,20 @@ class SingleTreeProgeny(FigureCanvas):
             color: Single color as tuple/list for the current lineage root,
                    or None if metadata is not available.
         """
-        clone2, lT2napari = self._get_metadata_mappings()
-        if clone2 is None or lT2napari is None:
+        default_colors, lT2napari = self._get_metadata_mappings()
+        if default_colors is None or lT2napari is None:
             return None
 
         actual_root = self._get_actual_root()
         if actual_root is None:
             return None
 
-        # Get the color for this root from clone2
+        # Get the color for this root from default_colors
         if actual_root in lT2napari:
             napari_idx = lT2napari[actual_root]
-            if napari_idx < len(clone2):
+            if napari_idx < len(default_colors):
                 # Convert numpy array to tuple to avoid LineageTree issues
-                return self._convert_color_to_list(clone2[napari_idx])
+                return self._convert_color_to_list(default_colors[napari_idx])
 
         return None
 
@@ -219,7 +219,7 @@ class SingleTreeProgeny(FigureCanvas):
         """Extract the current color for this lineage from the active Points layer.
 
         This method checks the actual face_color of points in the current lineage,
-        which may be different from the original clone2 colors if quantitative
+        which may be different from the original default_colors colors if quantitative
         recoloring has been applied.
 
         Returns:
@@ -227,8 +227,8 @@ class SingleTreeProgeny(FigureCanvas):
                   indicating whether all nodes in the lineage have the same color.
                   Returns None if no data is available.
         """
-        clone2, lT2napari = self._get_metadata_mappings()
-        if clone2 is None or lT2napari is None:
+        default_colors, lT2napari = self._get_metadata_mappings()
+        if default_colors is None or lT2napari is None:
             return None
 
         actual_root = self._get_actual_root()
@@ -250,7 +250,7 @@ class SingleTreeProgeny(FigureCanvas):
                 "current_face_colors"
             )
             if current_face_colors is None:
-                # Fallback to original clone2 colors
+                # Fallback to original default_colors colors
                 return self._get_original_color_info(actual_root)
 
             # Collect colors for all nodes in this lineage
@@ -266,7 +266,7 @@ class SingleTreeProgeny(FigureCanvas):
 
             if not lineage_colors:
                 return None
-
+            
             # Check if all colors are the same (uniform lineage color)
             first_color = lineage_colors[0][
                 :3
@@ -297,15 +297,15 @@ class SingleTreeProgeny(FigureCanvas):
             self.points_layer_metadata["current_face_colors"] = face_colors
 
     def _get_original_color_info(self, actual_root):
-        """Get the original color info from clone2 for fallback."""
-        clone2, lT2napari = self._get_metadata_mappings()
+        """Get the original color info from default_colors for fallback."""
+        default_colors, lT2napari = self._get_metadata_mappings()
 
-        if clone2 is None or lT2napari is None or actual_root not in lT2napari:
+        if default_colors is None or lT2napari is None or actual_root not in lT2napari:
             return None
 
         napari_idx = lT2napari[actual_root]
-        if napari_idx < len(clone2):
-            color = self._convert_color_to_list(clone2[napari_idx])
+        if napari_idx < len(default_colors):
+            color = self._convert_color_to_list(default_colors[napari_idx])
 
             return {
                 "color": color[:3],

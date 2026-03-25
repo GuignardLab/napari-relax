@@ -302,7 +302,7 @@ class Quantitative(LayerCorrectorTreeProducer):
         # First reset the face colors
         active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is not None:
-            original_colors = active_layer.metadata["clone2"]
+            original_colors = active_layer.metadata["default_colors"]
             active_layer.face_color = original_colors
 
             # Emit signal with the original face colors
