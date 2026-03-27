@@ -12,11 +12,11 @@ from qtpy.QtWidgets import (
     QLineEdit,
     QMessageBox,
     QPushButton,
+    QSizePolicy,
     QSlider,
     QSpacerItem,
     QSpinBox,
     QVBoxLayout,
-    QSizePolicy
 )
 
 from ..._interaction_bridge import InteractionBridge
@@ -25,10 +25,6 @@ from ..._util_classes import (
     DelayedTooltipEventFilter,
     LayerCorrectorTreeProducer,
     TooltipButton,
-)
-from ..._util_classes.popable_window_for_tree_graph import (
-    Setup,
-    _update_napari_highlight_color,
 )
 from ..._utils import _select_active_lt_layer
 from .lineage_viewer.viewer import SingleTreeProgeny
@@ -118,7 +114,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             self.bridge.update_state(
                 selected_subtree=set(selected_cells), selected_lineage=val
             )
-            # self.canvas.draw_graph()
         else:
             raise Warning(
                 "No tree for this node, because it has no progenitor in roots"
@@ -186,7 +181,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                     self.face_colors_handler = active_layer.events.emitters[
                         "current_face_color"
                     ].connect(self.progeny_diagram_loader)
-                    # self.canvas.draw_graph()
                 else:
                     self.canvas.ax.clear()
                     self.canvas.draw()
@@ -311,7 +305,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
         # Update the lineage color box
         self.update_lineage_color_box()
-        # self.canvas.draw_graph()
 
     def _click_on_tree_graph(self, event):
         """This functions handle the left-click interaction with the tree graph. Finds the node clicked
@@ -402,7 +395,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 active_layer.metadata["graphs"][1][val],
                 points_layer_metadata=active_layer.metadata,
             )
-            # self.canvas.draw_graph()
 
             # Save state to bridge
             self.bridge.update_state(
@@ -546,7 +538,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 # Now restore the highlighting state after the slider change has completed
                 # Set the selected subtree and redraw to show highlighting
                 self.canvas.selected_subtree = bridge_selected_subtree
-                # self.canvas.draw_graph()
 
                 # Also restore highlighting on companion layers
                 selected_node_ids = list(bridge_selected_subtree)
@@ -761,7 +752,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             self.canvas.marked_cell_id = (
                 cell_id  # Store the cell to mark with circle
             )
-            # self.canvas.draw_graph()
 
             # Select only the single cell in the 3D view (not sublineage)
             points_to_select = set()
@@ -828,7 +818,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.w_lineedit.update()
         self.w_lineedit.clear()
         self.signal.emit(self.labels)
-        # self.canvas.draw_graph()
 
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
@@ -910,13 +899,12 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         layout.setAlignment(Qt.AlignTop)
         layout.setSpacing(0)
         self.setLayout(layout)
-        self.figure = Figure(figsize=(10,6), frameon=False)
+        self.figure = Figure(figsize=(10, 6), frameon=False)
         self.ax_for_tree_graph = self.figure.add_subplot(111)
         self.ax_for_tree_graph.axis("off")
         self.canvas = SingleTreeProgeny(self.figure, self.ax_for_tree_graph)
         self.canvas.setSizePolicy(
-            QSizePolicy.Policy.Expanding,
-            QSizePolicy.Policy.Expanding
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
         )
         self.canvas.setContentsMargins(0, 0, 0, 0)
         # Initialize napari highlight color to match canvas selection color
@@ -946,12 +934,12 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.config_settings.setIcon(
             QIcon(str(Path(__file__).parent / "gear-bold.svg"))
         )
-            # self.pop_win = Setup(self.canvas, self.viewer)
-            # self.config_settings.clicked.connect(lambda x: self.pop_win.exec_())
-            # self.config_settings.setFixedSize(30, 30)
+        # self.pop_win = Setup(self.canvas, self.viewer)
+        # self.config_settings.clicked.connect(lambda x: self.pop_win.exec_())
+        # self.config_settings.setFixedSize(30, 30)
 
-            # self.config_settings.setParent(self)
-            # self.pop_win.sig.connect(self.canvas.change_attributes)
+        # self.config_settings.setParent(self)
+        # self.pop_win.sig.connect(self.canvas.change_attributes)
 
         if self.lT:
             self.progeny_diagram_loader()

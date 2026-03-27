@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 from lineagetree import LineageTree
 from matplotlib.backends.backend_qtagg import (
@@ -6,17 +5,18 @@ from matplotlib.backends.backend_qtagg import (
 )
 from psygnal import Signal
 from scipy.spatial import KDTree
-from .canvas_interaction_events import CanvasUtils
-from types import MappingProxyType
 
-class SingleTreeProgeny(FigureCanvas,CanvasUtils):
+from .canvas_interaction_events import CanvasUtils
+
+
+class SingleTreeProgeny(FigureCanvas, CanvasUtils):
     node_signal = Signal(dict)
     node_size = 10
     lw = 0.3
     fontsize = 6
     all_selected = False
     margins_of_plot = 0.05
-    selected_color = (1,0,1)
+    selected_color = (1, 0, 1)
 
     def change_attributes(self, signal):
         """
@@ -33,8 +33,7 @@ class SingleTreeProgeny(FigureCanvas,CanvasUtils):
         self.draw_graph()
 
     def _generate_info_to_draw_graph(self):
-        """Calculates everything needed to draw the graph, used on initiation and lineage_change
-        """
+        """Calculates everything needed to draw the graph, used on initiation and lineage_change"""
         self.calculate_axes()
 
         self.pan = False
@@ -43,13 +42,12 @@ class SingleTreeProgeny(FigureCanvas,CanvasUtils):
         self._extract_default_colors_from_points_layer()
 
         self.marked_cell_id = None
-        
+
         # Initialize marked cell for circle highlighting
-        self.marked_cell_id = None # make it a property TODO
+        self.marked_cell_id = None  # make it a property TODO
         # self.ax.set_margins(0)
         self.ax.axis("off")
         # self.lims_of_tree = (self.lT.t_b, max(self.lT.time[node] for node in (self.lT.leaves|self.lT.get_subtree_nodes(self.root))))
-
 
     def __init__(
         self,
@@ -65,7 +63,9 @@ class SingleTreeProgeny(FigureCanvas,CanvasUtils):
     def coloring(self):
         if not hasattr(self, "node_colors"):
             self.node_colors = self.default_colors.copy()
-        return self.node_colors | {node:self.selected_color for node in self.selected_nodes}
+        return self.node_colors | dict.fromkeys(
+            self.selected_nodes, self.selected_color
+        )
 
     def _get_metadata_mappings(self):
         """Get the color and node mappings from metadata.
@@ -76,20 +76,26 @@ class SingleTreeProgeny(FigureCanvas,CanvasUtils):
         if not self.points_layer_metadata:
             return None, None
 
-        self._default_layer_colors = self.points_layer_metadata.get("default_colors")
+        self._default_layer_colors = self.points_layer_metadata.get(
+            "default_colors"
+        )
         self.lT2napari = self.points_layer_metadata.get("lT2napari")
         if self._default_layer_colors is None or self.lT2napari is None:
             self._default_layer_colors = "black"
             return "black", None
         return self._default_layer_colors, self.lT2napari
-    
+
     def _extract_default_colors_from_points_layer(self):
-        
+
         if self.lT2napari is None:
             return None
         if hasattr(self, "lT") and self.lT:
             # lineage_nodes = [c[0] for c in  self.lT.get_all_chains_of_subtree(self.root)]
-            lineage_nodes = {node for c in self.lT.get_all_chains_of_subtree(self.root) for node in (c[0], c[-1])}
+            lineage_nodes = {
+                node
+                for c in self.lT.get_all_chains_of_subtree(self.root)
+                for node in (c[0], c[-1])
+            }
         else:
             return None
         default_colors = {}
@@ -97,10 +103,8 @@ class SingleTreeProgeny(FigureCanvas,CanvasUtils):
             if node in self.lT2napari:
                 napari_idx = self.lT2napari[node]
                 color = self._default_layer_colors[napari_idx]
-                default_colors[node] =  self._convert_color_to_list(color)
+                default_colors[node] = self._convert_color_to_list(color)
         self.default_colors = default_colors
-
-
 
     def _convert_color_to_list(self, color):
         """Normalize color to a list format.
@@ -133,7 +137,11 @@ class SingleTreeProgeny(FigureCanvas,CanvasUtils):
 
         # Get all nodes in the current lineage
         if hasattr(self, "lT") and self.lT:
-            lineage_nodes = {node for c in self.lT.get_all_chains_of_subtree(self.root) for node in (c[0], c[-1])}
+            lineage_nodes = {
+                node
+                for c in self.lT.get_all_chains_of_subtree(self.root)
+                for node in (c[0], c[-1])
+            }
         else:
             return None
         print("extrac_current")
@@ -141,9 +149,9 @@ class SingleTreeProgeny(FigureCanvas,CanvasUtils):
             "current_face_colors"
         )
         if current_face_colors is None:
-            # Fallback to original default_colors 
+            # Fallback to original default_colors
             self.node_colors = self.default_colors.copy()
-            return 
+            return
 
         # Collect colors for all nodes in this lineage
         lineage_colors = {}
@@ -151,13 +159,13 @@ class SingleTreeProgeny(FigureCanvas,CanvasUtils):
             if node in self.lT2napari:
                 napari_idx = self.lT2napari[node]
                 color = current_face_colors[napari_idx]
-                lineage_colors[node]=  self._convert_color_to_list(color)
+                lineage_colors[node] = self._convert_color_to_list(color)
 
         if not lineage_colors:
             self.node_colors = self.default_colors.copy()
-            return 
+            return
         self.node_colors = lineage_colors
-       
+
     def update_face_colors(self, face_colors):
         """Update the metadata with provided face colors."""
         if self.points_layer_metadata is not None:
@@ -169,8 +177,8 @@ class SingleTreeProgeny(FigureCanvas,CanvasUtils):
         lT: LineageTree = None,
         lnks_tms=None,
         hier: dict | None = None,
-        points_layer_metadata = None
-        ):
+        points_layer_metadata=None,
+    ):
         if lT:
             self.lT = lT
             self.root = root
@@ -180,7 +188,7 @@ class SingleTreeProgeny(FigureCanvas,CanvasUtils):
             self.selected_nodes = {}
             self._generate_info_to_draw_graph()
             self.draw_graph(reset=True)
-            
+
     def draw_graph(self, reset=False):
         """Plots the tree, if reset is true it sets the new axes, otherwise it works with the old ones.
 
@@ -202,10 +210,9 @@ class SingleTreeProgeny(FigureCanvas,CanvasUtils):
         else:
             xlim = self.ax.get_xlim()
             ylim = self.ax.get_ylim()
-        
+
         xlim = self.xlim
         ylim = self.ylim
-       
 
         # Extract current colors from the active layer (handles quantitative coloring)
         self._extract_current_lineage_color()
@@ -224,9 +231,8 @@ class SingleTreeProgeny(FigureCanvas,CanvasUtils):
         if self.marked_cell_id is not None:
             self._draw_cell_marker(self.marked_cell_id)
 
-        
             self.labels = True
-        
+
         self.ax.set_xlim(xlim)
         self.ax.set_ylim(ylim)
         self.draw()
@@ -252,7 +258,6 @@ class SingleTreeProgeny(FigureCanvas,CanvasUtils):
                         rotation=34,
                     )
 
-
     def calculate_axes(self):
         data = np.array(list(self.hier.values()))  # shape (N, 2)
         self.xmin, self.xmax = data[:, 0].min(), data[:, 0].max()
@@ -261,9 +266,9 @@ class SingleTreeProgeny(FigureCanvas,CanvasUtils):
         range_y = self.ymax - self.ymin
         margin = self.margins_of_plot
         self.xmin -= range_x * margin
-        self.xmax += range_x * margin 
+        self.xmax += range_x * margin
         self.ymin -= range_y * margin
-        self.ymax += range_y * margin 
+        self.ymax += range_y * margin
         self.xlim = (self.xmin, self.xmax)
         self.ylim = (self.ymin, self.ymax)
         self.xlim_min = (self.xmax - self.xmin) / 50

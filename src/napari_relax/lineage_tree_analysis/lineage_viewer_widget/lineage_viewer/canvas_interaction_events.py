@@ -6,7 +6,7 @@ class CanvasUtils:
     def reset(self, event):
         if event.key == "z":
             self.draw_graph(reset=True)
-    
+
     def pan_start(self, event):
         if event.button == 3 and event.inaxes:
             self.pan = True
@@ -41,7 +41,6 @@ class CanvasUtils:
         ax.set_ylim(y0 - dy_data, y1 - dy_data)
         self._plot_labels()
         self.draw_idle()
-
 
     def on_scroll(self, event):
         if not event.inaxes:
@@ -152,15 +151,14 @@ class CanvasUtils:
             self.flush_events()
 
     def connect_signals(self):
-        """Connects the mpl signals to the canvas
-        """
+        """Connects the mpl signals to the canvas"""
         self.mpl_connect("button_press_event", self.click)
         self.mpl_connect("button_press_event", self.pan_start)
         self.mpl_connect("button_release_event", self.pan_stop)
         self.mpl_connect("motion_notify_event", self.panning)
         self.mpl_connect("scroll_event", self.on_scroll)
         self.mpl_connect("key_press_event", self.reset)
-     
+
     def _draw_cell_marker(self, cell_id):
         """Draw a circle marker for the specified cell on the lineage graph.
 
@@ -190,7 +188,7 @@ class CanvasUtils:
                 s=float(self.node_size)
                 * 15,  # Size in points^2, adjust as needed
                 facecolors="none",  # No fill
-                edgecolors= "magenta", #self.color_of_selection_nodes,  # Border color
+                edgecolors="magenta",  # self.color_of_selection_nodes,  # Border color
                 linewidths=2.0,
                 marker="o",  # Circle marker
                 zorder=10,  # Draw on top
@@ -233,4 +231,3 @@ class CanvasUtils:
 
         # Fallback to nearest positioned node
         return ancestor_pos or descendant_pos
-   
