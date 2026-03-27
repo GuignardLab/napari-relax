@@ -308,8 +308,6 @@ class Quantitative(LayerCorrectorTreeProducer):
             # Emit signal with the original face colors
             self.color_signal.emit(
                 {
-                    "color_of_nodes": "black",
-                    "color_of_edges": "black",
                     "node_size": 10,
                     "lw": 0.3,
                     "fontsize": 6,
@@ -321,8 +319,6 @@ class Quantitative(LayerCorrectorTreeProducer):
             # Emit signal without face colors if no active layer
             self.color_signal.emit(
                 {
-                    "color_of_nodes": "black",
-                    "color_of_edges": "black",
                     "node_size": 10,
                     "lw": 0.3,
                     "fontsize": 6,
@@ -336,8 +332,6 @@ class Quantitative(LayerCorrectorTreeProducer):
             # Only emit essential settings, preserve visual customizations
             self.color_signal.emit(
                 {
-                    "color_of_nodes": "black",
-                    "color_of_edges": "black",
                     "node_size": 10,
                     "lw": 0.3,
                     "fontsize": 6,

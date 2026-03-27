@@ -16,6 +16,7 @@ from qtpy.QtWidgets import (
     QSpacerItem,
     QSpinBox,
     QVBoxLayout,
+    QSizePolicy
 )
 
 from ..._interaction_bridge import InteractionBridge
@@ -30,7 +31,7 @@ from ..._util_classes.popable_window_for_tree_graph import (
     _update_napari_highlight_color,
 )
 from ..._utils import _select_active_lt_layer
-from .canvas_for_progeny import SingleTreeProgeny
+from .lineage_viewer.viewer import SingleTreeProgeny
 
 if TYPE_CHECKING:
     from lineagetree import LineageTree
@@ -105,9 +106,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 self.lT.get_ancestor_at_t(lt_node_id)  # type: ignore
             )
             self.canvas.change_lineage(
-                self.figure,
-                self.ax_for_tree_graph,
-                val,
+                self.roots[int(self.graph_slider.value())],
                 self.lT,
                 active_layer.metadata["graphs"][0][val],
                 active_layer.metadata["graphs"][1][val],
@@ -119,7 +118,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             self.bridge.update_state(
                 selected_subtree=set(selected_cells), selected_lineage=val
             )
-            self.canvas.draw_graph()
+            # self.canvas.draw_graph()
         else:
             raise Warning(
                 "No tree for this node, because it has no progenitor in roots"
@@ -172,9 +171,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 if val is not None:
                     self.graph_slider.setValue(int(val))
                     self.canvas.change_lineage(
-                        self.figure,
-                        self.ax_for_tree_graph,
-                        val,
+                        self.roots[int(self.graph_slider.value())],
                         self.lT,
                         active_layer.metadata["graphs"][0][val],
                         active_layer.metadata["graphs"][1][val],
@@ -189,7 +186,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                     self.face_colors_handler = active_layer.events.emitters[
                         "current_face_color"
                     ].connect(self.progeny_diagram_loader)
-                    self.canvas.draw_graph()
+                    # self.canvas.draw_graph()
                 else:
                     self.canvas.ax.clear()
                     self.canvas.draw()
@@ -275,7 +272,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         Program to load the diagrams in black or magenta. Reads the attributes to load different graphs.
         """
         active_layer = _select_active_lt_layer(self.viewer)
-        if not active_layer:
+        if not active_layer and "lT" not in active_layer.metadata:
             return
         self.ax_for_tree_graph.clear()
         val = int(self.graph_slider.value())
@@ -287,13 +284,10 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         preserve_subtree = getattr(self.canvas, "selected_subtree", set())
 
         self.canvas.change_lineage(
-            self.figure,
-            self.ax_for_tree_graph,
-            val,
+            self.roots[int(self.graph_slider.value())],
             self.lT,
             active_layer.metadata["graphs"][0][val],
             active_layer.metadata["graphs"][1][val],
-            False,
             points_layer_metadata=active_layer.metadata,
         )
 
@@ -317,7 +311,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
         # Update the lineage color box
         self.update_lineage_color_box()
-        self.canvas.draw_graph()
+        # self.canvas.draw_graph()
 
     def _click_on_tree_graph(self, event):
         """This functions handle the left-click interaction with the tree graph. Finds the node clicked
@@ -400,17 +394,15 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             )
             self.graph_slider.setValue(val)
             self.ax_for_tree_graph.clear()
+            self.canvas.selected_nodes = set(selected_node_ids)
             self.canvas.change_lineage(
-                self.figure,
-                self.ax_for_tree_graph,
-                val,
+                self.roots[int(self.graph_slider.value())],
                 self.lT,
                 active_layer.metadata["graphs"][0][val],
                 active_layer.metadata["graphs"][1][val],
                 points_layer_metadata=active_layer.metadata,
             )
-            self.canvas.selected_subtree = set(selected_node_ids)
-            self.canvas.draw_graph()
+            # self.canvas.draw_graph()
 
             # Save state to bridge
             self.bridge.update_state(
@@ -554,7 +546,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 # Now restore the highlighting state after the slider change has completed
                 # Set the selected subtree and redraw to show highlighting
                 self.canvas.selected_subtree = bridge_selected_subtree
-                self.canvas.draw_graph()
+                # self.canvas.draw_graph()
 
                 # Also restore highlighting on companion layers
                 selected_node_ids = list(bridge_selected_subtree)
@@ -757,9 +749,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
             # Update the canvas to show the correct lineage without sublineage highlighting
             self.canvas.change_lineage(
-                self.figure,
-                self.ax_for_tree_graph,
-                val,
+                self.roots[int(self.graph_slider.value())],
                 self.lT,
                 active_layer.metadata["graphs"][0][val],
                 active_layer.metadata["graphs"][1][val],
@@ -771,7 +761,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             self.canvas.marked_cell_id = (
                 cell_id  # Store the cell to mark with circle
             )
-            self.canvas.draw_graph()
+            # self.canvas.draw_graph()
 
             # Select only the single cell in the 3D view (not sublineage)
             points_to_select = set()
@@ -838,7 +828,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.w_lineedit.update()
         self.w_lineedit.clear()
         self.signal.emit(self.labels)
-        self.canvas.draw_graph()
+        # self.canvas.draw_graph()
 
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
@@ -920,14 +910,19 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         layout.setAlignment(Qt.AlignTop)
         layout.setSpacing(0)
         self.setLayout(layout)
-        self.figure = Figure(figsize=(1, 3), frameon=False)
+        self.figure = Figure(figsize=(10,6), frameon=False)
         self.ax_for_tree_graph = self.figure.add_subplot(111)
+        self.ax_for_tree_graph.axis("off")
         self.canvas = SingleTreeProgeny(self.figure, self.ax_for_tree_graph)
-
-        # Initialize napari highlight color to match canvas selection color
-        _update_napari_highlight_color(
-            self.canvas.color_of_selection_nodes, self.viewer
+        self.canvas.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Expanding
         )
+        self.canvas.setContentsMargins(0, 0, 0, 0)
+        # Initialize napari highlight color to match canvas selection color
+        # _update_napari_highlight_color(
+        #     self.canvas.color_of_selection_nodes, self.viewer
+        # )
 
         label1 = widgets.Label(
             value="""<span style="font-family: Arial; font-size: 20px; color: white;">Lineage Viewer</span>"""
@@ -945,18 +940,18 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.tooltip.move(int(self.width() - self.tooltip.width()), 0)
         label1.move(int(self.width() / 2) + 10, 0)
         self.layout().addItem(QSpacerItem(10, 10))
-        self.layout().addWidget(self.canvas, stretch=100)
+        self.layout().addWidget(self.canvas, stretch=1)
         self.tooltip.move(0, 0)
         self.config_settings = QPushButton(text="")
         self.config_settings.setIcon(
             QIcon(str(Path(__file__).parent / "gear-bold.svg"))
         )
-        self.pop_win = Setup(self.canvas, self.viewer)
-        self.config_settings.clicked.connect(lambda x: self.pop_win.exec_())
-        self.config_settings.setFixedSize(30, 30)
+            # self.pop_win = Setup(self.canvas, self.viewer)
+            # self.config_settings.clicked.connect(lambda x: self.pop_win.exec_())
+            # self.config_settings.setFixedSize(30, 30)
 
-        self.config_settings.setParent(self)
-        self.pop_win.sig.connect(self.canvas.change_attributes)
+            # self.config_settings.setParent(self)
+            # self.pop_win.sig.connect(self.canvas.change_attributes)
 
         if self.lT:
             self.progeny_diagram_loader()
@@ -1060,6 +1055,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.canvas.node_signal.connect(self._click_on_tree_graph)
         self.canvas.setFocusPolicy(Qt.WheelFocus)
         self.canvas.setFocus()
-        self.viewer.dims.events.emitters["current_step"].connect(
-            self.canvas.time_line
-        )
+        # self.viewer.dims.events.emitters["current_step"].connect(
+        #     self.canvas.time_line
+        # )
