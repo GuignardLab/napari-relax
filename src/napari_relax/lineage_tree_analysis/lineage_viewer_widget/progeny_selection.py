@@ -693,29 +693,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 active_layer.shown[selected_points] = True
                 active_layer.refresh()
 
-    def update_time_slider_for_cell(self, cell_id):
-        """Update the time slider to show when the given cell first appears."""
-        if not self.lT or cell_id not in self.lT.time:
-            return
-
-        # Calculate the time step for this cell
-        cell_time = self.lT.time[cell_id]
-
-        # Get the minimum time from all lineage tree layers (important if dataset doesn't start from 0)
-        min_time = min(
-            {
-                layer.metadata.get("LineageTree").t_b
-                for layer in self.viewer.layers
-                if layer.metadata.get("LineageTree")
-            }
-        )
-
-        # set the time slider to show when this cell appears
-        time_step = cell_time - min_time
-        current_step = list(self.viewer.dims.current_step)
-        current_step[0] = time_step
-        self.viewer.dims.current_step = current_step
-
     def cell_id_selector(self):
         """
         Select lineage based on cell ID input from spinbox.
@@ -1051,6 +1028,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.canvas.node_signal.connect(self._click_on_tree_graph)
         self.canvas.setFocusPolicy(Qt.WheelFocus)
         self.canvas.setFocus()
-        # self.viewer.dims.events.emitters["current_step"].connect(
-        #     self.canvas.time_line
-        # )
+        self.viewer.dims.events.emitters["current_step"].connect(
+            self.canvas.time_line
+        )

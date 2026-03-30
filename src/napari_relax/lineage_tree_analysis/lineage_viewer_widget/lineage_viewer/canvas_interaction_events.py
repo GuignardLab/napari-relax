@@ -72,7 +72,7 @@ class CanvasUtils:
         self.draw()
 
     def time_line(self, time):
-        if hasattr(self, "ax") and self.ax and self.lT:
+        if hasattr(self, "ax") and hasattr(self, "lT"):
             time = time.value[0]
             zorder = max([_.zorder for _ in self.ax.get_children()]) + 1
             if not hasattr(self, "line"):
@@ -94,9 +94,9 @@ class CanvasUtils:
 
             if hasattr(self, "line") and self.line in self.ax.lines:
                 if (
-                    min(self.lims_of_tree)
-                    <= -time - self.lT.t_b
-                    <= max(self.lims_of_tree)
+                    abs(min(self.lims_of_tree))
+                    <= abs(time - self.lT.t_b)
+                    <= abs(max(self.lims_of_tree))
                 ):
                     self.line.set_ydata(
                         [
@@ -130,8 +130,8 @@ class CanvasUtils:
                     zorder=zorder,
                 )
                 self.line.set_visible(True)
-            self.draw_idle()
-            self.flush_events()
+            self.ax.figure.canvas.draw()
+            self.ax.figure.canvas.flush_events()
 
     def connect_signals(self):
         """Connects the mpl signals to the canvas"""

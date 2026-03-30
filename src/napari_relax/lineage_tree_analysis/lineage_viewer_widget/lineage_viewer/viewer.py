@@ -47,7 +47,15 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
         self.marked_cell_id = None  # make it a property TODO
         # self.ax.set_margins(0)
         self.ax.axis("off")
-        # self.lims_of_tree = (self.lT.t_b, max(self.lT.time[node] for node in (self.lT.leaves|self.lT.get_subtree_nodes(self.root))))
+        self.lims_of_tree = (
+            self.lT.t_b,
+            max(
+                self.lT.time[node]
+                for node in (
+                    self.lT.leaves | set(self.lT.get_subtree_nodes(self.root))
+                )
+            ),
+        )
 
     def __init__(
         self,
