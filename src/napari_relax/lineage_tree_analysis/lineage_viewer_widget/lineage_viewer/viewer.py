@@ -144,7 +144,6 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
             }
         else:
             return None
-        print("extrac_current")
         current_face_colors = self.points_layer_metadata.get(
             "current_face_colors"
         )
@@ -207,15 +206,12 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
             xlim = self.xlim  # full tree bounds on reset
             ylim = self.ylim
         else:
-            print("den kanw reset")
             xlim = self.ax.get_xlim()
             ylim = self.ax.get_ylim()
-        print("xlim:", xlim, "ylim:", ylim)
 
         self.ax.cla()
         # Extract current colors from the active layer (handles quantitative coloring)
         self.node_colors, self.lT2napari = self._get_metadata_mappings()
-        self._extract_default_colors_from_points_layer
         self._extract_current_lineage_color()
         self.lT.draw_tree_graph(
             self.hier,

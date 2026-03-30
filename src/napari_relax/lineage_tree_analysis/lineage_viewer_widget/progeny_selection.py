@@ -178,9 +178,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                         "napari2lT"
                     ][node_id_napari]
                     # if not hasattr(self, "face_colors_handler"):
-                    self.face_colors_handler = active_layer.events.emitters[
-                        "current_face_color"
-                    ].connect(self.progeny_diagram_loader)
+                    self.face_colors_handler = active_layer._face.events.connect(self.progeny_diagram_loader)
                 else:
                     self.canvas.ax.clear()
                     self.canvas.draw()
@@ -306,11 +304,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         # Update the lineage color box
         self.update_lineage_color_box()
         
-        # Disconnect signal
-        self.face_colors_handler = active_layer.events.emitters[
-            "current_face_color"
-        ].disconnect(self.progeny_diagram_loader)
-        del self.face_colors_handler
 
     def _click_on_tree_graph(self, event):
         """This functions handle the left-click interaction with the tree graph. Finds the node clicked
@@ -371,9 +364,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         if event["dblclick"]:
             self.update_time_slider_for_cell(cell_id)
         if not hasattr(self, "face_colors_handler"):
-            self.face_colors_handler = active_layer.events.emitters[
-                "current_face_color"
-            ].connect(self.progeny_diagram_loader)
+            self.face_colors_handler = active_layer._face.events.connect(self.progeny_diagram_loader)
 
     def sub_point_painter(self):
         """Paints specific part of the lineagetree when a sublineage is selected"""
@@ -434,9 +425,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             return
         try:
             self.face_colors_handler.disconnect()
-            self.face_colors_handler = active_layer.events.emitters[
-                "current_face_color"
-            ].connect(self.progeny_diagram_loader)
+            self.face_colors_handler = active_layer._face.events.connect(self.progeny_diagram_loader)
         except:
             pass
 

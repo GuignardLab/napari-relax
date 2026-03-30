@@ -286,17 +286,7 @@ class Quantitative(LayerCorrectorTreeProducer):
             for point, node in active_layer.metadata["napari2lT"].items()
         ]
         active_layer.face_color = face_colors
-
-        self.color_signal.emit(
-            {
-                "color_of_nodes": "black",
-                "selected_nodes": cell_color.keys(),
-                "all_selected": True,
-                "quantitative_coloring": True,
-                "face_colors": face_colors,
-                "node_colors": cell_color,  # Individual colors per node ID
-            }
-        )
+        self.color_signal.emit({})
 
     def reset_button_pr(self):
         # First reset the face colors
@@ -305,38 +295,10 @@ class Quantitative(LayerCorrectorTreeProducer):
             original_colors = active_layer.metadata["default_colors"]
             active_layer.face_color = original_colors
 
-            # Emit signal with the original face colors
-            self.color_signal.emit(
-                {
-                    "node_size": 10,
-                    "lw": 0.3,
-                    "fontsize": 6,
-                    "quantitative_coloring": False,
-                    "face_colors": original_colors,
-                }
-            )
-        else:
-            # Emit signal without face colors if no active layer
-            self.color_signal.emit(
-                {
-                    "node_size": 10,
-                    "lw": 0.3,
-                    "fontsize": 6,
-                    "quantitative_coloring": False,
-                }
-            )
-
     def layer_change(self):
         self.lT = self.get_lT()
         if self.lT:
             # Only emit essential settings, preserve visual customizations
-            self.color_signal.emit(
-                {
-                    "node_size": 10,
-                    "lw": 0.3,
-                    "fontsize": 6,
-                }
-            )
             self.selected_attribute.clear()
             self.selected_attribute.addItems(
                 [str(None)]
