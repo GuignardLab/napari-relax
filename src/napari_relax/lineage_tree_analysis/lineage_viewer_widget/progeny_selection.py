@@ -179,6 +179,8 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                     ][node_id_napari]
                     # if not hasattr(self, "face_colors_handler"):
                     self.face_colors_handler = active_layer._face.events.connect(self.progeny_diagram_loader)
+                    self.canvas._draw_cell_marker(self.canvas.marked_cell_id)
+                    self.canvas.draw()
                 else:
                     self.canvas.ax.clear()
                     self.canvas.draw()
