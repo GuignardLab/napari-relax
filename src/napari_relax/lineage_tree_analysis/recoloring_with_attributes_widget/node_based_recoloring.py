@@ -179,7 +179,7 @@ class MissingData(QWidget):
 class Quantitative(LayerCorrectorTreeProducer):
     """The widget to handle the different attributes."""
 
-    color_signal = Signal(dict)
+    color_signal = Signal()
 
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
@@ -286,7 +286,7 @@ class Quantitative(LayerCorrectorTreeProducer):
             for point, node in active_layer.metadata["napari2lT"].items()
         ]
         active_layer.face_color = face_colors
-        self.color_signal.emit({})
+        self.color_signal.emit()
 
     def reset_button_pr(self):
         # First reset the face colors
@@ -294,6 +294,8 @@ class Quantitative(LayerCorrectorTreeProducer):
         if active_layer is not None:
             original_colors = active_layer.metadata["default_colors"]
             active_layer.face_color = original_colors
+            self.color_signal.emit()
+
 
     def layer_change(self):
         self.lT = self.get_lT()

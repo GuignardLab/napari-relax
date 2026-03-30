@@ -28,7 +28,7 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
         self.fontsize = signal.get("fontsize", self.fontsize)
         self.back_ground = signal.get("back_ground", self.back_ground)
 
-        if "node_colors" in signal:
+        if "quant_colors" in signal:
             self.node_colors = signal["node_colors"]
         self.draw_graph()
 

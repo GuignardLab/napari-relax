@@ -142,6 +142,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             )
 
             if result:
+                self.canvas.selected_nodes.clear()
                 layer, node_id = result
                 node_id_napari = layer.metadata["lT2napari"][node_id]
                 self.cell_id_spinbox.setValue(node_id_napari)
@@ -182,7 +183,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                     self.canvas._draw_cell_marker(self.canvas.marked_cell_id)
                     self.canvas.draw()
                 else:
-                    self.canvas.ax.clear()
+                    self.canvas.ax.cla()
                     self.canvas.draw()
 
     def update_lineage_color_box(self):
@@ -547,6 +548,8 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 # Disable spinbox and button if no lineage tree
                 self.cell_id_spinbox.setEnabled(False)
                 self.cell_id_go_button.setEnabled(False)
+            self.face_colors_handler = active_layer._face.events.connect(self.progeny_diagram_loader)
+        
 
     def label_remover(self):
         active_layer = _select_active_lt_layer(self.viewer)

@@ -122,20 +122,21 @@ class LineageTreeAnalysisWidget(ReLAXWidget):
                 "Distance Calculation"
             ].clustermap.receive_new_labels
         )
-        # self.widget_dictionary[
-        #     "Attribute Based Recoloring"
-        # ].coloring_widget.quant.color_signal.connect(
-        #     explore_and_relabel.canvas.change_attributes
-        # )
-
-        # Also update the lineage color box when colors change
         self.widget_dictionary[
             "Attribute Based Recoloring"
         ].coloring_widget.quant.color_signal.connect(
-            self.widget_dictionary[
-                "Explore and Relabel"
-            ].update_lineage_color_box
+            explore_and_relabel.progeny_diagram_loader
         )
+        
+
+        # # Also update the lineage color box when colors change
+        # self.widget_dictionary[
+        #     "Attribute Based Recoloring"
+        # ].coloring_widget.quant.color_signal.connect(
+        #     self.widget_dictionary[
+        #         "Explore and Relabel"
+        #     ].update_lineage_color_box
+        # )
 
 
 class CrossEmbryoComparisonWidget(ReLAXWidget):
