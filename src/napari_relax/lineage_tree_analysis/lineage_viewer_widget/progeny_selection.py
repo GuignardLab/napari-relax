@@ -179,7 +179,11 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                         "napari2lT"
                     ][node_id_napari]
                     # if not hasattr(self, "face_colors_handler"):
-                    self.face_colors_handler = active_layer._face.events.connect(self.progeny_diagram_loader)
+                    self.face_colors_handler = (
+                        active_layer._face.events.connect(
+                            self.progeny_diagram_loader
+                        )
+                    )
                     self.canvas._draw_cell_marker(self.canvas.marked_cell_id)
                     self.canvas.draw()
                 else:
@@ -306,7 +310,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
         # Update the lineage color box
         self.update_lineage_color_box()
-        
 
     def _click_on_tree_graph(self, event):
         """This functions handle the left-click interaction with the tree graph. Finds the node clicked
@@ -367,7 +370,9 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         if event["dblclick"]:
             self.update_time_slider_for_cell(cell_id)
         if not hasattr(self, "face_colors_handler"):
-            self.face_colors_handler = active_layer._face.events.connect(self.progeny_diagram_loader)
+            self.face_colors_handler = active_layer._face.events.connect(
+                self.progeny_diagram_loader
+            )
 
     def sub_point_painter(self):
         """Paints specific part of the lineagetree when a sublineage is selected"""
@@ -428,7 +433,9 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             return
         try:
             self.face_colors_handler.disconnect()
-            self.face_colors_handler = active_layer._face.events.connect(self.progeny_diagram_loader)
+            self.face_colors_handler = active_layer._face.events.connect(
+                self.progeny_diagram_loader
+            )
         except:
             pass
 
@@ -548,8 +555,9 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 # Disable spinbox and button if no lineage tree
                 self.cell_id_spinbox.setEnabled(False)
                 self.cell_id_go_button.setEnabled(False)
-            self.face_colors_handler = active_layer._face.events.connect(self.progeny_diagram_loader)
-        
+            self.face_colors_handler = active_layer._face.events.connect(
+                self.progeny_diagram_loader
+            )
 
     def label_remover(self):
         active_layer = _select_active_lt_layer(self.viewer)

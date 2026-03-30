@@ -187,7 +187,6 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
             self._generate_info_to_draw_graph()
             self.draw_graph(reset=True)
 
-
     def draw_graph(self, reset=False):
         """Plots the tree, if reset is true it sets the new axes, otherwise it works with the old ones.
 
@@ -294,4 +293,4 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
             self.marked_cell_id = cell
             self.selected_nodes = self.lT.get_subtree_nodes(cell)
             self.draw_graph()
-            return 
+            return

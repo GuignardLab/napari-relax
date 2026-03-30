@@ -296,7 +296,6 @@ class Quantitative(LayerCorrectorTreeProducer):
             active_layer.face_color = original_colors
             self.color_signal.emit()
 
-
     def layer_change(self):
         self.lT = self.get_lT()
         if self.lT:
