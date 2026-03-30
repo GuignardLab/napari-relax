@@ -185,9 +185,9 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
             self.lnks_tms = lnks_tms
             self.hier = hier
             self.points_layer_metadata = points_layer_metadata
-            self.selected_nodes = {}
             self._generate_info_to_draw_graph()
             self.draw_graph(reset=True)
+
 
     def draw_graph(self, reset=False):
         """Plots the tree, if reset is true it sets the new axes, otherwise it works with the old ones.
@@ -198,7 +198,6 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
             If `True` reset the axes, by default False
         """
 
-        self.ax.cla()
         # Safety check: Don't draw if canvas is not properly initialized
         if not hasattr(self, "ax") or self.ax is None:
             return
@@ -208,13 +207,15 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
             xlim = self.xlim  # full tree bounds on reset
             ylim = self.ylim
         else:
+            print("den kanw reset")
             xlim = self.ax.get_xlim()
             ylim = self.ax.get_ylim()
+        print("xlim:", xlim, "ylim:", ylim)
 
-        xlim = self.xlim
-        ylim = self.ylim
-
+        self.ax.cla()
         # Extract current colors from the active layer (handles quantitative coloring)
+        self.node_colors, self.lT2napari = self._get_metadata_mappings()
+        self._extract_default_colors_from_points_layer
         self._extract_current_lineage_color()
         self.lT.draw_tree_graph(
             self.hier,
@@ -275,8 +276,8 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
 
     def click(self, event):
         if event.button == 1 and event.inaxes and self.lT:
-            self.ax.cla()
             self.selected_nodes = {}
+            self.marked_cell_id = None
             kdtree = KDTree(list(self.hier.values()))
             dist, ind = kdtree.query([event.xdata, event.ydata])
             max_x = self.xmin, self.xmax
@@ -289,15 +290,12 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
             )
             if dist > (max_dist):
                 # Background click - clear selections and marked cell
-                # self.selected_subtree.clear()
-                self.marked_cell_id = None
-
-                self.draw_graph()
                 self.node_signal.emit({})
+                self.draw_graph()
                 return
             cell = list(self.hier.keys())[ind]
             self.node_signal.emit({"value": cell, "dblclick": event.dblclick})
             self.marked_cell_id = cell
             self.selected_nodes = self.lT.get_subtree_nodes(cell)
             self.draw_graph()
-        self.xlim_max = self.xlim[1] - self.xlim[0]
+            return 

@@ -68,24 +68,7 @@ class CanvasUtils:
         self.ax.set_xlim([new_x_left, new_x_right])
         self.ax.set_ylim([new_y_bottom, new_y_top])
         self.draw_idle()
-        if new_width <= self.xlim_min + 70 and not self.labels:
-            for node, pos in self.hier.items():
-                if xlim[0] < pos[0] < xlim[1] and ylim[0] < pos[1] < ylim[1]:
-                    self.ax.text(
-                        *pos,
-                        "Label: "
-                        + str(self.lT.labels.get(node, node))
-                        + "\n"
-                        + "ID: "
-                        + str(node),
-                        fontsize=self.fontsize,
-                        rotation=34,
-                    )
-            self.labels = True
-        elif new_width > self.xlim_min + 70 and self.labels:
-            for text in self.ax.texts:
-                text.remove()
-            self.labels = False
+        self._plot_labels()
         self.draw()
 
     def time_line(self, time):

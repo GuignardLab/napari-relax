@@ -305,6 +305,12 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
         # Update the lineage color box
         self.update_lineage_color_box()
+        
+        # Disconnect signal
+        self.face_colors_handler = active_layer.events.emitters[
+            "current_face_color"
+        ].disconnect(self.progeny_diagram_loader)
+        del self.face_colors_handler
 
     def _click_on_tree_graph(self, event):
         """This functions handle the left-click interaction with the tree graph. Finds the node clicked
