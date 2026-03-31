@@ -4,7 +4,7 @@ import numpy as np
 class CanvasUtils:
 
     def reset(self, event):
-        if event.key == "z":
+        if event.key == "z" and self.hier:
             self.draw_graph(reset=True)
 
     def pan_start(self, event):
@@ -22,7 +22,7 @@ class CanvasUtils:
             self._plot_labels()
 
     def panning(self, event):
-        if not (self.pan and event.button == 3 and event.inaxes):
+        if not (self.pan and event.button == 3 and event.inaxes) or not self.hier:
             return
 
         # Work in pixels, convert delta to data coords
@@ -43,8 +43,9 @@ class CanvasUtils:
         self.draw_idle()
 
     def on_scroll(self, event):
-        if not event.inaxes:
+        if not event.inaxes or not self.hier:
             return
+
         scale = 1.4 if event.button == "down" else 1 / 1.4
         xlim = self.ax.get_xlim()
         ylim = self.ax.get_ylim()

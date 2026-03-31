@@ -884,7 +884,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         layout.setAlignment(Qt.AlignTop)
         layout.setSpacing(0)
         self.setLayout(layout)
-        self.figure = Figure(figsize=(10, 6), frameon=False)
+        self.figure = Figure(constrained_layout=True, frameon=False)
         self.ax_for_tree_graph = self.figure.add_subplot(111)
         self.ax_for_tree_graph.axis("off")
         self.canvas = SingleTreeProgeny(self.figure, self.ax_for_tree_graph)
