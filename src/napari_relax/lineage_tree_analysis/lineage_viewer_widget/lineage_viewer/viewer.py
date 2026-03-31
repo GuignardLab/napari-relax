@@ -65,7 +65,7 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
         self.ax = ax
         self.selected_nodes = set()
         self.connect_signals()
-    
+
     @property
     def coloring(self):
         if not hasattr(self, "node_colors"):
@@ -190,7 +190,7 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
             self.root = root
             self.lnks_tms = lnks_tms
             self.hier = hier
-            self.positions = np.array(list(self.hier.values())) 
+            self.positions = np.array(list(self.hier.values()))
             self.points_layer_metadata = points_layer_metadata
             self._generate_info_to_draw_graph()
             self.draw_graph(reset=True)
@@ -246,14 +246,15 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
             text.remove()
         xlim = self.ax.get_xlim()
         ylim = self.ax.get_ylim()
-        pos = self.positions 
+        pos = self.positions
         in_x = (xlim[0] <= pos[:, 0]) & (pos[:, 0] <= xlim[1])
-        in_y = (ylim[0] <= pos[:, 1]) & (pos[:, 1] <= ylim[1]) # Not sure about this lets discuss
+        in_y = (ylim[0] <= pos[:, 1]) & (
+            pos[:, 1] <= ylim[1]
+        )  # Not sure about this lets discuss
         number_of_points = np.sum(in_x & in_y)
-        print(number_of_points, xlim, ylim, in_x)
         with_labels = (xlim[1] - xlim[0]) <= self.xlim_min + 70
-        self.labels = with_labels or number_of_points<10
-        if with_labels or number_of_points<20:
+        self.labels = with_labels or number_of_points < 10
+        if with_labels or number_of_points < 20:
             for node, pos in self.hier.items():
                 if xlim[0] < pos[0] < xlim[1] and ylim[0] < pos[1] < ylim[1]:
                     self.ax.text(
@@ -268,7 +269,7 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
                     )
 
     def calculate_axes(self):
-        data = self.positions 
+        data = self.positions
         self.xmin, self.xmax = data[:, 0].min(), data[:, 0].max()
         self.ymin, self.ymax = data[:, 1].min(), data[:, 1].max()
         range_x = self.xmax - self.xmin

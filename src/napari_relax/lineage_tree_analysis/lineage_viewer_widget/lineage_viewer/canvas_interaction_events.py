@@ -22,7 +22,10 @@ class CanvasUtils:
             self._plot_labels()
 
     def panning(self, event):
-        if not (self.pan and event.button == 3 and event.inaxes) or not self.hier:
+        if (
+            not (self.pan and event.button == 3 and event.inaxes)
+            or not self.hier
+        ):
             return
 
         # Work in pixels, convert delta to data coords
@@ -45,7 +48,6 @@ class CanvasUtils:
     def on_scroll(self, event):
         if not event.inaxes or not self.hier:
             return
-
         scale = 1.4 if event.button == "down" else 1 / 1.4
         xlim = self.ax.get_xlim()
         ylim = self.ax.get_ylim()
