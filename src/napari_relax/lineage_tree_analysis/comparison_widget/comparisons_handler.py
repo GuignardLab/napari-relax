@@ -30,9 +30,11 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
             self.clustermap.times,
         ) = product
         self.clustermap.time_slider.max = len(self.clustermap.comps) - 1
-        self.clustermap.clustermap_creator()
+        # self.clustermap.clustermap_creator()
         if self.pbr:
             self.pbr.update()
+        self.clustermap.send_data()
+        
 
     def thread_handler(self):
         """
