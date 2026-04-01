@@ -1,7 +1,13 @@
 from lineagetree import LineageTree
 from magicgui import widgets
-from qtpy.QtCore import QRegExp
-from qtpy.QtGui import QRegExpValidator
+
+try:
+    from qtpy.QtCore import QRegExp
+    from qtpy.QtGui import QRegExpValidator
+except:
+    from qtpy.QtCore import QRegularExpression as QRegExp
+    from qtpy.QtGui import QRegularExpressionValidator as QRegExpValidator
+
 from qtpy.QtWidgets import (
     QButtonGroup,
     QCheckBox,
