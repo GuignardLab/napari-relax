@@ -5,25 +5,22 @@ from typing import TYPE_CHECKING
 
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
-
 import numpy as np
 from magicgui import widgets
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
 from matplotlib.figure import Figure
-from qtpy.QtWidgets import QLineEdit, QPushButton, QVBoxLayout, QWidget
-from scipy.cluster.hierarchy import dendrogram, linkage
-from scipy.spatial.distance import squareform
+from qtpy.QtWidgets import QLineEdit, QPushButton, QVBoxLayout
 
 from ..._util_classes import (
     Containerize,
     LayerCorrectorTreeProducer,
     TooltipButton,
 )
-from .clustermap_canvas import ClusterMapCanvas
 from ..._util_classes.custom_colorboxes import MplCompatibleColorCombobox
 from ..._utils import _select_active_lt_layer
+from .clustermap_canvas import ClusterMapCanvas
 
 DICT_OF_CMAPS: list[str] = [
     "viridis",
@@ -64,12 +61,16 @@ class Clustermap(LayerCorrectorTreeProducer):
     def send_data(self):
         if not hasattr(self, "comps"):
             return
-        t= self.time_slider.value
+        t = self.time_slider.value
         if isinstance(self.comps, list):
-            self.canvas._receive_data(self.comps[t], self.norms[t], self.naming[t], t, self.lT)
+            self.canvas._receive_data(
+                self.comps[t], self.norms[t], self.naming[t], t, self.lT
+            )
         else:
             print("peos")
-            self.canvas._receive_data(self.comps, self.norms, self.naming, t, self.lT)
+            self.canvas._receive_data(
+                self.comps, self.norms, self.naming, t, self.lT
+            )
 
     def add_spot_on_graph(self, cell, val, color, ax):
         """
@@ -212,7 +213,6 @@ class Clustermap(LayerCorrectorTreeProducer):
         self.time = self.time_slider.value
         self.send_data()
 
-   
     def save_dictionary(self):
         """
         Saves the pairwise comparisons and names locally.
@@ -307,7 +307,9 @@ class Clustermap(LayerCorrectorTreeProducer):
             lambda x: self.canvas._change_cmap(self.colormap.get_cmap)
         )
 
-        self.norm_combo.changed.connect( lambda x: self.canvas._change_norm(self.norm_combo.value))
+        self.norm_combo.changed.connect(
+            lambda x: self.canvas._change_norm(self.norm_combo.value)
+        )
         self.time_mover = widgets.Checkbox(value=False)
         time_mover_text = widgets.Label(value="Move in time")
         self.time_mover_box = widgets.Container(

@@ -7,7 +7,6 @@ from psygnal import Signal
 from qtpy.QtWidgets import QWidget
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
-from matplotlib.offsetbox import TextArea, AnnotationBbox
 
 
 class ClusterMapCanvas(FigureCanvas):
@@ -93,9 +92,7 @@ class ClusterMapCanvas(FigureCanvas):
         for keys, values in comparisons:
             hierarchy[keys, values] = comparisons[
                 keys, values
-            ] / self.norm_dict[self.norm_method](
-                self.norms[keys, values]
-            )
+            ] / self.norm_dict[self.norm_method](self.norms[keys, values])
             hierarchy[values, keys] = hierarchy[keys, values]
 
         condensed_dist_matrix = squareform(hierarchy)
@@ -128,7 +125,7 @@ class ClusterMapCanvas(FigureCanvas):
         self.ax.set_aspect("auto")
         self.draw()
 
-    def _change_cmap(self,cmap):
+    def _change_cmap(self, cmap):
         self.cmap = cmap
         self._plot()
 
@@ -146,39 +143,29 @@ class ClusterMapCanvas(FigureCanvas):
     def print_text(self, pos):
         self.remove_annotation()
         x, y = pos
-        y_lim = self.ax.get_ylim()
-        x_lim = self.ax.get_xlim()
-        y_flip = "top" if (y<((y_lim[1]-y_lim[0])/4)) else "bottom"
-        x_flip ="right" if (x<((x_lim[1]-x_lim[0])/4)) else "left"
-        value =self.plot[int(x + 0.5),int(y + 0.5)]
+        value = self.plot[int(x + 0.5), int(y + 0.5)]
         self.hover_annotation = self.ax.annotate(
             f"Lineage 1={self.labels_of_node_real[int(x + 0.5)]}\nLineage 2={self.labels_of_node_real[int(y + 0.5)]}\nScore: {value:.2f}",
             (x, y),
-            xytext=(-10,-40),#(x_flip*5, y_flip*5),
+            xytext=(-10, -40),
             textcoords="offset points",
             ha="right",
             va="bottom",
-            bbox=dict(
-                boxstyle="round",
-                fc="black",      # background color
-                ec="none",       # no border
-                alpha=0.5        # transparency (0=transparent, 1=opaque)
-            ),
+            bbox=dict(boxstyle="round", fc="black", ec="none", alpha=0.5),
             color="white",
-            clip_on= False
+            clip_on=False,
         )
         self.hover_annotation.set_clip_on(False)
         self.ax.figure.canvas.draw_idle()
 
     def _hover_text(self, event=None):
-        print(event)
         self.timer.stop()
         self.timer = None
         if event is None:
             self.print_text(self.old_xy)
 
-    def _on_hover(self,event):
-        pos =  (event.xdata, event.ydata)
+    def _on_hover(self, event):
+        pos = (event.xdata, event.ydata)
         self.remove_annotation()
         self.ax.figure.canvas.draw_idle()
 
@@ -191,7 +178,7 @@ class ClusterMapCanvas(FigureCanvas):
             self.timer = None
 
     def _click(self, event):
-        if event.button == 1 and event  .inaxes:
+        if event.button == 1 and event.inaxes:
             self.mpl_disconnect(self._click)
             lineages = [
                 self.names_of_nodes[int(event.xdata + 0.5)],
@@ -212,18 +199,20 @@ class ClusterMapCanvas(FigureCanvas):
             self.ax.tick_params(axis="y", colors="cyan")
             plt.setp(
                 self.ax.get_xticklabels(),
-            rotation=45,
-            ha="right",
-            rotation_mode="anchor",
+                rotation=45,
+                ha="right",
+                rotation_mode="anchor",
             )
             self.figure.canvas.mpl_connect("button_press_event", self._click)
             self.draw()
         else:
             self.ax.set_xticks(
-            np.arange(len(self.labels_of_node_real)), labels=self.labels_of_node_real
-        )
+                np.arange(len(self.labels_of_node_real)),
+                labels=self.labels_of_node_real,
+            )
             self.ax.set_yticks(
-                np.arange(len(self.labels_of_node_real)), labels=self.labels_of_node_real
+                np.arange(len(self.labels_of_node_real)),
+                labels=self.labels_of_node_real,
             )
             self.ax.tick_params(axis="both", labelsize=10)
             plt.setp(
@@ -233,4 +222,3 @@ class ClusterMapCanvas(FigureCanvas):
                 rotation_mode="anchor",
             )
             self.draw()
-

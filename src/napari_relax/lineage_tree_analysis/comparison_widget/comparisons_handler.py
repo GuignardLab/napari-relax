@@ -33,7 +33,6 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
         if self.pbr:
             self.pbr.update()
         self.clustermap.send_data()
-        
 
     def thread_handler(self):
         """
