@@ -100,100 +100,71 @@ class Clustermap(LayerCorrectorTreeProducer):
                 zorder=1000,
             )
 
-    # def _click(self, event):
-    #     """
-    #     Handles the left click of the clustermap plot. When clicked the corresponding sublineages will be
-    #     plotted on the tree graph section and the points will be painted with the same colors while the rest
-    #     will be white.
-    #     Has a togglable part where the camera is transported to the timepoint of the division.
-    #     Args:
-    #         event: Button click (Right Click)
+    def _click(self, lineages):
+        """
+        Handles the left click of the clustermap plot. When clicked the corresponding sublineages will be
+        plotted on the tree graph section and the points will be painted with the same colors while the rest
+        will be white.
+        Has a togglable part where the camera is transported to the timepoint of the division.
+        Args:
+            event: Button click (Right Click)
 
-    #     """
-    #     if event.button == 1 and event.inaxes:
-    #         self.figure.canvas.mpl_disconnect(self.click_signal)
-    #         active_layer = _select_active_lt_layer(self.viewer)
-    #         if not active_layer:
-    #             return
-    #         self.canvas.figure.set_constrained_layout(False)
-    #         active_layer.face_color = "white"
-    #         lineages = [
-    #             self.names_of_nodes[int(event.xdata + 0.5)],
-    #             self.names_of_nodes[int(event.ydata + 0.5)],
-    #         ]
-    #         label1 = [""] * len(self.labels_of_node_real)
-    #         label1[int(event.xdata + 0.5)] = self.labels_of_node_real[
-    #             int(event.xdata + 0.5)
-    #         ]
-    #         label2 = [""] * len(self.labels_of_node_real)
-    #         label2[int(event.ydata + 0.5)] = self.labels_of_node_real[
-    #             int(event.ydata + 0.5)
-    #         ]
-    #         self.ax_of_clustermap.set_xticks(
-    #             np.arange(len(label1)), labels=label1
-    #         )
-    #         self.ax_of_clustermap.set_yticks(
-    #             np.arange(len(label1)), labels=label2
-    #         )
-    #         self.ax_of_clustermap.tick_params(axis="x", colors="magenta")
-    #         self.ax_of_clustermap.tick_params(axis="y", colors="cyan")
-    #         plt.setp(
-    #             self.ax_of_clustermap.get_xticklabels(),
-    #             rotation=0,
-    #             ha="center",
-    #         )
-    #         self.canvas.draw()
-    #         colors = [[1, 128 / 255, 1, 1], [0, 1, 1, 1]]
-    #         lineages = (
-    #             [lineages[0]] if lineages[0] == lineages[1] else lineages
-    #         )
-    #         for i, cell in enumerate(lineages):
-    #             if len(lineages) < 2:
-    #                 self.axes_for_tree_graphs[1].set_visible(False)
+        """
+        active_layer = _select_active_lt_layer(self.viewer)
+        if not active_layer:
+            return
+        colors = [[1, 128 / 255, 1, 1], [0, 1, 1, 1]]
+        lineages = (
+            [lineages[0]] if lineages[0] == lineages[1] else lineages
+        )
+        active_layer.face_color = [1,1,1,1]
+        for i, cell in enumerate(lineages):
+            if len(lineages) < 2:
+                self.axes_for_tree_graphs[1].set_visible(False)
 
-    #             else:
-    #                 for ax in self.axes_for_tree_graphs:
-    #                     ax.set_visible(True)
-    #             self.axes_for_tree_graphs[i].clear()
+            else:
+                for ax in self.axes_for_tree_graphs:
+                    ax.set_visible(True)
+            self.axes_for_tree_graphs[i].clear()
 
-    #             active_layer.selected_data.add(
-    #                 active_layer.metadata["lT2napari"][cell]
-    #             )
-    #             self.sub_points_selector()
-    #             selection = list(active_layer.selected_data)
-    #             active_layer.face_color[selection] = colors[i]
-    #             val_for_graph = self.val_finder(
-    #                 cell, lt=self.lT, graphs=active_layer.metadata["graphs"][0]
-    #             )
-    #             self.lT.draw_tree_graph(
-    #                 active_layer.metadata["graphs"][1][val_for_graph],
-    #                 active_layer.metadata["graphs"][0][val_for_graph],
-    #                 selected_nodes=self.lT.get_subtree_nodes(cell),
-    #                 selected_edges=self.lT.get_subtree_nodes(cell),
-    #                 color_of_nodes=colors[i],
-    #                 color_of_edges=colors[i],
-    #                 ax=self.axes_for_tree_graphs[i],
-    #             )
-    #             self.add_spot_on_graph(
-    #                 cell,
-    #                 val=val_for_graph,
-    #                 color=colors[i],
-    #                 ax=self.axes_for_tree_graphs[i],
-    #             )
+            active_layer.selected_data.add(
+                active_layer.metadata["lT2napari"][cell]
+            )
+            self.sub_points_selector()
+            selection = list(active_layer.selected_data)
+            active_layer.face_color[selection] = colors[i]
+            val_for_graph = self.val_finder(
+                cell, lt=self.lT, graphs=active_layer.metadata["graphs"][0]
+            )
+            self.lT.draw_tree_graph(
+                active_layer.metadata["graphs"][1][val_for_graph],
+                active_layer.metadata["graphs"][0][val_for_graph],
+                selected_nodes=self.lT.get_subtree_nodes(cell),
+                selected_edges=self.lT.get_subtree_nodes(cell),
+                color_of_nodes=colors[i],
+                color_of_edges=colors[i],
+                ax=self.axes_for_tree_graphs[i],
+            )
+            self.add_spot_on_graph(
+                cell,
+                val=val_for_graph,
+                color=colors[i],
+                ax=self.axes_for_tree_graphs[i],
+            )
 
-    #             self.tree_canvas.draw()
-    #             active_layer.selected_data.clear()
-    #         active_layer.refresh()
-    #         if self.time_mover.value:
-    #             camera_pan = self.viewer.dims.current_step
-    #             self.viewer.dims.current_step = (
-    #                 active_layer.data[
-    #                     active_layer.metadata["lT2napari"][lineages[0]]
-    #                 ][0],
-    #             ) + camera_pan[1:]
-    #         self.click_signal = self.figure.canvas.mpl_connect(
-    #             "button_press_event", self._click
-    #        )
+            self.tree_canvas.draw()
+            active_layer.selected_data.clear()
+        active_layer.refresh()
+        if self.time_mover.value:
+            camera_pan = self.viewer.dims.current_step
+            self.viewer.dims.current_step = (
+                active_layer.data[
+                    active_layer.metadata["lT2napari"][lineages[0]]
+                ][0],
+            ) + camera_pan[1:]
+        self.click_signal = self.figure.canvas.mpl_connect(
+            "button_press_event", self._click
+        )
 
     def reset_colorer(self):
         """
@@ -348,9 +319,6 @@ class Clustermap(LayerCorrectorTreeProducer):
         self.layout().addWidget(container.native)
 
         self.reset_colors.clicked.connect(self.reset_colorer)
-        # self.click_signal = self.figure.canvas.mpl_connect(
-        #     "button_press_event", self._click
-        # )
         self.viewer.layers.selection.events.active.connect(self.layer_change)
         current_dir = os.path.dirname(os.path.abspath(__file__))
         with open(
@@ -361,6 +329,7 @@ class Clustermap(LayerCorrectorTreeProducer):
         self.node_tooltip = TooltipButton(txt)
         self.node_tooltip.setParent(self)
         self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
+        self.canvas.click_signal.connect(self._click)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
