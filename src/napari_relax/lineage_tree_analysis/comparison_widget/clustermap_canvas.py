@@ -7,6 +7,7 @@ from psygnal import Signal
 from qtpy.QtWidgets import QWidget
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
+from matplotlib.offsetbox import TextArea, AnnotationBbox
 
 
 class ClusterMapCanvas(FigureCanvas):
@@ -135,15 +136,56 @@ class ClusterMapCanvas(FigureCanvas):
         self.norm_method = norm_method
         self._plot()
 
-    def _hover_text(self, event):
+    def remove_annotation(self):
+        if hasattr(self, "hover_annotation") and self.hover_annotation:
+            try:
+                self.hover_annotation.remove()
+            except:
+                self.hover_annotation = None
+
+    def print_text(self, pos):
+        self.remove_annotation()
+        x, y = pos
+        y_lim = self.ax.get_ylim()
+        x_lim = self.ax.get_xlim()
+        y_flip = "top" if (y<((y_lim[1]-y_lim[0])/4)) else "bottom"
+        x_flip ="right" if (x<((x_lim[1]-x_lim[0])/4)) else "left"
+        value =self.plot[int(x + 0.5),int(y + 0.5)]
+        self.hover_annotation = self.ax.annotate(
+            f"Lineage 1={self.labels_of_node_real[int(x + 0.5)]}\nLineage 2={self.labels_of_node_real[int(y + 0.5)]}\nScore: {value:.2f}",
+            (x, y),
+            xytext=(-10,-40),#(x_flip*5, y_flip*5),
+            textcoords="offset points",
+            ha="right",
+            va="bottom",
+            bbox=dict(
+                boxstyle="round",
+                fc="black",      # background color
+                ec="none",       # no border
+                alpha=0.5        # transparency (0=transparent, 1=opaque)
+            ),
+            color="white",
+            clip_on= False
+        )
+        self.hover_annotation.set_clip_on(False)
+        self.ax.figure.canvas.draw_idle()
+
+    def _hover_text(self, event=None):
         print(event)
         self.timer.stop()
         self.timer = None
+        if event is None:
+            self.print_text(self.old_xy)
 
-    def _on_hover(self,event): 
-        if event.inaxes and event.xydata != self.old_xy:
-            self.timer = self.new_timer(100)
-            self.timer.add_callback(lambda : print(event))
+    def _on_hover(self,event):
+        pos =  (event.xdata, event.ydata)
+        self.remove_annotation()
+        self.ax.figure.canvas.draw_idle()
+
+        if event.inaxes and pos != self.old_xy:
+            self.old_xy = pos
+            self.timer = self.new_timer(200)
+            self.timer.add_callback(self._hover_text)
             self.timer.start()
         else:
             self.timer = None
@@ -151,7 +193,6 @@ class ClusterMapCanvas(FigureCanvas):
     def _click(self, event):
         if event.button == 1 and event  .inaxes:
             self.mpl_disconnect(self._click)
-            # self.figure.set_constrained_layout(False)
             lineages = [
                 self.names_of_nodes[int(event.xdata + 0.5)],
                 self.names_of_nodes[int(event.ydata + 0.5)],

@@ -64,8 +64,12 @@ class Clustermap(LayerCorrectorTreeProducer):
     def send_data(self):
         if not hasattr(self, "comps"):
             return
-        t= self.time
-        self.canvas._receive_data(self.comps[t], self.norms[t], self.naming[t], t, self.lT)
+        t= self.time_slider.value
+        if isinstance(self.comps, list):
+            self.canvas._receive_data(self.comps[t], self.norms[t], self.naming[t], t, self.lT)
+        else:
+            print("peos")
+            self.canvas._receive_data(self.comps, self.norms, self.naming, t, self.lT)
 
     def add_spot_on_graph(self, cell, val, color, ax):
         """
