@@ -67,7 +67,6 @@ class Clustermap(LayerCorrectorTreeProducer):
                 self.comps[t], self.norms[t], self.naming[t], t, self.lT
             )
         else:
-            print("peos")
             self.canvas._receive_data(
                 self.comps, self.norms, self.naming, t, self.lT
             )

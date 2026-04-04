@@ -145,7 +145,7 @@ class ClusterMapCanvas(FigureCanvas):
         x, y = pos
         value = self.plot[int(x + 0.5), int(y + 0.5)]
         self.hover_annotation = self.ax.annotate(
-            f"Lineage 1={self.labels_of_node_real[int(x + 0.5)]}\nLineage 2={self.labels_of_node_real[int(y + 0.5)]}\nScore: {value:.2f}",
+            f"Lineage 1: {self.labels_of_node_real[int(x + 0.5)]}\nLineage 2: {self.labels_of_node_real[int(y + 0.5)]}\nScore: {value:.2f}",
             (x, y),
             xytext=(-10, -40),
             textcoords="offset points",
