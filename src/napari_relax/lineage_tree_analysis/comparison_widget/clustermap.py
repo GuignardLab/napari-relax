@@ -114,10 +114,8 @@ class Clustermap(LayerCorrectorTreeProducer):
         if not active_layer:
             return
         colors = [[1, 128 / 255, 1, 1], [0, 1, 1, 1]]
-        active_layer.face_color = [1,1,1,1]
-        lineages = (
-            [lineages[0]] if lineages[0] == lineages[1] else lineages
-        )
+        active_layer.face_color = [1, 1, 1, 1]
+        lineages = [lineages[0]] if lineages[0] == lineages[1] else lineages
         for i, cell in enumerate(lineages):
             if len(lineages) < 2:
                 self.axes_for_tree_graphs[1].set_visible(False)

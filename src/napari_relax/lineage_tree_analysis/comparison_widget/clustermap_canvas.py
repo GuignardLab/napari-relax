@@ -147,12 +147,18 @@ class ClusterMapCanvas(FigureCanvas):
         self.remove_annotation()
         x, y = pos
         value = self.plot[int(x + 0.5), int(y + 0.5)]
+        if (self.ax.get_xlim()[1] - self.ax.get_xlim()[0]) / 2 > x:
+            offset_xy = (15, -40)
+            ha = "left"
+        else:
+            offset_xy = (-10, -40)
+            ha = "right"
         self.hover_annotation = self.ax.annotate(
             f"Lineage 1: {self.labels_of_node_real[int(x + 0.5)]}\nLineage 2: {self.labels_of_node_real[int(y + 0.5)]}\nScore: {value:.2f}",
             (x, y),
-            xytext=(-10, -40),
+            xytext=offset_xy,
             textcoords="offset points",
-            ha="right",
+            ha=ha,
             va="bottom",
             bbox=dict(boxstyle="round", fc="black", ec="none", alpha=0.5),
             color="white",
