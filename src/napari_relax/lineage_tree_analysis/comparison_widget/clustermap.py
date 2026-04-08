@@ -114,10 +114,10 @@ class Clustermap(LayerCorrectorTreeProducer):
         if not active_layer:
             return
         colors = [[1, 128 / 255, 1, 1], [0, 1, 1, 1]]
+        active_layer.face_color = [1,1,1,1]
         lineages = (
             [lineages[0]] if lineages[0] == lineages[1] else lineages
         )
-        active_layer.face_color = [1,1,1,1]
         for i, cell in enumerate(lineages):
             if len(lineages) < 2:
                 self.axes_for_tree_graphs[1].set_visible(False)
@@ -162,9 +162,6 @@ class Clustermap(LayerCorrectorTreeProducer):
                     active_layer.metadata["lT2napari"][lineages[0]]
                 ][0],
             ) + camera_pan[1:]
-        self.click_signal = self.figure.canvas.mpl_connect(
-            "button_press_event", self._click
-        )
 
     def reset_colorer(self):
         """
@@ -274,7 +271,7 @@ class Clustermap(LayerCorrectorTreeProducer):
             [self.norm_combo.native, self.colormap]
         )
         self.colormap.combobox_continuous.currentIndexChanged.connect(
-            lambda x: self.canvas._change_cmap(self.colormap.get_cmap)
+            lambda x: self.canvas._change_cmap(self.colormap.get_cmap())
         )
 
         self.norm_combo.changed.connect(

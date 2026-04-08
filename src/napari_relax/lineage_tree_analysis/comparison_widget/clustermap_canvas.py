@@ -71,8 +71,11 @@ class ClusterMapCanvas(FigureCanvas):
         Plots the clustermap for the timepoint specified by the time slider, where each element is the pairwise comparison of all the sublineages present in
         the timepoint selected.
         """
-        if hasattr(self, "colorbar"):
-            self.colorbar.remove()
+        try:
+            if hasattr(self, "colorbar"):
+                self.colorbar.remove()
+        except:
+            ...
         self.ax.cla()
         if not hasattr(self, "comps"):
             return
