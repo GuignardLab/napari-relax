@@ -9,6 +9,9 @@ from qtpy.QtCore import QTimer
 from PyQt5.QtGui import QCursor
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
+from lineagetree import LineageTree
+from matplotlib.colors import Colormap
+
 
 
 class ClusterMapCanvas(FigureCanvas):
@@ -45,7 +48,6 @@ class ClusterMapCanvas(FigureCanvas):
         self.cmap = "viridis"
         self.mpl_connect("button_press_event", self._click)
         self.mpl_connect("motion_notify_event", self._on_hover)
-        self.mpl_connect("figure_leave_event", self.remove_annotation)
         self.remove_timer = QTimer()
         self.remove_timer.setInterval(200)
         self.remove_timer.timeout.connect(self.remove_on_leave)
@@ -55,6 +57,8 @@ class ClusterMapCanvas(FigureCanvas):
         self.old_xy = None
 
     def clear_data(self):
+        """Clears the plot and removes all data
+        """
         self.comps = None
         self.norms = None
         self.names = None
@@ -64,8 +68,23 @@ class ClusterMapCanvas(FigureCanvas):
         self.ax.cla()
 
     def _receive_data(
-        self, comps=None, norms=None, names=None, time=None, lT=None
+        self, comps:dict=None, norms:dict=None, names:dict=None, time:int=None, lT:LineageTree=None
     ):
+        """Function used to receive data from the Clustermap class
+
+        Parameters
+        ----------
+        comps : dict, optional
+            _description_, by default None
+        norms : dict, optional
+            _description_, by default None
+        names : dict, optional
+            _description_, by default None
+        time : int, optional
+            _description_, by default None
+        lT : LineageTree, optional
+            _description_, by default None
+        """
         self.comps = comps
         self.norms = norms
         self.names = names
@@ -136,32 +155,64 @@ class ClusterMapCanvas(FigureCanvas):
         self.ax.set_aspect("auto")
         self.draw()
 
-    def _change_cmap(self, cmap):
+    def _change_cmap(self, cmap:Colormap):
+        """Gets called when a new cmap is applied.
+
+        Parameters
+        ----------
+        cmap : Colormap
+            The new colormap.
+        """
         self.cmap = cmap
         self._plot()
 
-    def _change_norm(self, norm_method):
+    def _change_norm(self, norm_method:str):
+        """Gets called when a new norm is applied.
+
+        Parameters
+        ----------
+        norm_method : str
+            The new norm.
+        """
         self.norm_method = norm_method
         self._plot()
 
-    def remove_annotation(self, fake_event=None):
+    def remove_annotation(self):
+        """Removes the hoverbox from the axis
+        """
         if hasattr(self, "hover_annotation") and self.hover_annotation:
             try:
                 self.hover_annotation.remove()
             except:
                 self.hover_annotation = None
     
-    def is_mouse_on_figure(self):
+    def is_mouse_on_figure(self)->bool:
+        """Checks if the mouse is on the figure.
+
+        Returns
+        -------
+        bool
+            True if the mouse is on the figure else False.
+        """
         global_pos = QCursor.pos()
         local_pos = self.mapFromGlobal(global_pos)
         return self.rect().contains(local_pos)
 
     def remove_on_leave(self):
+        """Should run if the mouse has left the figure.
+        """
         if not self.is_mouse_on_figure():
             self.remove_annotation()
             self.ax.figure.canvas.draw_idle()
 
-    def print_text(self, pos):
+    def print_text(self, pos:tuple[int,int,int]):
+        """Handles the printing of the hoverbox.
+
+        Parameters
+        ----------
+        pos : tuple[int,int,int]
+            The position of the cursor.
+        """
         self.remove_annotation()
         x, y = pos
         value = self.plot[int(x + 0.5), int(y + 0.5)]
@@ -186,12 +237,25 @@ class ClusterMapCanvas(FigureCanvas):
         self.ax.figure.canvas.draw_idle()
 
     def _hover_text(self, event=None):
+        """Stops the timer and calls print text to creazte the hoverbox.
+
+        Parameters
+        ----------
+        event : Event, optional
+        """
         self.timer.stop()
         self.timer = None
         if event is None:
             self.print_text(self.old_xy)
 
     def _on_hover(self, event):
+        """Creates a new timer whenever the mouse moves and resets the plot otherwise it runs _hover_text.
+
+        Parameters
+        ----------
+        event : mpl._mouse_notification_event
+            mpl._mouse_notification_event.
+        """
         pos = (event.xdata, event.ydata)
         self.remove_annotation()
         self.ax.figure.canvas.draw_idle()
@@ -205,6 +269,12 @@ class ClusterMapCanvas(FigureCanvas):
             self.timer = None
 
     def _click(self, event):
+        """Removes all labels excepot the ones that were clicked and sends a signal to recolor the dataset.
+
+        Parameters
+        ----------
+        event : mpl.click_event
+        """
         if event.button == 1 and event.inaxes:
             self.mpl_disconnect(self._click)
             lineages = [
