@@ -5,6 +5,8 @@ from matplotlib.backends.backend_qt5agg import (
 )
 from psygnal import Signal
 from qtpy.QtWidgets import QWidget
+from qtpy.QtCore import QTimer
+from PyQt5.QtGui import QCursor
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
 
@@ -43,6 +45,12 @@ class ClusterMapCanvas(FigureCanvas):
         self.cmap = "viridis"
         self.mpl_connect("button_press_event", self._click)
         self.mpl_connect("motion_notify_event", self._on_hover)
+        self.mpl_connect("figure_leave_event", self.remove_annotation)
+        self.remove_timer = QTimer()
+        self.remove_timer.setInterval(200)
+        self.remove_timer.timeout.connect(self.remove_on_leave)
+        self.remove_timer.start()
+        self.remove_flag = True
         self.timer = None
         self.old_xy = None
 
@@ -136,12 +144,22 @@ class ClusterMapCanvas(FigureCanvas):
         self.norm_method = norm_method
         self._plot()
 
-    def remove_annotation(self):
+    def remove_annotation(self, fake_event=None):
         if hasattr(self, "hover_annotation") and self.hover_annotation:
             try:
                 self.hover_annotation.remove()
             except:
                 self.hover_annotation = None
+    
+    def is_mouse_on_figure(self):
+        global_pos = QCursor.pos()
+        local_pos = self.mapFromGlobal(global_pos)
+        return self.rect().contains(local_pos)
+
+    def remove_on_leave(self):
+        if not self.is_mouse_on_figure():
+            self.remove_annotation()
+            self.ax.figure.canvas.draw_idle()
 
     def print_text(self, pos):
         self.remove_annotation()
@@ -177,7 +195,7 @@ class ClusterMapCanvas(FigureCanvas):
         pos = (event.xdata, event.ydata)
         self.remove_annotation()
         self.ax.figure.canvas.draw_idle()
-
+        print(event)
         if event.inaxes and pos != self.old_xy:
             self.old_xy = pos
             self.timer = self.new_timer(200)
