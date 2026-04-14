@@ -1,17 +1,16 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from lineagetree import LineageTree
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
+from matplotlib.colors import Colormap
 from psygnal import Signal
-from qtpy.QtWidgets import QWidget
-from qtpy.QtCore import QTimer
 from PyQt5.QtGui import QCursor
+from qtpy.QtCore import QTimer
+from qtpy.QtWidgets import QWidget
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
-from lineagetree import LineageTree
-from matplotlib.colors import Colormap
-
 
 
 class ClusterMapCanvas(FigureCanvas):
@@ -57,8 +56,7 @@ class ClusterMapCanvas(FigureCanvas):
         self.old_xy = None
 
     def clear_data(self):
-        """Clears the plot and removes all data
-        """
+        """Clears the plot and removes all data"""
         self.comps = None
         self.norms = None
         self.names = None
@@ -68,7 +66,12 @@ class ClusterMapCanvas(FigureCanvas):
         self.ax.cla()
 
     def _receive_data(
-        self, comps:dict=None, norms:dict=None, names:dict=None, time:int=None, lT:LineageTree=None
+        self,
+        comps: dict = None,
+        norms: dict = None,
+        names: dict = None,
+        time: int = None,
+        lT: LineageTree = None,
     ):
         """Function used to receive data from the Clustermap class
 
@@ -155,7 +158,7 @@ class ClusterMapCanvas(FigureCanvas):
         self.ax.set_aspect("auto")
         self.draw()
 
-    def _change_cmap(self, cmap:Colormap):
+    def _change_cmap(self, cmap: Colormap):
         """Gets called when a new cmap is applied.
 
         Parameters
@@ -166,7 +169,7 @@ class ClusterMapCanvas(FigureCanvas):
         self.cmap = cmap
         self._plot()
 
-    def _change_norm(self, norm_method:str):
+    def _change_norm(self, norm_method: str):
         """Gets called when a new norm is applied.
 
         Parameters
@@ -178,15 +181,14 @@ class ClusterMapCanvas(FigureCanvas):
         self._plot()
 
     def remove_annotation(self):
-        """Removes the hoverbox from the axis
-        """
+        """Removes the hoverbox from the axis"""
         if hasattr(self, "hover_annotation") and self.hover_annotation:
             try:
                 self.hover_annotation.remove()
             except:
                 self.hover_annotation = None
-    
-    def is_mouse_on_figure(self)->bool:
+
+    def is_mouse_on_figure(self) -> bool:
         """Checks if the mouse is on the figure.
 
         Returns
@@ -199,13 +201,12 @@ class ClusterMapCanvas(FigureCanvas):
         return self.rect().contains(local_pos)
 
     def remove_on_leave(self):
-        """Should run if the mouse has left the figure.
-        """
+        """Should run if the mouse has left the figure."""
         if not self.is_mouse_on_figure():
             self.remove_annotation()
             self.ax.figure.canvas.draw_idle()
 
-    def print_text(self, pos:tuple[int,int,int]):
+    def print_text(self, pos: tuple[int, int, int]):
         """Handles the printing of the hoverbox.
 
         Parameters
