@@ -190,16 +190,11 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                     self.canvas.ax.cla()
                     self.canvas.draw()
 
-    def update_lineage_color_box(self):
+    def update_lineageviewer_colors(self):
         """Update the color box to show the current lineage color."""
-        if not hasattr(self, "lineage_color_box"):
-            return
 
-        # Update the canvas with current face colors before extracting color
         self._update_canvas_with_current_colors()
 
-        # Get the color info from the canvas using the new method
-        color_info = None
         if (
             hasattr(self, "canvas")
             and hasattr(self.canvas, "_extract_current_lineage_color")
@@ -207,47 +202,9 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             and self.canvas.points_layer_metadata is not None
         ):
             try:
-                color_info = self.canvas._extract_current_lineage_color()
+                self.canvas._extract_current_lineage_color()
             except (AttributeError, KeyError):
-                # Handle cases where the canvas isn't fully initialized yet
-                color_info = None
-
-        if color_info and color_info.get("color"):
-            color = color_info["color"]
-            is_uniform = color_info.get("is_uniform", True)
-
-            # Convert to RGB tuple (0-255 range) if needed
-            if isinstance(color, (list, tuple)) and len(color) >= 3:
-                rgb_color = tuple(
-                    int(c * 255) if c <= 1.0 else int(c) for c in color[:3]
-                )
-
-                if is_uniform:
-                    # Solid color for uniform lineage colors
-                    self.lineage_color_box.setStyleSheet(
-                        f"QLabel {{ background-color: rgb({rgb_color[0]}, {rgb_color[1]}, {rgb_color[2]}); "
-                        f"border: 1px solid black; border-radius: 3px; }}"
-                    )
-                    self.lineage_color_box.setToolTip(
-                        "Current lineage color (uniform)"
-                    )
-                else:
-                    # Gradient or pattern for non-uniform colors (quantitative coloring applied)
-                    self.lineage_color_box.setStyleSheet(
-                        f"QLabel {{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, "
-                        f"stop:0 rgb({rgb_color[0]}, {rgb_color[1]}, {rgb_color[2]}), "
-                        f"stop:0.5 rgb(255, 255, 255), stop:1 rgb({rgb_color[0]}, {rgb_color[1]}, {rgb_color[2]})); "
-                        f"border: 1px solid black; border-radius: 3px; }}"
-                    )
-                    self.lineage_color_box.setToolTip(
-                        "Lineage has mixed colors (quantitative coloring applied)"
-                    )
-            else:
-                # Fallback to default color
-                self._set_default_color_box()
-        else:
-            # Default gray color if no color is available
-            self._set_default_color_box()
+                ...
 
     def _update_canvas_with_current_colors(self):
         """Update the canvas metadata with current face colors from the active layer."""
@@ -255,16 +212,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         if active_layer and hasattr(self, "canvas"):
             # Just update the metadata, the canvas handles its own redrawing
             self.canvas.update_face_colors(active_layer.face_color)
-
-    def _set_default_color_box(self):
-        """Set the color box to default gray color."""
-        self.lineage_color_box.setStyleSheet(
-            "QLabel { background-color: rgb(128, 128, 128); "
-            "border: 1px solid black; border-radius: 3px; }"
-        )
-        self.lineage_color_box.setToolTip("Current lineage color")
-        # # Update the progeny diagram
-        # self.progeny_diagram_loader()
 
     def progeny_diagram_loader(self):
         """
@@ -309,7 +256,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.w_lineedit.update()
 
         # Update the lineage color box
-        self.update_lineage_color_box()
+        self.update_lineageviewer_colors()
 
     def _click_on_tree_graph(self, event):
         """This functions handle the left-click interaction with the tree graph. Finds the node clicked
@@ -758,7 +705,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             self.update_time_slider_for_cell(cell_id)
 
             # Update the lineage color box
-            self.update_lineage_color_box()
+            self.update_lineageviewer_colors()
 
     def update_time_slider_for_cell(self, cell_id):
         """Update the time slider to show when the given cell first appears."""
@@ -892,10 +839,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
         )
         self.canvas.setContentsMargins(0, 0, 0, 0)
-        # Initialize napari highlight color to match canvas selection color
-        # _update_napari_highlight_color(
-        #     self.canvas.color_of_selection_nodes, self.viewer
-        # )
+ 
 
         label1 = widgets.Label(
             value="""<span style="font-family: Arial; font-size: 20px; color: white;">Lineage Viewer</span>"""
@@ -932,25 +876,13 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             f"Currently {self.range+1} lineages present."
         )
 
-        # Create a color box to show the current lineage color
-        self.lineage_color_box = QLabel()
-        self.lineage_color_box.setFixedSize(40, 20)
-        self.lineage_color_box.setToolTip("Current lineage color")
-        # Initialize with default color (will be updated when data is loaded)
-        self.lineage_color_box.setStyleSheet(
-            "QLabel { background-color: rgb(128, 128, 128); "
-            "border: 1px solid black; border-radius: 3px; }"
-        )
-
-        # Update color box if lineage data is already loaded
         if self.lT:
-            self.update_lineage_color_box()
+            self.update_lineageviewer_colors()
 
         self.slider_box = Containerize(
             [
                 widgets.Label(value="Lineage slider").native,
                 self.graph_slider,
-                self.lineage_color_box,
             ]
         )
         self.layout().addWidget(self.slider_box)
