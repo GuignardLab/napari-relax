@@ -265,7 +265,6 @@ class ClusterMapCanvas(FigureCanvas):
         pos = (event.xdata, event.ydata)
         self.remove_annotation()
         self.ax.figure.canvas.draw_idle()
-        print(event)
         if event.inaxes and pos != self.old_xy:
             self.old_xy = pos
             self.timer = self.new_timer(200)
