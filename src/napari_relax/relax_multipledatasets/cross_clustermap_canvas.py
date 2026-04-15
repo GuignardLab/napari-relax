@@ -1,18 +1,13 @@
-from ..lineage_tree_analysis.comparison_widget.clustermap_canvas import ClusterMapCanvas
+from typing import override
+
 import matplotlib.pyplot as plt
 import numpy as np
-from lineagetree import LineageTree
-from matplotlib.backends.backend_qt5agg import (
-    FigureCanvasQTAgg as FigureCanvas,
-)
-from typing import overload,override
-from matplotlib.colors import Colormap
-from psygnal import Signal
-from PyQt5.QtGui import QCursor
-from qtpy.QtCore import QTimer
-from qtpy.QtWidgets import QWidget
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
+
+from ..lineage_tree_analysis.comparison_widget.clustermap_canvas import (
+    ClusterMapCanvas,
+)
 
 
 class CrossClusterMapCanvas(ClusterMapCanvas):
@@ -20,9 +15,9 @@ class CrossClusterMapCanvas(ClusterMapCanvas):
     def clear_data(self):
         self.manager = None
         return super().clear_data()
-    
+
     @override
-    def _receive_data(self, comps = None, norms = None, names = None, manager = None):
+    def _receive_data(self, comps=None, norms=None, names=None, manager=None):
         self.manager = manager
         self.comps = comps
         self.norms = norms
@@ -45,7 +40,9 @@ class CrossClusterMapCanvas(ClusterMapCanvas):
             return
         len_all_trees = len(self.names.keys())
         hierarchy = np.zeros((len_all_trees, len_all_trees))
-        self.names_of_nodes = [self.names[n][0] for n in self.names] # lineagetrees
+        self.names_of_nodes = [
+            self.names[n][0] for n in self.names
+        ]  # lineagetrees
         self.labels_root = [self.names[n][2] for n in self.names]
         self.labels_node = [self.names[n][1] for n in self.names]
         self.labels = [
@@ -58,16 +55,13 @@ class CrossClusterMapCanvas(ClusterMapCanvas):
         ]
 
         self.labels_of_clustermap = [
-            self.names[n][0] + "_" + str(self.labels[n])
-            for n in self.names
-        ] # the resulting labels
+            self.names[n][0] + "_" + str(self.labels[n]) for n in self.names
+        ]  # the resulting labels
         self.labels_of_node_real = self.labels_of_clustermap
         for keys, values in self.comps:
             hierarchy[keys, values] = self.comps[
                 keys, values
-            ] / self.norm_dict[self.norm_method](
-                self.norms[keys, values]
-            )
+            ] / self.norm_dict[self.norm_method](self.norms[keys, values])
             hierarchy[values, keys] = hierarchy[keys, values]
 
         condensed_dist_matrix = squareform(hierarchy)
@@ -113,7 +107,7 @@ class CrossClusterMapCanvas(ClusterMapCanvas):
             color="white",
             clip_on=False,
         )
-    
+
     def _click(self, event):
         if event.button == 1 and event.inaxes:
             self.mpl_disconnect(self._click)
@@ -125,7 +119,7 @@ class CrossClusterMapCanvas(ClusterMapCanvas):
                 self.labels_node[int(event.xdata + 0.5)],
                 self.labels_node[int(event.ydata + 0.5)],
             ]
-            self.click_signal.emit([layers,nodes])
+            self.click_signal.emit([layers, nodes])
             label1 = [""] * len(self.labels_of_clustermap)
             label1[int(event.xdata + 0.5)] = self.labels_of_clustermap[
                 int(event.xdata + 0.5)
@@ -163,6 +157,3 @@ class CrossClusterMapCanvas(ClusterMapCanvas):
                 rotation_mode="anchor",
             )
             self.draw()
-
-
-        

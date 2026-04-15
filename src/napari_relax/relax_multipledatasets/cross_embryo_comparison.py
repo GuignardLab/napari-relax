@@ -17,8 +17,6 @@ from qtpy.QtWidgets import (
     QPushButton,
     QVBoxLayout,
 )
-from scipy.cluster.hierarchy import dendrogram, linkage
-from scipy.spatial.distance import squareform
 
 from napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox import (
     MplCompatibleColorCombobox,
@@ -31,6 +29,7 @@ from .._util_classes import (
     TooltipButton,
 )
 from .cross_clustermap_canvas import CrossClusterMapCanvas
+
 if TYPE_CHECKING:
     from napari.components.viewer_model import ViewerModel
 
@@ -83,7 +82,6 @@ class CrossClustermap(LayerCorrectorTreeProducer):
             self.canvas._receive_data(
                 self.comps, self.norms, self.names, self.manager
             )
-
 
     def add_spot_on_graph(self, cell, index, lineagetree_name):
         """Adds a spot on the graph on the correct place if it does not exist on the graph.
@@ -277,7 +275,9 @@ class CrossClustermap(LayerCorrectorTreeProducer):
         self.layout().addWidget(
             Containerize([self.norm_combo.native, self.colormap])
         )
-        self.norm_combo.changed.connect(lambda x: self.canvas._change_norm(self.norm_combo.value))
+        self.norm_combo.changed.connect(
+            lambda x: self.canvas._change_norm(self.norm_combo.value)
+        )
         self.colormap.combobox_continuous.currentIndexChanged.connect(
             lambda x: self.canvas._change_cmap(self.colormap.get_cmap())
         )
@@ -308,7 +308,6 @@ class CrossClustermap(LayerCorrectorTreeProducer):
         self.node_tooltip.setParent(self)
         self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
         self.canvas.click_signal.connect(self._click)
-
 
     def resizeEvent(self, event):
         super().resizeEvent(event)

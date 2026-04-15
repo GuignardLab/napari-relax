@@ -206,7 +206,7 @@ class ClusterMapCanvas(FigureCanvas):
             self.remove_annotation()
             self.ax.figure.canvas.draw_idle()
 
-    def annotation_maker(self,x,y,offset_xy,ha,value):
+    def annotation_maker(self, x, y, offset_xy, ha, value):
         self.hover_annotation = self.ax.annotate(
             f"Lineage 1: {self.labels_of_node_real[int(x + 0.5)]}\nLineage 2: {self.labels_of_node_real[int(y + 0.5)]}\nScore: {value:.2f}",
             (x, y),
@@ -218,7 +218,6 @@ class ClusterMapCanvas(FigureCanvas):
             color="white",
             clip_on=False,
         )
-
 
     def print_text(self, pos: tuple[int, int]):
         """Handles the printing of the hoverbox.
@@ -237,7 +236,9 @@ class ClusterMapCanvas(FigureCanvas):
         else:
             offset_xy = (-10, -40)
             ha = "right"
-        self.annotation_maker(x=x,y=y,offset_xy=offset_xy, ha=ha, value=value)
+        self.annotation_maker(
+            x=x, y=y, offset_xy=offset_xy, ha=ha, value=value
+        )
         self.hover_annotation.set_clip_on(False)
         self.ax.figure.canvas.draw_idle()
 
