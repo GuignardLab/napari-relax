@@ -30,7 +30,7 @@ from .._util_classes import (
     LayerCorrectorTreeProducer,
     TooltipButton,
 )
-
+from .cross_clustermap_canvas import CrossClusterMapCanvas
 if TYPE_CHECKING:
     from napari.components.viewer_model import ViewerModel
 
@@ -70,6 +70,20 @@ class CrossClustermap(LayerCorrectorTreeProducer):
         changed Manager class.
         """
         self.manager = signal
+
+    def send_data(self):
+        if not hasattr(self, "comps"):
+            return
+        t = self.time_slider.value
+        if isinstance(self.comps, list):
+            self.canvas._receive_data(
+                self.comps[t], self.norms[t], self.names[t], self.manager
+            )
+        else:
+            self.canvas._receive_data(
+                self.comps, self.norms, self.names, self.manager
+            )
+
 
     def add_spot_on_graph(self, cell, index, lineagetree_name):
         """Adds a spot on the graph on the correct place if it does not exist on the graph.
@@ -155,7 +169,7 @@ class CrossClustermap(LayerCorrectorTreeProducer):
         if lineagetree_name not in existing:
             data = layer_preparation(
                 self.manager.lineagetrees[lineagetree_name],
-                path=lineagetree_name + ".lT",
+                lineagetree_name + ".lT",
                 from_cross=True,
             )[0]
             data[1]["metadata"]["name_for_manager"] = lineagetree_name
@@ -164,7 +178,7 @@ class CrossClustermap(LayerCorrectorTreeProducer):
         viewer.dims.ndisplay = 3
         data = layer_preparation(
             self.manager.lineagetrees[lineagetree_name],
-            path=lineagetree_name + ".lT",
+            lineagetree_name + ".lT",
             from_cross=True,
         )[0]
         data[1]["metadata"]["name_for_manager"] = lineagetree_name
@@ -190,102 +204,12 @@ class CrossClustermap(LayerCorrectorTreeProducer):
         active_layer.selected_data.clear()
         active_layer.refresh()
 
-    def _click(self, event):
-        if event.button == 1:
-            self.canvas.figure.set_constrained_layout(False)
-            layers = [
-                self.labels_lT[int(event.xdata + 0.5)],
-                self.labels_lT[int(event.ydata + 0.5)],
-            ]
-            nodes = [
-                self.labels_node[int(event.xdata + 0.5)],
-                self.labels_node[int(event.ydata + 0.5)],
-            ]
-            colors = [[1, 128 / 255, 1, 1], [0, 1, 1, 1]]
-            for i, (node, lT) in enumerate(zip(nodes, layers, strict=False)):
-                self.sub_points_painter(node, lT, self.viewers[i], colors[i])
-                self.tree_painter(node, lT, colors[i], self.axes[i])
-            label1 = [""] * len(self.labels_of_clustermap)
-            label1[int(event.xdata + 0.5)] = self.labels_of_clustermap[
-                int(event.xdata + 0.5)
-            ]
-            label2 = [""] * len(self.labels_of_clustermap)
-            label2[int(event.ydata + 0.5)] = self.labels_of_clustermap[
-                int(event.ydata + 0.5)
-            ]
-            self.ax1.set_xticks(np.arange(len(label1)), labels=label1)
-            self.ax1.set_yticks(np.arange(len(label1)), labels=label2)
-            self.ax1.tick_params(axis="x", colors="magenta")
-            self.ax1.tick_params(axis="y", colors="cyan")
-            plt.setp(
-                self.ax1.get_xticklabels(),
-                rotation=0,
-                ha="center",
-            )
-            self.canvas.draw()
-
-    def clustermap_creator(self):
-        plt.close("all")
-        time = int(self.time_slider.value)
-        self.canvas.figure.set_constrained_layout(True)
-        self.range = len(self.comparisons)
-
-        len_all_trees = len(self.names[time].keys())
-        hierarchy = np.zeros((len_all_trees, len_all_trees))
-        self.labels_lT = [self.names[time][n][0] for n in self.names[time]]
-        self.labels_root = [self.names[time][n][2] for n in self.names[time]]
-        self.labels_node = [self.names[time][n][1] for n in self.names[time]]
-        self.labels = [
-            self.manager.lineagetrees[self.names[time][n][0]].labels[
-                self.manager.lineagetrees[
-                    self.names[time][n][0]
-                ].get_labelled_ancestor(self.names[time][n][1])
-            ]
-            for n in self.names[time]
-        ]
-        self.labels_of_clustermap = [
-            self.names[time][n][0] + "_" + str(self.labels[n])
-            for n in self.names[time]
-        ]
-        for keys, values in self.comparisons[time]:
-            hierarchy[keys, values] = self.comparisons[time][
-                keys, values
-            ] / self.norm_dict[str(self.norm_combo.value)](
-                self.norms[time][keys, values]
-            )
-            hierarchy[values, keys] = hierarchy[keys, values]
-
-        condensed_dist_matrix = squareform(hierarchy)
-
-        linkage_data = linkage(condensed_dist_matrix, method="ward")
-        order = dendrogram(linkage_data, no_plot=True)["leaves"]
-        self.labels_of_clustermap = [
-            self.labels_of_clustermap[i] for i in order
-        ]
-        self.labels_lT = [self.labels_lT[i] for i in order]
-        self.labels_node = [self.labels_node[i] for i in order]
-        self.labels_root = [self.labels_root[i] for i in order]
-
-        self.plot = hierarchy[np.ix_(order, order)]
-        plot = self.ax1.imshow(self.plot, cmap=self.colormap.get_cmap())
-        if self.colorbar:
-            self.colorbar.remove()
-        self.colorbar = self.figure.colorbar(plot, ax=self.ax1)
-        self.ax1.set_xticks(
-            np.arange(len(self.labels_of_clustermap)),
-            labels=self.labels_of_clustermap,
-        )
-        self.ax1.set_yticks(
-            np.arange(len(self.labels_of_clustermap)),
-            labels=self.labels_of_clustermap,
-        )
-        plt.setp(
-            self.ax1.get_xticklabels(),
-            rotation=45,
-            ha="right",
-        )
-        self.ax1.set_aspect("auto")
-        self.canvas.draw()
+    def _click(self, layers_nodes):
+        layers, nodes = layers_nodes
+        colors = [[1, 128 / 255, 1, 1], [0, 1, 1, 1]]
+        for i, (node, lT) in enumerate(zip(nodes, layers, strict=False)):
+            self.sub_points_painter(node, lT, self.viewers[i], colors[i])
+            self.tree_painter(node, lT, colors[i], self.axes[i])
 
     def save_dictionary(self):
         for _, lT in self.manager:
@@ -310,7 +234,7 @@ class CrossClustermap(LayerCorrectorTreeProducer):
 
     def time_changer(self):
         self.time = self.time_slider.value
-        self.clustermap_creator()
+        self.send_data()
 
     def __init__(self, napari_viewer, dataset_viewers: list[ViewerModel]):
         super().__init__(napari_viewer)
@@ -345,24 +269,22 @@ class CrossClustermap(LayerCorrectorTreeProducer):
         layout.addStretch(1)
         self.setLayout(layout)
         self.figure = Figure(constrained_layout=True)
-        self.canvas = FigureCanvas(self.figure)
-        self.colorbar = None
         self.ax1 = self.figure.add_subplot(111)
+        self.canvas = CrossClusterMapCanvas(self.figure, self.ax1)
         layout.addSpacing(50)
         self.layout().addWidget(self.tree_canvas)
 
         self.layout().addWidget(
             Containerize([self.norm_combo.native, self.colormap])
         )
-        self.norm_combo.changed.connect(self.clustermap_creator)
+        self.norm_combo.changed.connect(lambda x: self.canvas._change_norm(self.norm_combo.value))
         self.colormap.combobox_continuous.currentIndexChanged.connect(
-            self.clustermap_creator
+            lambda x: self.canvas._change_cmap(self.colormap.get_cmap())
         )
         self.layout().addWidget(self.time_mover_box.native)
         self.layout().addWidget(self.canvas)
         self.layout().addWidget(self.time_slider.native)
 
-        self.figure.canvas.mpl_connect("button_press_event", self._click)
         self.save_pkl = widgets.FileEdit(
             mode="w", value=Path(".").absolute(), filter="*.pkl*"
         )
@@ -385,6 +307,8 @@ class CrossClustermap(LayerCorrectorTreeProducer):
         self.node_tooltip = TooltipButton(txt)
         self.node_tooltip.setParent(self)
         self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
+        self.canvas.click_signal.connect(self._click)
+
 
     def resizeEvent(self, event):
         super().resizeEvent(event)

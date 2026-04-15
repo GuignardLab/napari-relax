@@ -116,10 +116,11 @@ class CrossConfig(LayerCorrectorTreeProducer):
 
                 if sleep_timer % 5 == 0:
                     sleep(0.1)
-            all_comparisons.append(comparisons)
-            all_names.append(names)
-            all_norms.append(norms)
-            yield all_comparisons, all_names, all_norms
+            if comparisons:
+                all_comparisons.append(comparisons)
+                all_names.append(names)
+                all_norms.append(norms)
+                yield all_comparisons, all_names, all_norms
 
     @property
     def lcm(self):
