@@ -392,7 +392,7 @@ def find_principal_axes(lT: LineageTree) -> np.array:
     np.array
         3D array that contains all the principal axes
     """
-    big_tp = max(lT.time_nodes, key= lambda x: len(lT.time_nodes[x]))
+    big_tp = max(lT.time_nodes, key=lambda x: len(lT.time_nodes[x]))
     nodes = lT.time_nodes[big_tp]
     pos = np.array([lT.pos[node] for node in nodes])
     pos -= np.mean(pos, axis=0)

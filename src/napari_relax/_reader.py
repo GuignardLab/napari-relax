@@ -8,7 +8,7 @@ https://napari.org/stable/plugins/guides.html?#readers
 
 import uuid
 from pathlib import Path
-from ._utils import find_principal_axes
+
 import numpy as np
 from lineagetree import (
     LOADERS,
@@ -18,7 +18,7 @@ from lineagetree._core import utils
 from napari.utils import colormaps
 
 from ._util_classes import LoadingDialog, SetupDialog
-from ._utils import _infer_point_size
+from ._utils import _infer_point_size, find_principal_axes
 
 
 def napari_get_reader(path):
@@ -90,7 +90,7 @@ def reader_function(path: str):
 
         lT = loader(path)
 
-    setup = SetupDialog(lT) # always appears
+    setup = SetupDialog(lT)  # always appears
     setup.exec_()
     print(setup.parameters)
     if not setup.parameters:
@@ -152,10 +152,7 @@ def _extract_napari_surface_from_lT(lT: LineageTree):
     return all_vertices, all_faces
 
 
-def initial_loading(
-    lT: LineageTree,
-    scaling = False
-) -> dict:
+def initial_loading(lT: LineageTree, scaling=False) -> dict:
     """Calculates the bare minimum to load a LineageTree and returns a dict that contains the data the colors of the nodes and other things that are usefull for other funcs
 
     Parameters
@@ -183,10 +180,10 @@ def initial_loading(
     first_c_to_track = {}
     last_c_of_track = {}
     if scaling:
-        scale =np.sqrt(find_principal_axes(lT)[-1])/1000
+        scale = np.sqrt(find_principal_axes(lT)[-1]) / 1000
     else:
-        scale=1
-    lT.spatial_resolution = 1/scale
+        scale = 1
+    lT.spatial_resolution = 1 / scale
     # Pre-calculate total number of cells
     total_cells = sum(len(track) for track in tracks)
 
@@ -203,14 +200,18 @@ def initial_loading(
         for cell in track:
             # Get position once and reverse coordinates
             pos = lT.pos[cell]
-            data[c_id] = [i, lT.time[cell], *(pos[::-1])]  # Reverse z,y,x order
+            data[c_id] = [
+                i,
+                lT.time[cell],
+                *(pos[::-1]),
+            ]  # Reverse z,y,x order
             lT_to_here[cell] = c_id
             c_id += 1
 
     here_to_lT = {v: k for k, v in lT_to_here.items()}
     barycenter = data[:, 2:].mean(axis=0)
     data[:, 2:] -= barycenter
-    data[:, 2:] = (data[:,2:]/scale)
+    data[:, 2:] = data[:, 2:] / scale
 
     clone = np.zeros(len(data))
     roots = lT.roots
@@ -239,7 +240,7 @@ def initial_loading(
         "barycenter": barycenter,
         "last_c_of_track": last_c_of_track,
         "first_c_to_track": first_c_to_track,
-        "rescaling_factor":scale
+        "rescaling_factor": scale,
     }
 
 
@@ -268,12 +269,7 @@ def graph_loading(
         The threee graphs that are gonna be used for the plugin lineage viewers.
     """
     if divisor == 0:
-        graphs = lT._create_dict_of_plots(
-        {
-            root
-            for root in lT.roots
-        }
-    )
+        graphs = lT._create_dict_of_plots({root for root in lT.roots})
 
         pos = {
             i: utils.hierarchical_pos(
@@ -286,7 +282,8 @@ def graph_loading(
             {
                 root
                 for root in lT.roots
-                if len(lT.get_subtree_nodes(root)) >= (lT.t_e - lT.t_b) / divisor
+                if len(lT.get_subtree_nodes(root))
+                >= (lT.t_e - lT.t_b) / divisor
             }
         )
 
@@ -304,10 +301,13 @@ def graph_loading(
 
 
 def layer_preparation(
-    lT: LineageTree, points_layer_name: str | Path, no_graph=False, parameters = None
+    lT: LineageTree,
+    points_layer_name: str | Path,
+    no_graph=False,
+    parameters=None,
 ):
-    
-    init_load = initial_loading(lT,parameters.get("rescale", False))
+
+    init_load = initial_loading(lT, parameters.get("rescale", False))
 
     if Path(points_layer_name).exists():
         points_layer_name = Path(points_layer_name).stem
@@ -321,7 +321,7 @@ def layer_preparation(
             lT,
             init_load["last_c_of_track"],
             init_load["first_c_to_track"],
-            parameters.get("divisor",0),
+            parameters.get("divisor", 0),
         )
     else:
         graphs, pos, graph = (), (), ()
@@ -352,7 +352,7 @@ def layer_preparation(
                 },
             },
             "size_display_bounds": (min_size, optimal_size, max_size),
-            "rescaling_dactor": init_load["rescaling_factor"]
+            "rescaling_dactor": init_load["rescaling_factor"],
         },
         "name": points_layer_name,
         "face_color": init_load["clone2"],
