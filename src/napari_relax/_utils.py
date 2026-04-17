@@ -402,7 +402,7 @@ def find_principal_axes(lT: LineageTree) -> np.array:
     return sorted(eigenvalues)
 
 def tr_area(a,b,c):
-    return np.linalg.norm(np.cross(a-c,b-c))
+    return  (b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1])
 
 def find_antipodal_pairs(v):
     i,j = 0,1
