@@ -281,38 +281,31 @@ class Quantitative(LayerCorrectorTreeProducer):
                         (val - min_val) / (max_val - min_val)
                     )
 
-        self.color_signal.emit(
-            {
-                "color_of_selection": cell_color,
-                "color_of_nodes": "black",
-                "selected_nodes": cell_color.keys(),
-                "all_selected": True,
-            }
-        )
         face_colors = [
             cell_color.get(node, [0, 0, 0, 1])
             for point, node in active_layer.metadata["napari2lT"].items()
         ]
         active_layer.face_color = face_colors
 
-    def reset_button_pr(self):
         self.color_signal.emit(
             {
                 "color_of_nodes": "black",
-                "color_of_edges": "black",
-                "node_size": 10,
-                "lw": 0.3,
-                "fontsize": 6,
-                "color_of_selection": "magenta",
+                "selected_nodes": cell_color.keys(),
+                "all_selected": True,
+                "quantitative_coloring": True,
+                "face_colors": face_colors,
+                "node_colors": cell_color,  # Individual colors per node ID
             }
         )
+
+    def reset_button_pr(self):
+        # First reset the face colors
         active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is not None:
-            active_layer.face_color = active_layer.metadata["clone2"]
+            original_colors = active_layer.metadata["clone2"]
+            active_layer.face_color = original_colors
 
-    def layer_change(self):
-        self.lT = self.get_lT()
-        if self.lT:
+            # Emit signal with the original face colors
             self.color_signal.emit(
                 {
                     "color_of_nodes": "black",
@@ -320,7 +313,34 @@ class Quantitative(LayerCorrectorTreeProducer):
                     "node_size": 10,
                     "lw": 0.3,
                     "fontsize": 6,
-                    "color_of_selection": "magenta",
+                    "quantitative_coloring": False,
+                    "face_colors": original_colors,
+                }
+            )
+        else:
+            # Emit signal without face colors if no active layer
+            self.color_signal.emit(
+                {
+                    "color_of_nodes": "black",
+                    "color_of_edges": "black",
+                    "node_size": 10,
+                    "lw": 0.3,
+                    "fontsize": 6,
+                    "quantitative_coloring": False,
+                }
+            )
+
+    def layer_change(self):
+        self.lT = self.get_lT()
+        if self.lT:
+            # Only emit essential settings, preserve visual customizations
+            self.color_signal.emit(
+                {
+                    "color_of_nodes": "black",
+                    "color_of_edges": "black",
+                    "node_size": 10,
+                    "lw": 0.3,
+                    "fontsize": 6,
                 }
             )
             self.selected_attribute.clear()
