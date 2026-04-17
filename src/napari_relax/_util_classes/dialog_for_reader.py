@@ -163,6 +163,6 @@ class SetupDialog(TimeResDialog):
             }
             self.accept()
 
-    def _cancel_pressed(self, event):
+    def _cancel_pressed(self):
         self.parameters = {}
         self.accept()
