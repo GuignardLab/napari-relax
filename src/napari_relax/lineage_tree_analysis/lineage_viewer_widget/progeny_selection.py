@@ -79,9 +79,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
         napari_node_id = next(iter(active_layer.selected_data))
         lt_node_id = active_layer.metadata["napari2lT"][napari_node_id]
-        scores = self.get_sublineage(
-            lt_node_id, self.lT
-        )
+        scores = self.get_sublineage(lt_node_id, self.lT)
 
         # Get node IDs for the selected lineage
         selected_node_ids = list(scores.keys())
@@ -99,9 +97,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             self.bridge.update_state(graph_slider_value=int(val))
 
             selected_cells = self.lT.get_subtree_nodes(
-                self.lT.get_ancestor_at_t(
-                    lt_node_id  # type: ignore
-                )
+                self.lT.get_ancestor_at_t(lt_node_id)  # type: ignore
             )
             self.canvas.change_lineage(
                 self.figure,
@@ -275,9 +271,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         )
         if val is not None:
             selected_node_ids = self.lT.get_subtree_nodes(
-                self.lT.get_predecessors(
-                    lt_node_id
-                )[0]
+                self.lT.get_predecessors(lt_node_id)[0]
             )
             self.graph_slider.setValue(val)
             self.ax_for_tree_graph.clear()
@@ -302,9 +296,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             # Use interaction bridge for coordinated selection of the subtree
             self.bridge.highlight_lineages(selected_node_ids)
 
-            lT_cell = self.lT.get_chain_of_node(
-                lt_node_id
-            )[0]
+            lT_cell = self.lT.get_chain_of_node(lt_node_id)[0]
             normal_text = "Unlabeled"
             self.w_lineedit.setPlaceholderText(
                 f"ID of root: {lT_cell} - Label: {self.lT.labels.get(lT_cell, normal_text)}"

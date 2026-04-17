@@ -10,7 +10,7 @@ from qtpy.QtWidgets import (
 )
 
 
-def _infer_point_size(lT: "LineageTree"):
+def _infer_point_size(lT: LineageTree):
     """
     Infer a point size based on nearest neighbor distances.
 
@@ -377,3 +377,25 @@ def plot_lineages_for_tree_manip(
         axes.spines["left"].set_visible(False)
 
     return figure, axes, ax2root, root2ax
+
+
+def find_principal_axes(lT: LineageTree) -> np.array:
+    """Finds the principal axes of the timepoint that has the most nodes in a lineagetree file.
+
+    Parameters
+    ----------
+    lT : LineageTree
+        The lineagetree dataset
+
+    Returns
+    -------
+    np.array
+        3D array that contains all the principal axes
+    """
+    big_tp = max(lT.time_nodes, key= lambda x: len(lT.time_nodes[x]))
+    nodes = lT.time_nodes[big_tp]
+    pos = np.array([lT.pos[node] for node in nodes])
+    pos -= np.mean(pos, axis=0)
+    cov = np.cov(pos.T, rowvar=False)
+    eigenvalues, eigvectors = np.linalg.eigh(cov)
+    return sorted(eigenvalues)

@@ -19,7 +19,7 @@ def load_demo():
     demo_file_path = ensure_demo_data("demo")
     demo_data = LineageTree.load(str(demo_file_path))
     demo_data.time_resolution = 1
-    data = layer_preparation(demo_data, "Demo")
+    data = layer_preparation(demo_data, "Demo", parameters={})
     return data
 
 
@@ -28,5 +28,5 @@ def load_celegans():
     demo_file_path = ensure_demo_data("C.elegans")
     demo_data = LineageTree.load(str(demo_file_path))
     demo_data.time_resolution = 1
-    data = layer_preparation(demo_data, "C.elegans")
+    data = layer_preparation(demo_data, "C.elegans", parameters={})
     return data
