@@ -18,7 +18,7 @@ from lineagetree._core import utils
 from napari.utils import colormaps
 
 from ._util_classes import LoadingDialog, SetupDialog
-from ._utils import _infer_point_size, find_principal_axes
+from ._utils import _infer_point_size, find_principal_axes,find_longest_axis
 
 
 def napari_get_reader(path):
@@ -180,7 +180,7 @@ def initial_loading(lT: LineageTree, scaling=False) -> dict:
     first_c_to_track = {}
     last_c_of_track = {}
     if scaling:
-        scale = np.sqrt(find_principal_axes(lT)[-1]) / 1000
+        scale = np.sqrt(find_longest_axis(lT)) / 1000
     else:
         scale = 1
     lT.spatial_resolution = 1 / scale

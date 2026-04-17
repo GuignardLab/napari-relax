@@ -8,6 +8,7 @@ from napari.qt import get_current_stylesheet
 from qtpy.QtWidgets import (
     QMessageBox,
 )
+from scipy.spatial import ConvexHull
 
 
 def _infer_point_size(lT: LineageTree):
@@ -399,3 +400,46 @@ def find_principal_axes(lT: LineageTree) -> np.array:
     cov = np.cov(pos.T, rowvar=False)
     eigenvalues, eigvectors = np.linalg.eigh(cov)
     return sorted(eigenvalues)
+
+def tr_area(a,b,c):
+    return np.linalg.norm(np.cross(a-c,b-c))
+
+def find_antipodal_pairs(v):
+    i,j = 0,1
+    while (tr_area(v[i],v[i+1],v[j+1])>tr_area(v[i],v[i+1],v[j])):
+        j+=1
+    j0=j
+
+    while i!=j0:
+        i+=1
+        yield i,j
+        while (tr_area(v[i],v[i+1],v[j+1])>tr_area(v[i],v[i+1],v[j])):
+            j=j+1
+            if i!=j0 and j!=1:
+                yield i,j
+        if (tr_area(v[i],v[i+1],v[j+1])== tr_area(v[i],v[i+1],v[j])):
+            if i!=j0 and j!=1:
+                yield i,j+1
+
+
+def find_longest_axis(lT:LineageTree):
+
+    # get the poitions of the timepoint that has the most nodes
+    big_tp = max(lT.time_nodes, key=lambda x: len(lT.time_nodes[x]))
+    nodes = lT.time_nodes[big_tp]
+    pos = np.array([lT.pos[node] for node in nodes])
+    pos -= np.mean(pos, axis=0)
+    
+    hull = ConvexHull(pos)
+    v = pos[hull.vertices]
+    antipodal_pairs = list(find_antipodal_pairs(v))
+    distance = 0
+    for v1,v2 in antipodal_pairs:
+        d = np.linalg.norm(v[v1]-v[v2])
+        if d>distance:
+            distance = d
+    return distance
+   
+
+
+
