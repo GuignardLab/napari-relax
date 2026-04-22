@@ -33,6 +33,7 @@ dependencies = [
     "numpy",
     "matplotlib",
     "lineagetree>=3.0.4",
+    "PyQt5",
 ]
 
 [project.optional-dependencies]

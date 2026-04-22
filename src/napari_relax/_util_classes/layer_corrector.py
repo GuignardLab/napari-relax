@@ -6,6 +6,9 @@ from qtpy.QtWidgets import (
 from .._utils import _select_active_lt_layer
 from .eventfilter_for_delayed_tooltip import DelayedTooltipEventFilter
 
+# Default selection color - can be overridden by canvas settings
+DEFAULT_SELECTION_COLOR_RGBA = [1, 0, 1, 1]  # magenta
+
 
 class LayerCorrectorTreeProducer(QWidget):
     """
@@ -55,7 +58,7 @@ class LayerCorrectorTreeProducer(QWidget):
         val (int): index of the list of graphs
         """
         active_layer = _select_active_lt_layer(self.viewer)
-        active_layer.face_color = active_layer.metadata["clone2"]
+        active_layer.face_color = active_layer.metadata["default_colors"]
         if self.point_color_from_trees.value:
             root = [
                 i
@@ -67,7 +70,7 @@ class LayerCorrectorTreeProducer(QWidget):
             )
             self.sub_points_selector()
             selection = list(active_layer.selected_data)
-            active_layer.face_color[selection] = [1, 0, 1, 1]
+            active_layer.face_color[selection] = DEFAULT_SELECTION_COLOR_RGBA
             active_layer.selected_data.clear()
             active_layer.refresh()
 

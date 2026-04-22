@@ -125,9 +125,8 @@ class LineageTreeAnalysisWidget(ReLAXWidget):
         self.widget_dictionary[
             "Attribute Based Recoloring"
         ].coloring_widget.quant.color_signal.connect(
-            explore_and_relabel.canvas.change_attributes
+            explore_and_relabel.progeny_diagram_loader
         )
-
 
 class CrossEmbryoComparisonWidget(ReLAXWidget):
     module = relax_multipledatasets

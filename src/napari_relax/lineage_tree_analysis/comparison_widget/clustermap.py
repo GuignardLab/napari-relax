@@ -168,7 +168,7 @@ class Clustermap(LayerCorrectorTreeProducer):
         active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer:
             return
-        active_layer.face_color = active_layer.metadata["clone2"]
+        active_layer.face_color = active_layer.metadata["default_colors"]
         active_layer.refresh()
 
     def time_changer(self):
