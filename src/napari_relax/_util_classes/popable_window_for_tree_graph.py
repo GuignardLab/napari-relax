@@ -12,7 +12,7 @@ from qtpy.QtWidgets import (
 )
 
 from .._util_classes import Containerize
-from ..lineage_tree_analysis.lineage_viewer_widget.canvas_for_progeny import (
+from ..lineage_tree_analysis.lineage_viewer_widget.lineage_viewer.viewer import (
     SingleTreeProgeny,
 )
 

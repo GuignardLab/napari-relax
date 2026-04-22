@@ -182,7 +182,7 @@ def layer_preparation(
 
     clone = np.zeros(len(data))
     roots = lT.roots
-    clone2 = np.zeros((len(data), 4))
+    default_colors = np.zeros((len(data), 4))
     cmap = colormaps.label_colormap(len(roots))
 
     for i, root in enumerate(roots, start=1):
@@ -195,7 +195,7 @@ def layer_preparation(
         ]
         if cell_indices:
             clone[cell_indices] = i
-            clone2[cell_indices, :] = color
+            default_colors[cell_indices, :] = color
 
     if Path(points_layer_name).exists():
         points_layer_name = Path(points_layer_name).stem
@@ -239,7 +239,7 @@ def layer_preparation(
             "LineageTree": lT,
             "lT2napari": lT_to_here,
             "napari2lT": here_to_lT,
-            "clone2": clone2,
+            "default_colors": default_colors,
             "graphs": (graphs, pos),
             "name_for_manager": points_layer_name,
             "data": data,
@@ -254,7 +254,7 @@ def layer_preparation(
             "size_display_bounds": (min_size, optimal_size, max_size),
         },
         "name": points_layer_name,
-        "face_color": clone2,
+        "face_color": default_colors,
         "shading": "spherical",
     }
 
