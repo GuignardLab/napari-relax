@@ -48,7 +48,7 @@ class ClusterMapCanvas(FigureCanvas):
         self.mpl_connect("button_press_event", self._click)
         self.mpl_connect("motion_notify_event", self._on_hover)
         self.remove_timer = QTimer()
-        self.remove_timer.setInterval(200)
+        self.remove_timer.setInterval(100)
         self.remove_timer.timeout.connect(self.remove_on_leave)
         self.remove_timer.start()
         self.remove_flag = True
@@ -112,7 +112,6 @@ class ClusterMapCanvas(FigureCanvas):
             return
         comparisons = self.comps
         names = self.names
-        self.range = len(comparisons)
         len_all_trees = len(names.keys())
         hierarchy = np.zeros((len_all_trees, len_all_trees))
         labels_of_roots = [
@@ -268,7 +267,7 @@ class ClusterMapCanvas(FigureCanvas):
         self.ax.figure.canvas.draw_idle()
         if event.inaxes and pos != self.old_xy:
             self.old_xy = pos
-            self.timer = self.new_timer(200)
+            self.timer = self.new_timer(100)
             self.timer.add_callback(self._hover_text)
             self.timer.start()
         else:
