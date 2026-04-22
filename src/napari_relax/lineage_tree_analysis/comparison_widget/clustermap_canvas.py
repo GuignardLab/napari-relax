@@ -94,7 +94,8 @@ class ClusterMapCanvas(FigureCanvas):
         self.time = time
         self.lT = lT
         self.labels = self.lT.labels
-        self._plot()
+        if comps is not None and len(comps)>0:
+            self._plot()
 
     def _plot(self):
         """
