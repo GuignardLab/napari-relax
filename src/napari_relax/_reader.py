@@ -7,15 +7,15 @@ https://napari.org/stable/plugins/guides.html?#readers
 """
 
 import uuid
+from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 from lineagetree import (
     LOADERS,
     LineageTree,
 )
-from dataclasses import dataclass
-from typing import TYPE_CHECKING
 from lineagetree._core import utils
 from napari.utils import colormaps
 
@@ -24,7 +24,7 @@ from ._utils import _infer_point_size, find_longest_axis
 
 if TYPE_CHECKING:
     from napari.utils import CyclicLabelColormap
-    
+
 
 def napari_get_reader(path):
     """A basic implementation of a Reader contribution.
@@ -156,10 +156,11 @@ def _extract_napari_surface_from_lT(lT: LineageTree):
 
     return all_vertices, all_faces
 
+
 @dataclass(frozen=True)
-class SpatialData():
-    """Contains allspatial information a new Points layers may need. 
-     
+class SpatialData:
+    """Contains allspatial information a new Points layers may need.
+
      Attributes
     ----------
     data : np.ndarray
@@ -185,6 +186,7 @@ class SpatialData():
     rescaling_factor : float
         Scaling factor applied to the data.
     """
+
     data: np.ndarray
     lT_to_here: dict
     here_to_lT: dict
@@ -196,7 +198,8 @@ class SpatialData():
     first_c_to_track: list
     rescaling_factor: float
 
-def initial_loading(lT: LineageTree, scaling=False) -> dict:
+
+def initial_loading(lT: LineageTree, scaling=False) -> SpatialData:
     """Calculates the bare minimum to load a LineageTree and returns a dict that contains the data the colors of the nodes and other things that are usefull for other funcs
 
     Parameters
@@ -212,7 +215,7 @@ def initial_loading(lT: LineageTree, scaling=False) -> dict:
     first_c_to_track = {}
     last_c_of_track = {}
     if scaling:
-        scale = np.sqrt(find_longest_axis(lT)) 
+        scale = np.sqrt(find_longest_axis(lT))
         print("long_path", scale)
     else:
         scale = 1
@@ -263,16 +266,16 @@ def initial_loading(lT: LineageTree, scaling=False) -> dict:
             clone[cell_indices] = i
             clone2[cell_indices, :] = color
     return SpatialData(
-        data= data,
-        lT_to_here= lT_to_here,
-        here_to_lT= here_to_lT,
-        clone= clone,
-        clone2= clone2,
-        cmap= cmap,
-        barycenter= barycenter,
-        last_c_of_track= last_c_of_track,
-        first_c_to_track= first_c_to_track,
-        rescaling_factor= scale,
+        data=data,
+        lT_to_here=lT_to_here,
+        here_to_lT=here_to_lT,
+        clone=clone,
+        clone2=clone2,
+        cmap=cmap,
+        barycenter=barycenter,
+        last_c_of_track=last_c_of_track,
+        first_c_to_track=first_c_to_track,
+        rescaling_factor=scale,
     )
 
 

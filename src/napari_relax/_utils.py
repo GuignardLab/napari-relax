@@ -379,48 +379,87 @@ def plot_lineages_for_tree_manip(
 
     return figure, axes, ax2root, root2ax
 
-def tr_area(a,b,c):
-    return  (b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1])
 
-def find_antipodal_pairs(v):
+def tr_area(a, b, c):
+    """Calculates the area of a triangle defined by points a,b,c.
+
+    Parameters
+    ----------
+    a,b,c : np.array[float, float]
+        The coordinates of the triangle edges.
+   
+
+    Returns
+    -------
+    float
+        The area of the triangle.
+    """
+    return (b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1])
+
+
+def find_antipodal_pairs(v: np.ndarray):
+    """Calculates the antipodal pairs of a set of points. Antipodal paris are practically the pairs of points that are 
+    on opposite sides of the shape.
+
+    Parameters
+    ----------
+    v : np.ndarray
+        The coordinates of the points
+
+    Yields
+    ------
+    int, int
+        The indexes of the antipodal pairs.
+    """
+
     n = len(v)
     i, j = 0, 1
 
-    
-    while tr_area(v[i], v[(i+1)%n],v[(j+1)%n]) > tr_area(v[i], v[(i+1)%n], v[j]):
-        j = (j+1) % n
+    while tr_area(v[i], v[(i + 1) % n], v[(j + 1) % n]) > tr_area(
+        v[i], v[(i + 1) % n], v[j]
+    ):
+        j = (j + 1) % n
 
     for i in range(n):
-        ni = (i+1) % n
+        ni = (i + 1) % n
         yield i, j
 
-        while tr_area(v[i], v[ni], v[(j+1)%n]) > tr_area(v[i], v[ni], v[j]):
-            j = (j+1) % n
+        while tr_area(v[i], v[ni], v[(j + 1) % n]) > tr_area(
+            v[i], v[ni], v[j]
+        ):
+            j = (j + 1) % n
             yield i, j
 
-        if tr_area(v[i], v[ni], v[(j+1)%n]) == tr_area(v[i], v[ni], v[j]):
-            yield i, (j+1) % n
+        if tr_area(v[i], v[ni], v[(j + 1) % n]) == tr_area(v[i], v[ni], v[j]):
+            yield i, (j + 1) % n
 
 
+def find_longest_axis(lT: LineageTree):
+    """Finds the length of the longest axis between points on a LineageTree dataset, using the rotating calipers method
+    implemented from 'https://en.wikipedia.org/wiki/Rotating_calipers'
 
-def find_longest_axis(lT:LineageTree):
+    Parameters
+    ----------
+    lT : LineageTree
+        The lineagetree
 
-    # get the poitions of the timepoint that has the most nodes
+    Returns
+    -------
+    float
+        The length of the longest possible axis.
+    """
+
     big_tp = max(lT.time_nodes, key=lambda x: len(lT.time_nodes[x]))
     nodes = lT.time_nodes[big_tp]
     pos = np.array([lT.pos[node] for node in nodes])
     pos -= np.mean(pos, axis=0)
-    
+
     hull = ConvexHull(pos)
     v = pos[hull.vertices]
     antipodal_pairs = list(find_antipodal_pairs(v))
     distance = 0
-    for v1,v2 in antipodal_pairs:
-        d = np.linalg.norm(v[v1]-v[v2])
-        if d>distance:
+    for v1, v2 in antipodal_pairs:
+        d = np.linalg.norm(v[v1] - v[v2])
+        if d > distance:
             distance = d
     return distance
-   
-
-
-
