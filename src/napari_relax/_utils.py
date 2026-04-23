@@ -388,7 +388,6 @@ def tr_area(a, b, c):
     a,b,c : np.array[float, float]
         The coordinates of the triangle edges.
    
-
     Returns
     -------
     float
