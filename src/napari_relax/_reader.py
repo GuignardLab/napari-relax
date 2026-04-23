@@ -215,7 +215,7 @@ def initial_loading(lT: LineageTree, scaling=False) -> SpatialData:
     first_c_to_track = {}
     last_c_of_track = {}
     if scaling:
-        scale = np.sqrt(find_longest_axis(lT))
+        scale = find_longest_axis(lT)
         print("long_path", scale)
     else:
         scale = 1

@@ -447,18 +447,22 @@ def find_longest_axis(lT: LineageTree):
     float
         The length of the longest possible axis.
     """
-
-    big_tp = max(lT.time_nodes, key=lambda x: len(lT.time_nodes[x]))
-    nodes = lT.time_nodes[big_tp]
-    pos = np.array([lT.pos[node] for node in nodes])
-    pos -= np.mean(pos, axis=0)
-
-    hull = ConvexHull(pos)
-    v = pos[hull.vertices]
-    antipodal_pairs = list(find_antipodal_pairs(v))
-    distance = 0
-    for v1, v2 in antipodal_pairs:
-        d = np.linalg.norm(v[v1] - v[v2])
-        if d > distance:
-            distance = d
-    return distance
+    true_distance = 0
+    for time_step in range(lT.t_b, lT.t_e, 10):
+        # big_tp = max(lT.time_nodes, key=lambda x: len(lT.time_nodes[x]))
+        nodes = lT.time_nodes[time_step]
+        pos = np.array([lT.pos[node] for node in nodes])
+        pos -= np.mean(pos, axis=0)
+        
+        hull = ConvexHull(pos)
+        v = pos[hull.vertices]
+        antipodal_pairs = list(find_antipodal_pairs(v))
+        distance = 0
+        for v1,v2 in antipodal_pairs:
+            d = np.linalg.norm(v[v1]-v[v2])
+            if d>distance:
+                distance = d
+        if true_distance<distance:
+            true_distance = distance
+        return true_distance
+   
