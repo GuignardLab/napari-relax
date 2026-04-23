@@ -379,47 +379,28 @@ def plot_lineages_for_tree_manip(
 
     return figure, axes, ax2root, root2ax
 
-
-def find_principal_axes(lT: LineageTree) -> np.array:
-    """Finds the principal axes of the timepoint that has the most nodes in a lineagetree file.
-
-    Parameters
-    ----------
-    lT : LineageTree
-        The lineagetree dataset
-
-    Returns
-    -------
-    np.array
-        3D array that contains all the principal axes
-    """
-    big_tp = max(lT.time_nodes, key=lambda x: len(lT.time_nodes[x]))
-    nodes = lT.time_nodes[big_tp]
-    pos = np.array([lT.pos[node] for node in nodes])
-    pos -= np.mean(pos, axis=0)
-    cov = np.cov(pos.T, rowvar=False)
-    eigenvalues, eigvectors = np.linalg.eigh(cov)
-    return sorted(eigenvalues)
-
 def tr_area(a,b,c):
     return  (b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1])
 
 def find_antipodal_pairs(v):
-    i,j = 0,1
-    while (tr_area(v[i],v[i+1],v[j+1])>tr_area(v[i],v[i+1],v[j])):
-        j+=1
-    j0=j
+    n = len(v)
+    i, j = 0, 1
 
-    while i!=j0:
-        i+=1
-        yield i,j
-        while (tr_area(v[i],v[i+1],v[j+1])>tr_area(v[i],v[i+1],v[j])):
-            j=j+1
-            if i!=j0 and j!=1:
-                yield i,j
-        if (tr_area(v[i],v[i+1],v[j+1])== tr_area(v[i],v[i+1],v[j])):
-            if i!=j0 and j!=1:
-                yield i,j+1
+    
+    while tr_area(v[i], v[(i+1)%n],v[(j+1)%n]) > tr_area(v[i], v[(i+1)%n], v[j]):
+        j = (j+1) % n
+
+    for i in range(n):
+        ni = (i+1) % n
+        yield i, j
+
+        while tr_area(v[i], v[ni], v[(j+1)%n]) > tr_area(v[i], v[ni], v[j]):
+            j = (j+1) % n
+            yield i, j
+
+        if tr_area(v[i], v[ni], v[(j+1)%n]) == tr_area(v[i], v[ni], v[j]):
+            yield i, (j+1) % n
+
 
 
 def find_longest_axis(lT:LineageTree):
