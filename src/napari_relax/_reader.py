@@ -209,7 +209,8 @@ def initial_loading(lT: LineageTree, scaling=False) -> namedtuple:
 
     Returns
     -------
-    named_tuple initial_spatial_data
+    initial_spatial_data: namedtuple
+        A structured container that contains:
         data : np.ndarray
             Array containing the positions of the points.
         lT_to_here : dict
@@ -379,7 +380,9 @@ def layer_preparation(
     parameters=None,
 ):
 
-    initial_spatial_data = initial_loading(lT, parameters.get("rescale", False))
+    initial_spatial_data = initial_loading(
+        lT, parameters.get("rescale", False)
+    )
 
     if Path(points_layer_name).exists():
         points_layer_name = Path(points_layer_name).stem
@@ -461,7 +464,9 @@ def layer_preparation(
 
         for node_id, mesh in lT.mesh.items():
             root_node_id = dict_successors_to_roots.get(node_id, node_id)
-            root_index = list(initial_spatial_data.roots).index(root_node_id) + 1
+            root_index = (
+                list(initial_spatial_data.roots).index(root_node_id) + 1
+            )
             num_vertices = mesh["vertices"].shape[0]
 
             # Store vertex range for this node
