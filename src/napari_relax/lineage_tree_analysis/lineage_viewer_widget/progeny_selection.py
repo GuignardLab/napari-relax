@@ -136,13 +136,18 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             if self.lT is None:
                 return
 
+            # Clear selections in all layers
+            for viewer_layer in viewer.layers:
+                with contextlib.suppress(Exception):
+                    viewer_layer.selected_data.clear()
+            active_layer.refresh()
+
             # Use InteractionBridge to find node in any layer
             result = self.bridge.find_node_at_position(
                 event.position, event.view_direction, event.dims_displayed
             )
 
             if result:
-                self.canvas.selected_nodes.clear()
                 layer, node_id = result
                 node_id_napari = layer.metadata["lT2napari"][node_id]
                 self.cell_id_spinbox.setValue(node_id_napari)
@@ -150,10 +155,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 # Update the cell ID spinbox to show the clicked cell
                 self.cell_id_spinbox.setValue(node_id)
 
-                # Clear selections in all layers
-                for viewer_layer in viewer.layers:
-                    with contextlib.suppress(Exception):
-                        viewer_layer.selected_data.clear()
 
                 active_layer.selected_data = {node_id_napari}
 
