@@ -41,6 +41,7 @@ class CellSize(LayerCorrectorTreeProducer):
             data = active.metadata["graph_to_create_tracks"]
             data["metadata"] = {"link": active}
             data["blending"] = "translucent"
+            data["name"] = active.name + " Tracks"
             self.viewer.add_tracks(
                 np.array(active.metadata["data"]),
                 **data,
