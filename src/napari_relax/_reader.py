@@ -171,7 +171,7 @@ class SpatialData:
         Mapping from napari IDs to lineage tree IDs.
     clone : np.ndarray
         Original colors of the dataset.
-    clone2 : np.ndarray
+    default_colors : np.ndarray
         Updated colors of the dataset.
     cmap : CyclicLabelColormap
         Colormap used to assign colors to nodes.
@@ -191,7 +191,7 @@ class SpatialData:
     lT_to_here: dict
     here_to_lT: dict
     clone: np.ndarray
-    clone2: np.ndarray
+    default_colors: np.ndarray
     cmap: "CyclicLabelColormap"
     barycenter: float
     last_c_of_track: list
@@ -219,7 +219,7 @@ def initial_loading(lT: LineageTree, scaling=False) -> namedtuple:
             Mapping from napari IDs to lineage tree IDs.
         clone : np.ndarray
             Original colors of the dataset.
-        clone2 : np.ndarray
+        default_colors : np.ndarray
             Updated colors of the dataset.
         cmap : CyclicLabelColormap
             Colormap used to assign colors to nodes.
@@ -295,7 +295,7 @@ def initial_loading(lT: LineageTree, scaling=False) -> namedtuple:
             "lT_to_here",
             "here_to_lT",
             "clone",
-            "clone2",
+            "default_colors",
             "cmap",
             "barycenter",
             "last_c_of_track",
@@ -414,7 +414,7 @@ def layer_preparation(
             "LineageTree": lT,
             "lT2napari": initial_spatial_data.lT_to_here,
             "napari2lT": initial_spatial_data.here_to_lT,
-            "clone2": initial_spatial_data.default_colors,
+            "default_colors": initial_spatial_data.default_colors,
             "graphs": (graphs, pos),
             "name_for_manager": points_layer_name,
             "data": initial_spatial_data.data,
