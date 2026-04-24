@@ -140,6 +140,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             for viewer_layer in viewer.layers:
                 with contextlib.suppress(Exception):
                     viewer_layer.selected_data.clear()
+            self.canvas.selected_nodes.clear()
             active_layer.refresh()
 
             # Use InteractionBridge to find node in any layer
@@ -190,6 +191,9 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 else:
                     self.canvas.ax.cla()
                     self.canvas.draw()
+            else:
+                self.canvas.marked_cell_id = None
+                self.progeny_diagram_loader()
 
     def update_lineageviewer_colors(self):
         """Update the color box to show the current lineage color."""
