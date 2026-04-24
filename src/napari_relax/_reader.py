@@ -156,49 +156,6 @@ def _extract_napari_surface_from_lT(lT: LineageTree):
 
     return all_vertices, all_faces
 
-
-@dataclass(frozen=True)
-class SpatialData:
-    """Contains allspatial information a new Points layers may need.
-
-     Attributes
-    ----------
-    data : np.ndarray
-        Array containing the positions of the points.
-    lT_to_here : dict
-        Mapping from lineage tree IDs to napari IDs.
-    here_to_lT : dict
-        Mapping from napari IDs to lineage tree IDs.
-    clone : np.ndarray
-        Original colors of the dataset.
-    default_colors : np.ndarray
-        Updated colors of the dataset.
-    cmap : CyclicLabelColormap
-        Colormap used to assign colors to nodes.
-    roots : set
-        Root nodes of the dataset.
-    barycenter : float
-        Center of the dataset (should be 0 if centered).
-    last_c_of_track : list
-        Leaf nodes of the dataset (used for graph loading).
-    first_c_to_track : list
-        Root nodes of tracks (used for graph loading).
-    rescaling_factor : float
-        Scaling factor applied to the data.
-    """
-
-    data: np.ndarray
-    lT_to_here: dict
-    here_to_lT: dict
-    clone: np.ndarray
-    default_colors: np.ndarray
-    cmap: "CyclicLabelColormap"
-    barycenter: float
-    last_c_of_track: list
-    first_c_to_track: list
-    rescaling_factor: float
-
-
 def initial_loading(lT: LineageTree, scaling=False) -> namedtuple:
     """Calculates the bare minimum to load a LineageTree and returns a dict that contains the data the colors of the nodes and other things that are usefull for other funcs
 
