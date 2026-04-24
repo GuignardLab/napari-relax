@@ -95,9 +95,8 @@ def reader_function(path: str):
 
         lT = loader(path)
 
-    setup = SetupDialog(lT)  # always appears
+    setup = SetupDialog(lT,current = lT.time_resolution)  # always appears
     setup.exec_()
-    print(setup.parameters)
     if not setup.parameters:
         return
 
