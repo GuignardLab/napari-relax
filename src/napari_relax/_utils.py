@@ -387,7 +387,7 @@ def tr_area(a, b, c):
     ----------
     a,b,c : np.array[float, float]
         The coordinates of the triangle edges.
-   
+
     Returns
     -------
     float
@@ -397,7 +397,7 @@ def tr_area(a, b, c):
 
 
 def find_antipodal_pairs(v: np.ndarray):
-    """Calculates the antipodal pairs of a set of points. Antipodal paris are practically the pairs of points that are 
+    """Calculates the antipodal pairs of a set of points. Antipodal paris are practically the pairs of points that are
     on opposite sides of the shape.
 
     Parameters
@@ -453,16 +453,15 @@ def find_longest_axis(lT: LineageTree):
         nodes = lT.time_nodes[time_step]
         pos = np.array([lT.pos[node] for node in nodes])
         pos -= np.mean(pos, axis=0)
-        
+
         hull = ConvexHull(pos)
         v = pos[hull.vertices]
         antipodal_pairs = list(find_antipodal_pairs(v))
         distance = 0
-        for v1,v2 in antipodal_pairs:
-            d = np.linalg.norm(v[v1]-v[v2])
-            if d>distance:
+        for v1, v2 in antipodal_pairs:
+            d = np.linalg.norm(v[v1] - v[v2])
+            if d > distance:
                 distance = d
-        if true_distance<distance:
+        if true_distance < distance:
             true_distance = distance
     return true_distance
-   

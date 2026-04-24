@@ -7,6 +7,7 @@ https://napari.org/stable/plugins/guides.html?#readers
 """
 
 import uuid
+from collections import namedtuple
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -95,7 +96,7 @@ def reader_function(path: str):
 
         lT = loader(path)
 
-    setup = SetupDialog(lT,current = lT.time_resolution)  # always appears
+    setup = SetupDialog(lT, current=lT.time_resolution)  # always appears
     setup.exec_()
     if not setup.parameters:
         return
@@ -198,7 +199,7 @@ class SpatialData:
     rescaling_factor: float
 
 
-def initial_loading(lT: LineageTree, scaling=False) -> SpatialData:
+def initial_loading(lT: LineageTree, scaling=False) -> namedtuple:
     """Calculates the bare minimum to load a LineageTree and returns a dict that contains the data the colors of the nodes and other things that are usefull for other funcs
 
     Parameters
@@ -208,7 +209,29 @@ def initial_loading(lT: LineageTree, scaling=False) -> SpatialData:
 
     Returns
     -------
-    SpatialData
+    named_tuple initial_spatial_data
+        data : np.ndarray
+            Array containing the positions of the points.
+        lT_to_here : dict
+            Mapping from lineage tree IDs to napari IDs.
+        here_to_lT : dict
+            Mapping from napari IDs to lineage tree IDs.
+        clone : np.ndarray
+            Original colors of the dataset.
+        clone2 : np.ndarray
+            Updated colors of the dataset.
+        cmap : CyclicLabelColormap
+            Colormap used to assign colors to nodes.
+        roots : set
+            Root nodes of the dataset.
+        barycenter : float
+            Center of the dataset (should be 0 if centered).
+        last_c_of_track : list
+            Leaf nodes of the dataset (used for graph loading).
+        first_c_to_track : list
+            Root nodes of tracks (used for graph loading).
+        rescaling_factor : float
+            Scaling factor applied to the data.
     """
     tracks = lT.all_chains
     first_c_to_track = {}
@@ -264,7 +287,22 @@ def initial_loading(lT: LineageTree, scaling=False) -> SpatialData:
         if cell_indices:
             clone[cell_indices] = i
             clone2[cell_indices, :] = color
-    return SpatialData(
+    initial_spatial_data = namedtuple(
+        "initial_spatial_data",
+        [
+            "data",
+            "lT_to_here",
+            "here_to_lT",
+            "clone",
+            "clone2",
+            "cmap",
+            "barycenter",
+            "last_c_of_track",
+            "first_c_to_track",
+            "rescaling_factor",
+        ],
+    )
+    return initial_spatial_data(
         data=data,
         lT_to_here=lT_to_here,
         here_to_lT=here_to_lT,
@@ -341,7 +379,7 @@ def layer_preparation(
     parameters=None,
 ):
 
-    spatial_data = initial_loading(lT, parameters.get("rescale", False))
+    initial_spatial_data = initial_loading(lT, parameters.get("rescale", False))
 
     if Path(points_layer_name).exists():
         points_layer_name = Path(points_layer_name).stem
@@ -353,8 +391,8 @@ def layer_preparation(
     if not no_graph:
         graphs, pos, graph = graph_loading(
             lT,
-            spatial_data.last_c_of_track,
-            spatial_data.first_c_to_track,
+            initial_spatial_data.last_c_of_track,
+            initial_spatial_data.first_c_to_track,
             parameters.get("divisor", 0),
         )
     else:
@@ -366,35 +404,35 @@ def layer_preparation(
     add_kwargs_point = {
         "size": optimal_size,
         "properties": {
-            "clone": spatial_data.clone,
-            "Selection": np.zeros_like(spatial_data.clone),
+            "clone": initial_spatial_data.clone,
+            "Selection": np.zeros_like(initial_spatial_data.clone),
         },
         "metadata": {
             "LineageTree": lT,
-            "lT2napari": spatial_data.lT_to_here,
-            "napari2lT": spatial_data.here_to_lT,
-            "clone2": spatial_data.clone2,
+            "lT2napari": initial_spatial_data.lT_to_here,
+            "napari2lT": initial_spatial_data.here_to_lT,
+            "clone2": initial_spatial_data.clone2,
             "graphs": (graphs, pos),
             "name_for_manager": points_layer_name,
-            "data": spatial_data.data,
+            "data": initial_spatial_data.data,
             "lineage_tree_id": lineage_tree_id,  # Unique identifier for linking companion layers
             "graph_to_create_tracks": {
                 "graph": graph,
                 "properties": {
-                    "Lineage": spatial_data.clone,
-                    "Selection": np.ones_like(spatial_data.clone),
+                    "Lineage": initial_spatial_data.clone,
+                    "Selection": np.ones_like(initial_spatial_data.clone),
                 },
             },
             "size_display_bounds": (min_size, optimal_size, max_size),
-            "rescaling_dactor": spatial_data.rescaling_factor,
+            "rescaling_dactor": initial_spatial_data.rescaling_factor,
         },
         "name": points_layer_name,
-        "face_color": spatial_data.clone2,
+        "face_color": initial_spatial_data.clone2,
         "shading": "spherical",
     }
 
     napari_layers = [
-        (spatial_data.data[:, 1:], add_kwargs_point, "points"),
+        (initial_spatial_data.data[:, 1:], add_kwargs_point, "points"),
     ]
 
     if hasattr(lT, "mesh"):
@@ -423,7 +461,7 @@ def layer_preparation(
 
         for node_id, mesh in lT.mesh.items():
             root_node_id = dict_successors_to_roots.get(node_id, node_id)
-            root_index = list(spatial_data.roots).index(root_node_id) + 1
+            root_index = list(initial_spatial_data.roots).index(root_node_id) + 1
             num_vertices = mesh["vertices"].shape[0]
 
             # Store vertex range for this node
@@ -433,7 +471,7 @@ def layer_preparation(
             )
 
             # Efficiently assign colors to the pre-allocated array
-            color = spatial_data.cmap.map(root_index)  # Get color once
+            color = initial_spatial_data.cmap.map(root_index)  # Get color once
             vertex_colors[vertex_offset : vertex_offset + num_vertices] = color
 
             vertex_offset += num_vertices
@@ -444,7 +482,7 @@ def layer_preparation(
         # This is debatable if several meshes of the same objects are loaded,
         # as barycenters are inferred from meshes centroids, which won't
         # necessarily coincide for different mesh files from the same embryo.
-        all_vertices[:, 1:] -= spatial_data.barycenter
+        all_vertices[:, 1:] -= initial_spatial_data.barycenter
 
         napari_surface = (all_vertices, all_faces)
 
