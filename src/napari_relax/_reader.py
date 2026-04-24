@@ -274,7 +274,7 @@ def initial_loading(lT: LineageTree, scaling=False) -> namedtuple:
 
     clone = np.zeros(len(data))
     roots = lT.roots
-    clone2 = np.zeros((len(data), 4))
+    default_colors = np.zeros((len(data), 4))
     cmap = colormaps.label_colormap(len(roots))
 
     for i, root in enumerate(roots, start=1):
@@ -287,7 +287,7 @@ def initial_loading(lT: LineageTree, scaling=False) -> namedtuple:
         ]
         if cell_indices:
             clone[cell_indices] = i
-            clone2[cell_indices, :] = color
+            default_colors[cell_indices, :] = color
     initial_spatial_data = namedtuple(
         "initial_spatial_data",
         [
@@ -308,7 +308,7 @@ def initial_loading(lT: LineageTree, scaling=False) -> namedtuple:
         lT_to_here=lT_to_here,
         here_to_lT=here_to_lT,
         clone=clone,
-        clone2=clone2,
+        default_colors=default_colors,
         cmap=cmap,
         barycenter=barycenter,
         last_c_of_track=last_c_of_track,
@@ -414,7 +414,7 @@ def layer_preparation(
             "LineageTree": lT,
             "lT2napari": initial_spatial_data.lT_to_here,
             "napari2lT": initial_spatial_data.here_to_lT,
-            "clone2": initial_spatial_data.clone2,
+            "clone2": initial_spatial_data.default_colors,
             "graphs": (graphs, pos),
             "name_for_manager": points_layer_name,
             "data": initial_spatial_data.data,
@@ -430,7 +430,7 @@ def layer_preparation(
             "rescaling_dactor": initial_spatial_data.rescaling_factor,
         },
         "name": points_layer_name,
-        "face_color": initial_spatial_data.clone2,
+        "face_color": initial_spatial_data.default_colors,
         "shading": "spherical",
     }
 

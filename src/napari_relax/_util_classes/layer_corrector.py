@@ -58,7 +58,7 @@ class LayerCorrectorTreeProducer(QWidget):
         val (int): index of the list of graphs
         """
         active_layer = _select_active_lt_layer(self.viewer)
-        active_layer.face_color = active_layer.metadata["clone2"]
+        active_layer.face_color = active_layer.metadata["default_colors"]
         if self.point_color_from_trees.value:
             root = [
                 i

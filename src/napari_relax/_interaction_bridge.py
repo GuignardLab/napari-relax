@@ -460,9 +460,6 @@ class TracksAdapter(LayerAdapter):
                 "_track_connex"
             ].copy()
             self.layer.refresh()
-        else:
-            # Restore all track connections - this requires rebuilding tracks
-            self.layer.build_tracks()
 
         if "opacity" in self.original_state:
             self.layer.opacity = self.original_state["opacity"]
@@ -474,9 +471,7 @@ class TracksAdapter(LayerAdapter):
                 "_track_connex"
             ].copy()
             self.layer.refresh()
-        else:
-            # Restore all track connections - this requires rebuilding tracks
-            self.layer.build_tracks()
+
 
 
 class InteractionBridge:

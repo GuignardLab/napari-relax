@@ -12,6 +12,7 @@ from qtpy.QtWidgets import (
     QLineEdit,
     QMessageBox,
     QPushButton,
+    QSizePolicy,
     QSlider,
     QSpacerItem,
     QSpinBox,
@@ -25,12 +26,8 @@ from ..._util_classes import (
     LayerCorrectorTreeProducer,
     TooltipButton,
 )
-from ..._util_classes.popable_window_for_tree_graph import (
-    Setup,
-    _update_napari_highlight_color,
-)
 from ..._utils import _select_active_lt_layer
-from .canvas_for_progeny import SingleTreeProgeny
+from .lineage_viewer.viewer import SingleTreeProgeny
 
 if TYPE_CHECKING:
     from lineagetree import LineageTree
@@ -105,9 +102,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 self.lT.get_ancestor_at_t(lt_node_id)  # type: ignore
             )
             self.canvas.change_lineage(
-                self.figure,
-                self.ax_for_tree_graph,
-                val,
+                self.roots[int(self.graph_slider.value())],
                 self.lT,
                 active_layer.metadata["graphs"][0][val],
                 active_layer.metadata["graphs"][1][val],
@@ -119,7 +114,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             self.bridge.update_state(
                 selected_subtree=set(selected_cells), selected_lineage=val
             )
-            self.canvas.draw_graph()
         else:
             raise Warning(
                 "No tree for this node, because it has no progenitor in roots"
@@ -148,6 +142,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             )
 
             if result:
+                self.canvas.selected_nodes.clear()
                 layer, node_id = result
                 node_id_napari = layer.metadata["lT2napari"][node_id]
                 self.cell_id_spinbox.setValue(node_id_napari)
@@ -172,9 +167,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 if val is not None:
                     self.graph_slider.setValue(int(val))
                     self.canvas.change_lineage(
-                        self.figure,
-                        self.ax_for_tree_graph,
-                        val,
+                        self.roots[int(self.graph_slider.value())],
                         self.lT,
                         active_layer.metadata["graphs"][0][val],
                         active_layer.metadata["graphs"][1][val],
@@ -186,24 +179,22 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                         "napari2lT"
                     ][node_id_napari]
                     # if not hasattr(self, "face_colors_handler"):
-                    self.face_colors_handler = active_layer.events.emitters[
-                        "current_face_color"
-                    ].connect(self.progeny_diagram_loader)
-                    self.canvas.draw_graph()
+                    self.face_colors_handler = (
+                        active_layer._face.events.connect(
+                            self.progeny_diagram_loader
+                        )
+                    )
+                    self.canvas._draw_cell_marker(self.canvas.marked_cell_id)
+                    self.canvas.draw()
                 else:
-                    self.canvas.ax.clear()
+                    self.canvas.ax.cla()
                     self.canvas.draw()
 
-    def update_lineage_color_box(self):
+    def update_lineageviewer_colors(self):
         """Update the color box to show the current lineage color."""
-        if not hasattr(self, "lineage_color_box"):
-            return
 
-        # Update the canvas with current face colors before extracting color
         self._update_canvas_with_current_colors()
 
-        # Get the color info from the canvas using the new method
-        color_info = None
         if (
             hasattr(self, "canvas")
             and hasattr(self.canvas, "_extract_current_lineage_color")
@@ -211,47 +202,9 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             and self.canvas.points_layer_metadata is not None
         ):
             try:
-                color_info = self.canvas._extract_current_lineage_color()
+                self.canvas._extract_current_lineage_color()
             except (AttributeError, KeyError):
-                # Handle cases where the canvas isn't fully initialized yet
-                color_info = None
-
-        if color_info and color_info.get("color"):
-            color = color_info["color"]
-            is_uniform = color_info.get("is_uniform", True)
-
-            # Convert to RGB tuple (0-255 range) if needed
-            if isinstance(color, (list, tuple)) and len(color) >= 3:
-                rgb_color = tuple(
-                    int(c * 255) if c <= 1.0 else int(c) for c in color[:3]
-                )
-
-                if is_uniform:
-                    # Solid color for uniform lineage colors
-                    self.lineage_color_box.setStyleSheet(
-                        f"QLabel {{ background-color: rgb({rgb_color[0]}, {rgb_color[1]}, {rgb_color[2]}); "
-                        f"border: 1px solid black; border-radius: 3px; }}"
-                    )
-                    self.lineage_color_box.setToolTip(
-                        "Current lineage color (uniform)"
-                    )
-                else:
-                    # Gradient or pattern for non-uniform colors (quantitative coloring applied)
-                    self.lineage_color_box.setStyleSheet(
-                        f"QLabel {{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, "
-                        f"stop:0 rgb({rgb_color[0]}, {rgb_color[1]}, {rgb_color[2]}), "
-                        f"stop:0.5 rgb(255, 255, 255), stop:1 rgb({rgb_color[0]}, {rgb_color[1]}, {rgb_color[2]})); "
-                        f"border: 1px solid black; border-radius: 3px; }}"
-                    )
-                    self.lineage_color_box.setToolTip(
-                        "Lineage has mixed colors (quantitative coloring applied)"
-                    )
-            else:
-                # Fallback to default color
-                self._set_default_color_box()
-        else:
-            # Default gray color if no color is available
-            self._set_default_color_box()
+                ...
 
     def _update_canvas_with_current_colors(self):
         """Update the canvas metadata with current face colors from the active layer."""
@@ -260,22 +213,12 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             # Just update the metadata, the canvas handles its own redrawing
             self.canvas.update_face_colors(active_layer.face_color)
 
-    def _set_default_color_box(self):
-        """Set the color box to default gray color."""
-        self.lineage_color_box.setStyleSheet(
-            "QLabel { background-color: rgb(128, 128, 128); "
-            "border: 1px solid black; border-radius: 3px; }"
-        )
-        self.lineage_color_box.setToolTip("Current lineage color")
-        # # Update the progeny diagram
-        # self.progeny_diagram_loader()
-
     def progeny_diagram_loader(self):
         """
         Program to load the diagrams in black or magenta. Reads the attributes to load different graphs.
         """
         active_layer = _select_active_lt_layer(self.viewer)
-        if not active_layer:
+        if not active_layer and "lT" not in active_layer.metadata:
             return
         self.ax_for_tree_graph.clear()
         val = int(self.graph_slider.value())
@@ -287,13 +230,10 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         preserve_subtree = getattr(self.canvas, "selected_subtree", set())
 
         self.canvas.change_lineage(
-            self.figure,
-            self.ax_for_tree_graph,
-            val,
+            self.roots[int(self.graph_slider.value())],
             self.lT,
             active_layer.metadata["graphs"][0][val],
             active_layer.metadata["graphs"][1][val],
-            False,
             points_layer_metadata=active_layer.metadata,
         )
 
@@ -316,8 +256,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.w_lineedit.update()
 
         # Update the lineage color box
-        self.update_lineage_color_box()
-        self.canvas.draw_graph()
+        self.update_lineageviewer_colors()
 
     def _click_on_tree_graph(self, event):
         """This functions handle the left-click interaction with the tree graph. Finds the node clicked
@@ -378,9 +317,9 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         if event["dblclick"]:
             self.update_time_slider_for_cell(cell_id)
         if not hasattr(self, "face_colors_handler"):
-            self.face_colors_handler = active_layer.events.emitters[
-                "current_face_color"
-            ].connect(self.progeny_diagram_loader)
+            self.face_colors_handler = active_layer._face.events.connect(
+                self.progeny_diagram_loader
+            )
 
     def sub_point_painter(self):
         """Paints specific part of the lineagetree when a sublineage is selected"""
@@ -400,17 +339,14 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             )
             self.graph_slider.setValue(val)
             self.ax_for_tree_graph.clear()
+            self.canvas.selected_nodes = set(selected_node_ids)
             self.canvas.change_lineage(
-                self.figure,
-                self.ax_for_tree_graph,
-                val,
+                self.roots[int(self.graph_slider.value())],
                 self.lT,
                 active_layer.metadata["graphs"][0][val],
                 active_layer.metadata["graphs"][1][val],
                 points_layer_metadata=active_layer.metadata,
             )
-            self.canvas.selected_subtree = set(selected_node_ids)
-            self.canvas.draw_graph()
 
             # Save state to bridge
             self.bridge.update_state(
@@ -444,9 +380,9 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             return
         try:
             self.face_colors_handler.disconnect()
-            self.face_colors_handler = active_layer.events.emitters[
-                "current_face_color"
-            ].connect(self.progeny_diagram_loader)
+            self.face_colors_handler = active_layer._face.events.connect(
+                self.progeny_diagram_loader
+            )
         except:
             pass
 
@@ -554,7 +490,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 # Now restore the highlighting state after the slider change has completed
                 # Set the selected subtree and redraw to show highlighting
                 self.canvas.selected_subtree = bridge_selected_subtree
-                self.canvas.draw_graph()
 
                 # Also restore highlighting on companion layers
                 selected_node_ids = list(bridge_selected_subtree)
@@ -567,6 +502,9 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 # Disable spinbox and button if no lineage tree
                 self.cell_id_spinbox.setEnabled(False)
                 self.cell_id_go_button.setEnabled(False)
+            self.face_colors_handler = active_layer._face.events.connect(
+                self.progeny_diagram_loader
+            )
 
     def label_remover(self):
         active_layer = _select_active_lt_layer(self.viewer)
@@ -702,29 +640,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 active_layer.shown[selected_points] = True
                 active_layer.refresh()
 
-    def update_time_slider_for_cell(self, cell_id):
-        """Update the time slider to show when the given cell first appears."""
-        if not self.lT or cell_id not in self.lT.time:
-            return
-
-        # Calculate the time step for this cell
-        cell_time = self.lT.time[cell_id]
-
-        # Get the minimum time from all lineage tree layers (important if dataset doesn't start from 0)
-        min_time = min(
-            {
-                layer.metadata.get("LineageTree").t_b
-                for layer in self.viewer.layers
-                if layer.metadata.get("LineageTree")
-            }
-        )
-
-        # set the time slider to show when this cell appears
-        time_step = cell_time - min_time
-        current_step = list(self.viewer.dims.current_step)
-        current_step[0] = time_step
-        self.viewer.dims.current_step = current_step
-
     def cell_id_selector(self):
         """
         Select lineage based on cell ID input from spinbox.
@@ -757,9 +672,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
             # Update the canvas to show the correct lineage without sublineage highlighting
             self.canvas.change_lineage(
-                self.figure,
-                self.ax_for_tree_graph,
-                val,
+                self.roots[int(self.graph_slider.value())],
                 self.lT,
                 active_layer.metadata["graphs"][0][val],
                 active_layer.metadata["graphs"][1][val],
@@ -771,7 +684,8 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             self.canvas.marked_cell_id = (
                 cell_id  # Store the cell to mark with circle
             )
-            self.canvas.draw_graph()
+            self.canvas._draw_cell_marker(cell_id)
+            self.canvas.draw()
 
             # Select only the single cell in the 3D view (not sublineage)
             points_to_select = set()
@@ -792,8 +706,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             # Update time slider to show when this cell first appears
             self.update_time_slider_for_cell(cell_id)
 
-            # Update the lineage color box
-            self.update_lineage_color_box()
+            self.update_lineageviewer_colors()
 
     def update_time_slider_for_cell(self, cell_id):
         """Update the time slider to show when the given cell first appears."""
@@ -838,7 +751,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.w_lineedit.update()
         self.w_lineedit.clear()
         self.signal.emit(self.labels)
-        self.canvas.draw_graph()
 
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
@@ -920,14 +832,15 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         layout.setAlignment(Qt.AlignTop)
         layout.setSpacing(0)
         self.setLayout(layout)
-        self.figure = Figure(figsize=(1, 3), frameon=False)
+        self.figure = Figure(constrained_layout=True, frameon=False)
         self.ax_for_tree_graph = self.figure.add_subplot(111)
+        self.ax_for_tree_graph.axis("off")
         self.canvas = SingleTreeProgeny(self.figure, self.ax_for_tree_graph)
-
-        # Initialize napari highlight color to match canvas selection color
-        _update_napari_highlight_color(
-            self.canvas.color_of_selection_nodes, self.viewer
+        self.canvas.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
         )
+        self.canvas.setContentsMargins(0, 0, 0, 0)
+ 
 
         label1 = widgets.Label(
             value="""<span style="font-family: Arial; font-size: 20px; color: white;">Lineage Viewer</span>"""
@@ -945,18 +858,18 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.tooltip.move(int(self.width() - self.tooltip.width()), 0)
         label1.move(int(self.width() / 2) + 10, 0)
         self.layout().addItem(QSpacerItem(10, 10))
-        self.layout().addWidget(self.canvas, stretch=100)
+        self.layout().addWidget(self.canvas, stretch=1)
         self.tooltip.move(0, 0)
         self.config_settings = QPushButton(text="")
         self.config_settings.setIcon(
             QIcon(str(Path(__file__).parent / "gear-bold.svg"))
         )
-        self.pop_win = Setup(self.canvas, self.viewer)
-        self.config_settings.clicked.connect(lambda x: self.pop_win.exec_())
-        self.config_settings.setFixedSize(30, 30)
+        # self.pop_win = Setup(self.canvas, self.viewer)
+        # self.config_settings.clicked.connect(lambda x: self.pop_win.exec_())
+        # self.config_settings.setFixedSize(30, 30)
 
-        self.config_settings.setParent(self)
-        self.pop_win.sig.connect(self.canvas.change_attributes)
+        # self.config_settings.setParent(self)
+        # self.pop_win.sig.connect(self.canvas.change_attributes)
 
         if self.lT:
             self.progeny_diagram_loader()
@@ -964,25 +877,13 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             f"Currently {self.range+1} lineages present."
         )
 
-        # Create a color box to show the current lineage color
-        self.lineage_color_box = QLabel()
-        self.lineage_color_box.setFixedSize(40, 20)
-        self.lineage_color_box.setToolTip("Current lineage color")
-        # Initialize with default color (will be updated when data is loaded)
-        self.lineage_color_box.setStyleSheet(
-            "QLabel { background-color: rgb(128, 128, 128); "
-            "border: 1px solid black; border-radius: 3px; }"
-        )
-
-        # Update color box if lineage data is already loaded
         if self.lT:
-            self.update_lineage_color_box()
+            self.update_lineageviewer_colors()
 
         self.slider_box = Containerize(
             [
                 widgets.Label(value="Lineage slider").native,
                 self.graph_slider,
-                self.lineage_color_box,
             ]
         )
         self.layout().addWidget(self.slider_box)

@@ -86,7 +86,7 @@ class CloneRecoloring(LayerCorrectorTreeProducer):
     def reset_colors(self):
         active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is not None:
-            active_layer.face_color = active_layer.metadata["clone2"]
+            active_layer.face_color = active_layer.metadata["default_colors"]
 
     def create_layout(self):
         """Creates the layout for this widget."""
