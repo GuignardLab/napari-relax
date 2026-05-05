@@ -21,7 +21,7 @@ from .cross_embryo_comparison import CrossClustermap
 
 
 class CrossHandler(LayerCorrectorTreeProducer):
-    """Class to laod the widgets for comparing lineages across datasets."""
+    """Class to load the widgets for comparing lineages across datasets."""
 
     name = "Cross Distance Calculation"
 
@@ -89,12 +89,12 @@ class CrossHandler(LayerCorrectorTreeProducer):
 
     def update_comparisons(self, product):
         (
-            self.comparisonswidget.comparisons,
+            self.comparisonswidget.comps,
             self.comparisonswidget.names,
             self.comparisonswidget.norms,
         ) = product
         self.comparisonswidget.time_slider.max = len(product[0]) - 1
-        self.comparisonswidget.clustermap_creator()
+        self.comparisonswidget.send_data()
         if self.pbr:
             self.pbr.update()
 
