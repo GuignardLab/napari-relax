@@ -465,7 +465,7 @@ def find_longest_axis(lT: LineageTree)-> float:
                 true_distance = distance
         else:
             distance = 0
-            pairs = [(p1,p2) for p1 in pos for p2 in pos if p1!=p2]
+            pairs = [(p1,p2) for p1 in pos for p2 in pos if np.isclose(np.linalg.norm(p1-p2),0)]
             for p1,p2 in pairs:
                 d = np.linalg.norm(p1-p2)
                 if d>distance:
