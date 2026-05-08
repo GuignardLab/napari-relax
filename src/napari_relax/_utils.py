@@ -433,7 +433,7 @@ def find_antipodal_pairs(v: np.ndarray):
             yield i, (j + 1) % n
 
 
-def find_longest_axis(lT: LineageTree):
+def find_longest_axis(lT: LineageTree)-> float:
     """Finds the length of the longest axis between points on a LineageTree dataset, using the rotating calipers method
     implemented from 'https://en.wikipedia.org/wiki/Rotating_calipers'
 
@@ -449,19 +449,28 @@ def find_longest_axis(lT: LineageTree):
     """
     true_distance = 0
     for time_step in range(lT.t_b, lT.t_e, 10):
-        # big_tp = max(lT.time_nodes, key=lambda x: len(lT.time_nodes[x]))
         nodes = lT.time_nodes[time_step]
         pos = np.array([lT.pos[node] for node in nodes])
         pos -= np.mean(pos, axis=0)
+        if len(pos)>4:
+            hull = ConvexHull(pos)
+            v = pos[hull.vertices]
+            antipodal_pairs = list(find_antipodal_pairs(v))
+            distance = 0
+            for v1, v2 in antipodal_pairs:
+                d = np.linalg.norm(v[v1] - v[v2])
+                if d > distance:
+                    distance = d
+            if true_distance < distance:
+                true_distance = distance
+        else:
+            distance = 0
+            pairs = [(p1,p2) for p1 in pos for p2 in pos if p1!=p2]
+            for p1,p2 in pairs:
+                d = np.linalg.norm(p1-p2)
+                if d>distance:
+                    distance = d
+            if true_distance<distance:
+                true_distance = distance
 
-        hull = ConvexHull(pos)
-        v = pos[hull.vertices]
-        antipodal_pairs = list(find_antipodal_pairs(v))
-        distance = 0
-        for v1, v2 in antipodal_pairs:
-            d = np.linalg.norm(v[v1] - v[v2])
-            if d > distance:
-                distance = d
-        if true_distance < distance:
-            true_distance = distance
     return true_distance
