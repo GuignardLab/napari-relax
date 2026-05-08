@@ -136,10 +136,8 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             if self.lT is None:
                 return
 
-            # Clear selections in all layers
-            for viewer_layer in viewer.layers:
-                with contextlib.suppress(Exception):
-                    viewer_layer.selected_data.clear()
+           
+            active_layer.selected_data.clear()
             self.canvas.selected_nodes.clear()
             active_layer.refresh()
 
@@ -383,7 +381,9 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is None:
             return
+        active_layer.selected_data.clear()
         try:
+            self.canvas.selected_nodes.clear()
             self.face_colors_handler.disconnect()
             self.face_colors_handler = active_layer._face.events.connect(
                 self.progeny_diagram_loader
