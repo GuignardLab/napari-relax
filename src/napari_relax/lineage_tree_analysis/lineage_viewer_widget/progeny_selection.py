@@ -689,6 +689,8 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             self.canvas.marked_cell_id = (
                 cell_id  # Store the cell to mark with circle
             )
+            self.canvas._draw_cell_marker(cell_id)
+            self.canvas.draw()
 
             # Select only the single cell in the 3D view (not sublineage)
             points_to_select = set()
@@ -709,7 +711,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             # Update time slider to show when this cell first appears
             self.update_time_slider_for_cell(cell_id)
 
-            # Update the lineage color box
             self.update_lineageviewer_colors()
 
     def update_time_slider_for_cell(self, cell_id):
