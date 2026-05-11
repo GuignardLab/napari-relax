@@ -2,6 +2,7 @@ from .containerize import Containerize
 from .dialog_for_reader import (
     BigDatasetNamesDialog,
     LoadingDialog,
+    SetupDialog,
     TimeResDialog,
 )
 from .eventfilter_for_delayed_tooltip import (
@@ -18,9 +19,10 @@ __all__ = (
     "TabTemplate",
     "QtViewerWrap",
     "LoadingDialog",
-    "TimeResDialog",
+    "SetupDialog",
     "DelayedTooltipEventFilter",
     "TooltipButton",
     "BigDatasetNamesDialog",
     "SingleTreeProgeny",
+    "TimeResDialog",
 )

@@ -7,7 +7,10 @@ https://napari.org/stable/plugins/guides.html?#readers
 """
 
 import uuid
+from collections import namedtuple
+from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 from lineagetree import (
@@ -16,10 +19,12 @@ from lineagetree import (
 )
 from lineagetree._core import utils
 from napari.utils import colormaps
-from napari.utils.notifications import show_warning
 
-from ._util_classes import LoadingDialog, TimeResDialog
-from ._utils import _infer_point_size
+from ._util_classes import LoadingDialog, SetupDialog
+from ._utils import _infer_point_size, find_pair_with_the_longest_distance
+
+if TYPE_CHECKING:
+    from napari.utils import CyclicLabelColormap
 
 
 def napari_get_reader(path):
@@ -91,14 +96,16 @@ def reader_function(path: str):
 
         lT = loader(path)
 
-    if not hasattr(lT, "time_resolution") or lT.time_resolution == 0:
-        t_res = TimeResDialog()
-        t_res.exec_()
-        lT.time_resolution = t_res.value_selected
-        if t_res.check_resave.isChecked():
-            lT.write(path)
+    setup = SetupDialog(lT, current=lT.time_resolution)  # always appears
+    setup.exec_()
+    if not setup.parameters:
+        return
 
-    return layer_preparation(lT, path)
+    lT.time_resolution = setup.parameters["time_r"]
+    if setup.parameters["resave"]:
+        lT.write(path)
+
+    return layer_preparation(lT, path, parameters=setup.parameters)
 
 
 def _extract_napari_surface_from_lT(lT: LineageTree):
@@ -149,14 +156,50 @@ def _extract_napari_surface_from_lT(lT: LineageTree):
 
     return all_vertices, all_faces
 
+def initial_loading(lT: LineageTree, scaling=False) -> namedtuple:
+    """Calculates the bare minimum to load a LineageTree and returns a dict that contains the data the colors of the nodes and other things that are usefull for other funcs
 
-def layer_preparation(
-    lT: LineageTree, points_layer_name: str | Path, from_cross=False
-):
+    Parameters
+    ----------
+    lT : LineageTree
+        The lineageTree
+
+    Returns
+    -------
+    initial_spatial_data: namedtuple
+        A structured container that contains:
+        data : np.ndarray
+            Array containing the positions of the points.
+        lT_to_here : dict
+            Mapping from lineage tree IDs to napari IDs.
+        here_to_lT : dict
+            Mapping from napari IDs to lineage tree IDs.
+        clone : np.ndarray
+            Original colors of the dataset.
+        default_colors : np.ndarray
+            Updated colors of the dataset.
+        cmap : CyclicLabelColormap
+            Colormap used to assign colors to nodes.
+        roots : set
+            Root nodes of the dataset.
+        barycenter : float
+            Center of the dataset (should be 0 if centered).
+        last_c_of_track : list
+            Leaf nodes of the dataset (used for graph loading).
+        first_c_to_track : list
+            Root nodes of tracks (used for graph loading).
+        rescaling_factor : float
+            Scaling factor applied to the data.
+    """
     tracks = lT.all_chains
     first_c_to_track = {}
     last_c_of_track = {}
-
+    if scaling:
+        scale = find_pair_with_the_longest_distance(lT)
+        print("long_path", scale)
+    else:
+        scale = 1
+    lT.spatial_resolution = 1 / scale
     # Pre-calculate total number of cells
     total_cells = sum(len(track) for track in tracks)
 
@@ -165,6 +208,7 @@ def layer_preparation(
     lT_to_here = {}
 
     c_id = 0
+
     for i, track in enumerate(tracks):
         first_c_to_track[track[0]] = i
         last_c_of_track[i] = track[-1]
@@ -172,13 +216,18 @@ def layer_preparation(
         for cell in track:
             # Get position once and reverse coordinates
             pos = lT.pos[cell]
-            data[c_id] = [i, lT.time[cell], *pos[::-1]]  # Reverse z,y,x order
+            data[c_id] = [
+                i,
+                lT.time[cell],
+                *(pos[::-1]),
+            ]  # Reverse z,y,x order
             lT_to_here[cell] = c_id
             c_id += 1
 
     here_to_lT = {v: k for k, v in lT_to_here.items()}
     barycenter = data[:, 2:].mean(axis=0)
     data[:, 2:] -= barycenter
+    data[:, 2:] = data[:, 2:] / scale
 
     clone = np.zeros(len(data))
     roots = lT.roots
@@ -196,6 +245,101 @@ def layer_preparation(
         if cell_indices:
             clone[cell_indices] = i
             default_colors[cell_indices, :] = color
+    initial_spatial_data = namedtuple(
+        "initial_spatial_data",
+        [
+            "data",
+            "lT_to_here",
+            "here_to_lT",
+            "clone",
+            "default_colors",
+            "cmap",
+            "barycenter",
+            "last_c_of_track",
+            "first_c_to_track",
+            "rescaling_factor",
+        ],
+    )
+    return initial_spatial_data(
+        data=data,
+        lT_to_here=lT_to_here,
+        here_to_lT=here_to_lT,
+        clone=clone,
+        default_colors=default_colors,
+        cmap=cmap,
+        barycenter=barycenter,
+        last_c_of_track=last_c_of_track,
+        first_c_to_track=first_c_to_track,
+        rescaling_factor=scale,
+    )
+
+
+def graph_loading(
+    lT: LineageTree,
+    last_c_of_track: dict,
+    first_c_to_track: dict,
+    divisor: int,
+) -> tuple[dict, dict, dict]:
+    """Generates the graphs for the loaded lineagetree.
+
+    Parameters
+    ----------
+    lT : LineageTree
+        The lineagetree object
+    last_c_of_track : dict
+        a dict created during initial loading
+    first_c_to_track : dict
+        a dict created during initial loading
+    divisor : int
+        Handles the minimum size of the trees
+
+    Returns
+    -------
+    tuple[dict,dict,dict]
+        The threee graphs that are gonna be used for the plugin lineage viewers.
+    """
+    if divisor == 0:
+        graphs = lT._create_dict_of_plots({root for root in lT.roots})
+
+        pos = {
+            i: utils.hierarchical_pos(
+                g, g["root"], ycenter=-int(lT.time[g["root"]]), vert_gap=1
+            )
+            for i, g in graphs.items()
+        }
+    else:
+        graphs = lT._create_dict_of_plots(
+            {
+                root
+                for root in lT.roots
+                if len(lT.get_subtree_nodes(root))
+                >= (lT.t_e - lT.t_b) / divisor
+            }
+        )
+
+        pos = {
+            i: utils.hierarchical_pos(
+                g, g["root"], ycenter=-int(lT.time[g["root"]]), vert_gap=1
+            )
+            for i, g in graphs.items()
+        }
+    graph = {}
+    for t, c in last_c_of_track.items():
+        for di in lT.successor.get(c, []):
+            graph.setdefault(first_c_to_track[di], []).append(t)
+    return graphs, pos, graph
+
+
+def layer_preparation(
+    lT: LineageTree,
+    points_layer_name: str | Path,
+    no_graph=False,
+    parameters=None,
+):
+
+    initial_spatial_data = initial_loading(
+        lT, parameters.get("rescale", False)
+    )
 
     if Path(points_layer_name).exists():
         points_layer_name = Path(points_layer_name).stem
@@ -204,27 +348,15 @@ def layer_preparation(
 
     # Create a unique identifier for this lineage tree to link Points and Surface layers
     lineage_tree_id = str(uuid.uuid4())
-    graphs = lT._create_dict_of_plots(
-        {
-            root
-            for root in lT.roots
-            if len(lT.get_subtree_nodes(root)) > (lT.t_e - lT.t_b) / 4
-        }
-    )
-    if not from_cross:
-        show_warning(
-            "Only lineages with height larger than 1/4 of the total timepoints will be shown on the lineage Viewer."
+    if not no_graph:
+        graphs, pos, graph = graph_loading(
+            lT,
+            initial_spatial_data.last_c_of_track,
+            initial_spatial_data.first_c_to_track,
+            parameters.get("divisor", 0),
         )
-    pos = {
-        i: utils.hierarchical_pos(
-            g, g["root"], ycenter=-int(lT.time[g["root"]]), vert_gap=1
-        )
-        for i, g in graphs.items()
-    }
-    graph = {}
-    for t, c in last_c_of_track.items():
-        for di in lT.successor.get(c, []):
-            graph.setdefault(first_c_to_track[di], []).append(t)
+    else:
+        graphs, pos, graph = (), (), ()
 
     # optimal point size infered from heuristics on nearest neighbor distances
     min_size, optimal_size, max_size = _infer_point_size(lT)
@@ -232,34 +364,35 @@ def layer_preparation(
     add_kwargs_point = {
         "size": optimal_size,
         "properties": {
-            "clone": clone,
-            "Selection": np.zeros_like(clone),
+            "clone": initial_spatial_data.clone,
+            "Selection": np.zeros_like(initial_spatial_data.clone),
         },
         "metadata": {
             "LineageTree": lT,
-            "lT2napari": lT_to_here,
-            "napari2lT": here_to_lT,
-            "default_colors": default_colors,
+            "lT2napari": initial_spatial_data.lT_to_here,
+            "napari2lT": initial_spatial_data.here_to_lT,
+            "default_colors": initial_spatial_data.default_colors,
             "graphs": (graphs, pos),
             "name_for_manager": points_layer_name,
-            "data": data,
+            "data": initial_spatial_data.data,
             "lineage_tree_id": lineage_tree_id,  # Unique identifier for linking companion layers
             "graph_to_create_tracks": {
                 "graph": graph,
                 "properties": {
-                    "Lineage": clone,
-                    "Selection": np.ones_like(clone),
+                    "Lineage": initial_spatial_data.clone,
+                    "Selection": np.ones_like(initial_spatial_data.clone),
                 },
             },
             "size_display_bounds": (min_size, optimal_size, max_size),
+            "rescaling_dactor": initial_spatial_data.rescaling_factor,
         },
         "name": points_layer_name,
-        "face_color": default_colors,
+        "face_color": initial_spatial_data.default_colors,
         "shading": "spherical",
     }
 
     napari_layers = [
-        (data[:, 1:], add_kwargs_point, "points"),
+        (initial_spatial_data.data[:, 1:], add_kwargs_point, "points"),
     ]
 
     if hasattr(lT, "mesh"):
@@ -288,7 +421,9 @@ def layer_preparation(
 
         for node_id, mesh in lT.mesh.items():
             root_node_id = dict_successors_to_roots.get(node_id, node_id)
-            root_index = list(roots).index(root_node_id) + 1
+            root_index = (
+                list(initial_spatial_data.roots).index(root_node_id) + 1
+            )
             num_vertices = mesh["vertices"].shape[0]
 
             # Store vertex range for this node
@@ -298,7 +433,7 @@ def layer_preparation(
             )
 
             # Efficiently assign colors to the pre-allocated array
-            color = cmap.map(root_index)  # Get color once
+            color = initial_spatial_data.cmap.map(root_index)  # Get color once
             vertex_colors[vertex_offset : vertex_offset + num_vertices] = color
 
             vertex_offset += num_vertices
@@ -309,7 +444,7 @@ def layer_preparation(
         # This is debatable if several meshes of the same objects are loaded,
         # as barycenters are inferred from meshes centroids, which won't
         # necessarily coincide for different mesh files from the same embryo.
-        all_vertices[:, 1:] -= barycenter
+        all_vertices[:, 1:] -= initial_spatial_data.barycenter
 
         napari_surface = (all_vertices, all_faces)
 

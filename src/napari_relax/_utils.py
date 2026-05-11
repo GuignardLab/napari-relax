@@ -8,9 +8,12 @@ from napari.qt import get_current_stylesheet
 from qtpy.QtWidgets import (
     QMessageBox,
 )
+from scipy.spatial import ConvexHull
+from scipy.spatial.distance import pdist
+import warnings
 
 
-def _infer_point_size(lT: "LineageTree"):
+def _infer_point_size(lT: LineageTree):
     """
     Infer a point size based on nearest neighbor distances.
 
@@ -377,3 +380,35 @@ def plot_lineages_for_tree_manip(
         axes.spines["left"].set_visible(False)
 
     return figure, axes, ax2root, root2ax
+
+def find_pair_with_the_longest_distance(lT: LineageTree)-> float:
+    """Finds the points that have the longest distance between each other.
+
+    Parameters
+    ----------
+    lT : LineageTree
+        The lineagetree
+
+    Returns
+    -------
+    float
+        The length of the longest possible axis.
+    """
+    true_distance = 0
+    for time_step in range(lT.t_b, lT.t_e, 10):
+        nodes = lT.time_nodes[time_step]
+        pos = np.array([lT.pos[node] for node in nodes])
+        pos -= np.mean(pos, axis=0)
+        if len(pos)==1:
+            continue
+        if len(pos)>4:
+            hull = ConvexHull(pos)
+            v = pos[hull.vertices]
+        else:
+            v = pos
+        distance = np.max(pdist(v))
+        if true_distance < distance:
+            true_distance = distance
+    if true_distance == 0:
+        warnings.warn("The maximum spread of the point cloud is 0.")
+    return true_distance if true_distance>0 else 1
