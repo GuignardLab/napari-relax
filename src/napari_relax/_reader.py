@@ -21,7 +21,7 @@ from lineagetree._core import utils
 from napari.utils import colormaps
 
 from ._util_classes import LoadingDialog, SetupDialog
-from ._utils import _infer_point_size, find_longest_axis
+from ._utils import _infer_point_size, find_pair_with_the_longest_distance
 
 if TYPE_CHECKING:
     from napari.utils import CyclicLabelColormap
@@ -195,7 +195,7 @@ def initial_loading(lT: LineageTree, scaling=False) -> namedtuple:
     first_c_to_track = {}
     last_c_of_track = {}
     if scaling:
-        scale = find_longest_axis(lT)
+        scale = find_pair_with_the_longest_distance(lT)
         print("long_path", scale)
     else:
         scale = 1
