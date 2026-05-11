@@ -190,7 +190,6 @@ class PointsAdapter(LayerAdapter):
         dims_displayed: np.ndarray,
     ) -> int | None:
         """Find the node at the clicked position using 3D ray intersection."""
-
         time = position[0]
 
         # Get ray intersections from the layer
@@ -239,8 +238,12 @@ class PointsAdapter(LayerAdapter):
 
         # Find the closest intersection
         min_dist_idx = np.argmin(distances)
-        if distances[min_dist_idx] < 10:  # Tighter threshold for 3D clicking
-            napari_idx = indices_at_time[idx[min_dist_idx]]
+        # if distances[min_dist_idx] < self.layer.size[0]:  # All points should have the same size
+        #     napari_idx = indices_at_time[idx[min_dist_idx]]
+        #     return self.napari_to_node.get(napari_idx)
+
+        napari_idx = indices_at_time[idx[min_dist_idx]]
+        if distances[min_dist_idx] < self.layer.size[napari_idx]:
             return self.napari_to_node.get(napari_idx)
 
         return None

@@ -136,13 +136,17 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             if self.lT is None:
                 return
 
+           
+            active_layer.selected_data.clear()
+            self.canvas.selected_nodes.clear()
+            active_layer.refresh()
+
             # Use InteractionBridge to find node in any layer
             result = self.bridge.find_node_at_position(
                 event.position, event.view_direction, event.dims_displayed
             )
 
             if result:
-                self.canvas.selected_nodes.clear()
                 layer, node_id = result
                 node_id_napari = layer.metadata["lT2napari"][node_id]
                 self.cell_id_spinbox.setValue(node_id_napari)
@@ -150,10 +154,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 # Update the cell ID spinbox to show the clicked cell
                 self.cell_id_spinbox.setValue(node_id)
 
-                # Clear selections in all layers
-                for viewer_layer in viewer.layers:
-                    with contextlib.suppress(Exception):
-                        viewer_layer.selected_data.clear()
 
                 active_layer.selected_data = {node_id_napari}
 
@@ -189,6 +189,9 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 else:
                     self.canvas.ax.cla()
                     self.canvas.draw()
+            else:
+                self.canvas.marked_cell_id = None
+                self.progeny_diagram_loader()
 
     def update_lineageviewer_colors(self):
         """Update the color box to show the current lineage color."""
@@ -378,7 +381,9 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is None:
             return
+        active_layer.selected_data.clear()
         try:
+            self.canvas.selected_nodes.clear()
             self.face_colors_handler.disconnect()
             self.face_colors_handler = active_layer._face.events.connect(
                 self.progeny_diagram_loader
