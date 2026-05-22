@@ -48,7 +48,7 @@ def _infer_point_size(lT: LineageTree):
     for t in sampled_timepoints:
         nodes = lT.time_nodes[t]
         if len(nodes) > 1:
-            idx3d, nodes = lT.get_idx3d(t)
+            idx3d, nodes = lT.idx3d(t)
 
             nn_dists = idx3d.query(idx3d.data, k=2)[0][:, 1]
 
@@ -381,7 +381,8 @@ def plot_lineages_for_tree_manip(
 
     return figure, axes, ax2root, root2ax
 
-def find_pair_with_the_longest_distance(lT: LineageTree)-> float:
+
+def find_pair_with_the_longest_distance(lT: LineageTree) -> float:
     """Finds the points that have the longest distance between each other.
 
     Parameters
@@ -399,9 +400,9 @@ def find_pair_with_the_longest_distance(lT: LineageTree)-> float:
         nodes = lT.time_nodes[time_step]
         pos = np.array([lT.pos[node] for node in nodes])
         pos -= np.mean(pos, axis=0)
-        if len(pos)==1:
+        if len(pos) == 1:
             continue
-        if len(pos)>4:
+        if len(pos) > 4:
             hull = ConvexHull(pos)
             v = pos[hull.vertices]
         else:
@@ -411,4 +412,4 @@ def find_pair_with_the_longest_distance(lT: LineageTree)-> float:
             true_distance = distance
     if true_distance == 0:
         warnings.warn("The maximum spread of the point cloud is 0.")
-    return true_distance if true_distance>0 else 1
+    return true_distance if true_distance > 0 else 1
