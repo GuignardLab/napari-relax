@@ -18,6 +18,7 @@ from ..._util_classes import (
     LayerCorrectorTreeProducer,
     TooltipButton,
 )
+from matplotlib import colormaps
 from ..._util_classes.custom_colorboxes import MplCompatibleColorCombobox
 from ..._utils import _select_active_lt_layer
 from .clustermap_canvas import ClusterMapCanvas
@@ -263,7 +264,7 @@ class Clustermap(LayerCorrectorTreeProducer):
         self.norm_dict = {"max": max, "sum": sum, "None": lambda x: 1}
         self.colormap = MplCompatibleColorCombobox(
             self,
-            {i: cm.get_cmap(i) for i in DICT_OF_CMAPS},
+            {i: colormaps.get(i) for i in DICT_OF_CMAPS},
         )
         self.norm_color_cont = Containerize(
             [self.norm_combo.native, self.colormap]
