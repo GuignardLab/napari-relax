@@ -15,6 +15,7 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from matplotlib import colormaps
 
 from ..._util_classes import Containerize
 
@@ -42,7 +43,7 @@ quant_cmap_names = [
     "tab20c",
 ]
 
-QUANTITATIVE_CMAPS = {name: cm.get_cmap(name) for name in quant_cmap_names}
+QUANTITATIVE_CMAPS = {name: colormaps.get(name) for name in quant_cmap_names}
 
 
 def make_image(cmap: Colormap, width: int = 64, height: int = 12) -> QImage:

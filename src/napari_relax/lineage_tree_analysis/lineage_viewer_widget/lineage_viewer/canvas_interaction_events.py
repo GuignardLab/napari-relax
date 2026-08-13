@@ -8,6 +8,8 @@ class CanvasUtils:
             self.draw_graph(reset=True)
 
     def pan_start(self, event):
+        if not hasattr(self, "pan"):
+                    return
         if event.button == 3 and event.inaxes:
             self.pan = True
             # Store in pixel coords — unaffected by axes limit changes
@@ -17,11 +19,15 @@ class CanvasUtils:
             self._plot_labels()
 
     def pan_stop(self, event):
+        if not hasattr(self, "pan"):
+            return
         if event.button == 3 and self.pan:
             self.pan = False
             self._plot_labels()
 
     def panning(self, event):
+        if not hasattr(self, "pan"):
+                    return
         if (
             not (self.pan and event.button == 3 and event.inaxes)
             or not self.hier
