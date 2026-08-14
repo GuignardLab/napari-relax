@@ -18,7 +18,7 @@ contributions:
     - id: napari-relax.cross_embryo_comparison
       python_name: napari_relax._widgets:CrossEmbryoComparisonWidget
       title: Cross Lineagetree comparison
-    - id: napari-relax.loae2d_demo
+    - id: napari-relax.load_demo
       python_name: napari_relax.demo_data:load_demo
       title: Load data
     - id: napari-relax.load_celegans
