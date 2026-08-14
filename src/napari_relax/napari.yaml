@@ -18,13 +18,30 @@ contributions:
     - id: napari-relax.cross_embryo_comparison
       python_name: napari_relax._widgets:CrossEmbryoComparisonWidget
       title: Cross Lineagetree comparison
-    - id: napari-relax.load_demo
+    - id: napari-relax.loae2d_demo
       python_name: napari_relax.demo_data:load_demo
       title: Load data
     - id: napari-relax.load_celegans
       python_name: napari_relax.demo_data:load_celegans
       title: Load C. elegans
-
+  configurations:
+    progeny_canvas: 
+      title: Attributes of canvas
+      properties:
+        node_size: # The value identifier
+          type: float
+          # multiples_of: 0.1
+          default: 1
+          title: Size of Nodes
+        edge_size: # The value identifier
+          type: float
+          # multiples_of: 0.1
+          default: 1
+          title: Size of Edges
+        font_size:
+          type: integer
+          default: 8
+          title: Font size
   readers:
     - command: napari-relax.get_reader
       accepts_directories: false
