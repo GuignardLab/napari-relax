@@ -28,9 +28,9 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
         """
         Receives a signal to change the attributes of the plot.
         """
-        self.node_size = signal._sources[0].node_size
-        self.lw = signal._sources[0].edge_size
-        self.fontsize= signal._sources[0].font_size
+        self.node_size = signal.source.node_size
+        self.lw = signal.source.edge_size
+        self.fontsize= signal.source.font_size
         self.draw_graph()
 
     def _generate_info_to_draw_graph(self):
