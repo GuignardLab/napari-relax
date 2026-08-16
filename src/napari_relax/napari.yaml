@@ -28,14 +28,14 @@ contributions:
     progeny_canvas: 
       title: Attributes of canvas
       properties:
-        node_size: # The value identifier
+        node_size: 
           type: float
-          # multiples_of: 0.1
+          multiples_of: 0.1
           default: 1
           title: Size of Nodes
-        edge_size: # The value identifier
+        edge_size: 
           type: float
-          # multiples_of: 0.1
+          multiples_of: 0.1
           default: 1
           title: Size of Edges
         font_size:

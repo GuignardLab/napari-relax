@@ -268,6 +268,7 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
                         + str(node),
                         fontsize=self.fontsize,
                         rotation=34,
+                        clip_on= True
                     )
 
     def calculate_axes(self):
