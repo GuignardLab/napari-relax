@@ -1,4 +1,3 @@
-from typing import override
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,12 +10,10 @@ from ..lineage_tree_analysis.comparison_widget.clustermap_canvas import (
 
 
 class CrossClusterMapCanvas(ClusterMapCanvas):
-    @override
     def clear_data(self):
         self.manager = None
         return super().clear_data()
 
-    @override
     def _receive_data(self, comps=None, norms=None, names=None, manager=None):
         self.manager = manager
         self.comps = comps
@@ -24,7 +21,6 @@ class CrossClusterMapCanvas(ClusterMapCanvas):
         self.names = names
         self._plot()
 
-    @override
     def _plot(self):
         """
         Plots the clustermap for the timepoint specified by the time slider, where each element is the pairwise comparison of all the sublineages present in
@@ -94,7 +90,6 @@ class CrossClusterMapCanvas(ClusterMapCanvas):
         self.ax.set_aspect("auto")
         self.draw()
 
-    @override
     def annotation_maker(self, x, y, offset_xy, ha, value):
         self.hover_annotation = self.ax.annotate(
             f"Lineage 1: {self.labels_of_node_real[int(x + 0.5)]}\nLineage 2: {self.labels_of_node_real[int(y + 0.5)]}\nScore: {value:.2f}",
