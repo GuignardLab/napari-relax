@@ -48,7 +48,7 @@ def _infer_point_size(lT: LineageTree):
     for t in sampled_timepoints:
         nodes = lT.time_nodes[t]
         if len(nodes) > 1:
-            idx3d, nodes = lT.get_idx3d(t)
+            idx3d, nodes = lT.idx3d(t)
 
             nn_dists = idx3d.query(idx3d.data, k=2)[0][:, 1]
 
