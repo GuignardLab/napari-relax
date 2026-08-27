@@ -1,25 +1,27 @@
-from lineagetree import LineageTree
-
-from napari_relax._utils import _select_active_lt_layer
-from napari_relax._util_classes import LayerCorrectorTreeProducer
-from qtpy.QtWidgets import QPushButton, QTabWidget, QVBoxLayout, QWidget
-from napari_relax.lineage_tree_analysis.calculate_properties.props_utils import find_all_viable_methods,get_parameters_of_function,get_parameter_doc,convert_to_title
-from napari_relax.lineage_tree_analysis.calculate_properties.widget_generator import LineEditGenerator
-import re
-from napari_relax._util_classes import DelayedTooltipEventFilter
 from collections.abc import Callable
 
-import inspect
-import re
-
-
-
+from lineagetree import LineageTree
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
-    QTabWidget,
+    QPushButton,
     QSizePolicy,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget,
+)
+
+from napari_relax._util_classes import (
+    DelayedTooltipEventFilter,
+    LayerCorrectorTreeProducer,
+)
+from napari_relax.lineage_tree_analysis.calculate_properties.props_utils import (
+    convert_to_title,
+    find_all_viable_methods,
+    get_parameter_doc,
+    get_parameters_of_function,
+)
+from napari_relax.lineage_tree_analysis.calculate_properties.widget_generator import (
+    LineEditGenerator,
 )
 
 
@@ -50,10 +52,7 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
 
         for method in methods:
             widget = self.generate_tab_widget(method)
-            self.tab_widget.addTab(
-                widget,
-                convert_to_title(method.__name__)
-            )
+            self.tab_widget.addTab(widget, convert_to_title(method.__name__))
 
     def generate_tab_widget(self, method: Callable) -> QWidget:
         widget = QWidget()
@@ -85,11 +84,11 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
             QSizePolicy.Maximum,
         )
         widget.method = method
-        run =QPushButton("Run")
-        run.clicked.connect(lambda x: method(**{par:val.get_value() for par,val in widget_dict.items()}))
+        run = QPushButton("Run")
+        run.clicked.connect(
+            lambda x: method(
+                **{par: val.get_value() for par, val in widget_dict.items()}
+            )
+        )
         widget.layout().addWidget(run)
         return widget
-
-
-
-
