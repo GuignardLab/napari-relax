@@ -66,8 +66,6 @@ class LineEditGenerator(QWidget):
         if hasattr(self, "none_button") and self.none_button.isChecked():
             return None
         text = self.line_edit.text()
-        
-
         if not text:
             return None
 

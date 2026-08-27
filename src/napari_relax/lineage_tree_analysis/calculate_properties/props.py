@@ -3,7 +3,7 @@ from lineagetree import LineageTree
 from napari_relax._utils import _select_active_lt_layer
 from napari_relax._util_classes import LayerCorrectorTreeProducer
 from qtpy.QtWidgets import QPushButton, QTabWidget, QVBoxLayout, QWidget
-from napari_relax.lineage_tree_analysis.calculate_properties.props_utils import find_all_viable_methods,get_parameters_of_function
+from napari_relax.lineage_tree_analysis.calculate_properties.props_utils import find_all_viable_methods,get_parameters_of_function,get_parameter_doc,convert_to_title
 from napari_relax.lineage_tree_analysis.calculate_properties.widget_generator import LineEditGenerator
 import re
 from napari_relax._util_classes import DelayedTooltipEventFilter
@@ -13,55 +13,6 @@ import inspect
 import re
 
 
-# def get_parameter_doc(func, parameter: str) -> str | None:
-#     """Get the documentation for one parameter from a function's docstring."""
-#     doc = func.__doc__
-
-#     if not doc:
-#         return None
-
-#     pattern = rf"^\s*{re.escape(parameter)}\s*:\s*(.*?)(?=^\s*\w[\w\s]*\s*:|\Z)"
-
-#     match = re.search(pattern, doc, re.MULTILINE | re.DOTALL)
-
-#     if not match:
-#         return None
-
-#     return match.group(0).strip()
-
-def get_parameter_doc(func, parameter: str) -> str | None:
-    """Get the documentation for one parameter from a function's docstring.
-    No idea how it works it's chatgpt code and I don't speak regex
-    Practically it returns only the part of the docsting that is related to the parameter given"""
-    doc = func.__doc__
-
-    if not doc:
-        return None
-
-    pattern = rf"""
-        ^\s*{re.escape(parameter)}\s*:\s*
-        (.*?)
-        (?=
-            ^\s*\w[\w\s]*\s*:      # next parameter
-            |^\s*Returns?\s*:      # Returns / Return
-            |^\s*Returns?\s*$      # Returns / Return without :
-            |\Z
-        )
-    """
-
-    match = re.search(
-        pattern,
-        doc,
-        re.MULTILINE | re.DOTALL | re.VERBOSE,
-    )
-
-    if not match:
-        return None
-
-    return match.group(1).strip()
-
-def convert_to_title(name):
-    return re.sub(r"_+", " ", name).title()
 
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
