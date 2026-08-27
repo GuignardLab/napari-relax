@@ -9,7 +9,7 @@ class CanvasUtils:
 
     def pan_start(self, event):
         if not hasattr(self, "pan"):
-                    return
+            return
         if event.button == 3 and event.inaxes:
             self.pan = True
             # Store in pixel coords — unaffected by axes limit changes
@@ -27,7 +27,7 @@ class CanvasUtils:
 
     def panning(self, event):
         if not hasattr(self, "pan"):
-                    return
+            return
         if (
             not (self.pan and event.button == 3 and event.inaxes)
             or not self.hier

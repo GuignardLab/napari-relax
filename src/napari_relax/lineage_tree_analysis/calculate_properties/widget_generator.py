@@ -1,19 +1,20 @@
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QLineEdit,QWidget, QLabel, QHBoxLayout, QPushButton
-from qtpy.QtGui import QIntValidator, QDoubleValidator
 from typing import get_args
 
-
+from qtpy.QtGui import QDoubleValidator, QIntValidator
+from qtpy.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QPushButton, QWidget
 
 
 def get_base_type(annotation: str) -> tuple[type | None, bool]:
-    annotation = eval(annotation, {
-        "int": int,
-        "float": float,
-        "str": str,
-        "bool": bool,
-        "None": type(None),
-    })
+    annotation = eval(
+        annotation,
+        {
+            "int": int,
+            "float": float,
+            "str": str,
+            "bool": bool,
+            "None": type(None),
+        },
+    )
 
     types = get_args(annotation)
 
@@ -31,6 +32,7 @@ def get_base_type(annotation: str) -> tuple[type | None, bool]:
         return float, allows_none
 
     return types[0], allows_none
+
 
 class LineEditGenerator(QWidget):
     def __init__(
@@ -58,9 +60,10 @@ class LineEditGenerator(QWidget):
             self.none_button = QPushButton("None")
             self.none_button.setCheckable(True)
             self.none_button.clicked.connect(self.line_edit.clear)
-            self.line_edit.textChanged.connect(lambda x: self.none_button.setChecked(False))
+            self.line_edit.textChanged.connect(
+                lambda x: self.none_button.setChecked(False)
+            )
             self.layout().addWidget(self.none_button)
-
 
     def get_value(self):
         if hasattr(self, "none_button") and self.none_button.isChecked():
@@ -72,6 +75,4 @@ class LineEditGenerator(QWidget):
         return self.typ_of_widget(text)
 
 
-
-
-Type2Validation = {int:QIntValidator,float:QDoubleValidator}
+Type2Validation = {int: QIntValidator, float: QDoubleValidator}

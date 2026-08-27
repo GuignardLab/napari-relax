@@ -3,10 +3,10 @@ import pickle
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
 from magicgui import widgets
+from matplotlib import colormaps
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from qtpy.QtWidgets import QLineEdit, QPushButton, QVBoxLayout
@@ -16,7 +16,6 @@ from ..._util_classes import (
     LayerCorrectorTreeProducer,
     TooltipButton,
 )
-from matplotlib import colormaps
 from ..._util_classes.custom_colorboxes import MplCompatibleColorCombobox
 from ..._utils import _select_active_lt_layer
 from .clustermap_canvas import ClusterMapCanvas

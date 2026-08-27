@@ -476,7 +476,6 @@ class TracksAdapter(LayerAdapter):
             self.layer.refresh()
 
 
-
 class InteractionBridge:
     """
     Coordinator for multi-layer lineage interactions with state management.

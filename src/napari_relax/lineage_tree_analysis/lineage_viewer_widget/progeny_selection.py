@@ -8,7 +8,6 @@ from matplotlib.figure import Figure
 from qtpy.QtCore import Qt, Signal
 from qtpy.QtGui import QIcon
 from qtpy.QtWidgets import (
-    QLabel,
     QLineEdit,
     QMessageBox,
     QPushButton,
@@ -136,7 +135,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             if self.lT is None:
                 return
 
-           
             active_layer.selected_data.clear()
             self.canvas.selected_nodes.clear()
             active_layer.refresh()
@@ -153,7 +151,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
 
                 # Update the cell ID spinbox to show the clicked cell
                 self.cell_id_spinbox.setValue(node_id)
-
 
                 active_layer.selected_data = {node_id_napari}
 
@@ -204,10 +201,8 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             and hasattr(self.canvas, "points_layer_metadata")
             and self.canvas.points_layer_metadata is not None
         ):
-            try:
+            with contextlib.suppress(AttributeError, KeyError):
                 self.canvas._extract_current_lineage_color()
-            except (AttributeError, KeyError):
-                ...
 
     def _update_canvas_with_current_colors(self):
         """Update the canvas metadata with current face colors from the active layer."""
@@ -298,10 +293,8 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         active_layer._face.current_color = color
 
         # Update the cell ID spinbox to show the clicked cell
-        try:
+        with contextlib.suppress(BaseException):
             self.cell_id_spinbox.setValue(cell_id)
-        except:
-            pass
 
         # Get the sublineage for the clicked node
         selected_node_ids = self.lT.get_subtree_nodes(cell_id)
@@ -388,7 +381,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             self.face_colors_handler = active_layer._face.events.connect(
                 self.progeny_diagram_loader
             )
-        except:
+        except Exception:  # noqa: BLE001
             pass
 
         # Save current state to the previous bridge
@@ -460,7 +453,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 try:
                     self.cell_id_go_button.clicked.disconnect()
                     self.cell_id_spinbox.editingFinished.disconnect()
-                except:
+                except Exception:  # noqa: BLE001
                     pass
 
                 # Connect the signals
@@ -845,7 +838,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
         )
         self.canvas.setContentsMargins(0, 0, 0, 0)
- 
 
         label1 = widgets.Label(
             value="""<span style="font-family: Arial; font-size: 20px; color: white;">Lineage Viewer</span>"""

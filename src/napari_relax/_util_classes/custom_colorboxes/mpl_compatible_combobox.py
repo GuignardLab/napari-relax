@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import matplotlib.cm as cm
 import numpy as np
+from matplotlib import colormaps
 from qtpy.QtCore import QModelIndex, QRect, QSize, Qt
 from qtpy.QtGui import QIcon, QImage, QPainter, QPixmap
 from qtpy.QtWidgets import (
@@ -15,7 +15,6 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from matplotlib import colormaps
 
 from ..._util_classes import Containerize
 

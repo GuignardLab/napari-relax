@@ -1,9 +1,14 @@
-from lineagetree import LineageTree
-from collections.abc import Iterable, Callable
 import re
+from collections.abc import Callable
 
+from lineagetree import LineageTree
 
-LINEAGETREE_RETURNS = {dict[int, float],dict[int, int], dict[int, float|int]}
+LINEAGETREE_RETURNS = {
+    dict[int, float],
+    dict[int, int],
+    dict[int, float | int],
+}
+
 
 def find_all_viable_methods(
     obj: object,
@@ -26,10 +31,7 @@ def find_all_viable_methods(
 
         if isinstance(return_type, str):
             try:
-                return_type = eval(
-                    return_type,
-                    {"LineageTree": LineageTree}
-                )
+                return_type = eval(return_type, {"LineageTree": LineageTree})
             except (NameError, TypeError, SyntaxError):
                 continue
 
@@ -38,14 +40,20 @@ def find_all_viable_methods(
 
     return funcs
 
+
 def get_parameters_of_function(func: Callable):
-    return {k:v for k,v in func.__annotations__.items() if k not in ["lT","return"] }
+    return {
+        k: v
+        for k, v in func.__annotations__.items()
+        if k not in ["lT", "return"]
+    }
 
 
 def get_parameter_doc(func, parameter: str) -> str | None:
     """Get the documentation for one parameter from a function's docstring.
     No idea how it works it's chatgpt code and I don't speak regex
-    Practically it returns only the part of the docsting that is related to the parameter given"""
+    Practically it returns only the part of the docsting that is related to the parameter given
+    """
     doc = func.__doc__
 
     if not doc:
@@ -72,6 +80,7 @@ def get_parameter_doc(func, parameter: str) -> str | None:
         return None
 
     return match.group(1).strip()
+
 
 def convert_to_title(name):
     return re.sub(r"_+", " ", name).title()

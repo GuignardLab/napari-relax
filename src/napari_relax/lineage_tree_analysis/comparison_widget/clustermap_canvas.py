@@ -4,8 +4,8 @@ from lineagetree import LineageTree
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.colors import Colormap
 from psygnal import Signal
-from qtpy.QtGui import QCursor
 from qtpy.QtCore import QTimer
+from qtpy.QtGui import QCursor
 from qtpy.QtWidgets import QWidget
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
@@ -92,7 +92,7 @@ class ClusterMapCanvas(FigureCanvas):
         self.time = time
         self.lT = lT
         self.labels = self.lT.labels
-        if comps is not None and len(comps)>0:
+        if comps is not None and len(comps) > 0:
             self._plot()
 
     def _plot(self):
@@ -103,7 +103,7 @@ class ClusterMapCanvas(FigureCanvas):
         try:
             if hasattr(self, "colorbar"):
                 self.colorbar.remove()
-        except:
+        except Exception:  # noqa: BLE001
             ...
         self.ax.cla()
         if not hasattr(self, "comps"):
@@ -183,7 +183,7 @@ class ClusterMapCanvas(FigureCanvas):
         if hasattr(self, "hover_annotation") and self.hover_annotation:
             try:
                 self.hover_annotation.remove()
-            except:
+            except Exception:  # noqa: BLE001
                 self.hover_annotation = None
 
     def is_mouse_on_figure(self) -> bool:
@@ -212,7 +212,12 @@ class ClusterMapCanvas(FigureCanvas):
             textcoords="offset points",
             ha=ha,
             va="bottom",
-            bbox=dict(boxstyle="round", fc="black", ec="none", alpha=0.5),
+            bbox={
+                "boxstyle": "round",
+                "fc": "black",
+                "ec": "none",
+                "alpha": 0.5,
+            },
             color="white",
             clip_on=False,
         )

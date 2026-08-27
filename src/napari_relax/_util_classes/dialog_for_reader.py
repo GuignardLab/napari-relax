@@ -128,12 +128,14 @@ class SetupDialog(TimeResDialog):
 
         self.value_shown = QPushButton(str(self.slider.value()))
         self.value_shown.setFixedSize(40, 20)
-        self.value_shown.setStyleSheet("""
+        self.value_shown.setStyleSheet(
+            """
                                         QPushButton {
                                             background-color: transparent;
                                             border: none;
                                         }
-                                        """)
+                                        """
+        )
 
         self.slider.valueChanged.connect(
             lambda x: self.value_shown.setText(str(x))
