@@ -59,8 +59,8 @@ class LineEditGenerator(QWidget):
         if allows_none:
             self.none_button = QPushButton("None")
             self.none_button.setCheckable(True)
-            self.none_button.clicked.connect(self.line_edit.clear)
-            self.line_edit.textChanged.connect(
+            self.none_button.clicked.connect(self.none_clicked)
+            self.none_signal = self.line_edit.textChanged.connect(
                 lambda x: self.none_button.setChecked(False)
             )
             self.layout().addWidget(self.none_button)
@@ -73,6 +73,13 @@ class LineEditGenerator(QWidget):
             return None
 
         return self.typ_of_widget(text)
+
+    def none_clicked(self):
+        self.line_edit.blockSignals(True)
+        self.line_edit.clear()
+        self.line_edit.blockSignals(False)
+
+        self.none_button.setChecked(True)
 
 
 Type2Validation = {int: QIntValidator, float: QDoubleValidator}
