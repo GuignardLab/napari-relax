@@ -13,6 +13,7 @@ from qtpy.QtWidgets import (
     QLabel,
     QListWidget,
     QPushButton,
+    QScrollArea,
     QSizePolicy,
     QTabWidget,
     QVBoxLayout,
@@ -139,7 +140,6 @@ class GeneralPlot(QWidget):
         )
         layout = QVBoxLayout(self)
 
-        # Button in the top-right
         self.settings_button = QPushButton("⚙", self)
         self.settings_button.setFixedSize(30, 30)
 
@@ -154,7 +154,6 @@ class GeneralPlot(QWidget):
     def resizeEvent(self, event):
         super().resizeEvent(event)
 
-        # Position button in top-right
         margin = 5
         self.settings_button.move(
             self.width() - self.settings_button.width() - margin, margin
@@ -231,10 +230,17 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
         push_layout = QVBoxLayout()
         create_scatter_plot = QPushButton("Create Scatter Plot")
         create_hist = QPushButton("Create Histogram")
+        create_hist.clicked.connect(self.create_histogram)
         push_layout.addWidget(create_scatter_plot)
         push_layout.addWidget(create_hist)
         list_layout.addLayout(push_layout)
         total_layout.addLayout(list_layout)
+
+        self.plot_widget = QWidget(self)
+        self.plot_layout = QVBoxLayout(self.plot_widget)
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setWidget(self.plot_widget)
 
         total_layout.addStretch()
 
@@ -272,3 +278,6 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
 
         self.list.addItems(attributes)
         self.list.repaint()
+
+    # def create_histogram(self):
+    #     data_2_use = [getattr(self.get_lT)]
