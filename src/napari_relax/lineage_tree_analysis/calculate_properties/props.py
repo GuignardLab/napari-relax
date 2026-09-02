@@ -4,8 +4,9 @@ from numbers import Number
 import matplotlib.pyplot as plt
 from lineagetree import LineageTree
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from napari.settings import get_settings
 from psygnal import Signal
-from qtpy.QtCore import Qt
+from qtpy.QtCore import QEvent, Qt
 from qtpy.QtWidgets import (
     QDialog,
     QDialogButtonBox,
@@ -114,50 +115,70 @@ class GeneralOptionsPlot(QDialog):
         self.hide()
 
 
+class NonInteractiveCanvas(FigureCanvas):
+    def wheelEvent(self, event):
+        event.ignore()
+
+    def mousePressEvent(self, event):
+        event.ignore()
+
+
 class GeneralPlot(QWidget):
-    kill_signal = Signal()
+    kill_signal = Signal(QWidget)
+    selected_widget = Signal(QWidget | None)
 
     default_options_for_plot = {}
+
+    @property
+    def highlight(self) -> str:
+        highlight_color = list(
+            get_settings().appearance.highlight.highlight_color
+        )
+
+        highlight_color[-1] = 0.2
+
+        r, g, b, a = highlight_color
+
+        return f"""
+            background-color: rgba(
+                {int(r * 255)},
+                {int(g * 255)},
+                {int(b * 255)},
+                {int(a * 255)}
+            );
+        """
 
     def __init__(self, data) -> None:
         super().__init__()
         layout = QVBoxLayout(self)
         self.data = data
-        if self.data and isinstance(self.data[0], list):
-            self.number_of_datasets = len(self.data)
-        elif self.data:
-            self.number_of_datasets = 1
-        else:
-            self.number_of_datasets = 0
-        if self.number_of_datasets == 1:
-            self.data = [self.data]
+        self.setFixedSize(600, 400)
+        self.setAttribute(Qt.WA_StyledBackground, True)
+
+        button_layout = QHBoxLayout()
 
         self.close_button = QPushButton("X")
-        self.close_button.resize(400, 400)
-        self.close_button.clicked.emit(self.kill_signal)
-        layout.addWidget(
-            self.close_button, alignment=Qt.AlignTop | Qt.AlignRight
-        )
-        layout = QVBoxLayout(self)
+        self.close_button.setFixedSize(30, 30)
+        self.close_button.clicked.connect(lambda: self.kill_signal.emit(self))
 
-        self.settings_button = QPushButton("⚙", self)
+        self.settings_button = QPushButton("⚙")
         self.settings_button.setFixedSize(30, 30)
+
+        button_layout.addStretch()
+        button_layout.addWidget(self.settings_button)
+        button_layout.addSpacing(10)
+        button_layout.addWidget(self.close_button)
+
+        layout.addLayout(button_layout)
 
         self.dialog = GeneralOptionsPlot(self)
 
         self.settings_button.clicked.connect(self.open_dialog)
         fig, self.ax = plt.subplots()
-        self.canvas = FigureCanvas(fig)
+        self.canvas = NonInteractiveCanvas(fig)
         self.layout().addWidget(self.canvas)
         self.plot()
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-
-        margin = 5
-        self.settings_button.move(
-            self.width() - self.settings_button.width() - margin, margin
-        )
+        self.installEventFilter(self)
 
     def plot(self): ...
 
@@ -166,15 +187,36 @@ class GeneralPlot(QWidget):
         self.dialog.resize(400, 300)
         self.dialog.exec()
 
+    def paintBorder(self):
+        self.setStyleSheet(self.highlight)
+
+    def resetBorder(self):
+        self.setStyleSheet("")
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.MouseButtonPress:
+            if not hasattr(self, "selected") or self.selected is False:
+                self.paintBorder()
+                self.selected = True
+                self.selected_widget.emit(self)
+            else:
+                self.resetBorder()
+                self.selected = False
+                self.selected_widget.emit(None)
+
+            self.update()
+        return super().eventFilter(obj, event)
+
 
 class Histogram(GeneralPlot):
     def plot(self):
-        for _ in self.data:
-            self.ax.hist(self.data)
+        # for _ in self.data:
+        self.ax.hist(self.data)
 
 
 class PropertyVisualization(LayerCorrectorTreeProducer):
     name = "Property Visualization"
+    selected_plot = None
 
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
@@ -206,7 +248,7 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
             alignment=Qt.AlignTop,
         )
 
-        self.populate_tabs()
+        self.populate_tabs(self.tab_widget)
 
         list_label = QLabel(
             '<span style="font-family: Arial; font-size: 20px; color: white;">'
@@ -236,20 +278,26 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
         list_layout.addLayout(push_layout)
         total_layout.addLayout(list_layout)
 
-        self.plot_widget = QWidget(self)
+        self.plot_widget = QWidget()
         self.plot_layout = QVBoxLayout(self.plot_widget)
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setWidget(self.plot_widget)
 
-        total_layout.addStretch()
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setWidget(self.plot_widget)
 
-    def populate_tabs(self):
+        total_layout.addWidget(self.scroll_area)
+        # total_layout.addStretch()
+        self.viewer.layers.selection.events.active.connect(self.layer_change)
+
+    def populate_tabs(self, tab_wdg: QTabWidget):
+        active_layer = _select_active_lt_layer(self.viewer)
+        if not active_layer:
+            return
         methods = find_all_viable_methods(LineageTree)
 
         for method in methods:
             widget = self.generate_tab_widget(method)
-            self.tab_widget.addTab(widget, convert_to_title(method.__name__))
+            tab_wdg.addTab(widget, convert_to_title(method.__name__))
 
     def generate_tab_widget(self, method: Callable) -> QWidget:
         widget: TabFactory = TabFactory(method)
@@ -268,16 +316,50 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
         parameters["self"] = active_layer.metadata["LineageTree"]
         wdg.method(**parameters)
         self.list.clear()
-        print("etrexa")
         self.populate_list_widget()
 
     def populate_list_widget(self):
         active_layer = _select_active_lt_layer(self.viewer)
+        if not active_layer:
+            return
         lt = active_layer.metadata["LineageTree"]
-        attributes = filter_dicts_of_objects_by_values(lt, Number)
+        attributes = filter_dicts_of_objects_by_values(
+            lt, Number
+        )  ### Change this to whatever .properties will be used
 
         self.list.addItems(attributes)
         self.list.repaint()
 
-    # def create_histogram(self):
-    #     data_2_use = [getattr(self.get_lT)]
+    def create_histogram(self):
+        active_layer = _select_active_lt_layer(self.viewer)
+        if not active_layer:
+            return
+        selected_attrs = [
+            selected.text() for selected in self.list.selectedItems()
+        ]
+        data_2_use = [
+            list(getattr(self.get_lT(), attr).values())
+            for attr in selected_attrs
+        ]
+        hist = Histogram(data_2_use)
+        hist.kill_signal.connect(self.onKill)
+        hist.selected_widget.connect(self.onPlotSelect)
+        self.plot_layout.addWidget(hist)
+
+    def onKill(self, hist):
+        if self.selected_plot is hist:
+            self.selected_plot = None
+        hist.deleteLater()
+
+    def onPlotSelect(self, event):
+        if self.selected_plot is not None:
+            self.selected_plot.resetBorder()
+            self.selected_plot.selected = False
+        self.selected_plot = event
+
+    def layer_change(self):
+        while self.tab_widget.count() > 0:
+            self.tab_widget.removeTab(0)
+        self.populate_tabs(self.tab_widget)
+        self.list.clear()
+        self.populate_list_widget()
