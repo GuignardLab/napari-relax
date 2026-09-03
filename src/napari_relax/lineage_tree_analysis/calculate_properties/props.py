@@ -210,8 +210,11 @@ class GeneralPlot(QWidget):
 
 class Histogram(GeneralPlot):
     def plot(self):
+        self.ax.clear()
         for _name, value in self.data.items():
             self.ax.hist(list(value.values()))
+        self.canvas.flush_events()
+        self.canvas.draw_idle()
 
 
 class ScatterPlot(GeneralPlot):
@@ -222,17 +225,19 @@ class ScatterPlot(GeneralPlot):
         super().__init__(data)
 
     def plot(self):
+        self.ax.clear()
         for _name, value in self.data.items():
             x, y = [], []
             for node, val in value.items():
                 x.append(self.lT.time[node])
                 y.append(val)
             self.ax.scatter(x, y)
+        self.canvas.draw_idle()
 
 
 class PropertyVisualization(LayerCorrectorTreeProducer):
     name = "Property Visualization"
-    selected_plot = None
+    selected_plot: GeneralPlot | None = None
 
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
@@ -288,8 +293,12 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
         create_scatter_plot.clicked.connect(self.create_scatter)
         create_hist = QPushButton("Create Histogram")
         create_hist.clicked.connect(self.create_histogram)
+        add_2_plot = QPushButton("Add to Plot")
+        add_2_plot.clicked.connect(self.add_data_to_plot)
         push_layout.addWidget(create_scatter_plot)
         push_layout.addWidget(create_hist)
+        push_layout.addWidget(add_2_plot)
+
         list_layout.addLayout(push_layout)
         total_layout.addLayout(list_layout)
 
@@ -344,6 +353,22 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
 
         self.list.addItems(attributes)
         self.list.repaint()
+
+    def add_data_to_plot(self):
+        active_layer = _select_active_lt_layer(self.viewer)
+        print(self.selected_plot)
+        if not active_layer or not self.selected_plot:
+            return
+        selected_attrs = [
+            selected.text() for selected in self.list.selectedItems()
+        ]
+        data_2_use = {
+            selected_attr: getattr(self.get_lT(), selected_attr)
+            for selected_attr in selected_attrs
+        }
+        print(data_2_use)
+        self.selected_plot.data.update(data_2_use)
+        self.selected_plot.plot()
 
     def create_histogram(self):
         active_layer = _select_active_lt_layer(self.viewer)
