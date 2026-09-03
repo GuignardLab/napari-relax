@@ -210,8 +210,24 @@ class GeneralPlot(QWidget):
 
 class Histogram(GeneralPlot):
     def plot(self):
-        # for _ in self.data:
-        self.ax.hist(self.data)
+        for _name, value in self.data.items():
+            self.ax.hist(list(value.values()))
+
+
+class ScatterPlot(GeneralPlot):
+    def __init__(
+        self, data: dict[str, dict[int, dict]], lT: LineageTree
+    ) -> None:
+        self.lT = lT
+        super().__init__(data)
+
+    def plot(self):
+        for _name, value in self.data.items():
+            x, y = [], []
+            for node, val in value.items():
+                x.append(self.lT.time[node])
+                y.append(val)
+            self.ax.scatter(x, y)
 
 
 class PropertyVisualization(LayerCorrectorTreeProducer):
@@ -248,8 +264,6 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
             alignment=Qt.AlignTop,
         )
 
-        self.populate_tabs(self.tab_widget)
-
         list_label = QLabel(
             '<span style="font-family: Arial; font-size: 20px; color: white;">'
             "List"
@@ -271,6 +285,7 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
         list_layout.addWidget(self.list)
         push_layout = QVBoxLayout()
         create_scatter_plot = QPushButton("Create Scatter Plot")
+        create_scatter_plot.clicked.connect(self.create_scatter)
         create_hist = QPushButton("Create Histogram")
         create_hist.clicked.connect(self.create_histogram)
         push_layout.addWidget(create_scatter_plot)
@@ -286,8 +301,8 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
         self.scroll_area.setWidget(self.plot_widget)
 
         total_layout.addWidget(self.scroll_area)
-        # total_layout.addStretch()
         self.viewer.layers.selection.events.active.connect(self.layer_change)
+        self.populate_tabs(self.tab_widget)
 
     def populate_tabs(self, tab_wdg: QTabWidget):
         active_layer = _select_active_lt_layer(self.viewer)
@@ -337,14 +352,33 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
         selected_attrs = [
             selected.text() for selected in self.list.selectedItems()
         ]
-        data_2_use = [
-            list(getattr(self.get_lT(), attr).values())
-            for attr in selected_attrs
-        ]
+        data_2_use = {
+            selected_attr: getattr(self.get_lT(), selected_attr)
+            for selected_attr in selected_attrs
+        }
         hist = Histogram(data_2_use)
         hist.kill_signal.connect(self.onKill)
         hist.selected_widget.connect(self.onPlotSelect)
         self.plot_layout.addWidget(hist)
+
+    def create_scatter(self):
+        active_layer = _select_active_lt_layer(self.viewer)
+        if not active_layer:
+            return
+        selected_attrs = [
+            selected.text() for selected in self.list.selectedItems()
+        ]
+        lT = self.get_lT()
+        if not lT:
+            return
+        data_2_use = {
+            selected_attr: getattr(lT, selected_attr)
+            for selected_attr in selected_attrs
+        }
+        scatter = ScatterPlot(data_2_use, lT)
+        scatter.kill_signal.connect(self.onKill)
+        scatter.selected_widget.connect(self.onPlotSelect)
+        self.plot_layout.addWidget(scatter)
 
     def onKill(self, hist):
         if self.selected_plot is hist:
