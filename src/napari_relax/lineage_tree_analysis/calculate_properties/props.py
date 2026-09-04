@@ -7,12 +7,16 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from napari.settings import get_settings
 from psygnal import Signal
 from qtpy.QtCore import QEvent, Qt
+from qtpy.QtGui import QCloseEvent
 from qtpy.QtWidgets import (
+    QWIDGETSIZE_MAX,
     QDialog,
     QDialogButtonBox,
+    QDockWidget,
     QHBoxLayout,
     QLabel,
     QListWidget,
+    QMainWindow,
     QPushButton,
     QScrollArea,
     QSizePolicy,
@@ -207,12 +211,19 @@ class GeneralPlot(QWidget):
             self.update()
         return super().eventFilter(obj, event)
 
+    def closeEvent(self, event: QCloseEvent | None) -> None:
+        self.kill_signal.emit(self)
+        return super().closeEvent(event)
+
+    # def sizeHint(self) -> QSize:
+    #     return QSize(600,400)
+
 
 class Histogram(GeneralPlot):
     def plot(self):
         self.ax.clear()
         for _name, value in self.data.items():
-            self.ax.hist(list(value.values()))
+            self.ax.hist(list(value.values()), alpha=1 / (len(self.data)))
         self.canvas.flush_events()
         self.canvas.draw_idle()
 
@@ -231,7 +242,7 @@ class ScatterPlot(GeneralPlot):
             for node, val in value.items():
                 x.append(self.lT.time[node])
                 y.append(val)
-            self.ax.scatter(x, y)
+            self.ax.scatter(x, y, alpha=1 / (len(self.data)))
         self.canvas.draw_idle()
 
 
@@ -302,16 +313,27 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
         list_layout.addLayout(push_layout)
         total_layout.addLayout(list_layout)
 
+        # self.plot_widget = QWidget()
+        # self.plot_layout = QVBoxLayout(self.plot_widget)
+
         self.plot_widget = QWidget()
-        self.plot_layout = QVBoxLayout(self.plot_widget)
+
+        self.viewer.layers.selection.events.active.connect(self.layer_change)
+        self.populate_tabs(self.tab_widget)
+
+        self.plot_controller = QMainWindow()
+        self.plot_controller.setDockNestingEnabled(True)
 
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setWidget(self.plot_widget)
+        self.scroll_area.setWidget(self.plot_controller)
+
+        self.docks = {}
 
         total_layout.addWidget(self.scroll_area)
-        self.viewer.layers.selection.events.active.connect(self.layer_change)
-        self.populate_tabs(self.tab_widget)
+        self.last_dock = None
+
+        # total_layout.addWidget(main_window)
 
     def populate_tabs(self, tab_wdg: QTabWidget):
         active_layer = _select_active_lt_layer(self.viewer)
@@ -374,17 +396,63 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
         active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer:
             return
+
         selected_attrs = [
             selected.text() for selected in self.list.selectedItems()
         ]
+
         data_2_use = {
             selected_attr: getattr(self.get_lT(), selected_attr)
             for selected_attr in selected_attrs
         }
+
         hist = Histogram(data_2_use)
+
         hist.kill_signal.connect(self.onKill)
         hist.selected_widget.connect(self.onPlotSelect)
-        self.plot_layout.addWidget(hist)
+        self.dock_plot(hist)
+
+    def dock_plot(self, plot):
+
+        dock = QDockWidget("Histogram", self.plot_controller)
+        dock.setAttribute(Qt.WA_DeleteOnClose)
+        dock.setFeatures(
+            QDockWidget.DockWidgetMovable
+            | QDockWidget.DockWidgetFloatable
+            | QDockWidget.DockWidgetClosable
+        )
+
+        dock.setWidget(plot)
+
+        if self.last_dock is None:
+            self.plot_controller.addDockWidget(
+                Qt.LeftDockWidgetArea,
+                dock,
+            )
+        else:
+            self.plot_controller.splitDockWidget(
+                self.last_dock,
+                dock,
+                Qt.Vertical,
+            )
+        dock.topLevelChanged.connect(
+            lambda floating: self.ondockLevelChange(floating, plot)
+        )
+        self.docks[plot] = dock
+        self.last_dock = dock
+
+    def ondockLevelChange(self, floating, plot):
+        if floating:
+            # Allow the floating widget to be resized
+            plot.setMinimumSize(300, 200)
+            plot.setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX)
+            plot.setSizePolicy(
+                QSizePolicy.Policy.Expanding,
+                QSizePolicy.Policy.Expanding,
+            )
+        else:
+            # Lock it again when docked
+            plot.setFixedSize(600, 400)
 
     def create_scatter(self):
         active_layer = _select_active_lt_layer(self.viewer)
@@ -403,12 +471,23 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
         scatter = ScatterPlot(data_2_use, lT)
         scatter.kill_signal.connect(self.onKill)
         scatter.selected_widget.connect(self.onPlotSelect)
-        self.plot_layout.addWidget(scatter)
+        self.dock_plot(scatter)
 
-    def onKill(self, hist):
-        if self.selected_plot is hist:
+    def onKill(self, plot):
+        if self.selected_plot is plot:
             self.selected_plot = None
-        hist.deleteLater()
+
+        dock = self.docks.pop(plot, None)
+        if dock is None:
+            return
+
+        if dock is self.last_dock:
+            self.last_dock = next(
+                reversed(self.docks.values()),
+                None,
+            )
+
+        dock.deleteLater()
 
     def onPlotSelect(self, event):
         if self.selected_plot is not None:
