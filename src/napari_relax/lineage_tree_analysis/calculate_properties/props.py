@@ -2,8 +2,12 @@ from collections.abc import Callable
 from numbers import Number
 
 import matplotlib.pyplot as plt
+import numpy as np
 from lineagetree import LineageTree
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.collections import Collection
+from matplotlib.path import Path
+from matplotlib.widgets import LassoSelector, SpanSelector
 from napari.settings import get_settings
 from psygnal import Signal
 from qtpy.QtCore import QEvent, Qt
@@ -123,13 +127,14 @@ class NonInteractiveCanvas(FigureCanvas):
     def wheelEvent(self, event):
         event.ignore()
 
-    def mousePressEvent(self, event):
-        event.ignore()
+    # def mousePressEvent(self, event):
+    #     event.ignore()
 
 
 class GeneralPlot(QWidget):
     kill_signal = Signal(QWidget)
     selected_widget = Signal(QWidget | None)
+    selected_nodes = Signal(dict[int, tuple])
 
     default_options_for_plot = {}
 
@@ -152,9 +157,10 @@ class GeneralPlot(QWidget):
             );
         """
 
-    def __init__(self, data) -> None:
+    def __init__(self, data, lT: LineageTree) -> None:
         super().__init__()
         layout = QVBoxLayout(self)
+        self.lT = lT
         self.data = data
         self.setFixedSize(600, 400)
         self.setAttribute(Qt.WA_StyledBackground, True)
@@ -186,6 +192,8 @@ class GeneralPlot(QWidget):
 
     def plot(self): ...
 
+    def selection(self, indices): ...
+
     def open_dialog(self):
         self.dialog.setWindowTitle("Plot settings")
         self.dialog.resize(400, 300)
@@ -215,15 +223,58 @@ class GeneralPlot(QWidget):
         self.kill_signal.emit(self)
         return super().closeEvent(event)
 
-    # def sizeHint(self) -> QSize:
-    #     return QSize(600,400)
-
 
 class Histogram(GeneralPlot):
+    def __init__(self, data, lT: LineageTree) -> None:
+        super().__init__(data, lT)
+        self.span_selector = SpanSelector(
+            self.ax, direction="horizontal", onselect=self.onselect
+        )
+
+    def selection(self, indices):
+        self.selected_nodes.emit(indices)
+
+    def onselect(self, vmin, vmax):  ### TODO make this func better
+        indices = {}
+        for name, values in (self.data).items():
+            for node, val in values.items():
+                if vmin < val < vmax:
+                    indices[node] = self.color_name[name][:3] + (1,)
+        self.selection(indices)
+        for name, patches in self.collections.items():
+            selected_values = [
+                val
+                for node, val in self.data[name].items()
+                if vmin < val < vmax
+            ]
+
+            for patch in patches:
+                left = patch.get_x()
+                right = left + patch.get_width()
+
+                selected = any(left <= val < right for val in selected_values)
+
+                color = self.color_name[name]
+
+                if selected:
+                    patch.set_facecolor((*color[:3], 2 / len(self.data)))
+                else:
+                    patch.set_facecolor((*color[:3], 1 / len(self.data)))
+
+        self.canvas.draw_idle()
+
     def plot(self):
+        self.collections = {}
         self.ax.clear()
-        for _name, value in self.data.items():
-            self.ax.hist(list(value.values()), alpha=1 / (len(self.data)))
+        cmap = plt.colormaps["tab20"]
+        self.color_name = {}
+        for i, (name, value) in enumerate(self.data.items()):
+            self.indices, values = list(value.keys()), list(
+                value.values()
+            )  # Python 3.7x keeps the same order
+            self.color_name[name] = cmap(i % cmap.N)
+            color = list(self.color_name[name][:3]) + [1 / len(self.data)]
+            *_, self.collections[name] = self.ax.hist(values, color=color)
         self.canvas.flush_events()
         self.canvas.draw_idle()
 
@@ -232,17 +283,54 @@ class ScatterPlot(GeneralPlot):
     def __init__(
         self, data: dict[str, dict[int, dict]], lT: LineageTree
     ) -> None:
-        self.lT = lT
-        super().__init__(data)
+        super().__init__(data, lT)
+        self.lasso = LassoSelector(self.ax, onselect=self.onselect)
 
     def plot(self):
+        self.old_fc = {}
+        self.collections: dict[int, Collection] = {}
+        self.indices = {}
+        cmap = plt.colormaps["tab20"]
         self.ax.clear()
-        for _name, value in self.data.items():
+        for i, (name, value) in enumerate(self.data.items()):
+            self.indices[name], values = list(value.keys()), list(
+                value.values()
+            )  # Python 3.7x keeps the same order
             x, y = [], []
-            for node, val in value.items():
+            for node, val in zip(self.indices[name], values, strict=True):
                 x.append(self.lT.time[node])
                 y.append(val)
-            self.ax.scatter(x, y, alpha=1 / (len(self.data)))
+            color = cmap(i % cmap.N)
+            color = list(color[:3]) + [1 / len(self.data)]
+            colors = np.tile(color, (len(x), 1))
+            self.collections[name] = self.ax.scatter(x, y, facecolors=color)
+            self.old_fc[name] = colors.copy()
+        self.canvas.draw_idle()
+
+    def selection(self, indices):
+        res = {}
+        for key, vals in indices.items():
+            for val in vals:
+                res[val] = self.collections[key].get_facecolors()[val]
+        self.selected_nodes.emit(res)
+
+    def onselect(self, verts):
+        path = Path(verts)
+        indices = {}
+        for name, collection in self.collections.items():
+            collection.set_facecolors(self.old_fc[name])
+            offset = collection.get_offsets()
+            setup_fc = self.old_fc[name]
+            if len(self.old_fc[name]) == 0:
+                return
+            indices[name] = np.nonzero(path.contains_points(offset))[0]
+            setup_fc[indices[name], -1] = 1
+            edge_colors = collection.get_facecolors().copy()
+            edge_colors[:, 3] = 0
+            edge_colors[indices[name]] = [0, 0, 0, 1]
+            collection.set_edgecolors(edge_colors)
+            collection.set_facecolors(setup_fc)
+        self.selection(indices)
         self.canvas.draw_idle()
 
 
@@ -313,9 +401,6 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
         list_layout.addLayout(push_layout)
         total_layout.addLayout(list_layout)
 
-        # self.plot_widget = QWidget()
-        # self.plot_layout = QVBoxLayout(self.plot_widget)
-
         self.plot_widget = QWidget()
 
         self.viewer.layers.selection.events.active.connect(self.layer_change)
@@ -378,7 +463,6 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
 
     def add_data_to_plot(self):
         active_layer = _select_active_lt_layer(self.viewer)
-        print(self.selected_plot)
         if not active_layer or not self.selected_plot:
             return
         selected_attrs = [
@@ -388,7 +472,6 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
             selected_attr: getattr(self.get_lT(), selected_attr)
             for selected_attr in selected_attrs
         }
-        print(data_2_use)
         self.selected_plot.data.update(data_2_use)
         self.selected_plot.plot()
 
@@ -406,13 +489,14 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
             for selected_attr in selected_attrs
         }
 
-        hist = Histogram(data_2_use)
+        hist = Histogram(data_2_use, self.get_lT())
 
         hist.kill_signal.connect(self.onKill)
         hist.selected_widget.connect(self.onPlotSelect)
-        self.dock_plot(hist)
+        hist.selected_nodes.connect(self.recolor_viewer)
+        self.dock_plot(hist, "Histogram")
 
-    def dock_plot(self, plot):
+    def dock_plot(self, plot, title):
 
         dock = QDockWidget("Histogram", self.plot_controller)
         dock.setAttribute(Qt.WA_DeleteOnClose)
@@ -443,7 +527,6 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
 
     def ondockLevelChange(self, floating, plot):
         if floating:
-            # Allow the floating widget to be resized
             plot.setMinimumSize(300, 200)
             plot.setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX)
             plot.setSizePolicy(
@@ -451,7 +534,6 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
                 QSizePolicy.Policy.Expanding,
             )
         else:
-            # Lock it again when docked
             plot.setFixedSize(600, 400)
 
     def create_scatter(self):
@@ -471,7 +553,25 @@ class PropertyVisualization(LayerCorrectorTreeProducer):
         scatter = ScatterPlot(data_2_use, lT)
         scatter.kill_signal.connect(self.onKill)
         scatter.selected_widget.connect(self.onPlotSelect)
-        self.dock_plot(scatter)
+        scatter.selected_nodes.connect(self.recolor_viewer)
+        self.dock_plot(scatter, "Scatterplot")
+
+    def recolor_viewer(
+        self, node_dict
+    ):  ###TODO color by chain instead of coloring the node### Handle dual colors update LineageViewer
+        active_layer = _select_active_lt_layer(self.viewer)
+        if not active_layer:
+            return
+        times = [self.get_lT().time[node] for node in node_dict]
+        if not times:
+            return
+        active_layer.face_color = active_layer.metadata["default_colors"]
+        for node, color in node_dict.items():
+            active_layer.face_color[
+                active_layer.metadata["lT2napari"][node]
+            ] = color
+        camera_pan = self.viewer.dims.current_step
+        self.viewer.dims.current_step = (min(times),) + camera_pan[1:]
 
     def onKill(self, plot):
         if self.selected_plot is plot:
