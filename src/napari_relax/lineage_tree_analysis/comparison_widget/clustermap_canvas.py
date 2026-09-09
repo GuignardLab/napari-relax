@@ -1,12 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from lineagetree import LineageTree
-from matplotlib.backends.backend_qt5agg import (
-    FigureCanvasQTAgg as FigureCanvas,
-)
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.colors import Colormap
 from psygnal import Signal
-from PyQt5.QtGui import QCursor
+from qtpy.QtGui import QCursor
 from qtpy.QtCore import QTimer
 from qtpy.QtWidgets import QWidget
 from scipy.cluster.hierarchy import dendrogram, linkage

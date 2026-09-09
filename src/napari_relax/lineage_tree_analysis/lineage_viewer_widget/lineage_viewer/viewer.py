@@ -7,13 +7,19 @@ from psygnal import Signal
 from scipy.spatial import KDTree
 
 from .canvas_interaction_events import CanvasUtils
-
+from napari.settings import get_plugin_settings
 
 class SingleTreeProgeny(FigureCanvas, CanvasUtils):
     node_signal = Signal(dict)
-    node_size = 10
-    lw = 0.3
-    fontsize = 6
+    # node_size = 10
+    # lw = 0.3
+    # fontsize = 6
+    node_size = get_plugin_settings("napari-relax").progeny_canvas.node_size
+
+    lw = get_plugin_settings("napari-relax").progeny_canvas.edge_size
+
+    fontsize = get_plugin_settings("napari-relax").progeny_canvas.font_size
+
     all_selected = False
     margins_of_plot = 0.05
     selected_color = (1, 0, 1)
@@ -22,14 +28,9 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
         """
         Receives a signal to change the attributes of the plot.
         """
-        self.node_size = signal.get("node_size", self.node_size)
-        self.lw = signal.get("lw", self.lw)
-
-        self.fontsize = signal.get("fontsize", self.fontsize)
-        self.back_ground = signal.get("back_ground", self.back_ground)
-
-        if "quant_colors" in signal:
-            self.node_colors = signal["node_colors"]
+        self.node_size = signal.source.node_size
+        self.lw = signal.source.edge_size
+        self.fontsize= signal.source.font_size
         self.draw_graph()
 
     def _generate_info_to_draw_graph(self):
@@ -65,6 +66,7 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
         self.ax = ax
         self.selected_nodes = set()
         self.connect_signals()
+        get_plugin_settings("napari-relax").progeny_canvas.events.connect(self.change_attributes)
 
     @property
     def coloring(self):
@@ -266,6 +268,7 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
                         + str(node),
                         fontsize=self.fontsize,
                         rotation=34,
+                        clip_on= True
                     )
 
     def calculate_axes(self):
