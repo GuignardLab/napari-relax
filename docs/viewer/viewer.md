@@ -31,7 +31,7 @@ For this plugin the ```Points Layer``` is the most common and important type of 
 </li>
 </ol>
 
-<p>Using the time slider on the Napari Viewer will also show the corresponding timepoint on the <a href="../explore_relabel/explore_relabel.md">Lineage Viewer</a>.</p>
+<p>Using the time slider on the Napari Viewer will also show the corresponding timepoint, as a grey line, on the <a href="../explore_relabel/explore_relabel.md">Lineage Viewer</a>.</p>
 
   </div>
   <div class="fixed-right">

@@ -20,7 +20,7 @@ or select the desired node directly from the **Lineage Viewer** panel.
 
 ![saving_2](./saving_2.png)
 
-Enter the appropriate label in the **Label Editor**.  
+Enter the appropriate label in the label field and press **Enter**.  
 If pairwise comparisons have been executed, the results are automatically saved within the LineageTree file, as detailed in the [Pairwise Distance Tutorial](../comparing/blind_comparing.md).
 
 ---
@@ -29,4 +29,4 @@ If pairwise comparisons have been executed, the results are automatically saved 
 
 ![saving_3](./saving_3.png)
 
-Specify the desired file path and save the updated LineageTree.  
+At the bottom of the widget, press **Select file** to choose where to save, then press **Save LineageTree**. The dataset is saved as a `.lT` file, with its labels and comparisons.  
