@@ -1,0 +1,69 @@
+site_name: ReLAX (Reconstructed Lineage Analysis & eXploration)
+docs_dir: docs/
+theme:
+  name: material
+  palette:
+  - scheme: default
+    primary: indigo
+    accent: indigo
+    toggle:
+      icon: material/weather-night
+      name: Switch to dark mode
+  - scheme: slate
+    primary: indigo
+    accent: indigo
+    toggle:
+      icon: material/weather-sunny
+      name: Switch to light mode
+  features:
+  - navigation.path
+  - navigation.expand
+  - content.code.annotate
+
+plugins:
+- search:
+- mkdocstrings:
+    handlers:
+      python:
+        options:
+          show_submodules: true
+          docstring_style: numpy
+extra_css:
+  - styles/extra.css
+
+markdown_extensions:
+  - abbr
+  - md_in_html
+  - admonition
+  - pymdownx.extra
+  - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - attr_list
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
+
+
+nav:
+  - Overview: index.md
+  - Quick Start: ./quick_start/q_start.md
+  - Napari Viewer: ./viewer/viewer.md
+  - Single dataset Analysis:
+    - Lineage Viewer - Explore and Relabel: ./explore_relabel/explore_relabel.md 
+    - Attribute Recoloring: ./attribute/attribute.md
+    - Distance Calculation:  ./distance/distance.md
+  - Cross dataset Distances: 
+    - Manager: ./cross+comparison/manager.md
+    - Distance Calculation: ./cross+comparison/distance_cross.md
+  - Guides: 
+    - Index: ./guides/guides.md
+    - Opening a dataset: ./guides/loading_data.md
+    - Relabelling and Saving Progress: ./guides/saving/saving_tut.md
+    - Managing Visibility of Lineages: ./guides/show_and_hide/show_and_hide_tut.md
+    - Blind comparison of Lineages: ./guides/comparing/blind_comparing.md
+    - Blind comparison Across Lineages: ./guides/cross_lineage_distance/cross_comparison.md
+    
