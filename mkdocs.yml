@@ -1,4 +1,8 @@
 site_name: ReLAX (Reconstructed Lineage Analysis & eXploration)
+site_url: https://guignardlab.github.io/napari-relax/
+repo_url: https://github.com/GuignardLab/napari-relax
+repo_name: GuignardLab/napari-relax
+edit_uri: edit/main/docs/
 docs_dir: docs/
 theme:
   name: material
@@ -18,7 +22,17 @@ theme:
   features:
   - navigation.path
   - navigation.expand
+  - navigation.footer
+  - search.highlight
   - content.code.annotate
+  - content.action.edit
+
+# Fail `mkdocs build --strict` on broken links, anchors and pages missing from nav
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
 
 plugins:
 - search:
