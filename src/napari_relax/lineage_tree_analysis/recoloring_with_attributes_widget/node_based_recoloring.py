@@ -1,3 +1,5 @@
+"""Node based Recoloring tab."""
+
 import os
 from numbers import Number
 from warnings import warn
@@ -34,19 +36,19 @@ from ..._utils import _select_active_lt_layer
 def filter_dicts_of_objects_by_values(
     obj: object, type_of_object: type
 ) -> list[str]:
-    """Finds all attributes of a class if they are of one type.
+    """Find the dict attributes of an object whose values have a type.
 
     Parameters
     ----------
     obj : object
-        Any class
+        The object to inspect, typically a LineageTree.
     type_of_object : type
-        The type that is to be pinponted
+        The type the values must have.
 
     Returns
     -------
     list[str]
-        list of all the attributes
+        Names of the matching attributes.
     """
     attributes = []
     for attr in obj.__dict__:
@@ -72,7 +74,7 @@ def filter_dicts_of_objects_by_values(
 
 
 class LineeditCheckbox(QCheckBox):
-    """Custom lineedit box that only accepts floats"""
+    """Checkbox with a text field for a custom numeric value."""
 
     def __init__(self, parent=None):
         super().__init__("Custom value", parent)
@@ -87,19 +89,36 @@ class LineeditCheckbox(QCheckBox):
         layout.addWidget(self.lineedit)
 
     def text(self):
+        """Return the value typed in the text field.
+
+        Returns
+        -------
+        int
+            The value, truncated to an integer.
+        """
         return int(self.lineedit.text())
 
     def setText(self, value: float):
+        """Set the value of the text field.
+
+        Parameters
+        ----------
+        value : float
+            The value to show.
+        """
         self.lineedit.setText(str(value))
 
 
 class MissingData(QWidget):
-    """How to handle missing data, it has 3 shown checkboxes and 4 hidden ones shown upon clicking on the last checkbox.
+    """Choice of how to color nodes without a value for the attribute.
+
+    "Default Value" reveals the Custom value, Mean, Median and Min
+    options.
 
     Parameters
     ----------
-    QWidget : _type_
-        _description_
+    parent : QWidget, optional
+        The parent widget.
     """
 
     def __init__(
@@ -167,6 +186,14 @@ class MissingData(QWidget):
                     but.hide()
 
     def selected(self) -> str | None:
+        """Return the selected method.
+
+        Returns
+        -------
+        str or int or None
+            The label of the selected option, the custom value, or None
+            if nothing is selected.
+        """
         if self.buttongroup.checkedButton():
             if self.check_default_value.isChecked():
                 return self.buttongroup_default.checkedButton().text()
@@ -177,7 +204,13 @@ class MissingData(QWidget):
 
 
 class Quantitative(LayerCorrectorTreeProducer):
-    """The widget to handle the different attributes."""
+    """Recolor the dataset by a numeric node attribute.
+
+    Parameters
+    ----------
+    napari_viewer : napari.Viewer
+        The napari viewer.
+    """
 
     color_signal = Signal()
 
@@ -216,6 +249,7 @@ class Quantitative(LayerCorrectorTreeProducer):
         self.viewer.layers.selection.events.active.connect(self.layer_change)
 
     def generate_colors(self):
+        """Color every node by the selected attribute and missing-data method."""
         cell_color = {}
         selected_method = self.miss_data.selected()
         _cmap = self.colorbox.get_cmap()
@@ -290,6 +324,7 @@ class Quantitative(LayerCorrectorTreeProducer):
 
     def reset_button_pr(self):
         # First reset the face colors
+        """Restore the original colors of the dataset."""
         active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is not None:
             original_colors = active_layer.metadata["default_colors"]
@@ -297,6 +332,7 @@ class Quantitative(LayerCorrectorTreeProducer):
             self.color_signal.emit()
 
     def layer_change(self):
+        """List the numeric attributes of the new active LineageTree."""
         self.lT = self.get_lT()
         if self.lT:
             # Only emit essential settings, preserve visual customizations
@@ -310,10 +346,21 @@ class Quantitative(LayerCorrectorTreeProducer):
             self.selected_attribute.addItems([str(None)])
 
 
-class Qualitative(QWidget): ...
+class Qualitative(QWidget):
+    """Placeholder for recoloring by qualitative attributes (not implemented)."""
 
 
 class Coloring(LayerCorrectorTreeProducer):
+    """Node based Recoloring tab: quantitative or qualitative attributes.
+
+    Only quantitative attributes are supported for now.
+
+    Parameters
+    ----------
+    napari_viewer : napari.Viewer
+        The napari viewer.
+    """
+
     name = "coloring"
 
     def __init__(self, napari_viewer):
@@ -346,5 +393,12 @@ class Coloring(LayerCorrectorTreeProducer):
         self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
 
     def resizeEvent(self, event):
+        """Keep the help button in the top right corner.
+
+        Parameters
+        ----------
+        event : QResizeEvent
+            The resize event.
+        """
         super().resizeEvent(event)
         self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)

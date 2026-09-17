@@ -99,6 +99,7 @@ lint.select = [
     "G", # flake8-logging-format
     "PIE", # flake8-pie
     "SIM", # flake8-simplify
+    "D", # pydocstyle (numpy convention, see below)
 ]
 lint.ignore = [
     "E501", # line too long. let black handle this
@@ -129,3 +130,9 @@ exclude = [
 
 target-version = "py310"
 fix = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.per-file-ignores]
+"src/napari_relax/_tests/*" = ["D"]

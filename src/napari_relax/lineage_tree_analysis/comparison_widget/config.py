@@ -1,3 +1,5 @@
+"""Configuration Panel tab of the Distance Calculation."""
+
 import os
 from itertools import combinations
 from time import sleep
@@ -36,8 +38,15 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
 
     @thread_worker
     def thread_worker(self):
-        """
-        This function will calculate the pairwise comparisons of sublineages for multiple timepoints and yield them.
+        """Compute the pairwise distances of sublineages for each timepoint.
+
+        Timepoints after the crop time or with a single cell are skipped.
+
+        Yields
+        ------
+        tuple
+            Comparisons, sublineage names, normalizations and timepoints,
+            one entry per timepoint computed so far.
         """
         all_comps = []
         all_names = []
@@ -95,10 +104,10 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
             yield (all_comps, all_names, all_norms, self.times)
 
     def times_selector(self):
-        """
-        This function reads the input times of the user which can be:
-        a range if the number provided are 3 or 2
-        a list of nodes if numbers provided by the user > 3 or 1
+        """Read the timepoints to compare.
+
+        They are either a comma-separated list or a range built from
+        start, stop and step.
         """
         if self.time_list_check.isChecked():
             self.times = sorted(
@@ -119,9 +128,9 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
                 self.times = list(range(start, stop, step))
 
     def specific_roots_selector(self):
-        """
-        Saves the selection of the roots of each tree in a variable to be used by
-        thread worker.
+        """Store the roots selected in the list.
+
+        With no selection, all roots at the first timepoint are used.
         """
         self.specific_roots = []
         for index in self.list_widget.selectedIndexes():
@@ -132,9 +141,7 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
             self.specific_roots = self.lT.time_nodes[self.lT.t_b]
 
     def time_cropping(self):
-        """
-        Handles the cropping provided bu the time cropper widget.
-        """
+        """Read the crop time typed by the user."""
         text = self.time_cropper.text()
         if not text or text == 0:
             self.crop = None
@@ -145,7 +152,7 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
         self.time_cropper.clear()
 
     def label_update(self):
-        """Function that is called from Progeny selection to update the labels."""
+        """Refresh the list of labelled roots after a label change."""
         self.list_widget.clear()
         selected_nodes = []
         already_used_nodes = set()
@@ -174,10 +181,12 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
             self.list_widget.update()
 
     def layer_change(self, event):
-        """Handles the layer change event.
+        """Update the panel for the LineageTree of the new active layer.
 
-        Args:
-            event : The signal of layer change, it's important to note that you need to have one layer selected.
+        Parameters
+        ----------
+        event : napari.utils.events.Event
+            The layer selection event; exactly one layer must be selected.
         """
         if event.value:
             self.lT = self.get_lT()
@@ -197,17 +206,19 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
             self.layout().update()
 
     def update_tree_style(self):
+        """Show the downsampling box only for the downsampled style."""
         self.downsampling_widget.visible = False
         self.styl = self.tree_style_combobox.current_choice
         if self.styl == "downsampled":
             self.downsampling_widget.visible = True
 
     def __init__(self, napari_viewer):
-        """
-        Build the containers for the loading widget
+        """Build the configuration widgets.
 
-        Args:
-            napari_viewer (napari.Viewer): the parent napari viewer
+        Parameters
+        ----------
+        napari_viewer : napari.Viewer
+            The napari viewer.
         """
         super().__init__(napari_viewer)
         self.times = []
@@ -349,5 +360,12 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
         self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
 
     def resizeEvent(self, event):
+        """Keep the help button in the top right corner.
+
+        Parameters
+        ----------
+        event : QResizeEvent
+            The resize event.
+        """
         super().resizeEvent(event)
         self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)

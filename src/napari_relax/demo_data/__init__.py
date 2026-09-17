@@ -1,3 +1,9 @@
+"""Demo datasets available under File > Open Sample > ReLAX.
+
+Datasets are described in ``datasets.json`` and downloaded on
+first use when they do not ship with the plugin.
+"""
+
 from ._datasets import DEMO_DATASETS, load_demo_datasets, save_demo_datasets
 from ._download_utils import (
     clear_cache,

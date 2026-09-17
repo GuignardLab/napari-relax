@@ -1,3 +1,9 @@
+"""ReLAX: a napari plugin to explore and compare cell lineage trees.
+
+The plugin contributions (reader, writer, widgets and sample data)
+are declared in ``napari.yaml``.
+"""
+
 try:
     from ._version import version as __version__
 except ImportError:

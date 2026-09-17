@@ -1,3 +1,5 @@
+"""Point size sliders of the two dataset viewers."""
+
 from functools import partial
 
 from magicgui import widgets
@@ -17,6 +19,18 @@ from .._util_classes import (
 
 
 class MinimalCellSize(LayerCorrectorTreeProducer):
+    """Point size sliders for the two dataset viewers.
+
+    Parameters
+    ----------
+    napari_viewer : napari.Viewer
+        The main napari viewer.
+    napari_viewer_1 : napari.components.ViewerModel
+        The first dataset viewer.
+    napari_viewer_2 : napari.components.ViewerModel
+        The second dataset viewer.
+    """
+
     def change(
         self,
         viewer: QtViewerWrap,
@@ -25,6 +39,21 @@ class MinimalCellSize(LayerCorrectorTreeProducer):
         other_slider,
         event,
     ):
+        """Apply a slider value to its viewer, or to both viewers.
+
+        Parameters
+        ----------
+        viewer : napari.components.ViewerModel
+            The viewer of the moved slider.
+        slider : QSlider
+            The moved slider.
+        other_viewer : napari.components.ViewerModel
+            The other viewer.
+        other_slider : QSlider
+            The slider of the other viewer.
+        event : object
+            The slider event, unused.
+        """
         if active_layer := viewer.layers.selection.active:
             if not self.toggle_all.value:
                 new_size = slider.value()  # type: ignore

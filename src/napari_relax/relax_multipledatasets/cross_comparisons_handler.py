@@ -1,3 +1,5 @@
+"""Cross Distance Calculation entry of the Cross Lineagetree comparison widget."""
+
 from magicgui import widgets
 from napari.components.viewer_model import ViewerModel
 from napari.utils import progress
@@ -21,14 +23,23 @@ from .cross_embryo_comparison import CrossClustermap
 
 
 class CrossHandler(LayerCorrectorTreeProducer):
-    """Class to load the widgets for comparing lineages across datasets."""
+    """Two dataset viewers plus tabs to configure and inspect comparisons.
+
+    Parameters
+    ----------
+    napari_viewer : napari.Viewer
+        The napari viewer.
+    """
 
     name = "Cross Distance Calculation"
 
     def get_lt_manager(self, signal):
-        """
-        Gets the lineagetree manager object every time is
-        changed Manager class.
+        """Receive the manager whenever it changes.
+
+        Parameters
+        ----------
+        signal : LineageTreeManager
+            The updated manager.
         """
         self.manager = signal
         self.comparisonswidget.manager = signal
@@ -44,8 +55,12 @@ class CrossHandler(LayerCorrectorTreeProducer):
         }
 
     def kill_thread(self, dummy_event=None):
-        """
-        Function to kill the thread if the user decides to.
+        """Stop the comparison thread and close the progress bar.
+
+        Parameters
+        ----------
+        dummy_event : object, optional
+            Event of the signal that triggered the stop, unused.
         """
         self.worker.quit()
         self.stopbutton.setChecked(True)
@@ -56,6 +71,10 @@ class CrossHandler(LayerCorrectorTreeProducer):
             self.pbr = None
 
     def thread_handler(self):
+        """Start the cross-dataset comparisons in a background thread.
+
+        Warns first if a dataset name is longer than 6 characters.
+        """
         continue_comps = True
         self.comparisons = []
         self.names = []
@@ -88,6 +107,14 @@ class CrossHandler(LayerCorrectorTreeProducer):
             self.stopbutton.setChecked(False)
 
     def update_comparisons(self, product):
+        """Send the results yielded by the comparison thread to the plots.
+
+        Parameters
+        ----------
+        product : tuple
+            Comparisons, sublineage names and normalizations, one entry
+            per level of comparison computed so far.
+        """
         (
             self.comparisonswidget.comps,
             self.comparisonswidget.names,

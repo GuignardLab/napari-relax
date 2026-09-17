@@ -3,9 +3,10 @@ from qtpy.QtWidgets import QToolTip
 
 
 class DelayedTooltipEventFilter(QObject):
-    """Event filter for showing a tooltip with a delay
-    Easily installable in any QObject by QObject.installEventFilter(DelayedTooltipEventFilter)
+    """Event filter that shows tooltips after a delay.
 
+    Install it on any QObject with
+    ``QObject.installEventFilter(DelayedTooltipEventFilter())``.
     """
 
     def __init__(self, parent=None):

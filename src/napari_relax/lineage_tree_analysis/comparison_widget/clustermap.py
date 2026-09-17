@@ -1,3 +1,5 @@
+"""Clustermap tab of the Distance Calculation."""
+
 import os
 import pickle
 from pathlib import Path
@@ -58,6 +60,7 @@ class Clustermap(LayerCorrectorTreeProducer):
     name = "Distance Calculation"
 
     def send_data(self):
+        """Plot the comparisons of the timepoint selected by the slider."""
         if not hasattr(self, "comps"):
             return
         t = self.time_slider.value
@@ -71,13 +74,18 @@ class Clustermap(LayerCorrectorTreeProducer):
             )
 
     def add_spot_on_graph(self, cell, val, color, ax):
-        """
-        Function to add a spot on the networkx graphs, which is in the middle of a
-        life cycle of the cell and calculates the correct position of the new cell.
+        """Draw a cell that is in the middle of a chain on a tree plot.
 
-        Args:
-        cell (int): id of the cell
-        val (int): the index of the list of networkx graphs.
+        Parameters
+        ----------
+        cell : int
+            ID of the cell.
+        val : int
+            Index of the graph in the list of graphs.
+        color : color
+            Color of the spot.
+        ax : matplotlib.axes.Axes
+            Axes of the tree plot.
         """
         active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer:
@@ -100,14 +108,17 @@ class Clustermap(LayerCorrectorTreeProducer):
             )
 
     def _click(self, lineages):
-        """
-        Handles the left click of the clustermap plot. When clicked the corresponding sublineages will be
-        plotted on the tree graph section and the points will be painted with the same colors while the rest
-        will be white.
-        Has a togglable part where the camera is transported to the timepoint of the division.
-        Args:
-            event: Button click (Right Click)
+        """Show the two sublineages of a clicked clustermap cell.
 
+        They are drawn on the tree plots and colored in magenta and cyan
+        in the viewer, the other cells in white. If "Move in time" is
+        ticked, the viewer moves to the first timepoint of the first
+        sublineage.
+
+        Parameters
+        ----------
+        lineages : list of int
+            Root IDs of the two compared sublineages.
         """
         active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer:
@@ -161,9 +172,7 @@ class Clustermap(LayerCorrectorTreeProducer):
             ) + camera_pan[1:]
 
     def reset_colorer(self):
-        """
-        Resets colors of points.
-        """
+        """Restore the original colors of the points."""
         active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer:
             return
@@ -171,15 +180,15 @@ class Clustermap(LayerCorrectorTreeProducer):
         active_layer.refresh()
 
     def time_changer(self):
-        """
-        Called by the time_slider widget, will handle the time change and create the correct clustermap.
-        """
+        """Show the clustermap of the timepoint selected by the slider."""
         self.time = self.time_slider.value
         self.send_data()
 
     def save_dictionary(self):
-        """
-        Saves the pairwise comparisons and names locally.
+        """Save the comparisons to the selected ``.pkl`` file.
+
+        The file holds a dict with ``times``, ``comparisons``, ``norms``,
+        ``names``, ``end_time`` and ``labels``.
         """
         data = {
             "times": self.times,
@@ -193,10 +202,12 @@ class Clustermap(LayerCorrectorTreeProducer):
             pickle.dump(data, f)
 
     def layer_change(self, event):
-        """Handles the layer change event.
+        """Update the tab for the LineageTree of the new active layer.
 
-        Args:
-            event : The signal of layer change, it's important to note that you need to have one layer selected.
+        Parameters
+        ----------
+        event : napari.utils.events.Event
+            The layer selection event; exactly one layer must be selected.
         """
         if event.value:
             self.lT = self.get_lT()
@@ -208,17 +219,21 @@ class Clustermap(LayerCorrectorTreeProducer):
             self.layout().update()
 
     def receive_new_labels(self):
+        """Redraw the clustermap after a label change."""
         self.labels = self.lT.labels
         self.send_data()
 
     def __init__(
         self, napari_viewer, configuration: "ConfigurationPanel" = None
     ):
-        """
-        Build the containers for the loading widget
+        """Build the tree plots, clustermap and save widgets.
 
-        Args:
-            napari_viewer (napari.Viewer): the parent napari viewer
+        Parameters
+        ----------
+        napari_viewer : napari.Viewer
+            The napari viewer.
+        configuration : ConfigurationPanel, optional
+            The configuration tab providing the timepoints.
         """
         super().__init__(napari_viewer)
         if configuration:
@@ -326,5 +341,12 @@ class Clustermap(LayerCorrectorTreeProducer):
         self.canvas.click_signal.connect(self._click)
 
     def resizeEvent(self, event):
+        """Keep the help button in the top right corner.
+
+        Parameters
+        ----------
+        event : QResizeEvent
+            The resize event.
+        """
         super().resizeEvent(event)
         self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)

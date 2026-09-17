@@ -1,3 +1,5 @@
+"""Matplotlib canvas drawing the interactive clustermap."""
+
 import matplotlib.pyplot as plt
 import numpy as np
 from lineagetree import LineageTree
@@ -12,12 +14,14 @@ from scipy.spatial.distance import squareform
 
 
 class ClusterMapCanvas(FigureCanvas):
-    """Clustermap that shows comparisons.
+    """Matplotlib canvas showing pairwise comparisons as a clustermap.
 
     Parameters
     ----------
-    FigureCanvas : FigureCanvasQTAgg
-        The Figure canvas with qt backend.
+    figure : matplotlib.figure.Figure
+        The figure to draw on.
+    ax : matplotlib.axes.Axes
+        The axes of the clustermap.
     """
 
     norm_dict = {"max": max, "sum": sum, "None": lambda x: 1}
@@ -25,15 +29,15 @@ class ClusterMapCanvas(FigureCanvas):
     click_signal = Signal(list)
 
     def __init__(self, figure: plt.Figure, ax: plt.Axes):
-        """
+        """Create the canvas and connect the click and hover events.
+
         Parameters
         ----------
-        figure : plt.Figure
-            _description_
-        ax : plt.Axes
-            _description_
+        figure : matplotlib.figure.Figure
+            The figure to draw on.
+        ax : matplotlib.axes.Axes
+            The axes of the clustermap.
         """
-
         super().__init__(figure)
         self.figure = figure
         self.ax = ax
@@ -54,7 +58,7 @@ class ClusterMapCanvas(FigureCanvas):
         self.old_xy = None
 
     def clear_data(self):
-        """Clears the plot and removes all data"""
+        """Clear the plot and remove all data."""
         self.comps = None
         self.norms = None
         self.names = None
@@ -71,20 +75,20 @@ class ClusterMapCanvas(FigureCanvas):
         time: int = None,
         lT: LineageTree = None,
     ):
-        """Function used to receive data from the Clustermap class
+        """Receive the comparisons of one timepoint and plot them.
 
         Parameters
         ----------
         comps : dict, optional
-            _description_, by default None
+            Edit distance of each pair of sublineage indices.
         norms : dict, optional
-            _description_, by default None
+            Normalization values of each pair.
         names : dict, optional
-            _description_, by default None
+            Node, root and labelled ancestor of each sublineage index.
         time : int, optional
-            _description_, by default None
+            The timepoint of the comparisons.
         lT : LineageTree, optional
-            _description_, by default None
+            The compared LineageTree.
         """
         self.comps = comps
         self.norms = norms
@@ -96,9 +100,10 @@ class ClusterMapCanvas(FigureCanvas):
             self._plot()
 
     def _plot(self):
-        """
-        Plots the clustermap for the timepoint specified by the time slider, where each element is the pairwise comparison of all the sublineages present in
-        the timepoint selected.
+        """Plot the clustermap of the current timepoint.
+
+        Each cell is the normalized distance between two sublineages;
+        rows and columns are ordered by Ward hierarchical clustering.
         """
         try:
             if hasattr(self, "colorbar"):
@@ -157,7 +162,7 @@ class ClusterMapCanvas(FigureCanvas):
         self.draw()
 
     def _change_cmap(self, cmap: Colormap):
-        """Gets called when a new cmap is applied.
+        """Redraw the clustermap with a new colormap.
 
         Parameters
         ----------
@@ -168,18 +173,18 @@ class ClusterMapCanvas(FigureCanvas):
         self._plot()
 
     def _change_norm(self, norm_method: str):
-        """Gets called when a new norm is applied.
+        """Redraw the clustermap with a new normalization.
 
         Parameters
         ----------
         norm_method : str
-            The new norm.
+            One of "max", "sum" or "None".
         """
         self.norm_method = norm_method
         self._plot()
 
     def remove_annotation(self):
-        """Removes the hoverbox from the axis"""
+        """Remove the hover box from the axes."""
         if hasattr(self, "hover_annotation") and self.hover_annotation:
             try:
                 self.hover_annotation.remove()
@@ -187,7 +192,7 @@ class ClusterMapCanvas(FigureCanvas):
                 self.hover_annotation = None
 
     def is_mouse_on_figure(self) -> bool:
-        """Checks if the mouse is on the figure.
+        """Check whether the mouse is on the figure.
 
         Returns
         -------
@@ -199,12 +204,27 @@ class ClusterMapCanvas(FigureCanvas):
         return self.rect().contains(local_pos)
 
     def remove_on_leave(self):
-        """Should run if the mouse has left the figure."""
+        """Remove the hover box once the mouse has left the figure."""
         if not self.is_mouse_on_figure():
             self.remove_annotation()
             self.ax.figure.canvas.draw_idle()
 
     def annotation_maker(self, x, y, offset_xy, ha, value):
+        """Create the hover box of a clustermap cell.
+
+        Parameters
+        ----------
+        x : float
+            Column of the cell.
+        y : float
+            Row of the cell.
+        offset_xy : tuple of int
+            Offset of the box from the cell, in points.
+        ha : str
+            Horizontal alignment of the box.
+        value : float
+            Score shown in the box.
+        """
         self.hover_annotation = self.ax.annotate(
             f"Lineage 1: {self.labels_of_node_real[int(x + 0.5)]}\nLineage 2: {self.labels_of_node_real[int(y + 0.5)]}\nScore: {value:.2f}",
             (x, y),
@@ -218,11 +238,11 @@ class ClusterMapCanvas(FigureCanvas):
         )
 
     def print_text(self, pos: tuple[int, int]):
-        """Handles the printing of the hoverbox.
+        """Show the hover box of the cell under the cursor.
 
         Parameters
         ----------
-        pos : tuple[int,int]
+        pos : tuple[int, int]
             The position of the cursor.
         """
         self.remove_annotation()
@@ -241,11 +261,12 @@ class ClusterMapCanvas(FigureCanvas):
         self.ax.figure.canvas.draw_idle()
 
     def _hover_text(self, event=None):
-        """Stops the timer and calls print text to creazte the hoverbox.
+        """Stop the hover timer and show the hover box.
 
         Parameters
         ----------
-        event : Event, optional
+        event : object, optional
+            Timer event; the box is only shown when it is None.
         """
         self.timer.stop()
         self.timer = None
@@ -253,12 +274,12 @@ class ClusterMapCanvas(FigureCanvas):
             self.print_text(self.old_xy)
 
     def _on_hover(self, event):
-        """Creates a new timer whenever the mouse moves and resets the plot otherwise it runs _hover_text.
+        """Restart the hover timer when the mouse moves.
 
         Parameters
         ----------
-        event : mpl._mouse_notification_event
-            mpl._mouse_notification_event.
+        event : matplotlib.backend_bases.MouseEvent
+            The mouse move event.
         """
         pos = (event.xdata, event.ydata)
         self.remove_annotation()
@@ -272,11 +293,12 @@ class ClusterMapCanvas(FigureCanvas):
             self.timer = None
 
     def _click(self, event):
-        """Removes all labels excepot the ones that were clicked and sends a signal to recolor the dataset.
+        """Highlight the clicked pair and send it to recolor the dataset.
 
         Parameters
         ----------
-        event : mpl.click_event
+        event : matplotlib.backend_bases.MouseEvent
+            The click event.
         """
         if event.button == 1 and event.inaxes:
             self.mpl_disconnect(self._click)

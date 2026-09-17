@@ -1,11 +1,4 @@
-"""
-This module is an example of a barebones QWidget plugin for napari
-
-It implements the Widget specification.
-see: https://napari.org/stable/plugins/guides.html?#widgets
-
-Replace code below according to your needs.
-"""
+"""Shared panel shown at the bottom of the Lineage tree analysis widget."""
 
 from pathlib import Path
 
@@ -29,13 +22,24 @@ from .._utils import (
 
 
 class CellSize(LayerCorrectorTreeProducer):
-    """
-    Changes the size of the Points in Point layer.
-    It's added on to all widgets.
+    """Point size, layer visibility, tracks and saving tools.
+
+    It is shown under every entry of the Lineage tree analysis widget.
+
+    Parameters
+    ----------
+    napari_viewer : napari.Viewer
+        The napari viewer.
     """
 
     def add_tracks(self, event):
-        "Adds the tracks layer of a specific LineageTree points layer."
+        """Add a Tracks layer for the LineageTree of the active layer.
+
+        Parameters
+        ----------
+        event : object
+            The button click event, unused.
+        """
         active = _select_active_lt_layer(self.viewer)
         if active:
             data = active.metadata["graph_to_create_tracks"]
@@ -48,10 +52,14 @@ class CellSize(LayerCorrectorTreeProducer):
             )
 
     def reset_slider(self, value=None):
-        """Update the slider values after the update button has been pushed.
-        The Points layer holding the lineageTree is used to infer the values.
-        """
+        """Set the point size and move the slider to match it.
 
+        Parameters
+        ----------
+        value : float, optional
+            Size in Points layer units. If None, the size estimated from
+            the distances between neighboring cells is used.
+        """
         points_layer = _select_active_lt_layer(self.viewer)
 
         optimal_size = value
@@ -74,11 +82,17 @@ class CellSize(LayerCorrectorTreeProducer):
         self._changes(None, value=optimal_size)
 
     def _changes(self, event, value=None):
-        """
-        Changes the size of one or more Points layer.
-        Note that value must be given in Points layer unit.
-        """
+        """Change the size of one or all LineageTree Points layers.
 
+        Parameters
+        ----------
+        event : object
+            The slider event, unused.
+        value : float, optional
+            Size in Points layer units. If None, the slider value is
+            converted to a size and applied to the active layer, or to all
+            layers when "All layers" is ticked.
+        """
         new_size = None
         active_layer = _select_active_lt_layer(self.viewer)
 
@@ -134,19 +148,23 @@ class CellSize(LayerCorrectorTreeProducer):
         )
 
     def see_one_layer(self):
-        """Button that turns all other layers invisible in the napari viewer"""
+        """Hide every layer except the active one."""
         not_selected = self.viewer.layers - self.viewer.layers.selection
         for layer in not_selected:
             layer.visible = False
         self.viewer.layers.selection.active.visible = True
 
     def see_all_layers(self):
-        """Button to see all layers, reverse of see_one_layer"""
+        """Show every layer."""
         for layer in self.viewer.layers:
             layer.visible = True
 
     def layer_change(self):
-        """Activated when the user changes layers, it updates the ui"""
+        """Update the panel when the selected layer changes.
+
+        Hides the other layers if "Toggle visibility of other layers" is
+        ticked, and moves the size slider to the size of the new layer.
+        """
         currently_selected_layer_names = [
             layer.name for layer in self.viewer.layers.selection
         ]
@@ -175,12 +193,25 @@ class CellSize(LayerCorrectorTreeProducer):
                 self.reset_slider(value=active_layer.size[0])
 
     def write_embryo(self):
+        """Save the LineageTree of the active layer to the selected file."""
         lT = self.get_lT()
         if lT:
             txt = Path(self.save_widget.value)
             lT.write(str(txt))
 
     def is_lt_layer(self, layer):
+        """Check whether a layer is a Points layer holding a LineageTree.
+
+        Parameters
+        ----------
+        layer : napari.layers.Layer
+            The layer to check.
+
+        Returns
+        -------
+        bool
+            True if the layer holds a LineageTree.
+        """
         return (
             isinstance(layer, Points)
             and hasattr(layer, "metadata")
@@ -198,6 +229,13 @@ class CellSize(LayerCorrectorTreeProducer):
             )
 
     def force_viewer_select_if_lt_layer(self, event):
+        """Select a newly added LineageTree layer and set its size range.
+
+        Parameters
+        ----------
+        event : napari.utils.events.Event
+            The layer insertion event.
+        """
         layer = event.value
         if self.is_lt_layer(layer):
             self._update_layer_slider_range(layer)

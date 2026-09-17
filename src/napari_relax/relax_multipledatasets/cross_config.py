@@ -1,3 +1,5 @@
+"""Configuration tab of the Cross Distance Calculation."""
+
 import copy
 import os
 from itertools import combinations
@@ -24,12 +26,23 @@ from .._util_classes import (
 
 
 class CrossConfig(LayerCorrectorTreeProducer):
+    """Approximation style, dataset selection and one tab per dataset.
+
+    Parameters
+    ----------
+    napari_viewer : napari.Viewer
+        The napari viewer.
+    """
+
     name = "Cross Distance Calculation"
 
     def get_lt_manager(self, signal):
-        """
-        Gets the lineagetree manager object every time is
-        changed Manager class.
+        """Receive the manager whenever it changes and list its datasets.
+
+        Parameters
+        ----------
+        signal : LineageTreeManager
+            The updated manager.
         """
         self.manager = signal
         self.lineagetree_list.clear()
@@ -43,6 +56,7 @@ class CrossConfig(LayerCorrectorTreeProducer):
         }
 
     def tab_maker(self):
+        """Create one configuration tab per selected dataset."""
         selected_items = self.lineagetree_list.selectedItems()
         self.tab_dictionary = {}
         for _ in range(self.root_tabs.count()):
@@ -67,6 +81,14 @@ class CrossConfig(LayerCorrectorTreeProducer):
 
     @thread_worker
     def roots_selector(self):
+        """Compute the pairwise distances of sublineages across datasets.
+
+        Yields
+        ------
+        tuple
+            Comparisons, sublineage names and normalizations, one entry
+            per level of comparison computed so far.
+        """
         roots = {}
         end_times = {}
         all_comparisons = []
@@ -124,6 +146,13 @@ class CrossConfig(LayerCorrectorTreeProducer):
 
     @property
     def lcm(self):
+        """Least common multiple of the time resolutions of the datasets.
+
+        Returns
+        -------
+        int
+            The least common multiple, or 1 if no dataset is selected.
+        """
         tmp_tr = []
         for item in self.lineagetree_list.selectedItems():
             tmp_tr.append(
@@ -136,29 +165,37 @@ class CrossConfig(LayerCorrectorTreeProducer):
         return 1
 
     def kill_thread(self):
-        """
-        Function to kill the thread if the user decides to.
-        """
+        """Stop the comparison thread."""
         self.worker.quit()
         self.stopbutton.setChecked(True)
         self.runbutton.setChecked(False)
 
     def update_comparisons(self, product):
+        """Store the results yielded by the comparison thread.
+
+        Parameters
+        ----------
+        product : tuple
+            Comparisons, sublineage names and normalizations.
+        """
         self.comparisons, self.names, self.norms = product
         self.time_slider.max = len(product[0]) - 1
 
     def update_tree_style(self):
+        """Show the downsampling box only for the downsampled style."""
         self.downsampling_widget.setVisible(False)
         self.comp_style = self.tree_style_combobox.current_choice
         if self.comp_style == "downsampled":
             self.downsampling_widget.setVisible(True)
 
     def change_downsampling_rates(self):
+        """Reset the downsampling rates offered."""
         self.downsampling_widget.clear()
         for i in [f"{i} downsampling rate" for i in range(1, 30)]:
             self.downsampling_widget.addItem(i)
 
     def change_tooltip_for_downsample(self):
+        """Show the real downsampling rate of each dataset in the tooltip."""
         cur_text = self.downsampling_widget.currentText().split(" ")
         if cur_text[0]:
             down_factor = int(cur_text[0])
@@ -230,5 +267,12 @@ class CrossConfig(LayerCorrectorTreeProducer):
         self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
 
     def resizeEvent(self, event):
+        """Keep the help button in the top right corner.
+
+        Parameters
+        ----------
+        event : QResizeEvent
+            The resize event.
+        """
         super().resizeEvent(event)
         self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
