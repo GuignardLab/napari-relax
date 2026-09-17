@@ -19,7 +19,7 @@ To learn how to assign and save labels, follow the instructions in [**Relabellin
 ![manager_1](./manager_1.png){ width="300" }
 
 First, create a **Manager** to handle the processes required for cross-dataset comparison.  
-To quickly create a manager from the loaded datasets, click **Create Manager from Viewer**.
+To quickly create a manager from the loaded datasets, click **Create a Manager from existing layers** in **Manager Manipulation**.
 
 ---
 
@@ -28,7 +28,7 @@ To quickly create a manager from the loaded datasets, click **Create Manager fro
 ![manager_2](./manager_2.png){ width="300" }
 
 Time resolution is an important parameter when comparing datasets.  
-By **right-clicking** on any dataset, you can modify its time resolution within the viewer.  
+By **right-clicking** on any dataset in the manager list and choosing **Change Time Resolution**, you can modify its time resolution.  
 This ensures that time-dependent events are properly aligned between datasets.
 
 ---
@@ -37,7 +37,7 @@ This ensures that time-dependent events are properly aligned between datasets.
 
 ![config_1](./config_1.png){ width="700" }
 
-Select the datasets to be compared by clicking on each preferred dataset in the viewer.
+Open **Cross Distance Calculation** and select the datasets to be compared by clicking on each preferred dataset in the list.
 
 ---
 
@@ -67,7 +67,7 @@ Once configuration is complete, press **Run Comparisons** to begin the analysis.
 
 The user interface is nearly identical to that of [**Blindly Comparing Lineages**](../comparing/blind_comparing.md),  
 with the addition of two dataset viewers on the left side.  
-In the clustermap, each dataset name is clearly displayed for easier cross-reference.
+In the clustermap, each dataset name is clearly displayed for easier cross-reference, and hovering over a cell shows the compared lineages and their score.
 
 ---
 
@@ -83,4 +83,4 @@ To gain deeper insights, it is recommended to explore multiple cells in the clus
 
 ### 8. (Optional) Save the Comparisons
 
-If the results are satisfactory, save the comparisons for future reference or further analysis using external tools and libraries.
+If the results are satisfactory, save the comparisons as a `.pkl` file with **Select file** and **Save Comparisons**, for future reference or further analysis using external tools and libraries.

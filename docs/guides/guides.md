@@ -27,7 +27,7 @@ Below you’ll find links to individual guides, each focusing on a specific aspe
 
 ---
 
-> ### 🧬 🔬 🧬 [Across-Embryo Lineage Comparison](../cross+comparison/distance_cross.md)
+> ### 🧬 🔬 🧬 [Across-Embryo Lineage Comparison](./cross_lineage_distance/cross_comparison.md)
 > Explore how to compare lineages **across different embryos, specimens, or even species**.  
 > Learn how to align datasets, manage time resolution, configure comparison parameters, and interpret cross-dataset clustermaps.
 
