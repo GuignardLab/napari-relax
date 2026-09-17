@@ -1,7 +1,7 @@
 
 ## Installation
 
-You can install `napari-relax` via [pip]:
+ReLAX requires Python 3.10 or newer. You can install `napari-relax` via [pip](https://pip.pypa.io/):
 
 ```
 pip install napari-relax
@@ -13,22 +13,27 @@ If napari is not already installed, you can install `napari-relax` with napari a
 pip install "napari-relax[all]"
 ```
 
-To install latest development version :
+To install the latest development version:
 
 ```
-pip install git+https://github.com/guignardlab/napari-relax.git
+pip install git+https://github.com/GuignardLab/napari-relax.git
 ```
 
-## Import a  dataset into the viewer
+## Open the plugin
 
-To import a new dataset can ***drag and drop*** any [supported format](https://guignardlab.github.io/LineageTree/loaders/), like *TGMM*, *MaMuT, Mastodon or ASTEC* and *.lT files*, into napari or select it with the open file pop up window into the Viewer.
+ReLAX adds two widgets to napari's ***Plugins*** menu:
 
-There are also 2 demo datasets easily accessible from ***File>Open Sample>demo LineageTree dataset***.
-Other datasets will also be available in [citation].
+- **Lineage tree analysis**: explore, relabel, recolor and compare the lineages of one dataset.
+- **Cross Lineagetree comparison**: compare lineages across several datasets.
 
-- The first demo dataset contains 3 descendants of Er lineage of *Parhyale hawaiensis* across the first 100 timepoints of their development.
-- While the other contains a C. elegans embryo starting from P0 with gene expressions from multiple experiments (from other datasets) imported.
-[positional data](), [gene expression data]()
+## Import a dataset into the viewer
+
+To import a new dataset, ***drag and drop*** a file in a supported format (*.lT*, *MaMuT* or *ASTEC* *.xml*, *Mastodon* or *.bmf*) into napari, or open it with ***File>Open File(s)...***. A short dialog then asks for the time resolution and a few loading options. See [Opening a dataset](../guides/loading_data.md) for the details and for converting other formats.
+
+There are also 2 demo datasets easily accessible from ***File>Open Sample>ReLAX***:
+
+- **demo lineageTree dataset** contains 3 descendants of the Er lineage of *Parhyale hawaiensis* across the first 100 timepoints of their development. It ships with the plugin.
+- **C. elegans dataset** contains a C. elegans embryo starting from P0, with gene expressions from multiple experiments (from other datasets) imported. It is downloaded from [Zenodo](https://zenodo.org/records/17061487) (about 42 MB) the first time it is opened, then reused.
 
 ![demo_dataset](./demo_dataset_import.png)
 
