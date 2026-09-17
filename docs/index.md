@@ -36,7 +36,7 @@ This plugin consists of 2 components, one tailored for single dataset analysis a
 - Single dataset analysis: 
     - [Lineage Viewer - Explore and Relabel](./explore_relabel/explore_relabel.md): Explore the lineages with its interactive **Lineage Viewer**, relabel lineages of interest.
     - [Attribute recoloring](./attribute/attribute.md): Recolor nodes on both the **Lineage Viewer** and the **Napari standard Viewer**, using the distance or precomputed attributes.
-    - [Distance Calculation](./distance/distance.md): Calculate the unordered tree edit distance, inspect the distances on  the **Napari Standard Viewer** and create histograms to compare lineages through their sublineages.
+    - [Distance Calculation](./distance/distance.md): Calculate the unordered tree edit distance, inspect the distances on the **Napari Standard Viewer** and in an interactive clustermap to compare lineages through their sublineages.
 
 - Multiple dataset analysis:
     - [Manager](./cross+comparison/manager.md): A manager to handle and save multiple embryos.
