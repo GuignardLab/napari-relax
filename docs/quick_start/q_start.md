@@ -1,7 +1,7 @@
 
 ## Installation
 
-ReLAX requires Python 3.10 or newer. You can install `napari-relax` via [pip](https://pip.pypa.io/):
+ReLAX requires Python 3.10 or newer and napari 0.9 or newer. You can install `napari-relax` via [pip](https://pip.pypa.io/):
 
 ```
 pip install napari-relax
