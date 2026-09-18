@@ -6,9 +6,7 @@ from qtpy.QtWidgets import (
 
 
 class Containerize(QWidget):
-    """
-    Places a list of widgets on horizontal/vertical containers.
-    """
+    """Place a list of widgets in a horizontal or vertical container."""
 
     def __init__(self, widget_list, horizontal=True, **kwargs):
         super().__init__(**kwargs)

@@ -2,7 +2,7 @@ from napari.qt import QtViewer
 
 
 class QtViewerWrap(QtViewer):
-    """Helping class to wrap QtViewer to be used on the widget"""
+    """QtViewer embedded in a widget, forwarding file drops to napari."""
 
     def __init__(self, main_viewer, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -16,7 +16,7 @@ class QtViewerWrap(QtViewer):
         layer_type: str = None,
         **kwargs,
     ):
-        """for drag and drop open files"""
+        """Open dropped files in the main napari viewer."""
         self.main_viewer.window._qt_viewer._qt_open(
             filenames, stack, plugin, layer_type, **kwargs
         )

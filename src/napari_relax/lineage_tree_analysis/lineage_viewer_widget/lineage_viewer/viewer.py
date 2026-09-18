@@ -1,3 +1,5 @@
+"""Lineage Viewer canvas drawing one lineage tree."""
+
 import numpy as np
 from lineagetree import LineageTree
 from matplotlib.backends.backend_qtagg import (
@@ -10,6 +12,12 @@ from .canvas_interaction_events import CanvasUtils
 from napari.settings import get_plugin_settings
 
 class SingleTreeProgeny(FigureCanvas, CanvasUtils):
+    """Matplotlib canvas showing one lineage of a LineageTree.
+
+    Node size, edge size and font size are read from the ReLAX page
+    of napari's preferences when the module is imported.
+    """
+
     node_signal = Signal(dict)
     # node_size = 10
     # lw = 0.3
@@ -25,8 +33,13 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
     selected_color = (1, 0, 1)
 
     def change_attributes(self, signal):
-        """
-        Receives a signal to change the attributes of the plot.
+        """Apply new node size, edge size and font size, then redraw.
+
+        Parameters
+        ----------
+        signal : object
+            Event whose ``source`` has ``node_size``, ``edge_size`` and
+            ``font_size`` attributes.
         """
         self.node_size = signal.source.node_size
         self.lw = signal.source.edge_size
@@ -34,7 +47,7 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
         self.draw_graph()
 
     def _generate_info_to_draw_graph(self):
-        """Calculates everything needed to draw the graph, used on initiation and lineage_change"""
+        """Compute what is needed to draw the current lineage."""
         self.calculate_axes()
 
         self.pan = False
@@ -70,6 +83,13 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
 
     @property
     def coloring(self):
+        """Return the color of each node, with selected nodes highlighted.
+
+        Returns
+        -------
+        dict
+            Color of each node ID.
+        """
         if not hasattr(self, "node_colors"):
             self.node_colors = self.default_colors.copy()
         return self.node_colors | dict.fromkeys(
@@ -79,8 +99,10 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
     def _get_metadata_mappings(self):
         """Get the color and node mappings from metadata.
 
-        Returns:
-            tuple: (default_colors, lT2napari) or (None, None) if not available.
+        Returns
+        -------
+        tuple
+            (default_colors, lT2napari) or (None, None) if not available.
         """
         if not self.points_layer_metadata:
             return None, None
@@ -116,13 +138,17 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
         self.default_colors = default_colors
 
     def _convert_color_to_list(self, color):
-        """Normalize color to a list format.
+        """Normalize a color to a list.
 
-        Args:
-            color: Color in various formats (numpy array, list, tuple)
+        Parameters
+        ----------
+        color : numpy.ndarray or list or tuple
+            The color to normalize.
 
-        Returns:
-            list: Normalized color as list
+        Returns
+        -------
+        list
+            The color as a list.
         """
         if hasattr(color, "tolist"):
             return color.tolist()
@@ -130,16 +156,18 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
             return list(color)
 
     def _extract_current_lineage_color(self):
-        """Extract the current color for this lineage from the active Points layer.
+        """Extract the current color of this lineage from the Points layer.
 
-        This method checks the actual face_color of points in the current lineage,
-        which may be different from the original default_colors if quantitative
-        recoloring has been applied.
+        This method checks the actual face_color of points in the current
+        lineage, which may be different from the original default_colors
+        if quantitative recoloring has been applied.
 
-        Returns:
-            dict: Dictionary with 'color' (single color if uniform) and 'is_uniform' (bool)
-                  indicating whether all nodes in the lineage have the same color.
-                  Returns None if no data is available.
+        Returns
+        -------
+        dict or None
+            'color' (single color if uniform) and 'is_uniform' (whether
+            all nodes of the lineage have the same color), or None if no
+            data is available.
         """
         if self.lT2napari is None:
             return None
@@ -187,6 +215,21 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
         hier: dict | None = None,
         points_layer_metadata=None,
     ):
+        """Show another lineage.
+
+        Parameters
+        ----------
+        root : int, optional
+            Root of the lineage.
+        lT : LineageTree, optional
+            The LineageTree; nothing happens if None.
+        lnks_tms : dict, optional
+            Graph of the lineage.
+        hier : dict, optional
+            Position of each node of the graph.
+        points_layer_metadata : dict, optional
+            Metadata of the Points layer, used for the node colors.
+        """
         if lT:
             self.lT = lT
             self.root = root
@@ -198,14 +241,14 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
             self.draw_graph(reset=True)
 
     def draw_graph(self, reset=False):
-        """Plots the tree, if reset is true it sets the new axes, otherwise it works with the old ones.
+        """Draw the tree.
 
         Parameters
         ----------
-        reset : bool, by default False
-            If `True` reset the axes, by default False
+        reset : bool, optional
+            If True, reset the axes limits; otherwise keep the current
+            zoom and pan, by default False.
         """
-
         # Safety check: Don't draw if canvas is not properly initialized
         if not hasattr(self, "ax") or self.ax is None:
             return
@@ -272,6 +315,7 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
                     )
 
     def calculate_axes(self):
+        """Compute the axes limits of the tree, with a margin."""
         data = self.positions
         self.xmin, self.xmax = data[:, 0].min(), data[:, 0].max()
         self.ymin, self.ymax = data[:, 1].min(), data[:, 1].max()
@@ -287,6 +331,15 @@ class SingleTreeProgeny(FigureCanvas, CanvasUtils):
         self.xlim_min = (self.xmax - self.xmin) / 50
 
     def click(self, event):
+        """Select the node closest to a left click.
+
+        Clicking far from any node clears the selection.
+
+        Parameters
+        ----------
+        event : matplotlib.backend_bases.MouseEvent
+            The click event.
+        """
         if event.button == 1 and event.inaxes and self.lT:
             self.selected_nodes = {}
             self.marked_cell_id = None

@@ -9,11 +9,14 @@ directory = os.path.dirname(__file__)
 
 
 def load_demo():
-    """
-    Adds the lineage tree to the viewer.
+    """Load the Parhyale hawaiensis demo dataset.
 
-    This function will automatically download demo data if it's not available locally.
-    The download is performed only once and the data is cached for future use.
+    The file ships with the plugin.
+
+    Returns
+    -------
+    list of tuple
+        LayerData tuples for napari.
     """
     # Ensure demo data is available (will download if needed)
     demo_file_path = ensure_demo_data("demo")
@@ -25,6 +28,15 @@ def load_demo():
 
 def load_celegans():
     # Ensure demo data is available (will download if needed)
+    """Load the C. elegans demo dataset.
+
+    The dataset is downloaded from Zenodo on first use and cached.
+
+    Returns
+    -------
+    list of tuple
+        LayerData tuples for napari.
+    """
     demo_file_path = ensure_demo_data("C.elegans")
     demo_data = LineageTree.load(str(demo_file_path))
     demo_data.time_resolution = 1

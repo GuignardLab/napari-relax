@@ -29,9 +29,9 @@ if TYPE_CHECKING:
 
 
 class ColorBoxLabel(QWidget):
-    """A colorbox label that uses the naparis colormaps.
-    If matplotlib is being used, or any other library that works like matplotlib
-    use MatplotlibCompatibleCombobox.
+    """Colormap selector based on napari colormaps.
+
+    For matplotlib colormaps, use `MplCompatibleColorCombobox`.
     """
 
     name = "ColorBoxLabel"

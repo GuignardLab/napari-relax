@@ -21,15 +21,18 @@ from .containerize import Containerize
 
 
 class TabTemplate(QWidget):
-    """Template to produce specific tabs, these tabs are specifically used by cross embryo
-    comparisons.
+    """Per-dataset configuration tab of the cross-dataset comparison.
 
-    Args:
-        QWidget (_type_): _description_
+    Parameters
+    ----------
+    lineagetree : LineageTree
+        The dataset configured by this tab.
+    name : str
+        Name of the dataset in the manager.
     """
 
     def time_cropping(self) -> None:
-        """Croping Handler."""
+        """Read the crop time typed by the user."""
         text = self.time_cropper.text()
         if not text or text == 0:
             self.crop = None
@@ -40,10 +43,12 @@ class TabTemplate(QWidget):
         self.time_cropper.clear()
 
     def show_roots(self) -> list:
-        """Returns the list of roots selected to proccess.
+        """Return the roots selected for the comparison.
 
-        Returns:
-            list: all roots
+        Returns
+        -------
+        list
+            The selected root IDs.
         """
         sp_roots = []
         for index in self.root_list.selectedIndexes():
@@ -51,10 +56,10 @@ class TabTemplate(QWidget):
         return sp_roots
 
     def times_selector(self) -> None:
-        """
-        This function reads the input times of the user which can be:
-        a range if the number provided are 3 or 2
-        a list of nodes if numbers provided by the user > 3 or 1
+        """Read the timepoints to compare.
+
+        They are either a comma-separated list or a range built from
+        start, stop and step.
         """
         if self.times_list_check.isChecked():
             self.times = sorted(
@@ -70,10 +75,12 @@ class TabTemplate(QWidget):
                 self.times = list(range(start, stop, step))
 
     def ret_times(self) -> list:
-        """Returns the times
+        """Read and return the timepoints to compare.
 
-        Returns:
-            list: The times.
+        Returns
+        -------
+        list
+            The timepoints.
         """
         if self.times_list_check.isChecked():
             self.times = sorted(

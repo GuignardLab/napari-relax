@@ -1,3 +1,5 @@
+"""Explore and Relabel entry of the Lineage tree analysis widget."""
+
 import contextlib
 import os
 from pathlib import Path
@@ -37,10 +39,36 @@ class ProgenySelection(LayerCorrectorTreeProducer):
     # in one of two ways:
     # 1. use a parameter called `napari_viewer`, as done here
     # 2. use a type annotation of 'napari.viewer.Viewer' for any parameter
+    """Lineage Viewer, cell selection, labels and visibility controls.
+
+    Parameters
+    ----------
+    napari_viewer : napari.Viewer
+        The napari viewer.
+    """
+
     name = "Explore and Relabel"
 
     @staticmethod
     def get_sublineage(cell, lT):
+        """Score the nodes of the lineage that contains a cell.
+
+        Nodes in the subtree of ``cell`` and its ancestors get 1; nodes in
+        other branches get one more than the number of divisions between
+        ``cell`` and their branching point.
+
+        Parameters
+        ----------
+        cell : int
+            ID of the cell.
+        lT : LineageTree
+            The LineageTree.
+
+        Returns
+        -------
+        dict
+            Score of each node of the lineage.
+        """
         score = dict.fromkeys(lT.get_subtree_nodes(cell), 1)
         sup = [cell]
         branching = []
@@ -64,9 +92,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         return score
 
     def select_the_lineage(self):
-        """
-        If a Point is selected it selects the whole Lineage.
-        """
+        """Select the whole lineage of the selected point."""
         active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer:
             return
@@ -119,11 +145,14 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             )
 
     def point_click(self, viewer, event):
-        """Function for clicking on the viewer to select a node from any supported layer type.
+        """Select the node under a Shift + right click in the viewer.
 
-        Args:
-            viewer (napari_viewer): The viewer of napari.
-            event : The event signal that contains the spatial information of the action taken.
+        Parameters
+        ----------
+        viewer : napari.Viewer
+            The napari viewer.
+        event : napari.utils.events.Event
+            The mouse event with the position and view direction.
         """
         if "Shift" in event.modifiers and event.button == 2:
             # Ensure lineage tree is available
@@ -191,8 +220,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 self.progeny_diagram_loader()
 
     def update_lineageviewer_colors(self):
-        """Update the color box to show the current lineage color."""
-
+        """Update the Lineage Viewer to show the current lineage colors."""
         self._update_canvas_with_current_colors()
 
         if (
@@ -212,9 +240,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             self.canvas.update_face_colors(active_layer.face_color)
 
     def progeny_diagram_loader(self):
-        """
-        Program to load the diagrams in black or magenta. Reads the attributes to load different graphs.
-        """
+        """Draw the lineage selected by the slider and update the label field."""
         active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer and "lT" not in active_layer.metadata:
             return
@@ -257,11 +283,16 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.update_lineageviewer_colors()
 
     def _click_on_tree_graph(self, event):
-        """This functions handle the left-click interaction with the tree graph. Finds the node clicked
-        and colors its subtree.
+        """Select the subtree of the node clicked in the Lineage Viewer.
 
-        Args:
-            event : The signal that contains the spatial information of the graph click.
+        A double click also moves the viewer to the first timepoint of
+        the node; a click on the background clears the selection.
+
+        Parameters
+        ----------
+        event : dict
+            ``value`` (clicked node ID) and ``dblclick``, or empty for a
+            background click.
         """
         active_layer = _select_active_lt_layer(self.viewer)
         # Get the Points layer through the bridge for consistent behavior
@@ -318,7 +349,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             )
 
     def sub_point_painter(self):
-        """Paints specific part of the lineagetree when a sublineage is selected"""
+        """Select the sublineage spawned by the selected point."""
         active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer:
             return
@@ -367,9 +398,15 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.select_the_lineage()
 
     def layer_change(self, event):
-        """
-        Function that handles the layer change event.
-        Switches to the InteractionBridge for the selected layer and restores its state.
+        """Switch to the LineageTree of the new active layer.
+
+        The InteractionBridge of the layer is used, and its saved slider
+        and selection state are restored.
+
+        Parameters
+        ----------
+        event : napari.utils.events.Event
+            The layer selection event.
         """
         active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is None:
@@ -505,6 +542,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             )
 
     def label_remover(self):
+        """Remove the label of the node shown in the label field."""
         active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is None:
             return
@@ -514,6 +552,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.progeny_diagram_loader()
 
     def show_all_labels(self):
+        """Show all labels of the LineageTree in a message box."""
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Information)
         msg.setText("Labels")
@@ -639,9 +678,12 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 active_layer.refresh()
 
     def cell_id_selector(self):
-        """
-        Select lineage based on cell ID input from spinbox.
-        Moves slider to lineage containing this cell and shows a circle marker on lineage graph.
+        """Show the lineage of the cell ID typed in the Cell ID selector.
+
+        The slider moves to the lineage containing the cell, the cell is
+        circled in the Lineage Viewer and selected in the viewer, and the
+        time slider moves to its first timepoint. The closest existing ID
+        is used if the typed one does not exist.
         """
         active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer or not self.lT:
@@ -732,13 +774,18 @@ class ProgenySelection(LayerCorrectorTreeProducer):
     signal = Signal(dict)
 
     def resizeEvent(self, event):
+        """Keep the help button in the top right corner.
+
+        Parameters
+        ----------
+        event : QResizeEvent
+            The resize event.
+        """
         super().resizeEvent(event)
         self.tooltip.move(self.width() - self.tooltip.width(), 0)
 
     def label_changer(self):
-        """Handles the change of labels and sends a signal that contains the labels to Comparison widget and
-        saves the new names to the LineageTree loaded on the Points Layer.
-        """
+        """Rename the node shown in the label field and broadcast the labels."""
         text = self.w_lineedit.text()
         node = int(self.w_lineedit.placeholderText().split()[3])
         self.lT.labels[node] = text

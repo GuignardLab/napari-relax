@@ -1,9 +1,9 @@
-"""
-This module is an example of a barebones numpy reader plugin for napari.
+"""napari reader for LineageTree files and the formats LineageTree loads.
 
-It implements the Reader specification, but your plugin may choose to
-implement multiple readers or even other plugin contributions. see:
-https://napari.org/stable/plugins/guides.html?#readers
+Opening a file shows the loader selection and Loading Parameters
+dialogs, then builds a Points layer (and a Surface layer when the
+dataset has meshes) that carries the LineageTree in its metadata.
+See https://napari.org/stable/plugins/guides.html#readers.
 """
 
 import uuid
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
 
 def napari_get_reader(path):
-    """A basic implementation of a Reader contribution.
+    """Return the ReLAX reader if the file extension is supported.
 
     Parameters
     ----------
@@ -38,8 +38,9 @@ def napari_get_reader(path):
     Returns
     -------
     function or None
-        If the path is a recognized format, return a function that accepts the
-        same path or list of paths, and returns a list of layer data tuples.
+        If the path is a recognized format, return a function that
+        accepts the same path or list of paths, and returns a list of
+        layer data tuples.
     """
     if isinstance(path, list):
         # reader plugins may be handed single path, or a list of paths.
@@ -56,26 +57,22 @@ def napari_get_reader(path):
 
 
 def reader_function(path: str):
-    """Take a path or list of paths and return a list of LayerData tuples.
+    """Load a dataset and return the napari layers to create.
 
-    Readers are expected to return data as a list of tuples, where each tuple
-    is (data, [add_kwargs, [layer_type]]), "add_kwargs" and "layer_type" are
-    both optional.
+    Readers are expected to return data as a list of tuples, where
+    each tuple is (data, [add_kwargs, [layer_type]]), "add_kwargs"
+    and "layer_type" are both optional.
 
     Parameters
     ----------
-    path : str or list of str
-        Path to file, or list of paths.
+    path : str
+        Path to the file to open.
 
     Returns
     -------
-    layer_data : list of tuples
-        A list of LayerData tuples where each tuple in the list contains
-        (data, metadata, layer_type), where data is a numpy array, metadata is
-        a dict of keyword arguments for the corresponding viewer.add_* method
-        in napari, and layer_type is a lower-case string naming the type of
-        layer. Both "meta", and "layer_type" are optional. napari will
-        default to layer_type=="image" if not provided
+    list of tuple or None
+        A list of LayerData tuples (data, add_kwargs, layer_type), or
+        None if the Loading Parameters dialog was cancelled.
     """
     if path.lower().endswith(".lt"):
         lT = LineageTree.load(path)
@@ -110,6 +107,19 @@ def reader_function(path: str):
 
 def _extract_napari_surface_from_lT(lT: LineageTree):
     # First pass: count total vertices and faces to pre-allocate arrays
+    """Merge the meshes of all nodes into one napari surface.
+
+    Parameters
+    ----------
+    lT : LineageTree
+        A LineageTree with a ``mesh`` attribute.
+
+    Returns
+    -------
+    tuple of numpy.ndarray
+        Vertices as (time, z, y, x) rows and triangle faces indexing
+        into them.
+    """
     total_vertices = 0
     total_faces = 0
 
@@ -157,39 +167,31 @@ def _extract_napari_surface_from_lT(lT: LineageTree):
     return all_vertices, all_faces
 
 def initial_loading(lT: LineageTree, scaling=False) -> namedtuple:
-    """Calculates the bare minimum to load a LineageTree and returns a dict that contains the data the colors of the nodes and other things that are usefull for other funcs
+    """Compute the minimal data needed to display a LineageTree.
 
     Parameters
     ----------
     lT : LineageTree
-        The lineageTree
+        The LineageTree to load.
+    scaling : bool, optional
+        If True, divide the positions by the largest distance between
+        two cells, by default False.
 
     Returns
     -------
-    initial_spatial_data: namedtuple
-        A structured container that contains:
-        data : np.ndarray
-            Array containing the positions of the points.
-        lT_to_here : dict
-            Mapping from lineage tree IDs to napari IDs.
-        here_to_lT : dict
-            Mapping from napari IDs to lineage tree IDs.
-        clone : np.ndarray
-            Original colors of the dataset.
-        default_colors : np.ndarray
-            Updated colors of the dataset.
-        cmap : CyclicLabelColormap
-            Colormap used to assign colors to nodes.
-        roots : set
-            Root nodes of the dataset.
-        barycenter : float
-            Center of the dataset (should be 0 if centered).
-        last_c_of_track : list
-            Leaf nodes of the dataset (used for graph loading).
-        first_c_to_track : list
-            Root nodes of tracks (used for graph loading).
-        rescaling_factor : float
-            Scaling factor applied to the data.
+    namedtuple
+        ``initial_spatial_data`` with the fields:
+
+        - ``data``: point positions as (track, time, z, y, x) rows;
+        - ``lT_to_here`` and ``here_to_lT``: mappings between
+          LineageTree node IDs and napari point indices;
+        - ``clone``: index of the root lineage of each point;
+        - ``default_colors``: RGBA color of each point;
+        - ``cmap``: colormap used to color the lineages;
+        - ``barycenter``: center removed from the positions;
+        - ``last_c_of_track`` and ``first_c_to_track``: first and
+          last node of each chain, used to build the graphs;
+        - ``rescaling_factor``: factor the positions were divided by.
     """
     tracks = lT.all_chains
     first_c_to_track = {}
@@ -280,23 +282,26 @@ def graph_loading(
     first_c_to_track: dict,
     divisor: int,
 ) -> tuple[dict, dict, dict]:
-    """Generates the graphs for the loaded lineagetree.
+    """Build the lineage graphs displayed in the Lineage Viewer.
 
     Parameters
     ----------
     lT : LineageTree
-        The lineagetree object
+        The LineageTree to draw.
     last_c_of_track : dict
-        a dict created during initial loading
+        Last node of each chain, from `initial_loading`.
     first_c_to_track : dict
-        a dict created during initial loading
+        Chain index of each first node, from `initial_loading`.
     divisor : int
-        Handles the minimum size of the trees
+        Filter value from the Loading Parameters dialog. Lineages with
+        fewer than (number of timepoints / divisor) nodes are skipped;
+        0 keeps every lineage.
 
     Returns
     -------
-    tuple[dict,dict,dict]
-        The threee graphs that are gonna be used for the plugin lineage viewers.
+    tuple of dict
+        The graph of each lineage, the node positions of each graph,
+        and the chain connectivity used to build a Tracks layer.
     """
     if divisor == 0:
         graphs = lT._create_dict_of_plots({root for root in lT.roots})
@@ -336,7 +341,27 @@ def layer_preparation(
     no_graph=False,
     parameters=None,
 ):
+    """Prepare the napari layers for a LineageTree.
 
+    Parameters
+    ----------
+    lT : LineageTree
+        The LineageTree to display.
+    points_layer_name : str or Path
+        Name of the Points layer. If it is an existing file path, its
+        stem is used.
+    no_graph : bool, optional
+        If True, skip building the Lineage Viewer graphs, by default
+        False.
+    parameters : dict, optional
+        Loading parameters: ``rescale`` (bool) and ``divisor`` (int).
+
+    Returns
+    -------
+    list of tuple
+        LayerData tuples: one Points layer, plus one Surface layer if
+        the LineageTree has meshes.
+    """
     initial_spatial_data = initial_loading(
         lT, parameters.get("rescale", False)
     )

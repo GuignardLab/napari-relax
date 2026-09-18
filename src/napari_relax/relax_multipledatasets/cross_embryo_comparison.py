@@ -1,3 +1,5 @@
+"""Plots tab of the Cross Distance Calculation."""
+
 from __future__ import annotations
 
 import os
@@ -61,16 +63,30 @@ DICT_OF_CMAPS: list[str] = [
 
 
 class CrossClustermap(LayerCorrectorTreeProducer):
+    """Tree plots, clustermap and save widgets for cross-dataset results.
+
+    Parameters
+    ----------
+    napari_viewer : napari.Viewer
+        The napari viewer.
+    dataset_viewers : list of napari.components.ViewerModel
+        The two viewers showing the compared datasets.
+    """
+
     name = "clustermap"
 
     def get_lt_manager(self, signal):
-        """
-        Gets the lineagetree manager object every time is
-        changed Manager class.
+        """Receive the manager whenever it changes.
+
+        Parameters
+        ----------
+        signal : LineageTreeManager
+            The updated manager.
         """
         self.manager = signal
 
     def send_data(self):
+        """Plot the comparisons of the level selected by the slider."""
         if not hasattr(self, "comps"):
             return
         t = self.time_slider.value
@@ -84,12 +100,16 @@ class CrossClustermap(LayerCorrectorTreeProducer):
             )
 
     def add_spot_on_graph(self, cell, index, lineagetree_name):
-        """Adds a spot on the graph on the correct place if it does not exist on the graph.
+        """Add a cell to its graph if it is in the middle of a chain.
 
-        Args:
-            cell (int): The if of the cell
-            index (int): Index of the list of networkx graphs
-            lineagetree_name (str): The name of the lineagetree on the layers and self.manager
+        Parameters
+        ----------
+        cell : int
+            ID of the cell.
+        index : int
+            Index of the graph in the list of graphs.
+        lineagetree_name : str
+            Name of the dataset in the layers and the manager.
         """
         lt = self.manager.lineagetrees[lineagetree_name]
         graph = self.layers[lineagetree_name].metadata["graphs"][0][index]
@@ -106,6 +126,24 @@ class CrossClustermap(LayerCorrectorTreeProducer):
             pos[cell] = vector - [0, len(lt.get_predecessors(cell))]
 
     def paint_sublineage(self, cell, index, color, lineagetree_name):
+        """Return the node colors of a graph with a sublineage highlighted.
+
+        Parameters
+        ----------
+        cell : int
+            Root of the sublineage.
+        index : int
+            Index of the graph in the list of graphs.
+        color : int or color
+            Highlight color; 0 means magenta and 1 cyan.
+        lineagetree_name : str
+            Name of the dataset in the layers and the manager.
+
+        Returns
+        -------
+        list
+            Color of each node of the graph; other nodes are black.
+        """
         if isinstance(color, int):
             color = "magenta" if color == 0 else "cyan"
         color_map = []
@@ -120,6 +158,17 @@ class CrossClustermap(LayerCorrectorTreeProducer):
         return color_map
 
     def reset_graph(self, cell, index, lineagetree_name):
+        """Remove a cell added by `add_spot_on_graph` from its graph.
+
+        Parameters
+        ----------
+        cell : int
+            ID of the cell.
+        index : int
+            Index of the graph in the list of graphs.
+        lineagetree_name : str
+            Name of the dataset in the layers and the manager.
+        """
         layer = self.layers[lineagetree_name]
         lt = layer.metadata["LineageTree"]
         if cell in layer.metadata["graphs"][0][index]:
@@ -131,13 +180,18 @@ class CrossClustermap(LayerCorrectorTreeProducer):
             layer.metadata["graphs"][0][index].add_edge(prev, after)
 
     def tree_painter(self, node, lineagetree_name, color, ax):
-        """Paints the correct sublineage on the tree graph
+        """Draw a lineage with a sublineage highlighted on a tree plot.
 
-        Args:
-            node (int): The name of the first node of the sub/-lineage
-            lineagetree_name (str): The name of the lineagetree saved in the manager and the layers.
-            color (list|color): The color the tree has to be painted.
-            ax (ax object): Matplotlib object where the tree will be graphed.
+        Parameters
+        ----------
+        node : int
+            The first node of the sublineage.
+        lineagetree_name : str
+            Name of the dataset in the manager and the layers.
+        color : color
+            Color of the sublineage.
+        ax : matplotlib.axes.Axes
+            Axes of the tree plot.
         """
         lT = self.manager.lineagetrees[lineagetree_name]
         index = LayerCorrectorTreeProducer(self.viewer).val_finder(
@@ -156,9 +210,18 @@ class CrossClustermap(LayerCorrectorTreeProducer):
         self.tree_canvas.draw()
 
     def sub_points_painter(self, node, lineagetree_name, viewer, color):
-        """
-        Adds all descendants of a cell to selected_data.
-        Reads the selected data from napari.layer and it will select all the cells that are ancestors of this point.
+        """Show a dataset in a dataset viewer with a sublineage colored.
+
+        Parameters
+        ----------
+        node : int
+            The first node of the sublineage.
+        lineagetree_name : str
+            Name of the dataset in the manager and the layers.
+        viewer : napari.components.ViewerModel
+            The dataset viewer to draw in.
+        color : color
+            Color of the sublineage; other cells are white.
         """
         existing = [
             layer.metadata.get("name_for_manager")
@@ -210,6 +273,7 @@ class CrossClustermap(LayerCorrectorTreeProducer):
             self.tree_painter(node, lT, colors[i], self.axes[i])
 
     def save_dictionary(self):
+        """Save the comparisons and the manager to the selected ``.pkl`` file."""
         for _, lT in self.manager:
             if hasattr(lT, "_protected_predecessor"):
                 del lT._protected_predecessor
@@ -231,6 +295,7 @@ class CrossClustermap(LayerCorrectorTreeProducer):
             pickle.dump(data, f)
 
     def time_changer(self):
+        """Show the clustermap of the level selected by the slider."""
         self.time = self.time_slider.value
         self.send_data()
 
@@ -310,5 +375,12 @@ class CrossClustermap(LayerCorrectorTreeProducer):
         self.canvas.click_signal.connect(self._click)
 
     def resizeEvent(self, event):
+        """Keep the help button in the top right corner.
+
+        Parameters
+        ----------
+        event : QResizeEvent
+            The resize event.
+        """
         super().resizeEvent(event)
         self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
