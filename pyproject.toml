@@ -46,6 +46,11 @@ testing = [
     "pytest-qt",  # https://pytest-qt.readthedocs.io/en/latest/
     "napari[qt]",  # test with napari's default Qt bindings,
 ]
+docs = [
+    "mkdocs>=1.6,<2",  # MkDocs 2.0 is incompatible with Material and plugins
+    "mkdocs-material>=9.7,<10",
+    "mkdocstrings[python]>=1.0",
+]
 
 [project.entry-points."napari.manifest"]
 napari-relax = "napari_relax:napari.yaml"
