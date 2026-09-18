@@ -9,23 +9,23 @@
 [![npe2](https://img.shields.io/badge/plugin-npe2-blue?link=https://napari.org/stable/plugins/index.html)](https://napari.org/stable/plugins/index.html)
 [![Copier](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/copier-org/copier/master/img/badge/badge-grayscale-inverted-border-purple.json)](https://github.com/copier-org/copier)
 
-A plugin to visualise and manipulate cell lineage trees
+**ReLAX** (Reconstructed Lineage Analysis & eXploration) is a [napari] plugin to visualise and compare cell lineage trees. It gives [LineageTree] datasets a graphical interface, so no programming is needed.
 
-----------------------------------
-Documentation: [https://guignardlab.github.io/napari-relax/](https://guignardlab.github.io/napari-relax/)
-This [napari] plugin was generated with [copier] using the [napari-plugin-template].
+**Documentation: [guignardlab.github.io/napari-relax](https://guignardlab.github.io/napari-relax/)**
 
-<!--
-Don't miss the full getting started guide to set up your new package:
-https://github.com/napari/napari-plugin-template#getting-started
+## Features
 
-and review the napari docs for plugin developers:
-https://napari.org/stable/plugins/index.html
--->
+- **Explore** tracking datasets in the napari viewer and in an interactive Lineage Viewer, side by side.
+- **Relabel** lineages and save them as `.lT` files.
+- **Recolor** cells by clone or by any numeric attribute of the dataset.
+- **Compare** lineages and sublineages with unordered tree edit distances, shown as an interactive clustermap.
+- **Compare across datasets**, even with different time resolutions.
+
+ReLAX opens `.lT`, MaMuT and ASTEC `.xml`, Mastodon and `.bmf` files, and comes with two demo datasets under **File > Open Sample > ReLAX**.
 
 ## Installation
 
-You can install `napari-relax` via [pip]:
+ReLAX requires Python 3.10 or newer and napari 0.9 or newer. You can install `napari-relax` via [pip]:
 
 ```
 pip install napari-relax
@@ -37,19 +37,27 @@ If napari is not already installed, you can install `napari-relax` with napari a
 pip install "napari-relax[all]"
 ```
 
-
-To install latest development version :
+To install the latest development version:
 
 ```
 pip install git+https://github.com/guignardlab/napari-relax.git
 ```
 
-
+Then open **Plugins > Lineage tree analysis** or **Plugins > Cross Lineagetree comparison** in napari. The [Quick Start](https://guignardlab.github.io/napari-relax/quick_start/q_start/) walks through a first session.
 
 ## Contributing
 
 Contributions are very welcome. Tests can be run with [tox], please ensure
 the coverage at least stays the same before you submit a pull request.
+
+The documentation is built with [MkDocs] from the `docs/` folder and published automatically when `main` changes. To preview it locally:
+
+```
+pip install -e ".[docs]"
+mkdocs serve
+```
+
+See the [developer documentation](https://guignardlab.github.io/napari-relax/developer/architecture/) for an overview of the code.
 
 ## License
 
@@ -60,20 +68,16 @@ Distributed under the terms of the [BSD-3] license,
 
 If you encounter any problems, please [file an issue] along with a detailed description.
 
+----------------------------------
+
+This [napari] plugin was generated with [copier] using the [napari-plugin-template].
+
 [napari]: https://github.com/napari/napari
+[LineageTree]: https://guignardlab.github.io/LineageTree/
 [copier]: https://copier.readthedocs.io/en/stable/
-[@napari]: https://github.com/napari
-[MIT]: http://opensource.org/licenses/MIT
 [BSD-3]: http://opensource.org/licenses/BSD-3-Clause
-[GNU GPL v3.0]: http://www.gnu.org/licenses/gpl-3.0.txt
-[GNU LGPL v3.0]: http://www.gnu.org/licenses/lgpl-3.0.txt
-[Apache Software License 2.0]: http://www.apache.org/licenses/LICENSE-2.0
-[Mozilla Public License 2.0]: https://www.mozilla.org/media/MPL/2.0/index.txt
 [napari-plugin-template]: https://github.com/napari/napari-plugin-template
-
+[MkDocs]: https://www.mkdocs.org/
 [file an issue]: https://github.com/guignardlab/napari-relax/issues
-
-[napari]: https://github.com/napari/napari
 [tox]: https://tox.readthedocs.io/en/latest/
 [pip]: https://pypi.org/project/pip/
-[PyPI]: https://pypi.org/
