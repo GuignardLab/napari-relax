@@ -42,8 +42,8 @@ For blind discovery of similar lineages, the **full tree is highly not recommend
 
 ![config_4](./config_4.png){ width="300" }
 
-If you wish to compare sublineages from specific roots, select those roots by left-clicking on them.  
-To include all roots in the analysis, select one root and press **Ctrl + A** to highlight them all.
+If you wish to compare sublineages from specific roots, select those roots by left-clicking on them. Only labelled lineages are listed.  
+To include all listed roots in the analysis, select one root and press **Ctrl + A** to highlight them all. If no root is selected, all lineages that start at the first timepoint selected are compared.
 
 ---
 
@@ -60,7 +60,7 @@ The tool will calculate distances between all possible lineage pairs within the 
 
 ![clustermap_1](./clustermap_1.png){ width="300" }
 
-Examine the resulting clustermap to identify potential clusters of similar lineages.  
+Examine the resulting clustermap to identify potential clusters of similar lineages. Hover over a cell to see which lineages it compares and their score.  
 Experiment with different colormaps and normalization settings to highlight meaningful patterns and refine the results.
 
 ---
@@ -78,4 +78,4 @@ Repeat this step as many times as needed to explore different relationships.
 
 ![clustermap_3](./clustermap_3.png){ width="600" }
 
-Save any interesting comparison results for further analysis using external data analysis tools or libraries.
+Save any interesting comparison results as a `.pkl` file with **Select file** and **Save Comparisons**, for further analysis using external data analysis tools or libraries. The comparisons are also kept in the LineageTree, so [saving the dataset](../saving/saving_tut.md) keeps them too.
