@@ -79,6 +79,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#opening-a-dataset" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -673,6 +678,26 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Opening a dataset
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
         
@@ -690,6 +715,80 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-check-the-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Check the Format
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-choose-the-loader-xml-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Choose the Loader (.xml only)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-set-the-loading-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Set the Loading Parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-start-exploring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Start Exploring
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -832,6 +931,71 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-check-the-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Check the Format
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-choose-the-loader-xml-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Choose the Loader (.xml only)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-set-the-loading-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Set the Loading Parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-start-exploring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Start Exploring
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -904,10 +1068,78 @@
   
 
 
-  <h1>Opening a dataset</h1>
+<h1 id="opening-a-dataset">Opening a Dataset<a class="headerlink" href="#opening-a-dataset" title="Permanent link">&para;</a></h1>
+<p>Importing data is one of the most important aspects of this plugin. All the supported formats can be easily opened using <strong>Drag and Drop</strong> onto the napari window, or with <strong>File&gt;Open File(s)...</strong>.
+If there is no available data, the user may use one of the sample datasets the plugin comes with: <strong>File&gt;Open Sample&gt;ReLAX&gt;demo lineageTree dataset</strong> or <strong>C. elegans dataset</strong> (see <a href="../../quick_start/q_start/">Quick Start</a>).</p>
+<hr />
+<h3 id="1-check-the-format">1. Check the Format<a class="headerlink" href="#1-check-the-format" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>Extension</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LineageTree</td>
+<td><code>.lT</code></td>
+<td>Native format. Also stores the labels and comparisons made in ReLAX.</td>
+</tr>
+<tr>
+<td>MaMuT or ASTEC</td>
+<td><code>.xml</code></td>
+<td>ReLAX asks which of the two tools produced the file.</td>
+</tr>
+<tr>
+<td>Mastodon</td>
+<td><code>.mastodon</code></td>
+<td>Mastodon project file.</td>
+</tr>
+<tr>
+<td>BMF</td>
+<td><code>.bmf</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>LineageTree can read more formats, for example CSV, TGMM XML or SWC files. To open one of them in ReLAX, convert it to <code>.lT</code> first:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">lineagetree</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_from_csv</span>
 
-<p>Importing data is one of the most important aspects of this plugin. All the supported formats can be easily opened using <strong>Drag and Drop</strong> .
-If the is no available data the user may use one of the sample data  <strong>File&gt;Open Sample&gt;demo LineageTree dataset</strong> the plugin comes with.</p>
+<span class="n">lT</span> <span class="o">=</span> <span class="n">read_from_csv</span><span class="p">(</span><span class="s2">"tracks.csv"</span><span class="p">)</span>
+<span class="n">lT</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"tracks.lT"</span><span class="p">)</span>
+</code></pre></div>
+<p>The <a href="https://guignardlab.github.io/LineageTree/loaders/">LineageTree loaders</a> documentation lists all readers and their options.</p>
+<hr />
+<h3 id="2-choose-the-loader-xml-only">2. Choose the Loader (<code>.xml</code> only)<a class="headerlink" href="#2-choose-the-loader-xml-only" title="Permanent link">&para;</a></h3>
+<p>When several loaders can read the file, a <strong>lineagetree data type selection</strong> window asks the user to <em>select the method used to produce the dataset</em>.
+Tick the tool that produced the file: <strong>MaMuT XML loader</strong> or <strong>ASTEC XML loader</strong>. Closing the window without choosing stops the import.</p>
+<hr />
+<h3 id="3-set-the-loading-parameters">3. Set the Loading Parameters<a class="headerlink" href="#3-set-the-loading-parameters" title="Permanent link">&para;</a></h3>
+<p>Every file then opens a <strong>Loading Parameters</strong> window:</p>
+<ul>
+<li><strong>Time resolution</strong> (mins): the time between two consecutive timepoints, pre-filled with the value stored in the dataset. The <a href="../../cross%2Bcomparison/manager/">Manager</a> uses it to align datasets acquired at different rates.</li>
+<li><strong>Resave dataset with new time resolution</strong>: writes the dataset with the new time resolution as a <code>.lT</code> file. An opened <code>.lT</code> file is overwritten; for other formats, <code>.lT</code> is added to the file name (<code>embryo.xml</code> becomes <code>embryo.xml.lT</code>).</li>
+<li><strong>Rescale Dataset</strong>: divides all positions by the largest distance between two cells of the dataset, so that datasets with different spatial units appear at a similar scale.</li>
+<li><strong>Filter Dataset</strong>: hides small lineages from the <a href="../../explore_relabel/explore_relabel/">Lineage Viewer</a>. With a value <em>n</em> above 0, only lineages with at least <em>(number of timepoints) / n</em> nodes are listed; 0 keeps every lineage. All cells are still shown in the napari viewer.</li>
+</ul>
+<p>Press <strong>Ok</strong> to load the dataset or <strong>Cancel</strong> to abort.</p>
+<hr />
+<h3 id="4-start-exploring">4. Start Exploring<a class="headerlink" href="#4-start-exploring" title="Permanent link">&para;</a></h3>
+<p>Loading a dataset adds:</p>
+<ul>
+<li>a <strong>Points</strong> layer named after the file, with one point per cell and timepoint, colored by lineage;</li>
+<li>a <strong>Surface</strong> layer named <code>&lt;file name&gt;_mesh</code> if the dataset contains cell meshes. It is linked to the Points layer.</li>
+</ul>
+<p>Select the Points layer and open <strong>Plugins&gt;Lineage tree analysis</strong> to explore it with the <a href="../../explore_relabel/explore_relabel/">Lineage Viewer</a>.</p>
+<hr />
+<h3 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>The file is not offered to ReLAX</strong>: check that its extension is one of the supported ones above, or convert it to <code>.lT</code>.</li>
+<li><strong>"Please select one reader function."</strong>: the loader window was closed without choosing a loader. Open the file again and tick one.</li>
+<li><strong>Ok does nothing in the Loading Parameters window</strong>: the time resolution must be a number.</li>
+</ul>
 
 
 

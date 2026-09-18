@@ -356,6 +356,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#open-the-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open the plugin
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#import-a-dataset-into-the-viewer" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -913,6 +924,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#open-the-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open the plugin
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#import-a-dataset-into-the-viewer" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -959,23 +981,27 @@
   <h1>Quick Start</h1>
 
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
-<p>You can install <code>napari-relax</code> via [pip]:</p>
+<p>ReLAX requires Python 3.11 or newer and napari 0.9 or newer. You can install <code>napari-relax</code> via <a href="https://pip.pypa.io/">pip</a>:</p>
 <div class="highlight"><pre><span></span><code>pip install napari-relax
 </code></pre></div>
 <p>If napari is not already installed, you can install <code>napari-relax</code> with napari and Qt via:</p>
 <div class="highlight"><pre><span></span><code>pip install "napari-relax[all]"
 </code></pre></div>
-<p>To install latest development version :</p>
-<div class="highlight"><pre><span></span><code>pip install git+https://github.com/guignardlab/napari-relax.git
+<p>To install the latest development version:</p>
+<div class="highlight"><pre><span></span><code>pip install git+https://github.com/GuignardLab/napari-relax.git
 </code></pre></div>
-<h2 id="import-a-dataset-into-the-viewer">Import a  dataset into the viewer<a class="headerlink" href="#import-a-dataset-into-the-viewer" title="Permanent link">&para;</a></h2>
-<p>To import a new dataset can <em><strong>drag and drop</strong></em> any <a href="https://guignardlab.github.io/LineageTree/loaders/">supported format</a>, like <em>TGMM</em>, <em>MaMuT, Mastodon or ASTEC</em> and <em>.lT files</em>, into napari or select it with the open file pop up window into the Viewer.</p>
-<p>There are also 2 demo datasets easily accessible from <em><strong>File&gt;Open Sample&gt;demo LineageTree dataset</strong></em>.
-Other datasets will also be available in [citation].</p>
+<h2 id="open-the-plugin">Open the plugin<a class="headerlink" href="#open-the-plugin" title="Permanent link">&para;</a></h2>
+<p>ReLAX adds two widgets to napari's <em><strong>Plugins</strong></em> menu:</p>
 <ul>
-<li>The first demo dataset contains 3 descendants of Er lineage of <em>Parhyale hawaiensis</em> across the first 100 timepoints of their development.</li>
-<li>While the other contains a C. elegans embryo starting from P0 with gene expressions from multiple experiments (from other datasets) imported.
-<a href="">positional data</a>, <a href="">gene expression data</a></li>
+<li><strong>Lineage tree analysis</strong>: explore, relabel, recolor and compare the lineages of one dataset.</li>
+<li><strong>Cross Lineagetree comparison</strong>: compare lineages across several datasets.</li>
+</ul>
+<h2 id="import-a-dataset-into-the-viewer">Import a dataset into the viewer<a class="headerlink" href="#import-a-dataset-into-the-viewer" title="Permanent link">&para;</a></h2>
+<p>To import a new dataset, <em><strong>drag and drop</strong></em> a file in a supported format (<em>.lT</em>, <em>MaMuT</em> or <em>ASTEC</em> <em>.xml</em>, <em>Mastodon</em> or <em>.bmf</em>) into napari, or open it with <em><strong>File&gt;Open File(s)...</strong></em>. A short dialog then asks for the time resolution and a few loading options. See <a href="../../guides/loading_data/">Opening a dataset</a> for the details and for converting other formats.</p>
+<p>There are also 2 demo datasets easily accessible from <em><strong>File&gt;Open Sample&gt;ReLAX</strong></em>:</p>
+<ul>
+<li><strong>demo lineageTree dataset</strong> contains 3 descendants of the Er lineage of <em>Parhyale hawaiensis</em> across the first 100 timepoints of their development. It ships with the plugin.</li>
+<li><strong>C. elegans dataset</strong> contains a C. elegans embryo starting from P0, with gene expressions from multiple experiments (from other datasets) imported. It is downloaded from <a href="https://zenodo.org/records/17061487">Zenodo</a> (about 42 MB) the first time it is opened, then reused.</li>
 </ul>
 <p><img alt="demo_dataset" src="../demo_dataset_import.png" /></p>
 <hr />
