@@ -45,4 +45,4 @@ After all obstructing lineages have been hidden, the inner layers become clearly
 
 ![image_5](./image_5.png)
 
-Once the inspection is complete, click **Show All Lineages** to restore visibility to all previously hidden lineages.
+Once the inspection is complete, click **Show all** to restore visibility to all previously hidden lineages.
