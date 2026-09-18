@@ -73,9 +73,10 @@ class LayerAdapter(ABC):
     def get_node_at_position(
         self, position: np.ndarray, time: int
     ) -> int | None:
-        """
-        Get the node ID at the given position and time.
-        Default implementation returns None - override for clickable layers.
+        """Get the node ID at the given position and time.
+
+        The default implementation returns None; clickable layers
+        override it.
         """
         return None
 
@@ -253,16 +254,17 @@ class SurfaceAdapter(LayerAdapter):
     """Adapter for Surface layers."""
 
     def __init__(self, layer, node_to_vertex_range: dict[int, tuple]):
-        """
-        Initialize surface adapter with vertex range mappings.
-        Gets node mappings from the linked Points layer.
+        """Initialize the surface adapter with vertex range mappings.
+
+        The node mappings are read from the linked Points layer.
 
         Parameters
         ----------
         layer : napari.layers.Surface
-            The Surface layer to adapt
+            The Surface layer to adapt.
         node_to_vertex_range : dict
-            Mapping from node_id to (start_vertex_idx, end_vertex_idx) in surface data
+            Mapping from node ID to (start_vertex_idx, end_vertex_idx)
+            in the surface data.
         """
         # Get mappings from the linked Points layer
         if "link" in layer.metadata and hasattr(
@@ -390,14 +392,14 @@ class TracksAdapter(LayerAdapter):
     """Adapter for Tracks layers."""
 
     def __init__(self, layer):
-        """
-        Initialize tracks adapter.
-        Gets node mappings from the linked Points layer.
+        """Initialize the tracks adapter.
+
+        The node mappings are read from the linked Points layer.
 
         Parameters
         ----------
         layer : napari.layers.Tracks
-            The Tracks layer to adapt
+            The Tracks layer to adapt.
         """
         # Get mappings from the linked Points layer
         if "link" in layer.metadata and hasattr(
@@ -541,22 +543,21 @@ class InteractionBridge:
                 layer.metadata["link"] = self.primary_points
 
     def discover_layers(self, viewer, primary_points=None) -> bool:
-        """
-        Discover and register related layers in the viewer.
+        """Discover and register related layers in the viewer.
 
         Parameters
         ----------
         viewer : napari.Viewer
-            The napari viewer instance
+            The napari viewer instance.
         primary_points : napari.layers.Points, optional
-            Specific Points layer to use. If None, finds the first one with LineageTree metadata.
+            Specific Points layer to use. If None, the first one with
+            LineageTree metadata is used.
 
         Returns
         -------
         bool
-            True if any compatible layers were found
+            True if any compatible layers were found.
         """
-
         self.adapters.clear()
 
         # Find the primary Points layer with LineageTree metadata

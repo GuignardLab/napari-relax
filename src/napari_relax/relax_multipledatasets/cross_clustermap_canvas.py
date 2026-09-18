@@ -1,3 +1,4 @@
+"""Matplotlib canvas drawing the cross-dataset clustermap."""
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,11 +11,27 @@ from ..lineage_tree_analysis.comparison_widget.clustermap_canvas import (
 
 
 class CrossClusterMapCanvas(ClusterMapCanvas):
+    """Clustermap canvas for sublineages of several datasets."""
+
     def clear_data(self):
+        """Clear the plot, the data and the manager."""
         self.manager = None
         return super().clear_data()
 
     def _receive_data(self, comps=None, norms=None, names=None, manager=None):
+        """Receive the comparisons of one level and plot them.
+
+        Parameters
+        ----------
+        comps : dict, optional
+            Edit distance of each pair of sublineage indices.
+        norms : dict, optional
+            Normalization values of each pair.
+        names : dict, optional
+            Dataset, sublineage root and selected root of each index.
+        manager : LineageTreeManager, optional
+            The manager holding the datasets.
+        """
         self.manager = manager
         self.comps = comps
         self.norms = norms
@@ -22,9 +39,10 @@ class CrossClusterMapCanvas(ClusterMapCanvas):
         self._plot()
 
     def _plot(self):
-        """
-        Plots the clustermap for the timepoint specified by the time slider, where each element is the pairwise comparison of all the sublineages present in
-        the timepoint selected.
+        """Plot the clustermap of the current level of comparison.
+
+        Each cell is the normalized distance between two sublineages;
+        labels start with the dataset name.
         """
         try:
             if hasattr(self, "colorbar"):
@@ -91,6 +109,21 @@ class CrossClusterMapCanvas(ClusterMapCanvas):
         self.draw()
 
     def annotation_maker(self, x, y, offset_xy, ha, value):
+        """Create the hover box of a clustermap cell.
+
+        Parameters
+        ----------
+        x : float
+            Column of the cell.
+        y : float
+            Row of the cell.
+        offset_xy : tuple of int
+            Offset of the box from the cell, in points.
+        ha : str
+            Horizontal alignment of the box.
+        value : float
+            Score shown in the box.
+        """
         self.hover_annotation = self.ax.annotate(
             f"Lineage 1: {self.labels_of_node_real[int(x + 0.5)]}\nLineage 2: {self.labels_of_node_real[int(y + 0.5)]}\nScore: {value:.2f}",
             (x, y),

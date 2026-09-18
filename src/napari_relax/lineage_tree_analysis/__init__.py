@@ -1,6 +1,11 @@
 from napari_relax.lineage_tree_analysis.calculate_properties.props import (
     PropertyVisualization,
 )
+"""Widgets of the Lineage tree analysis dock widget (single dataset).
+
+``__all_widgets__`` lists the entries of the widget combobox and
+``__overall_widget__`` the panel shown under all of them.
+"""
 
 from .cells_size import (
     CellSize,

@@ -1,6 +1,4 @@
-"""
-Utilities for downloading demo data from remote repositories (Zenodo, etc.)
-"""
+"""Download and cache demo datasets from remote repositories."""
 
 import hashlib
 import json

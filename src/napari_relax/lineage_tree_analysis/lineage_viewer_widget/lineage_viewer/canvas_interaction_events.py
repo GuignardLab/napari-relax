@@ -1,13 +1,33 @@
+"""Mouse and keyboard interactions of the Lineage Viewer."""
+
 import numpy as np
 
 
 class CanvasUtils:
+    """Zoom, pan, reset and time line behaviour for the Lineage Viewer.
+
+    Mixed into `SingleTreeProgeny`.
+    """
 
     def reset(self, event):
+        """Reset the view when Z is pressed.
+
+        Parameters
+        ----------
+        event : matplotlib.backend_bases.KeyEvent
+            The key press event.
+        """
         if event.key == "z" and self.hier:
             self.draw_graph(reset=True)
 
     def pan_start(self, event):
+        """Start panning on right button press.
+
+        Parameters
+        ----------
+        event : matplotlib.backend_bases.MouseEvent
+            The button press event.
+        """
         if not hasattr(self, "pan"):
             return
         if event.button == 3 and event.inaxes:
@@ -19,6 +39,13 @@ class CanvasUtils:
             self._plot_labels()
 
     def pan_stop(self, event):
+        """Stop panning on right button release.
+
+        Parameters
+        ----------
+        event : matplotlib.backend_bases.MouseEvent
+            The button release event.
+        """
         if not hasattr(self, "pan"):
             return
         if event.button == 3 and self.pan:
@@ -26,6 +53,13 @@ class CanvasUtils:
             self._plot_labels()
 
     def panning(self, event):
+        """Move the view while the right button is held.
+
+        Parameters
+        ----------
+        event : matplotlib.backend_bases.MouseEvent
+            The mouse move event.
+        """
         if not hasattr(self, "pan"):
             return
         if (
@@ -52,6 +86,13 @@ class CanvasUtils:
         self.draw_idle()
 
     def on_scroll(self, event):
+        """Zoom in or out around the cursor.
+
+        Parameters
+        ----------
+        event : matplotlib.backend_bases.MouseEvent
+            The scroll event.
+        """
         if not event.inaxes or not self.hier:
             return
         scale = 1.4 if event.button == "down" else 1 / 1.4
@@ -81,6 +122,13 @@ class CanvasUtils:
         self.draw()
 
     def time_line(self, time):
+        """Draw the current viewer timepoint as a grey line.
+
+        Parameters
+        ----------
+        time : napari.utils.events.Event
+            The ``current_step`` event of the viewer dims.
+        """
         if hasattr(self, "ax") and hasattr(self, "lT"):
             time = time.value[0]
             zorder = max([_.zorder for _ in self.ax.get_children()]) + 1
@@ -139,11 +187,10 @@ class CanvasUtils:
                     zorder=zorder,
                 )
                 self.line.set_visible(True)
-            self.ax.figure.canvas.draw()
-            self.ax.figure.canvas.flush_events()
+            self.ax.figure.canvas.draw_idle()
 
     def connect_signals(self):
-        """Connects the mpl signals to the canvas"""
+        """Connect the matplotlib events to the canvas."""
         self.mpl_connect("button_press_event", self.click)
         self.mpl_connect("button_press_event", self.pan_start)
         self.mpl_connect("button_release_event", self.pan_stop)
@@ -187,8 +234,7 @@ class CanvasUtils:
             )
 
     def _calculate_cell_position_on_edge(self, cell_id, cell_time):
-        """Simplified version using direct lineage traversal"""
-
+        """Find where a cell in the middle of a chain is drawn on its edge."""
         chain_of_node = self.lT.get_chain_of_node(cell_id)
 
         # chain_of_node has at least 3 elements, otherwise the node

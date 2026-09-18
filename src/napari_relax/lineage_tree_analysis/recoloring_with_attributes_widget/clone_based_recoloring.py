@@ -1,3 +1,5 @@
+"""Clone based Recoloring tab."""
+
 import os
 
 import matplotlib.pyplot as plt
@@ -15,7 +17,19 @@ from ..._utils import _select_active_lt_layer
 
 
 class CloneRecoloring(LayerCorrectorTreeProducer):
+    """Recolor a dataset by the clones present at a chosen timepoint.
+
+    A population graph shows the number of cells over time; each cell
+    present at the selected timepoint gives its color to its subtree.
+
+    Parameters
+    ----------
+    napari_viewer : napari.Viewer
+        The napari viewer.
+    """
+
     def slider_change(self):
+        """Move the timepoint marker on the population graph."""
         active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer and not self.time_nodes:
             return
@@ -53,6 +67,15 @@ class CloneRecoloring(LayerCorrectorTreeProducer):
         self.fig.canvas.draw()
 
     def color_clones(self, *args, **kwargs):
+        """Color each clone of the selected timepoint with the colormap.
+
+        Parameters
+        ----------
+        *args
+            Button signal arguments, unused.
+        **kwargs
+            Button signal arguments, unused.
+        """
         active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer or not self.time_nodes:
             return
@@ -73,6 +96,7 @@ class CloneRecoloring(LayerCorrectorTreeProducer):
         active_layer.face_color = colors
 
     def layer_change(self):
+        """Update the population graph for the new active layer."""
         self.lT = self.get_lT()
         if self.lT:
             self.time_nodes = self.lT.time_nodes
@@ -82,12 +106,13 @@ class CloneRecoloring(LayerCorrectorTreeProducer):
             self.time_nodes = None
 
     def reset_colors(self):
+        """Restore the original colors of the dataset."""
         active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is not None:
             active_layer.face_color = active_layer.metadata["default_colors"]
 
     def create_layout(self):
-        """Creates the layout for this widget."""
+        """Create the layout of the tab."""
         self.fig, self.ax = plt.subplots(figsize=(2, 5))
         self.previous_layer = None
         self.qualitative_cmaps = [
@@ -183,5 +208,12 @@ class CloneRecoloring(LayerCorrectorTreeProducer):
         )
 
     def resizeEvent(self, event):
+        """Keep the help button in the top right corner.
+
+        Parameters
+        ----------
+        event : QResizeEvent
+            The resize event.
+        """
         super().resizeEvent(event)
         self.clone_tooltip.move(self.width() - self.clone_tooltip.width(), 0)

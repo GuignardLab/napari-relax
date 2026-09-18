@@ -1,3 +1,8 @@
+"""The *Roma* scientific colour map by Fabio Crameri, as a napari colormap.
+
+See www.fabiocrameri.ch/colourmaps.
+"""
+
 #
 #         roma
 #                   www.fabiocrameri.ch/colourmaps

@@ -14,17 +14,26 @@ from scipy.spatial.distance import pdist
 
 
 def _infer_point_size(lT: LineageTree):
-    """
-    Infer a point size based on nearest neighbor distances.
+    """Infer point sizes from nearest neighbor distances.
 
     Heuristics:
+
     - minimal size: 0.01 * optimal size
     - optimal size: half of minimum median nearest neighbor distance
-                    across all time points
+      across all time points
     - maximal size: half of maximum nearest neighbor distance across
-                    all time points
-    """
+      all time points
 
+    Parameters
+    ----------
+    lT : LineageTree
+        The LineageTree whose positions are used.
+
+    Returns
+    -------
+    tuple of float
+        Minimal, optimal and maximal point sizes.
+    """
     # Vectorized approach: collect all values first, then compute min/max
     all_medians = []
     all_maxes = []
@@ -104,10 +113,21 @@ def _transform_float_value_to_slider_int(
 
 
 def _select_active_lt_layer(viewer):
-    """
-    Finds the correct layer of the specified type that corresponds to the currently active layer.
-    If the active layer is already of the correct type, returns it.
-    Otherwise, looks for a 'link' metadata in the active layer pointing to the correct layer.
+    """Return the Points layer holding the LineageTree of the active layer.
+
+    Exactly one layer must be selected. If it is a Points layer with a
+    LineageTree, it is returned. Otherwise, the 'link' metadata of the
+    active layer is used to find its Points layer.
+
+    Parameters
+    ----------
+    viewer : napari.Viewer
+        The napari viewer.
+
+    Returns
+    -------
+    napari.layers.Points or None
+        The Points layer, or None if there is none.
     """
     if len(viewer.layers.selection) == 1:
         active_layer = viewer.layers.selection.active
@@ -131,9 +151,7 @@ def _select_active_lt_layer(viewer):
 
 
 def error_image_selection():
-    """
-    Print a message error in a box
-    """
+    """Show an error box asking the user to select a Points layer."""
     msg = QMessageBox()
     msg.setIcon(QMessageBox.Critical)
     msg.setText("Image selection error")
@@ -147,8 +165,16 @@ def error_image_selection():
 
 
 def custom_error(title, message, informative=None):
-    """
-    Print a message error in a box
+    """Show an error box with a custom message.
+
+    Parameters
+    ----------
+    title : str
+        Main text of the box.
+    message : str
+        Unused, kept for compatibility.
+    informative : str, optional
+        Additional text shown under the title.
     """
     msg = QMessageBox()
     msg.setIcon(QMessageBox.Critical)
@@ -171,9 +197,7 @@ def clear_layout(self):
 
 
 def error_cell_selection():
-    """
-    Print a message error in a box
-    """
+    """Show an error box saying the selected cell cannot be processed."""
     msg = QMessageBox()
     msg.setIcon(QMessageBox.Critical)
     msg.setText("Cell selection error")
@@ -257,17 +281,26 @@ def rotate_3d(
 
 
 def create_links_and_chains(lT: LineageTree, roots: list | set | int):
-    """Generates a dictionary containing the links and the lengths of each chain.
-    Similar to simple tree, mainly used for tree manip app.
+    """Build the links and chain lengths of the trees under some roots.
 
-    Args:
-        roots (Union[list,set,int]): The roots from which the tree will be generated.
+    Similar to the simple tree approximation, mainly used for the tree
+    manipulation app.
 
-    Returns:
-        dict: A dictionary with keys "links" and "times" which contains the connections all cells and their chain
+    Parameters
+    ----------
+    lT : LineageTree
+        The LineageTree.
+    roots : list or set or int
+        The roots from which the trees are built. All roots of the
+        LineageTree are used if empty.
+
+    Returns
+    -------
+    dict
+        ``links`` maps each chain start to its end (and each end to
+        its successors); ``times`` maps each chain start to its
         length.
     """
-
     if not roots:
         to_do = set(lT.roots)
     elif isinstance(roots, Iterable):
@@ -303,16 +336,37 @@ def plot_lineages_for_tree_manip(
     axes=None,
     **kwargs,
 ):
-    """Plots all lineages.
+    """Plot several lineages in a grid of axes, labelled by their root.
 
-    Args:
-        last_time_point_to_consider (int, optional): Which timepoints and upwards are the graphs to be calculated.
-                                                    For example if start_time is 10, then all trees that begin
-                                                    on tp 10 or before are calculated. Defaults to None.
-        nrows (int):  How many rows of plots should be printed.
-        kwargs: args accepted by networkx
+    Parameters
+    ----------
+    lT : LineageTree
+        The LineageTree to draw.
+    lnks_tms : dict
+        Graph of each lineage, keyed by plot index.
+    hiers : dict
+        Node positions of each graph, keyed by plot index.
+    nrows : int, optional
+        Number of rows of plots, by default 2.
+    figsize : tuple, optional
+        Figure size in inches, by default (10, 15).
+    dpi : int, optional
+        Figure resolution, by default 100.
+    fontsize : int, optional
+        Base font size of the labels, by default 40.
+    figure : matplotlib.figure.Figure, optional
+        Unused, a new figure is always created.
+    axes : matplotlib.axes.Axes, optional
+        Unused, new axes are always created.
+    **kwargs
+        Passed to ``LineageTree.draw_tree_graph``.
+
+    Returns
+    -------
+    tuple
+        The figure, the axes, and the mappings from axis to root and
+        from root to axis.
     """
-
     nrows = int(nrows)
     if nrows < 1 or not nrows:
         nrows = 1
@@ -383,12 +437,15 @@ def plot_lineages_for_tree_manip(
 
 
 def find_pair_with_the_longest_distance(lT: LineageTree) -> float:
-    """Finds the points that have the longest distance between each other.
+    """Find the largest distance between two cells of the dataset.
+
+    The distance is measured every 10 timepoints on the convex hull
+    of the cell positions.
 
     Parameters
     ----------
     lT : LineageTree
-        The lineagetree
+        The LineageTree.
 
     Returns
     -------

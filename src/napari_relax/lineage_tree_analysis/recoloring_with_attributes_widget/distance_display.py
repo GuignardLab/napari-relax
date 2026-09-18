@@ -1,3 +1,8 @@
+"""Earlier clone recoloring widget, not used by the plugin.
+
+`CloneRecoloring` replaces it.
+"""
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,9 +19,20 @@ from .node_based_recoloring import Coloring
 
 
 class DisplayDistances(LayerCorrectorTreeProducer):
+    """Earlier clone recoloring widget, not registered in any widget list."""
+
     name = "Attribute Based Recoloring"
 
     def point_click(self, viewer, event):
+        """Find the cell under a Ctrl + right click in the viewer.
+
+        Parameters
+        ----------
+        viewer : napari.Viewer
+            The napari viewer.
+        event : napari.utils.events.Event
+            The mouse event.
+        """
         active_layer = _select_active_lt_layer(self.viewer)
 
         if (
@@ -117,6 +133,7 @@ class DisplayDistances(LayerCorrectorTreeProducer):
                 active_layer.refresh()
 
     def slider_change(self):
+        """Move the timepoint marker on the population graph."""
         active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer and not self.time_nodes:
             return
@@ -149,6 +166,15 @@ class DisplayDistances(LayerCorrectorTreeProducer):
         self.fig.canvas.draw()
 
     def color_clones(self, *args, **kwargs):
+        """Color each clone of the selected timepoint with the colormap.
+
+        Parameters
+        ----------
+        *args
+            Button signal arguments, unused.
+        **kwargs
+            Button signal arguments, unused.
+        """
         active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer or not self.time_nodes:
             return
@@ -182,6 +208,7 @@ class DisplayDistances(LayerCorrectorTreeProducer):
         active_layer.face_color = colors
 
     def layer_change(self):
+        """Update the population graph for the new active layer."""
         self.lT = self.get_lT()
         if self.lT:
             self.time_nodes = self.lT.time_nodes

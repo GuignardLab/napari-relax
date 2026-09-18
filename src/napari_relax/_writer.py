@@ -1,3 +1,5 @@
+"""napari writer saving a LineageTree as a ``.lT`` file."""
+
 import os
 from typing import Any
 
@@ -5,6 +7,23 @@ from napari.utils.notifications import show_error
 
 
 def write_single_image(path: str, data: Any, meta: dict) -> list[str]:
+    """Save the LineageTree of a layer as a ``.lT`` file.
+
+    Parameters
+    ----------
+    path : str
+        Destination path. ``.lT`` is used if it has another extension.
+    data : Any
+        Layer data, unused.
+    meta : dict
+        Layer attributes; the LineageTree is read from its metadata or
+        from the metadata of the linked layer.
+
+    Returns
+    -------
+    list of str
+        The path that was written.
+    """
     lineage_tree = None
 
     # Try to get LineageTree directly from metadata

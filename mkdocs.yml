@@ -1,0 +1,96 @@
+site_name: ReLAX (Reconstructed Lineage Analysis & eXploration)
+site_url: https://guignardlab.github.io/napari-relax/
+repo_url: https://github.com/GuignardLab/napari-relax
+repo_name: GuignardLab/napari-relax
+edit_uri: edit/main/docs/
+docs_dir: docs/
+theme:
+  name: material
+  palette:
+  - scheme: default
+    primary: indigo
+    accent: indigo
+    toggle:
+      icon: material/weather-night
+      name: Switch to dark mode
+  - scheme: slate
+    primary: indigo
+    accent: indigo
+    toggle:
+      icon: material/weather-sunny
+      name: Switch to light mode
+  features:
+  - navigation.path
+  - navigation.expand
+  - navigation.footer
+  - search.highlight
+  - content.code.annotate
+  - content.action.edit
+
+# Fail `mkdocs build --strict` on broken links, anchors and pages missing from nav
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
+
+plugins:
+- search:
+- mkdocstrings:
+    handlers:
+      python:
+        paths: [src]
+        options:
+          show_submodules: true
+          docstring_style: numpy
+          show_root_heading: true
+          show_source: false
+          members_order: source
+extra_css:
+  - styles/extra.css
+
+markdown_extensions:
+  - abbr
+  - md_in_html
+  - admonition
+  - pymdownx.extra
+  - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - attr_list
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
+
+
+nav:
+  - Overview: index.md
+  - Quick Start: ./quick_start/q_start.md
+  - Napari Viewer: ./viewer/viewer.md
+  - Single dataset Analysis:
+    - Lineage Viewer - Explore and Relabel: ./explore_relabel/explore_relabel.md 
+    - Attribute Recoloring: ./attribute/attribute.md
+    - Distance Calculation:  ./distance/distance.md
+  - Cross dataset Distances: 
+    - Manager: ./cross+comparison/manager.md
+    - Distance Calculation: ./cross+comparison/distance_cross.md
+  - Guides: 
+    - Index: ./guides/guides.md
+    - Opening a dataset: ./guides/loading_data.md
+    - Relabelling and Saving Progress: ./guides/saving/saving_tut.md
+    - Managing Visibility of Lineages: ./guides/show_and_hide/show_and_hide_tut.md
+    - Blind comparison of Lineages: ./guides/comparing/blind_comparing.md
+    - Blind comparison Across Lineages: ./guides/cross_lineage_distance/cross_comparison.md
+  - Developer:
+    - Architecture: ./developer/architecture.md
+    - Adding a Widget: ./developer/adding_a_widget.md
+    - API Reference:
+      - Reader and Writer: ./developer/api/io.md
+      - Dock Widgets: ./developer/api/widgets.md
+      - Lineage Tree Analysis: ./developer/api/lineage_tree_analysis.md
+      - Cross-Dataset Comparison: ./developer/api/multiple_datasets.md
+      - Utilities: ./developer/api/utilities.md
+    

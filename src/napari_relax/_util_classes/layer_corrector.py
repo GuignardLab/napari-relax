@@ -11,22 +11,20 @@ DEFAULT_SELECTION_COLOR_RGBA = [1, 0, 1, 1]  # magenta
 
 
 class LayerCorrectorTreeProducer(QWidget):
-    """
-    Parent Class that is called inside the plugin, it produces no interface.
-    Contains functions that are useful for the used Widgets inside the plugin:
-        -Selector for cell and all descendants
-        -Producing the lineagetree object
-        -All the graphs, so that they may be inherited to the rest of the classes.
-         The graphs are calculated when the Layer corrector is first loaded and the passed on to its children.
+    """Base class of the ReLAX widgets, without an interface of its own.
 
-    Generally functions that are used by other classes are added here.
+    It provides helpers shared by the widgets: reading the LineageTree
+    of the active layer, selecting a cell and its descendants, and
+    finding the Lineage Viewer graph of a cell.
+
+    Parameters
+    ----------
+    napari_viewer : napari.Viewer
+        The napari viewer.
     """
 
     def sub_points_selector(self):
-        """
-        Adds all descendants of a cell to selected_data.
-        Reads the selected data from napari.layer and it will select all the cells that are ancestors of this point.
-        """
+        """Add all descendants of the selected point to the selection."""
         active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer.selected_data:
             return 0
@@ -41,8 +39,12 @@ class LayerCorrectorTreeProducer(QWidget):
         active_layer.refresh()
 
     def get_lT(self) -> LineageTree:
-        """
-        Function that reads the LineageTree structure through one of the layers.
+        """Return the LineageTree of the active layer.
+
+        Returns
+        -------
+        LineageTree or None
+            The LineageTree, or None if no layer holds one.
         """
         active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is None:
@@ -50,12 +52,14 @@ class LayerCorrectorTreeProducer(QWidget):
         return active_layer.metadata.get("LineageTree", None)
 
     def paint_nodes_of_same_tree(self, val):
-        """
-        Specific of Progeny selection class. Changes the color of the subtree or the whole
-        tree accordng the the state of the toggleble point_color_from_trees.value.
+        """Color the whole tree of a graph with the selection color.
 
-        Args:
-        val (int): index of the list of graphs
+        Used by widgets with a ``point_color_from_trees`` toggle.
+
+        Parameters
+        ----------
+        val : int
+            Index of the graph in the list of graphs.
         """
         active_layer = _select_active_lt_layer(self.viewer)
         active_layer.face_color = active_layer.metadata["default_colors"]
@@ -75,15 +79,21 @@ class LayerCorrectorTreeProducer(QWidget):
             active_layer.refresh()
 
     def val_finder(self, cell, lt, graphs):
-        """
-        Useful function for selecting the right index in the list of graphs
-        Args:
-            cell (int): id of the node
-            lt (LineageTree object): The LineageTree class
-            graphs: The list of graphs
+        """Find the graph that contains a cell.
 
-        Returns:
-            i (int): The key of the graphs list
+        Parameters
+        ----------
+        cell : int
+            ID of the node.
+        lt : LineageTree
+            The LineageTree.
+        graphs : dict
+            The Lineage Viewer graphs, keyed by index.
+
+        Returns
+        -------
+        int or None
+            The key of the graph whose root is the ancestor of the cell.
         """
         for i, g in graphs.items():
             if lt.get_ancestor_at_t(cell) == g["root"]:

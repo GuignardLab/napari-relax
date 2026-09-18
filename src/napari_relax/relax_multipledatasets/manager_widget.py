@@ -1,3 +1,5 @@
+"""Manager Manipulation entry of the Cross Lineagetree comparison widget."""
+
 import os
 from pathlib import Path
 
@@ -22,22 +24,35 @@ from .._util_classes import (
 
 
 class CrossEmbryo(LayerCorrectorTreeProducer):
+    """Create, load, edit and save a LineageTreeManager.
+
+    The manager is sent to the other cross-dataset widgets through
+    ``send_manager_to_classes`` whenever it changes.
+
+    Parameters
+    ----------
+    napari_viewer : napari.Viewer
+        The napari viewer.
+    """
+
     name = "Manager Manipulation"
 
     send_manager_to_classes = Signal(LineageTreeManager)
 
     def update_layer_list(self):
+        """Map the manager names of the viewer layers to the layers."""
         self.layers = {
             layer.metadata.get("name_for_manager"): layer
             for layer in self.viewer.layers
         }
 
     def save_manager(self):
+        """Save the manager to the selected file."""
         file = self.save_manager_widget.value
         self.manager.write(str(file))
 
     def add_a_new_embryo(self):
-        """Adds a new embryo to the manager."""
+        """Add the selected ``.lT`` files to the manager."""
         for file in self.add_lT_to_manager.line_edit.value.split(", "):
             lT = LineageTree.load(fname=file)
             self.manager.add(lT, name=Path(file).stem)
@@ -45,16 +60,24 @@ class CrossEmbryo(LayerCorrectorTreeProducer):
         self.send_manager_to_classes.emit(self.manager)
 
     def add_a_new_embryo_from_viewer(self):
-        pass
+        """Not implemented."""
 
     def remove_embryo(self, source, pos):
-        """Removes an embryo from the manager"""
+        """Remove the dataset under the cursor from the manager.
+
+        Parameters
+        ----------
+        source : QListWidget
+            The list of datasets.
+        pos : QPoint
+            Position of the right click in the list.
+        """
         self.manager.remove_embryo(source.itemAt(pos).text())
         self.update_Qlistwidget()
         self.send_manager_to_classes.emit(self.manager)
 
     def load_a_manager(self):
-        """Loads a LineageTreeManager object to the app, so it can be used by napari"""
+        """Load a LineageTreeManager from the selected file."""
         file = self.load_ltm_file.line_edit.value
         lTm = LineageTreeManager.load(file)
         self.manager = lTm
@@ -62,7 +85,14 @@ class CrossEmbryo(LayerCorrectorTreeProducer):
         self.send_manager_to_classes.emit(self.manager)
 
     def add_new_layer(self, name=None):
-        """Adds the lineatree to the viewer."""
+        """Add datasets of the manager to the viewer.
+
+        Parameters
+        ----------
+        name : list of QListWidgetItem, optional
+            Items to add; the items selected in the list are used if
+            None. Datasets already in the viewer are skipped.
+        """
         existing = [
             layer.metadata.get("name_for_manager", "")
             for layer in self.viewer.layers
@@ -89,7 +119,7 @@ class CrossEmbryo(LayerCorrectorTreeProducer):
         self.update_layer_list()
 
     def create_a_manager(self):
-        """Creates a new LineageTreeManager from all existing layers."""
+        """Create a new LineageTreeManager from all LineageTree layers."""
         self.manager = LineageTreeManager()
         layers = [
             layer
@@ -104,10 +134,7 @@ class CrossEmbryo(LayerCorrectorTreeProducer):
         self.update_layer_list()
 
     def update_Qlistwidget(self):
-        """Function that is called when the lineagetrees in the manager
-        object are changed. It replaces the Qlistwidget with a new one
-        that has the correct LineageTrees.
-        """
+        """Refresh the list of datasets from the manager."""
         self.lineagetree_list.clear()
         self.lineagetree_list.addItems(
             [f"{key}" for key in self.manager.lineagetrees]
@@ -115,16 +142,21 @@ class CrossEmbryo(LayerCorrectorTreeProducer):
         self.lineagetree_list.update()
 
     def eventFilter(self, source, event):
-        """eventFilter to create context menu for the QListwidget.
-        This filter connect the right click to produce a context menu that has 2 actions
-        change the time resolution and remove an embryo.
+        """Show the context menu of the dataset list on right click.
 
-        Args:
-            source (_type_): _description_
-            event (_type_): _description_
+        The menu offers "Change Time Resolution" and "Remove Embryo".
 
-        Returns:
-            _type_: _description_
+        Parameters
+        ----------
+        source : QObject
+            The object receiving the event.
+        event : QEvent
+            The event.
+
+        Returns
+        -------
+        bool
+            True if the event was handled.
         """
         if (
             isinstance(source, QListWidget)
@@ -153,6 +185,15 @@ class CrossEmbryo(LayerCorrectorTreeProducer):
         return super().eventFilter(source, event)
 
     def change_time_resolution(self, source, pos: QtCore.QPoint):
+        """Ask for a new time resolution for the dataset under the cursor.
+
+        Parameters
+        ----------
+        source : QListWidget
+            The list of datasets.
+        pos : QPoint
+            Position of the right click in the list.
+        """
         lt = self.manager.lineagetrees[source.itemAt(pos).text()]
         t_res = TimeResDialog(lt.time_resolution)
         t_res.exec_()
@@ -231,5 +272,12 @@ class CrossEmbryo(LayerCorrectorTreeProducer):
         self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)
 
     def resizeEvent(self, event):
+        """Keep the help button in the top right corner.
+
+        Parameters
+        ----------
+        event : QResizeEvent
+            The resize event.
+        """
         super().resizeEvent(event)
         self.node_tooltip.move(self.width() - self.node_tooltip.width(), 0)

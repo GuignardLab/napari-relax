@@ -1,3 +1,5 @@
+"""Distance Calculation entry of the Lineage tree analysis widget."""
+
 from napari.utils import progress
 from qtpy.QtWidgets import QPushButton, QTabWidget, QVBoxLayout
 
@@ -10,18 +12,28 @@ from .config import ConfigurationPanel
 
 
 class ComparisonsHandler(LayerCorrectorTreeProducer):
-    """Class to laod the widgets for comparing lineages.
-    The 2 widgets loaded are:
-    ConfigurationPanel: It contains the configuration options and runs the comparisons.
-    Clustermap: It shows the result on a clustermap."""
+    """Tabs to configure, run and inspect pairwise lineage comparisons.
+
+    The Configuration Panel tab (`ConfigurationPanel`) sets up and
+    runs the comparisons; the Clustermap tab (`Clustermap`) shows the
+    results.
+
+    Parameters
+    ----------
+    napari_viewer : napari.Viewer
+        The napari viewer.
+    """
 
     name = "Distance Calculation"
 
     def update_dictionary(self, product):
-        """
-        This function will read the yielded product from the thread_worker and will update the user interface
-        Args:
-            product [list]: [pairwise comparisons: name for each comparison]
+        """Send the results yielded by the comparison thread to the clustermap.
+
+        Parameters
+        ----------
+        product : tuple
+            Comparisons, sublineage names, normalizations and timepoints,
+            one entry per timepoint computed so far.
         """
         (
             self.clustermap.comps,
@@ -35,9 +47,10 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
         self.clustermap.send_data()
 
     def thread_handler(self):
-        """
-        This function will start the thread worker and connect the yielded  product to the update
-        dictionary function. Also will set the run comparisons button checked, so it cannot be pressed again.
+        """Start the comparisons in a background thread.
+
+        The results are sent to `update_dictionary` as each timepoint is
+        computed.
         """
         self.comps = []
         self.naming = []
@@ -57,8 +70,12 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
         self.stopbutton.setChecked(False)
 
     def kill_thread(self, dummy_event=None):
-        """
-        Function to kill the thread if the user decides to.
+        """Stop the comparison thread and close the progress bar.
+
+        Parameters
+        ----------
+        dummy_event : object, optional
+            Event of the signal that triggered the stop, unused.
         """
         if self.pbr:
             self.pbr.close()
@@ -69,11 +86,12 @@ class ComparisonsHandler(LayerCorrectorTreeProducer):
         self.runbutton.setChecked(False)
 
     def __init__(self, napari_viewer):
-        """
-        Build the containers for the loading widget
+        """Build the tabs and the Run/Stop buttons.
 
-        Args:
-            napari_viewer (napari.Viewer): the parent napari viewer
+        Parameters
+        ----------
+        napari_viewer : napari.Viewer
+            The napari viewer.
         """
         super().__init__(napari_viewer)
         self.pbr = None

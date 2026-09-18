@@ -59,14 +59,15 @@ class MplCompatibleColorCombobox(QWidget):
     def __init__(
         self, parent: QWidget = None, dict_of_cmaps: dict[str, Colormap] = None
     ):
-        """Creates the discrete colorbox
+        """Create the colormap selector.
 
         Parameters
         ----------
-        dict_of_cmaps : dict[str, Colormap]
-            Any dictionary that works the same way as matplotlib colormaps work, by default None.
         parent : QWidget, optional
-            The parent widget, by default None
+            The parent widget, by default None.
+        dict_of_cmaps : dict[str, Colormap], optional
+            Colormaps to offer, in the matplotlib colormap registry
+            format, by default None.
         """
         super().__init__(parent)
         if dict_of_cmaps is None:
@@ -118,8 +119,10 @@ class MplCompatibleColorCombobox(QWidget):
 
 
 class CustomColorStyledDelegate(QStyledItemDelegate):
-    """This is napari's colormap combobox, slightly modified to
-    accept matplotlib colormaps instead of only napari innate ones.
+    """Colormap item delegate accepting matplotlib colormaps.
+
+    Adapted from napari's colormap combobox, which only accepts napari
+    colormaps.
     """
 
     def __init__(
@@ -128,14 +131,17 @@ class CustomColorStyledDelegate(QStyledItemDelegate):
         dict_of_cmaps: dict[str, Colormap] = None,
         **kwargs,
     ):
-        """Used for the custom colorcombobox.
+        """Create the delegate used by the custom colormap combobox.
 
         Parameters
         ----------
         base_height : int
             The height of the widget.
-        dict_of_cmaps : dict[str, Colormap]
-            Any dictionary that works the same way as matplotlib colormaps work, by default None.
+        dict_of_cmaps : dict[str, Colormap], optional
+            Colormaps to offer, in the matplotlib colormap registry
+            format, by default None.
+        **kwargs
+            Passed to QStyledItemDelegate.
         """
         super().__init__(**kwargs)
         self.base_height = base_height
@@ -185,14 +191,15 @@ class CustomColorStyledDelegate(QStyledItemDelegate):
 
 class CustomQtColormapComboBox(QComboBox):
     def __init__(self, parent=None, dict_of_cmaps: dict[str, Colormap] = None):
-        """The custom color combobox.
+        """Create the custom colormap combobox.
 
         Parameters
         ----------
-        dict_of_cmaps : dict[str, Colormap]
-            Any dictionary that works the same way as matplotlib colormaps work, by default None.
         parent : QWidget, optional
-            The parent widget, by default None
+            The parent widget, by default None.
+        dict_of_cmaps : dict[str, Colormap], optional
+            Colormaps to offer, in the matplotlib colormap registry
+            format, by default None.
         """
         super().__init__(parent)
         if dict_of_cmaps is None:
