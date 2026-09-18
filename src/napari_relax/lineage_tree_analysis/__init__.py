@@ -1,3 +1,6 @@
+from napari_relax.lineage_tree_analysis.calculate_properties.props import (
+    PropertyVisualization,
+)
 """Widgets of the Lineage tree analysis dock widget (single dataset).
 
 ``__all_widgets__`` lists the entries of the widget combobox and
@@ -17,6 +20,7 @@ __all__ = (
     "ProgenySelection",
     "ComparisonsHandler",
     "RecoloringWidget",
+    "PropertyVisualization",
 )
 
 # All new widget should be listed here to be displayed in napari
@@ -24,6 +28,7 @@ __all_widgets__ = (
     ProgenySelection,
     ComparisonsHandler,
     RecoloringWidget,
+    PropertyVisualization,
 )
 
 __overall_widget__ = CellSize

@@ -8,7 +8,6 @@ See https://napari.org/stable/plugins/guides.html#readers.
 
 import uuid
 from collections import namedtuple
-from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -24,7 +23,7 @@ from ._util_classes import LoadingDialog, SetupDialog
 from ._utils import _infer_point_size, find_pair_with_the_longest_distance
 
 if TYPE_CHECKING:
-    from napari.utils import CyclicLabelColormap
+    pass
 
 
 def napari_get_reader(path):
@@ -166,6 +165,7 @@ def _extract_napari_surface_from_lT(lT: LineageTree):
 
     return all_vertices, all_faces
 
+
 def initial_loading(lT: LineageTree, scaling=False) -> namedtuple:
     """Compute the minimal data needed to display a LineageTree.
 
@@ -304,7 +304,7 @@ def graph_loading(
         and the chain connectivity used to build a Tracks layer.
     """
     if divisor == 0:
-        graphs = lT._create_dict_of_plots({root for root in lT.roots})
+        graphs = lT._create_dict_of_plots(set(lT.roots))
 
         pos = {
             i: utils.hierarchical_pos(

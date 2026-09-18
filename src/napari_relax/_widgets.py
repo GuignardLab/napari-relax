@@ -127,6 +127,7 @@ class LineageTreeAnalysisWidget(ReLAXWidget):
             explore_and_relabel.progeny_diagram_loader
         )
 
+
 class CrossEmbryoComparisonWidget(ReLAXWidget):
     """Multiple-dataset widget: manage datasets and compare them.
 

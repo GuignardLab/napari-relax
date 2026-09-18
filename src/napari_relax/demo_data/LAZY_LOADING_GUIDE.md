@@ -22,7 +22,7 @@ Datasets are configured in `datasets.json`:
   "demo": {
     "filename": "demo.lT",
     "url": "https://zenodo.org/records/XXXXX/files/demo.lT",
-    "md5": "d601b8b9e0ebf92e2bb3f9a81915bc5f", 
+    "md5": "d601b8b9e0ebf92e2bb3f9a81915bc5f",
     "description": "Demo lineage tree dataset",
     "size_mb": 1.09
   }
@@ -127,7 +127,7 @@ clear_cache()
      - id: napari-relax.load_my_new_dataset
        python_name: napari_relax.demo_data:load_my_new_dataset
        title: Load My New Dataset
-   
+
    sample_data:
      - command: napari-relax.load_my_new_dataset
        display_name: My New Dataset

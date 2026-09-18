@@ -418,7 +418,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
             self.face_colors_handler = active_layer._face.events.connect(
                 self.progeny_diagram_loader
             )
-        except:  # noqa: E722
+        except Exception:  # noqa: BLE001
             pass
 
         # Save current state to the previous bridge
@@ -490,7 +490,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 try:
                     self.cell_id_go_button.clicked.disconnect()
                     self.cell_id_spinbox.editingFinished.disconnect()
-                except:  # noqa: E722
+                except Exception:  # noqa: BLE001
                     pass
 
                 # Connect the signals

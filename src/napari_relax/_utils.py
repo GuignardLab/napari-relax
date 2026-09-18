@@ -1,3 +1,4 @@
+import warnings
 from collections.abc import Iterable
 
 import matplotlib.pyplot as plt
@@ -10,7 +11,6 @@ from qtpy.QtWidgets import (
 )
 from scipy.spatial import ConvexHull
 from scipy.spatial.distance import pdist
-import warnings
 
 
 def _infer_point_size(lT: LineageTree):
@@ -468,5 +468,7 @@ def find_pair_with_the_longest_distance(lT: LineageTree) -> float:
         if true_distance < distance:
             true_distance = distance
     if true_distance == 0:
-        warnings.warn("The maximum spread of the point cloud is 0.")
+        warnings.warn(
+            "The maximum spread of the point cloud is 0.", stacklevel=2
+        )
     return true_distance if true_distance > 0 else 1
