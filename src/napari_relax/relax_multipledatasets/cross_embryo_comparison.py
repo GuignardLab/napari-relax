@@ -7,10 +7,10 @@ import pickle
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
 from magicgui import widgets
+from matplotlib import colormaps
 from matplotlib.backends.backend_qtagg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
@@ -231,7 +231,8 @@ class CrossClustermap(LayerCorrectorTreeProducer):
             data = layer_preparation(
                 self.manager.lineagetrees[lineagetree_name],
                 lineagetree_name + ".lT",
-                from_cross=True,
+                no_graph=True,
+                parameters={"scaling": False},
             )[0]
             data[1]["metadata"]["name_for_manager"] = lineagetree_name
             self.viewer.add_points(data[0], **data[1])
@@ -240,7 +241,8 @@ class CrossClustermap(LayerCorrectorTreeProducer):
         data = layer_preparation(
             self.manager.lineagetrees[lineagetree_name],
             lineagetree_name + ".lT",
-            from_cross=True,
+            no_graph=True,
+            parameters={"scaling": False},
         )[0]
         data[1]["metadata"]["name_for_manager"] = lineagetree_name
         viewer.add_points(data[0], **data[1])
@@ -304,7 +306,7 @@ class CrossClustermap(LayerCorrectorTreeProducer):
         self.viewers = dataset_viewers
         self.colormap = MplCompatibleColorCombobox(
             self,
-            {i: cm.get_cmap(i) for i in DICT_OF_CMAPS},
+            {i: colormaps.get(i) for i in DICT_OF_CMAPS},
         )
         self.norm_combo = widgets.ComboBox(
             value="max",
