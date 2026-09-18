@@ -23,7 +23,7 @@ The main capabilities of this component include:
 
 <ol>
   <li>
-    <strong>Lineage Viewer settings</strong> (<strong>1</strong> and <strong>2</strong> in the screenshot): the node size, edge size and font size of the Lineage Viewer are set in napari's <strong>File>Preferences</strong>, on the <strong>ReLAX</strong> page (napari 0.9 or newer). Changes apply the next time napari starts.
+    <strong>Lineage Viewer settings</strong> (<strong>1</strong> and <strong>2</strong> in the screenshot): the node size, edge size and font size of the Lineage Viewer are set in napari's <strong>File>Preferences</strong>, on the <strong>ReLAX</strong> page (napari 0.9 or newer).
   </li>
   <li value="3">
     <strong>The Lineage Viewer</strong>: Using this viewer, the user may inspect all the lineages in the dataset. The current timepoint of the <a href="../viewer/viewer.md">Napari Viewer</a> is drawn on it.
