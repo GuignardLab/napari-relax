@@ -43,7 +43,7 @@ For blind discovery of similar lineages, the **full tree is highly not recommend
 ![config_4](./config_4.png){ width="300" }
 
 If you wish to compare sublineages from specific roots, select those roots by left-clicking on them. Only labelled lineages are listed.  
-To include all listed roots in the analysis, select one root and press **Ctrl + A** to highlight them all. If no root is selected, all lineages that start at the first timepoint are compared.
+To include all listed roots in the analysis, select one root and press **Ctrl + A** to highlight them all. If no root is selected, all lineages that start at the first timepoint selected are compared.
 
 ---
 
