@@ -1,0 +1,6460 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://guignardlab.github.io/napari-relax/developer/api/utilities/">
+      
+      
+        <link rel="prev" href="../multiple_datasets/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Utilities - ReLAX (Reconstructed Lineage Analysis & eXploration)</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../styles/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#utilities" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="ReLAX (Reconstructed Lineage Analysis &amp; eXploration)" class="md-header__button md-logo" aria-label="ReLAX (Reconstructed Lineage Analysis & eXploration)" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ReLAX (Reconstructed Lineage Analysis & eXploration)
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Utilities
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/GuignardLab/napari-relax" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GuignardLab/napari-relax
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="ReLAX (Reconstructed Lineage Analysis &amp; eXploration)" class="md-nav__button md-logo" aria-label="ReLAX (Reconstructed Lineage Analysis & eXploration)" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ReLAX (Reconstructed Lineage Analysis & eXploration)
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/GuignardLab/napari-relax" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GuignardLab/napari-relax
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../quick_start/q_start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../viewer/viewer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Napari Viewer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Single dataset Analysis
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Single dataset Analysis
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../explore_relabel/explore_relabel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lineage Viewer - Explore and Relabel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../attribute/attribute/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Attribute Recoloring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../distance/distance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distance Calculation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross dataset Distances
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Cross dataset Distances
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../cross%2Bcomparison/manager/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Manager
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../cross%2Bcomparison/distance_cross/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distance Calculation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/guides/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/loading_data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Opening a dataset
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/saving/saving_tut/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relabelling and Saving Progress
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/show_and_hide/show_and_hide_tut/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Managing Visibility of Lineages
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/comparing/blind_comparing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Blind comparison of Lineages
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guides/cross_lineage_distance/cross_comparison/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Blind comparison Across Lineages
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Developer
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adding_a_widget/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adding a Widget
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7_3" id="__nav_7_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reader and Writer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../widgets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dock Widgets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lineage_tree_analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lineage Tree Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multiple_datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross-Dataset Comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utilities
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _interaction_bridge
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="_interaction_bridge">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.LayerAdapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LayerAdapter
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="LayerAdapter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.LayerAdapter.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.LayerAdapter.show_only_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show_only_nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.LayerAdapter.reset_visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reset_visibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.LayerAdapter.restore_visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        restore_visibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.LayerAdapter.get_node_at_position" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_node_at_position
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.PointsAdapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PointsAdapter
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PointsAdapter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.PointsAdapter.show_only_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show_only_nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.PointsAdapter.reset_visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reset_visibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.PointsAdapter.restore_visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        restore_visibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.PointsAdapter.select_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        select_nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.PointsAdapter.hide_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hide_nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.PointsAdapter.get_node_at_position" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_node_at_position
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.PointsAdapter.get_node_at_3d_position" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_node_at_3d_position
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.SurfaceAdapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SurfaceAdapter
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SurfaceAdapter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.SurfaceAdapter.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.SurfaceAdapter.show_only_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show_only_nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.SurfaceAdapter.hide_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hide_nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.SurfaceAdapter.reset_visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reset_visibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.SurfaceAdapter.restore_visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        restore_visibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.TracksAdapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TracksAdapter
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TracksAdapter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.TracksAdapter.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.TracksAdapter.show_only_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show_only_nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.TracksAdapter.hide_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hide_nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.TracksAdapter.reset_visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reset_visibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.TracksAdapter.restore_visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        restore_visibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InteractionBridge
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="InteractionBridge">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.discover_layers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        discover_layers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.show_only_lineages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show_only_lineages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.show_only_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show_only_nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.hide_lineages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hide_lineages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.highlight_lineages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        highlight_lineages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.reset_visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reset_visibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.restore_visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        restore_visibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.find_node_at_position" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        find_node_at_position
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.get_registered_layers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_registered_layers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.update_state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        update_state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.get_state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.restore_state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        restore_state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.get_bridge_for_layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_bridge_for_layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.create_bridge_for_points_layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_bridge_for_points_layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#napari_relax._utils" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _utils
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="_utils">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._utils.error_image_selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        error_image_selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._utils.custom_error" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        custom_error
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._utils.error_cell_selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        error_cell_selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._utils.create_links_and_chains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_links_and_chains
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._utils.plot_lineages_for_tree_manip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        plot_lineages_for_tree_manip
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._utils.find_pair_with_the_longest_distance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        find_pair_with_the_longest_distance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.dialog_for_reader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dialog_for_reader
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="dialog_for_reader">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.dialog_for_reader.BigDatasetNamesDialog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BigDatasetNamesDialog
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.containerize" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        containerize
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="containerize">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.containerize.Containerize" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Containerize
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        custom_colorboxes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="custom_colorboxes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.ColorBoxLabel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ColorBoxLabel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.MplCompatibleColorCombobox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MplCompatibleColorCombobox
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MplCompatibleColorCombobox">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.MplCompatibleColorCombobox.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.colorbox_label" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        colorbox_label
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="colorbox_label">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.colorbox_label.ColorBoxLabel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ColorBoxLabel
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mpl_compatible_combobox
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="mpl_compatible_combobox">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.MplCompatibleColorCombobox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MplCompatibleColorCombobox
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MplCompatibleColorCombobox">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.MplCompatibleColorCombobox.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.CustomColorStyledDelegate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CustomColorStyledDelegate
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CustomColorStyledDelegate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.CustomColorStyledDelegate.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.CustomQtColormapComboBox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CustomQtColormapComboBox
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CustomQtColormapComboBox">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.CustomQtColormapComboBox.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.tooltip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tooltip
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.eventfilter_for_delayed_tooltip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        eventfilter_for_delayed_tooltip
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="eventfilter_for_delayed_tooltip">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.eventfilter_for_delayed_tooltip.DelayedTooltipEventFilter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DelayedTooltipEventFilter
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.viewer_wrapper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        viewer_wrapper
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="viewer_wrapper">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.viewer_wrapper.QtViewerWrap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        QtViewerWrap
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#napari_relax.demo_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        demo_data
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="demo_data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax.demo_data.load_demo_datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_demo_datasets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax.demo_data.save_demo_datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        save_demo_datasets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax.demo_data.clear_cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clear_cache
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax.demo_data.ensure_demo_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ensure_demo_data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax.demo_data.get_cached_datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_cached_datasets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax.demo_data.load_celegans" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_celegans
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax.demo_data.load_demo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_demo
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _interaction_bridge
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="_interaction_bridge">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.LayerAdapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LayerAdapter
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="LayerAdapter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.LayerAdapter.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.LayerAdapter.show_only_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show_only_nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.LayerAdapter.reset_visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reset_visibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.LayerAdapter.restore_visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        restore_visibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.LayerAdapter.get_node_at_position" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_node_at_position
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.PointsAdapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PointsAdapter
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PointsAdapter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.PointsAdapter.show_only_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show_only_nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.PointsAdapter.reset_visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reset_visibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.PointsAdapter.restore_visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        restore_visibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.PointsAdapter.select_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        select_nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.PointsAdapter.hide_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hide_nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.PointsAdapter.get_node_at_position" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_node_at_position
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.PointsAdapter.get_node_at_3d_position" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_node_at_3d_position
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.SurfaceAdapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SurfaceAdapter
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SurfaceAdapter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.SurfaceAdapter.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.SurfaceAdapter.show_only_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show_only_nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.SurfaceAdapter.hide_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hide_nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.SurfaceAdapter.reset_visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reset_visibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.SurfaceAdapter.restore_visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        restore_visibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.TracksAdapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TracksAdapter
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TracksAdapter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.TracksAdapter.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.TracksAdapter.show_only_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show_only_nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.TracksAdapter.hide_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hide_nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.TracksAdapter.reset_visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reset_visibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.TracksAdapter.restore_visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        restore_visibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        InteractionBridge
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="InteractionBridge">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.discover_layers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        discover_layers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.show_only_lineages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show_only_lineages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.show_only_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        show_only_nodes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.hide_lineages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hide_lineages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.highlight_lineages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        highlight_lineages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.reset_visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reset_visibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.restore_visibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        restore_visibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.find_node_at_position" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        find_node_at_position
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.get_registered_layers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_registered_layers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.update_state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        update_state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.get_state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.restore_state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        restore_state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.get_bridge_for_layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_bridge_for_layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._interaction_bridge.InteractionBridge.create_bridge_for_points_layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_bridge_for_points_layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#napari_relax._utils" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _utils
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="_utils">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._utils.error_image_selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        error_image_selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._utils.custom_error" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        custom_error
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._utils.error_cell_selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        error_cell_selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._utils.create_links_and_chains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_links_and_chains
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._utils.plot_lineages_for_tree_manip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        plot_lineages_for_tree_manip
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._utils.find_pair_with_the_longest_distance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        find_pair_with_the_longest_distance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.dialog_for_reader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dialog_for_reader
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="dialog_for_reader">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.dialog_for_reader.BigDatasetNamesDialog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BigDatasetNamesDialog
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.containerize" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        containerize
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="containerize">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.containerize.Containerize" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Containerize
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        custom_colorboxes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="custom_colorboxes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.ColorBoxLabel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ColorBoxLabel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.MplCompatibleColorCombobox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MplCompatibleColorCombobox
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MplCompatibleColorCombobox">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.MplCompatibleColorCombobox.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.colorbox_label" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        colorbox_label
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="colorbox_label">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.colorbox_label.ColorBoxLabel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ColorBoxLabel
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mpl_compatible_combobox
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="mpl_compatible_combobox">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.MplCompatibleColorCombobox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MplCompatibleColorCombobox
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MplCompatibleColorCombobox">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.MplCompatibleColorCombobox.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.CustomColorStyledDelegate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CustomColorStyledDelegate
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CustomColorStyledDelegate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.CustomColorStyledDelegate.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.CustomQtColormapComboBox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CustomQtColormapComboBox
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CustomQtColormapComboBox">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.CustomQtColormapComboBox.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.tooltip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tooltip
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.eventfilter_for_delayed_tooltip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        eventfilter_for_delayed_tooltip
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="eventfilter_for_delayed_tooltip">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.eventfilter_for_delayed_tooltip.DelayedTooltipEventFilter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DelayedTooltipEventFilter
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.viewer_wrapper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        viewer_wrapper
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="viewer_wrapper">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._util_classes.viewer_wrapper.QtViewerWrap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        QtViewerWrap
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#napari_relax.demo_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        demo_data
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="demo_data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax.demo_data.load_demo_datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_demo_datasets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax.demo_data.save_demo_datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        save_demo_datasets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax.demo_data.clear_cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clear_cache
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax.demo_data.ensure_demo_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ensure_demo_data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax.demo_data.get_cached_datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_cached_datasets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax.demo_data.load_celegans" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_celegans
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax.demo_data.load_demo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_demo
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Overview
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../architecture/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Developer
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../io/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/GuignardLab/napari-relax/edit/main/docs/developer/api/utilities.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="utilities">Utilities<a class="headerlink" href="#utilities" title="Permanent link">&para;</a></h1>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="napari_relax._interaction_bridge" class="doc doc-heading">
+            <code>napari_relax._interaction_bridge</code>
+
+
+<a href="#napari_relax._interaction_bridge" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents first">
+
+        <p>Simple interaction bridge for coordinating multi-layer lineage interactions.</p>
+<p>This module provides a lightweight system for coordinating interactions between
+Points, Surface, Labels, and Tracks layers in napari-relax.</p>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="napari_relax._interaction_bridge.LayerAdapter" class="doc doc-heading">
+            <code>LayerAdapter</code>
+
+
+<a href="#napari_relax._interaction_bridge.LayerAdapter" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="abc.ABC">ABC</span></code></p>
+
+
+
+        <p>Abstract adapter for layer-specific interactions.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.LayerAdapter.__init__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">node_to_napari</span><span class="p">,</span> <span class="n">napari_to_node</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.LayerAdapter.__init__" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Initialize adapter with mappings between LineageTree nodes and napari indices.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>layer</code>
+            </td>
+            <td>
+                  <code><span title="napari.layers.Layer">Layer</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The napari layer to adapt</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>node_to_napari</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Mapping from LineageTree node_id to napari indices</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>napari_to_node</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Mapping from napari indices to LineageTree node_id</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.LayerAdapter.show_only_nodes" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">show_only_nodes</span><span class="p">(</span><span class="n">node_ids</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+  </span>
+
+<a href="#napari_relax._interaction_bridge.LayerAdapter.show_only_nodes" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Show only the specified nodes, hide all others.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.LayerAdapter.reset_visibility" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">reset_visibility</span><span class="p">()</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+  </span>
+
+<a href="#napari_relax._interaction_bridge.LayerAdapter.reset_visibility" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Reset all nodes to be visible.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.LayerAdapter.restore_visibility" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">restore_visibility</span><span class="p">()</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+  </span>
+
+<a href="#napari_relax._interaction_bridge.LayerAdapter.restore_visibility" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Restore all nodes to be visible without affecting selection.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.LayerAdapter.get_node_at_position" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_node_at_position</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.LayerAdapter.get_node_at_position" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Get the node ID at the given position and time.</p>
+<p>The default implementation returns None; clickable layers
+override it.</p>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="napari_relax._interaction_bridge.PointsAdapter" class="doc doc-heading">
+            <code>PointsAdapter</code>
+
+
+<a href="#napari_relax._interaction_bridge.PointsAdapter" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="LayerAdapter (napari_relax._interaction_bridge.LayerAdapter)" href="#napari_relax._interaction_bridge.LayerAdapter">LayerAdapter</a></code></p>
+
+
+
+        <p>Adapter for Points layers.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.PointsAdapter.show_only_nodes" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">show_only_nodes</span><span class="p">(</span><span class="n">node_ids</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.PointsAdapter.show_only_nodes" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Hide unselected lineages by setting their visibility.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.PointsAdapter.reset_visibility" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">reset_visibility</span><span class="p">()</span></code>
+
+<a href="#napari_relax._interaction_bridge.PointsAdapter.reset_visibility" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Restore original visibility and clear selection.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.PointsAdapter.restore_visibility" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">restore_visibility</span><span class="p">()</span></code>
+
+<a href="#napari_relax._interaction_bridge.PointsAdapter.restore_visibility" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Restore original visibility without affecting selection.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.PointsAdapter.select_nodes" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">select_nodes</span><span class="p">(</span><span class="n">node_ids</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.PointsAdapter.select_nodes" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Select nodes without hiding others.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.PointsAdapter.hide_nodes" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">hide_nodes</span><span class="p">(</span><span class="n">node_ids</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.PointsAdapter.hide_nodes" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Hide specific nodes while preserving visibility of others.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.PointsAdapter.get_node_at_position" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_node_at_position</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.PointsAdapter.get_node_at_position" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Find the node at the clicked position.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.PointsAdapter.get_node_at_3d_position" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_node_at_3d_position</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">view_direction</span><span class="p">,</span> <span class="n">dims_displayed</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.PointsAdapter.get_node_at_3d_position" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Find the node at the clicked position using 3D ray intersection.</p>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="napari_relax._interaction_bridge.SurfaceAdapter" class="doc doc-heading">
+            <code>SurfaceAdapter</code>
+
+
+<a href="#napari_relax._interaction_bridge.SurfaceAdapter" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="LayerAdapter (napari_relax._interaction_bridge.LayerAdapter)" href="#napari_relax._interaction_bridge.LayerAdapter">LayerAdapter</a></code></p>
+
+
+
+        <p>Adapter for Surface layers.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.SurfaceAdapter.__init__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">node_to_vertex_range</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.SurfaceAdapter.__init__" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Initialize the surface adapter with vertex range mappings.</p>
+<p>The node mappings are read from the linked Points layer.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>layer</code>
+            </td>
+            <td>
+                  <code><span title="napari.layers.Surface">Surface</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The Surface layer to adapt.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>node_to_vertex_range</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Mapping from node ID to (start_vertex_idx, end_vertex_idx)
+in the surface data.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.SurfaceAdapter.show_only_nodes" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">show_only_nodes</span><span class="p">(</span><span class="n">node_ids</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.SurfaceAdapter.show_only_nodes" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Hide unselected lineages by setting their alpha to 0.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.SurfaceAdapter.hide_nodes" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">hide_nodes</span><span class="p">(</span><span class="n">node_ids</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.SurfaceAdapter.hide_nodes" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Hide specific nodes by setting their alpha to 0, preserving other visibility.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.SurfaceAdapter.reset_visibility" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">reset_visibility</span><span class="p">()</span></code>
+
+<a href="#napari_relax._interaction_bridge.SurfaceAdapter.reset_visibility" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Restore original vertex colors and blending.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.SurfaceAdapter.restore_visibility" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">restore_visibility</span><span class="p">()</span></code>
+
+<a href="#napari_relax._interaction_bridge.SurfaceAdapter.restore_visibility" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Restore original vertex colors and blending without affecting selection.</p>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="napari_relax._interaction_bridge.TracksAdapter" class="doc doc-heading">
+            <code>TracksAdapter</code>
+
+
+<a href="#napari_relax._interaction_bridge.TracksAdapter" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="LayerAdapter (napari_relax._interaction_bridge.LayerAdapter)" href="#napari_relax._interaction_bridge.LayerAdapter">LayerAdapter</a></code></p>
+
+
+
+        <p>Adapter for Tracks layers.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.TracksAdapter.__init__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.TracksAdapter.__init__" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Initialize the tracks adapter.</p>
+<p>The node mappings are read from the linked Points layer.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>layer</code>
+            </td>
+            <td>
+                  <code><span title="napari.layers.Tracks">Tracks</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The Tracks layer to adapt.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.TracksAdapter.show_only_nodes" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">show_only_nodes</span><span class="p">(</span><span class="n">node_ids</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.TracksAdapter.show_only_nodes" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Show only specified tracks.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.TracksAdapter.hide_nodes" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">hide_nodes</span><span class="p">(</span><span class="n">node_ids</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.TracksAdapter.hide_nodes" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Hide specific tracks while preserving visibility of others.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.TracksAdapter.reset_visibility" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">reset_visibility</span><span class="p">()</span></code>
+
+<a href="#napari_relax._interaction_bridge.TracksAdapter.reset_visibility" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Restore original track visibility.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.TracksAdapter.restore_visibility" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">restore_visibility</span><span class="p">()</span></code>
+
+<a href="#napari_relax._interaction_bridge.TracksAdapter.restore_visibility" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Restore original track visibility without affecting selection.</p>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="napari_relax._interaction_bridge.InteractionBridge" class="doc doc-heading">
+            <code>InteractionBridge</code>
+
+
+<a href="#napari_relax._interaction_bridge.InteractionBridge" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Coordinator for multi-layer lineage interactions with state management.</p>
+<p>This class discovers related layers through shared metadata, coordinates
+interactions between them, and maintains state for a specific lineage tree.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.InteractionBridge.discover_layers" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">discover_layers</span><span class="p">(</span><span class="n">viewer</span><span class="p">,</span> <span class="n">primary_points</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.InteractionBridge.discover_layers" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Discover and register related layers in the viewer.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>viewer</code>
+            </td>
+            <td>
+                  <code><span title="napari.Viewer">Viewer</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The napari viewer instance.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>primary_points</code>
+            </td>
+            <td>
+                  <code><span title="napari.layers.Points">Points</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Specific Points layer to use. If None, the first one with
+LineageTree metadata is used.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>True if any compatible layers were found.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.InteractionBridge.show_only_lineages" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">show_only_lineages</span><span class="p">(</span><span class="n">node_ids</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.InteractionBridge.show_only_lineages" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Show only the specified lineages across all registered layers.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.InteractionBridge.show_only_nodes" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">show_only_nodes</span><span class="p">(</span><span class="n">node_ids</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.InteractionBridge.show_only_nodes" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Show only the specified nodes across all registered layers.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.InteractionBridge.hide_lineages" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">hide_lineages</span><span class="p">(</span><span class="n">node_ids_to_hide</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.InteractionBridge.hide_lineages" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Hide specific lineages while preserving current visibility of other lineages.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.InteractionBridge.highlight_lineages" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">highlight_lineages</span><span class="p">(</span><span class="n">node_ids</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.InteractionBridge.highlight_lineages" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Highlight the specified lineages. For Points, this selects them without hiding others.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.InteractionBridge.reset_visibility" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">reset_visibility</span><span class="p">()</span></code>
+
+<a href="#napari_relax._interaction_bridge.InteractionBridge.reset_visibility" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Reset visibility across all registered layers.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.InteractionBridge.restore_visibility" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">restore_visibility</span><span class="p">()</span></code>
+
+<a href="#napari_relax._interaction_bridge.InteractionBridge.restore_visibility" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Restore visibility across all registered layers without affecting selection.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.InteractionBridge.find_node_at_position" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">find_node_at_position</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">view_direction</span><span class="p">,</span> <span class="n">dims_displayed</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.InteractionBridge.find_node_at_position" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Find a node at the given position across all clickable layers.</p>
+<p>Returns tuple of (layer, node_idx, node_id) if found, None otherwise.
+Prioritizes: Points &gt; Surface &gt; Tracks</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.InteractionBridge.get_registered_layers" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_registered_layers</span><span class="p">()</span></code>
+
+<a href="#napari_relax._interaction_bridge.InteractionBridge.get_registered_layers" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Get list of registered layer types.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.InteractionBridge.update_state" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">update_state</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.InteractionBridge.update_state" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Save state parameters for this lineage tree.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.InteractionBridge.get_state" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_state</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.InteractionBridge.get_state" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Get state value(s) for this lineage tree.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.InteractionBridge.restore_state" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">restore_state</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span></code>
+
+<a href="#napari_relax._interaction_bridge.InteractionBridge.restore_state" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Restore widget visibility state from saved state.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.InteractionBridge.get_bridge_for_layer" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_bridge_for_layer</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+<a href="#napari_relax._interaction_bridge.InteractionBridge.get_bridge_for_layer" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Get the InteractionBridge associated with a layer.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._interaction_bridge.InteractionBridge.create_bridge_for_points_layer" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">create_bridge_for_points_layer</span><span class="p">(</span><span class="n">viewer</span><span class="p">,</span> <span class="n">points_layer</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+<a href="#napari_relax._interaction_bridge.InteractionBridge.create_bridge_for_points_layer" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Create and store an InteractionBridge in a Points layer's metadata.</p>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="napari_relax._utils" class="doc doc-heading">
+            <code>napari_relax._utils</code>
+
+
+<a href="#napari_relax._utils" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="napari_relax._utils.error_image_selection" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">error_image_selection</span><span class="p">()</span></code>
+
+<a href="#napari_relax._utils.error_image_selection" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Show an error box asking the user to select a Points layer.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="napari_relax._utils.custom_error" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">custom_error</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">informative</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#napari_relax._utils.custom_error" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Show an error box with a custom message.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>title</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Main text of the box.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>message</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Unused, kept for compatibility.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>informative</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Additional text shown under the title.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="napari_relax._utils.error_cell_selection" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">error_cell_selection</span><span class="p">()</span></code>
+
+<a href="#napari_relax._utils.error_cell_selection" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Show an error box saying the selected cell cannot be processed.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="napari_relax._utils.create_links_and_chains" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">create_links_and_chains</span><span class="p">(</span><span class="n">lT</span><span class="p">,</span> <span class="n">roots</span><span class="p">)</span></code>
+
+<a href="#napari_relax._utils.create_links_and_chains" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build the links and chain lengths of the trees under some roots.</p>
+<p>Similar to the simple tree approximation, mainly used for the tree
+manipulation app.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>lT</code>
+            </td>
+            <td>
+                  <code><span title="lineagetree.LineageTree">LineageTree</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The LineageTree.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>roots</code>
+            </td>
+            <td>
+                  <code><span title="list">list</span> or <span title="set">set</span> or <span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The roots from which the trees are built. All roots of the
+LineageTree are used if empty.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="dict">dict</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p><code>links</code> maps each chain start to its end (and each end to
+its successors); <code>times</code> maps each chain start to its
+length.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="napari_relax._utils.plot_lineages_for_tree_manip" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">plot_lineages_for_tree_manip</span><span class="p">(</span><span class="n">lT</span><span class="p">,</span> <span class="n">lnks_tms</span><span class="p">,</span> <span class="n">hiers</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">figure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
+
+<a href="#napari_relax._utils.plot_lineages_for_tree_manip" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Plot several lineages in a grid of axes, labelled by their root.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>lT</code>
+            </td>
+            <td>
+                  <code><span title="lineagetree.LineageTree">LineageTree</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The LineageTree to draw.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>lnks_tms</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Graph of each lineage, keyed by plot index.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>hiers</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Node positions of each graph, keyed by plot index.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>nrows</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of rows of plots, by default 2.</p>
+              </div>
+            </td>
+            <td>
+                  <code>2</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>figsize</code>
+            </td>
+            <td>
+                  <code><span title="tuple">tuple</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Figure size in inches, by default (10, 15).</p>
+              </div>
+            </td>
+            <td>
+                  <code>(10, 15)</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>dpi</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Figure resolution, by default 100.</p>
+              </div>
+            </td>
+            <td>
+                  <code>100</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>fontsize</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Base font size of the labels, by default 40.</p>
+              </div>
+            </td>
+            <td>
+                  <code>40</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>figure</code>
+            </td>
+            <td>
+                  <code><span title="matplotlib.figure.Figure">Figure</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Unused, a new figure is always created.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>axes</code>
+            </td>
+            <td>
+                  <code><span title="matplotlib.axes.Axes">Axes</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Unused, new axes are always created.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>**kwargs</code>
+            </td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Passed to <code>LineageTree.draw_tree_graph</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>{}</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="tuple">tuple</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The figure, the axes, and the mappings from axis to root and
+from root to axis.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="napari_relax._utils.find_pair_with_the_longest_distance" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">find_pair_with_the_longest_distance</span><span class="p">(</span><span class="n">lT</span><span class="p">)</span></code>
+
+<a href="#napari_relax._utils.find_pair_with_the_longest_distance" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Find the largest distance between two cells of the dataset.</p>
+<p>The distance is measured every 10 timepoints on the convex hull
+of the cell positions.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>lT</code>
+            </td>
+            <td>
+                  <code><span title="lineagetree.LineageTree">LineageTree</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The LineageTree.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The length of the longest possible axis.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="napari_relax._util_classes.dialog_for_reader" class="doc doc-heading">
+            <code>napari_relax._util_classes.dialog_for_reader</code>
+
+
+<a href="#napari_relax._util_classes.dialog_for_reader" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="napari_relax._util_classes.dialog_for_reader.BigDatasetNamesDialog" class="doc doc-heading">
+            <code>BigDatasetNamesDialog</code>
+
+
+<a href="#napari_relax._util_classes.dialog_for_reader.BigDatasetNamesDialog" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="qtpy.QtWidgets.QDialog">QDialog</span></code></p>
+
+
+
+        <p>Dialog box to ask the user if they want to continue using big names.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="napari_relax._util_classes.containerize" class="doc doc-heading">
+            <code>napari_relax._util_classes.containerize</code>
+
+
+<a href="#napari_relax._util_classes.containerize" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="napari_relax._util_classes.containerize.Containerize" class="doc doc-heading">
+            <code>Containerize</code>
+
+
+<a href="#napari_relax._util_classes.containerize.Containerize" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="qtpy.QtWidgets.QWidget">QWidget</span></code></p>
+
+
+
+        <p>Place a list of widgets in a horizontal or vertical container.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="napari_relax._util_classes.custom_colorboxes" class="doc doc-heading">
+            <code>napari_relax._util_classes.custom_colorboxes</code>
+
+
+<a href="#napari_relax._util_classes.custom_colorboxes" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="napari_relax._util_classes.custom_colorboxes.ColorBoxLabel" class="doc doc-heading">
+            <code>ColorBoxLabel</code>
+
+
+<a href="#napari_relax._util_classes.custom_colorboxes.ColorBoxLabel" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="qtpy.QtWidgets.QWidget">QWidget</span></code></p>
+
+
+
+        <p>Colormap selector based on napari colormaps.</p>
+<p>For matplotlib colormaps, use <code>MplCompatibleColorCombobox</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="napari_relax._util_classes.custom_colorboxes.MplCompatibleColorCombobox" class="doc doc-heading">
+            <code>MplCompatibleColorCombobox</code>
+
+
+<a href="#napari_relax._util_classes.custom_colorboxes.MplCompatibleColorCombobox" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="qtpy.QtWidgets.QWidget">QWidget</span></code></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="napari_relax._util_classes.custom_colorboxes.MplCompatibleColorCombobox.__init__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dict_of_cmaps</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#napari_relax._util_classes.custom_colorboxes.MplCompatibleColorCombobox.__init__" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Create the colormap selector.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>parent</code>
+            </td>
+            <td>
+                  <code><span title="qtpy.QtWidgets.QWidget">QWidget</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The parent widget, by default None.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>dict_of_cmaps</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="matplotlib.colors.Colormap">Colormap</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Colormaps to offer, in the matplotlib colormap registry
+format, by default None.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<h3 id="napari_relax._util_classes.custom_colorboxes.colorbox_label" class="doc doc-heading">
+            <code>colorbox_label</code>
+
+
+<a href="#napari_relax._util_classes.custom_colorboxes.colorbox_label" class="headerlink" title="Permanent link">&para;</a></h3>
+
+    <div class="doc doc-contents ">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h4 id="napari_relax._util_classes.custom_colorboxes.colorbox_label.ColorBoxLabel" class="doc doc-heading">
+            <code>ColorBoxLabel</code>
+
+
+<a href="#napari_relax._util_classes.custom_colorboxes.colorbox_label.ColorBoxLabel" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="qtpy.QtWidgets.QWidget">QWidget</span></code></p>
+
+
+
+        <p>Colormap selector based on napari colormaps.</p>
+<p>For matplotlib colormaps, use <code>MplCompatibleColorCombobox</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-module">
+
+
+
+<h3 id="napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox" class="doc doc-heading">
+            <code>mpl_compatible_combobox</code>
+
+
+<a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox" class="headerlink" title="Permanent link">&para;</a></h3>
+
+    <div class="doc doc-contents ">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h4 id="napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.MplCompatibleColorCombobox" class="doc doc-heading">
+            <code>MplCompatibleColorCombobox</code>
+
+
+<a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.MplCompatibleColorCombobox" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="qtpy.QtWidgets.QWidget">QWidget</span></code></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h5 id="napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.MplCompatibleColorCombobox.__init__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dict_of_cmaps</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.MplCompatibleColorCombobox.__init__" class="headerlink" title="Permanent link">&para;</a></h5>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Create the colormap selector.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>parent</code>
+            </td>
+            <td>
+                  <code><span title="qtpy.QtWidgets.QWidget">QWidget</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The parent widget, by default None.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>dict_of_cmaps</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="matplotlib.colors.Colormap">Colormap</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Colormaps to offer, in the matplotlib colormap registry
+format, by default None.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h4 id="napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.CustomColorStyledDelegate" class="doc doc-heading">
+            <code>CustomColorStyledDelegate</code>
+
+
+<a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.CustomColorStyledDelegate" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="qtpy.QtWidgets.QStyledItemDelegate">QStyledItemDelegate</span></code></p>
+
+
+
+        <p>Colormap item delegate accepting matplotlib colormaps.</p>
+<p>Adapted from napari's colormap combobox, which only accepts napari
+colormaps.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h5 id="napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.CustomColorStyledDelegate.__init__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">base_height</span><span class="p">,</span> <span class="n">dict_of_cmaps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
+
+<a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.CustomColorStyledDelegate.__init__" class="headerlink" title="Permanent link">&para;</a></h5>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Create the delegate used by the custom colormap combobox.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>base_height</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The height of the widget.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>dict_of_cmaps</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="matplotlib.colors.Colormap">Colormap</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Colormaps to offer, in the matplotlib colormap registry
+format, by default None.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>**kwargs</code>
+            </td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Passed to QStyledItemDelegate.</p>
+              </div>
+            </td>
+            <td>
+                  <code>{}</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h4 id="napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.CustomQtColormapComboBox" class="doc doc-heading">
+            <code>CustomQtColormapComboBox</code>
+
+
+<a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.CustomQtColormapComboBox" class="headerlink" title="Permanent link">&para;</a></h4>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="qtpy.QtWidgets.QComboBox">QComboBox</span></code></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h5 id="napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.CustomQtColormapComboBox.__init__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dict_of_cmaps</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#napari_relax._util_classes.custom_colorboxes.mpl_compatible_combobox.CustomQtColormapComboBox.__init__" class="headerlink" title="Permanent link">&para;</a></h5>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Create the custom colormap combobox.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>parent</code>
+            </td>
+            <td>
+                  <code><span title="qtpy.QtWidgets.QWidget">QWidget</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The parent widget, by default None.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>dict_of_cmaps</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="matplotlib.colors.Colormap">Colormap</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Colormaps to offer, in the matplotlib colormap registry
+format, by default None.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="napari_relax._util_classes.tooltip" class="doc doc-heading">
+            <code>napari_relax._util_classes.tooltip</code>
+
+
+<a href="#napari_relax._util_classes.tooltip" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="napari_relax._util_classes.eventfilter_for_delayed_tooltip" class="doc doc-heading">
+            <code>napari_relax._util_classes.eventfilter_for_delayed_tooltip</code>
+
+
+<a href="#napari_relax._util_classes.eventfilter_for_delayed_tooltip" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="napari_relax._util_classes.eventfilter_for_delayed_tooltip.DelayedTooltipEventFilter" class="doc doc-heading">
+            <code>DelayedTooltipEventFilter</code>
+
+
+<a href="#napari_relax._util_classes.eventfilter_for_delayed_tooltip.DelayedTooltipEventFilter" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="qtpy.QtCore.QObject">QObject</span></code></p>
+
+
+
+        <p>Event filter that shows tooltips after a delay.</p>
+<p>Install it on any QObject with
+<code>QObject.installEventFilter(DelayedTooltipEventFilter())</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="napari_relax._util_classes.viewer_wrapper" class="doc doc-heading">
+            <code>napari_relax._util_classes.viewer_wrapper</code>
+
+
+<a href="#napari_relax._util_classes.viewer_wrapper" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="napari_relax._util_classes.viewer_wrapper.QtViewerWrap" class="doc doc-heading">
+            <code>QtViewerWrap</code>
+
+
+<a href="#napari_relax._util_classes.viewer_wrapper.QtViewerWrap" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="napari.qt.QtViewer">QtViewer</span></code></p>
+
+
+
+        <p>QtViewer embedded in a widget, forwarding file drops to napari.</p>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="napari_relax.demo_data" class="doc doc-heading">
+            <code>napari_relax.demo_data</code>
+
+
+<a href="#napari_relax.demo_data" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents first">
+
+        <p>Demo datasets available under File &gt; Open Sample &gt; ReLAX.</p>
+<p>Datasets are described in <code>datasets.json</code> and downloaded on
+first use when they do not ship with the plugin.</p>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="napari_relax.demo_data.load_demo_datasets" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">load_demo_datasets</span><span class="p">()</span></code>
+
+<a href="#napari_relax.demo_data.load_demo_datasets" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Load demo datasets configuration from JSON file.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="napari_relax.demo_data.save_demo_datasets" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">save_demo_datasets</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span></code>
+
+<a href="#napari_relax.demo_data.save_demo_datasets" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Save demo datasets configuration to JSON file.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="napari_relax.demo_data.clear_cache" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">clear_cache</span><span class="p">(</span><span class="n">dataset_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#napari_relax.demo_data.clear_cache" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Clear cached demo data.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>dataset_name</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Specific dataset to clear. If None, clears all cached data.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="napari_relax.demo_data.ensure_demo_data" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">ensure_demo_data</span><span class="p">(</span><span class="n">dataset_name</span><span class="o">=</span><span class="s1">'demo'</span><span class="p">)</span></code>
+
+<a href="#napari_relax.demo_data.ensure_demo_data" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Ensure demo data is available locally, downloading if necessary.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>dataset_name</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Name of the dataset to ensure is available</p>
+              </div>
+            </td>
+            <td>
+                  <code>&#39;demo&#39;</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Path to the local dataset file</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="RuntimeError">RuntimeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If download fails or dataset is not configured</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If dataset_name is not found in configuration</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="napari_relax.demo_data.get_cached_datasets" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_cached_datasets</span><span class="p">()</span></code>
+
+<a href="#napari_relax.demo_data.get_cached_datasets" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Get information about cached datasets.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="napari_relax.demo_data.load_celegans" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">load_celegans</span><span class="p">()</span></code>
+
+<a href="#napari_relax.demo_data.load_celegans" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Load the C. elegans demo dataset.</p>
+<p>The dataset is downloaded from Zenodo on first use and cached.</p>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code>list of tuple</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>LayerData tuples for napari.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="napari_relax.demo_data.load_demo" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">load_demo</span><span class="p">()</span></code>
+
+<a href="#napari_relax.demo_data.load_demo" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Load the Parhyale hawaiensis demo dataset.</p>
+<p>The file ships with the plugin.</p>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code>list of tuple</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>LayerData tuples for napari.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../multiple_datasets/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Cross-Dataset Comparison">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Cross-Dataset Comparison
+              </div>
+            </div>
+          </a>
+        
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.path", "navigation.expand", "navigation.footer", "search.highlight", "content.code.annotate", "content.action.edit"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

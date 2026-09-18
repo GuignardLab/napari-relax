@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://guignardlab.github.io/napari-relax/guides/loading_data/">
+        <link rel="canonical" href="https://guignardlab.github.io/napari-relax/developer/adding_a_widget/">
       
       
-        <link rel="prev" href="../guides/">
+        <link rel="prev" href="../architecture/">
       
       
-        <link rel="next" href="../saving/saving_tut/">
+        <link rel="next" href="../api/io/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Opening a dataset - ReLAX (Reconstructed Lineage Analysis & eXploration)</title>
+        <title>Adding a Widget - ReLAX (Reconstructed Lineage Analysis & eXploration)</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#opening-a-dataset" class="md-skip">
+        <a href="#adding-a-widget" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Opening a dataset
+              Adding a Widget
             
           </span>
         </div>
@@ -592,20 +592,20 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -626,7 +626,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -644,7 +644,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../guides/" class="md-nav__link">
+      <a href="../../guides/guides/" class="md-nav__link">
         
   
   
@@ -652,6 +652,230 @@
     
   
     Index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/loading_data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Opening a dataset
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/saving/saving_tut/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relabelling and Saving Progress
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/show_and_hide/show_and_hide_tut/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Managing Visibility of Lineages
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/comparing/blind_comparing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Blind comparison of Lineages
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/cross_lineage_distance/cross_comparison/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Blind comparison Across Lineages
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Developer
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
   
 
     
@@ -688,7 +912,7 @@
   <span class="md-ellipsis">
     
   
-    Opening a dataset
+    Adding a Widget
   
 
     
@@ -706,7 +930,7 @@
   <span class="md-ellipsis">
     
   
-    Opening a dataset
+    Adding a Widget
   
 
     
@@ -732,10 +956,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-check-the-format" class="md-nav__link">
+  <a href="#1-create-the-widget-class" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Check the Format
+        1. Create the Widget Class
       
     </span>
   </a>
@@ -743,10 +967,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-choose-the-loader-xml-only" class="md-nav__link">
+  <a href="#2-register-it" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Choose the Loader (.xml only)
+        2. Register It
       
     </span>
   </a>
@@ -754,10 +978,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-set-the-loading-parameters" class="md-nav__link">
+  <a href="#3-add-in-app-help-optional" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Set the Loading Parameters
+        3. Add In-App Help (Optional)
       
     </span>
   </a>
@@ -765,10 +989,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-start-exploring" class="md-nav__link">
+  <a href="#4-document-it" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Start Exploring
+        4. Document It
       
     </span>
   </a>
@@ -776,10 +1000,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
+  <a href="#5-test-it" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Troubleshooting
+        5. Test It
       
     </span>
   </a>
@@ -790,230 +1014,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../saving/saving_tut/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Relabelling and Saving Progress
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../show_and_hide/show_and_hide_tut/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Managing Visibility of Lineages
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../comparing/blind_comparing/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Blind comparison of Lineages
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../cross_lineage_distance/cross_comparison/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Blind comparison Across Lineages
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
-        
-          
-          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Developer
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Developer
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../developer/architecture/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Architecture
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../developer/adding_a_widget/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Adding a Widget
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -1075,7 +1075,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/api/io/" class="md-nav__link">
+      <a href="../api/io/" class="md-nav__link">
         
   
   
@@ -1103,7 +1103,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/api/widgets/" class="md-nav__link">
+      <a href="../api/widgets/" class="md-nav__link">
         
   
   
@@ -1131,7 +1131,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/api/lineage_tree_analysis/" class="md-nav__link">
+      <a href="../api/lineage_tree_analysis/" class="md-nav__link">
         
   
   
@@ -1159,7 +1159,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/api/multiple_datasets/" class="md-nav__link">
+      <a href="../api/multiple_datasets/" class="md-nav__link">
         
   
   
@@ -1187,7 +1187,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developer/api/utilities/" class="md-nav__link">
+      <a href="../api/utilities/" class="md-nav__link">
         
   
   
@@ -1250,10 +1250,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-check-the-format" class="md-nav__link">
+  <a href="#1-create-the-widget-class" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Check the Format
+        1. Create the Widget Class
       
     </span>
   </a>
@@ -1261,10 +1261,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-choose-the-loader-xml-only" class="md-nav__link">
+  <a href="#2-register-it" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Choose the Loader (.xml only)
+        2. Register It
       
     </span>
   </a>
@@ -1272,10 +1272,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-set-the-loading-parameters" class="md-nav__link">
+  <a href="#3-add-in-app-help-optional" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Set the Loading Parameters
+        3. Add In-App Help (Optional)
       
     </span>
   </a>
@@ -1283,10 +1283,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-start-exploring" class="md-nav__link">
+  <a href="#4-document-it" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Start Exploring
+        4. Document It
       
     </span>
   </a>
@@ -1294,10 +1294,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#troubleshooting" class="md-nav__link">
+  <a href="#5-test-it" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Troubleshooting
+        5. Test It
       
     </span>
   </a>
@@ -1347,10 +1347,10 @@
     
     
       <li class="md-path__item">
-        <a href="../guides/" class="md-path__link">
+        <a href="../architecture/" class="md-path__link">
           
   <span class="md-ellipsis">
-    Guides
+    Developer
   </span>
 
         </a>
@@ -1369,7 +1369,7 @@
 
 
   
-    <a href="https://github.com/GuignardLab/napari-relax/edit/main/docs/guides/loading_data.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/GuignardLab/napari-relax/edit/main/docs/developer/adding_a_widget.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -1377,78 +1377,60 @@
   
 
 
-<h1 id="opening-a-dataset">Opening a Dataset<a class="headerlink" href="#opening-a-dataset" title="Permanent link">&para;</a></h1>
-<p>Importing data is one of the most important aspects of this plugin. All the supported formats can be easily opened using <strong>Drag and Drop</strong> onto the napari window, or with <strong>File&gt;Open File(s)...</strong>.
-If there is no available data, the user may use one of the sample datasets the plugin comes with: <strong>File&gt;Open Sample&gt;ReLAX&gt;demo lineageTree dataset</strong> or <strong>C. elegans dataset</strong> (see <a href="../../quick_start/q_start/">Quick Start</a>).</p>
+<h1 id="adding-a-widget">Adding a Widget<a class="headerlink" href="#adding-a-widget" title="Permanent link">&para;</a></h1>
+<p>New features usually become a new entry of one of the two dock widgets. See <a href="../architecture/">Architecture</a> for how entries are loaded.</p>
 <hr />
-<h3 id="1-check-the-format">1. Check the Format<a class="headerlink" href="#1-check-the-format" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Format</th>
-<th>Extension</th>
-<th>Notes</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>LineageTree</td>
-<td><code>.lT</code></td>
-<td>Native format. Also stores the labels and comparisons made in ReLAX.</td>
-</tr>
-<tr>
-<td>MaMuT or ASTEC</td>
-<td><code>.xml</code></td>
-<td>ReLAX asks which of the two tools produced the file.</td>
-</tr>
-<tr>
-<td>Mastodon</td>
-<td><code>.mastodon</code></td>
-<td>Mastodon project file.</td>
-</tr>
-<tr>
-<td>BMF</td>
-<td><code>.bmf</code></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>LineageTree can read more formats, for example CSV, TGMM XML or SWC files. To open one of them in ReLAX, convert it to <code>.lT</code> first:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">lineagetree</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_from_csv</span>
+<h3 id="1-create-the-widget-class">1. Create the Widget Class<a class="headerlink" href="#1-create-the-widget-class" title="Permanent link">&para;</a></h3>
+<p>Subclass <code>LayerCorrectorTreeProducer</code> in <code>lineage_tree_analysis</code> (single dataset) or <code>relax_multipledatasets</code> (several datasets). For example, <code>src/napari_relax/lineage_tree_analysis/my_widget.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">"""My Widget entry of the Lineage tree analysis widget."""</span>
 
-<span class="n">lT</span> <span class="o">=</span> <span class="n">read_from_csv</span><span class="p">(</span><span class="s2">"tracks.csv"</span><span class="p">)</span>
-<span class="n">lT</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"tracks.lT"</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qtpy.QtWidgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">QVBoxLayout</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._util_classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">LayerCorrectorTreeProducer</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyWidget</span><span class="p">(</span><span class="n">LayerCorrectorTreeProducer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""One-line summary of what the widget does.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    napari_viewer : napari.Viewer</span>
+<span class="sd">        The napari viewer.</span>
+<span class="sd">    """</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">"My Widget"</span>  <span class="c1"># label in the combobox</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">napari_viewer</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">napari_viewer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">QVBoxLayout</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">selection</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">active</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layer_change</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">layer_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Update the widget for the LineageTree of the new active layer."""</span>
+        <span class="n">lT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_lT</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">lT</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="o">...</span>
 </code></pre></div>
-<p>The <a href="https://guignardlab.github.io/LineageTree/loaders/">LineageTree loaders</a> documentation lists all readers and their options.</p>
+<p>Use <code>self.get_lT()</code> to read the LineageTree of the selected dataset, and the layer metadata described in <a href="../architecture/#where-the-data-lives">Architecture</a> to map nodes to points.</p>
 <hr />
-<h3 id="2-choose-the-loader-xml-only">2. Choose the Loader (<code>.xml</code> only)<a class="headerlink" href="#2-choose-the-loader-xml-only" title="Permanent link">&para;</a></h3>
-<p>When several loaders can read the file, a <strong>lineagetree data type selection</strong> window asks the user to <em>select the method used to produce the dataset</em>.
-Tick the tool that produced the file: <strong>MaMuT XML loader</strong> or <strong>ASTEC XML loader</strong>. Closing the window without choosing stops the import.</p>
+<h3 id="2-register-it">2. Register It<a class="headerlink" href="#2-register-it" title="Permanent link">&para;</a></h3>
+<p>Add the class to <code>__all_widgets__</code> in the package <code>__init__.py</code>. The order of the tuple is the order of the combobox.</p>
+<p>To react to another entry, connect signals in the matching <code>ReLAXWidget</code> subclass in <code>_widgets.py</code>, using <code>self.widget_dictionary["&lt;name&gt;"]</code>.</p>
 <hr />
-<h3 id="3-set-the-loading-parameters">3. Set the Loading Parameters<a class="headerlink" href="#3-set-the-loading-parameters" title="Permanent link">&para;</a></h3>
-<p>Every file then opens a <strong>Loading Parameters</strong> window:</p>
+<h3 id="3-add-in-app-help-optional">3. Add In-App Help (Optional)<a class="headerlink" href="#3-add-in-app-help-optional" title="Permanent link">&para;</a></h3>
+<p>Write a short HTML file next to the module and show it with a <code>TooltipButton</code>, as the existing entries do. HTML files are included in the package automatically.</p>
+<hr />
+<h3 id="4-document-it">4. Document It<a class="headerlink" href="#4-document-it" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Time resolution</strong> (mins): the time between two consecutive timepoints, pre-filled with the value stored in the dataset. The <a href="../../cross%2Bcomparison/manager/">Manager</a> uses it to align datasets acquired at different rates.</li>
-<li><strong>Resave dataset with new time resolution</strong>: writes the dataset with the new time resolution as a <code>.lT</code> file. An opened <code>.lT</code> file is overwritten; for other formats, <code>.lT</code> is added to the file name (<code>embryo.xml</code> becomes <code>embryo.xml.lT</code>).</li>
-<li><strong>Rescale Dataset</strong>: divides all positions by the largest distance between two cells of the dataset, so that datasets with different spatial units appear at a similar scale.</li>
-<li><strong>Filter Dataset</strong>: hides small lineages from the <a href="../../explore_relabel/explore_relabel/">Lineage Viewer</a>. With a value <em>n</em> above 0, only lineages with at least <em>(number of timepoints) / n</em> nodes are listed; 0 keeps every lineage. All cells are still shown in the napari viewer.</li>
+<li>Write numpy-style docstrings. <code>ruff</code> checks them (rule set <code>D</code>) when <code>pre-commit</code> runs.</li>
+<li>Add a user page under <code>docs/</code> and list it in the <code>nav</code> of <code>mkdocs.yml</code>.</li>
+<li>Add the module to the matching page of the <a href="../api/io/">API reference</a> if it is not already covered.</li>
+<li>Preview with <code>mkdocs serve</code>; pull requests fail if <code>mkdocs build --strict</code> reports a warning.</li>
 </ul>
-<p>Press <strong>Ok</strong> to load the dataset or <strong>Cancel</strong> to abort.</p>
 <hr />
-<h3 id="4-start-exploring">4. Start Exploring<a class="headerlink" href="#4-start-exploring" title="Permanent link">&para;</a></h3>
-<p>Loading a dataset adds:</p>
-<ul>
-<li>a <strong>Points</strong> layer named after the file, with one point per cell and timepoint, colored by lineage;</li>
-<li>a <strong>Surface</strong> layer named <code>&lt;file name&gt;_mesh</code> if the dataset contains cell meshes. It is linked to the Points layer.</li>
-</ul>
-<p>Select the Points layer and open <strong>Plugins&gt;Lineage tree analysis</strong> to explore it with the <a href="../../explore_relabel/explore_relabel/">Lineage Viewer</a>.</p>
-<hr />
-<h3 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>The file is not offered to ReLAX</strong>: check that its extension is one of the supported ones above, or convert it to <code>.lT</code>.</li>
-<li><strong>"Please select one reader function."</strong>: the loader window was closed without choosing a loader. Open the file again and tick one.</li>
-<li><strong>Ok does nothing in the Loading Parameters window</strong>: the time resolution must be a number.</li>
-</ul>
+<h3 id="5-test-it">5. Test It<a class="headerlink" href="#5-test-it" title="Permanent link">&para;</a></h3>
+<p>Tests live in <code>src/napari_relax/_tests</code> and run with <code>pytest</code> (or <code>tox</code> for all Python versions). napari provides the <code>make_napari_viewer</code> fixture to create a viewer in tests.</p>
 
 
 
@@ -1478,7 +1460,7 @@ Tick the tool that produced the file: <strong>MaMuT XML loader</strong> or <stro
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../guides/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Index">
+          <a href="../architecture/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Architecture">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1488,20 +1470,20 @@ Tick the tool that produced the file: <strong>MaMuT XML loader</strong> or <stro
                 Previous
               </span>
               <div class="md-ellipsis">
-                Index
+                Architecture
               </div>
             </div>
           </a>
         
         
           
-          <a href="../saving/saving_tut/" class="md-footer__link md-footer__link--next" aria-label="Next: Relabelling and Saving Progress">
+          <a href="../api/io/" class="md-footer__link md-footer__link--next" aria-label="Next: Reader and Writer">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Relabelling and Saving Progress
+                Reader and Writer
               </div>
             </div>
             <div class="md-footer__button md-icon">

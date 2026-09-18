@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://guignardlab.github.io/napari-relax/guides/cross_lineage_distance/cross_comparison/">
+        <link rel="canonical" href="https://guignardlab.github.io/napari-relax/developer/api/io/">
       
       
-        <link rel="prev" href="../../comparing/blind_comparing/">
+        <link rel="prev" href="../../adding_a_widget/">
       
       
-        <link rel="next" href="../../../developer/architecture/">
+        <link rel="next" href="../widgets/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Blind comparison Across Lineages - ReLAX (Reconstructed Lineage Analysis & eXploration)</title>
+        <title>Reader and Writer - ReLAX (Reconstructed Lineage Analysis & eXploration)</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#cross-dataset-lineage-comparison" class="md-skip">
+        <a href="#reader-and-writer" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Blind comparison Across Lineages
+              Reader and Writer
             
           </span>
         </div>
@@ -592,20 +592,20 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -626,7 +626,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -644,7 +644,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/" class="md-nav__link">
+      <a href="../../../guides/guides/" class="md-nav__link">
         
   
   
@@ -672,7 +672,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../loading_data/" class="md-nav__link">
+      <a href="../../../guides/loading_data/" class="md-nav__link">
         
   
   
@@ -700,7 +700,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../saving/saving_tut/" class="md-nav__link">
+      <a href="../../../guides/saving/saving_tut/" class="md-nav__link">
         
   
   
@@ -728,7 +728,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../show_and_hide/show_and_hide_tut/" class="md-nav__link">
+      <a href="../../../guides/show_and_hide/show_and_hide_tut/" class="md-nav__link">
         
   
   
@@ -756,7 +756,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../comparing/blind_comparing/" class="md-nav__link">
+      <a href="../../../guides/comparing/blind_comparing/" class="md-nav__link">
         
   
   
@@ -781,37 +781,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Blind comparison Across Lineages
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../guides/cross_lineage_distance/cross_comparison/" class="md-nav__link">
         
   
   
@@ -827,125 +800,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#0-optional-label-the-dataset" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        0. (Optional) Label the Dataset
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#1-create-a-manager" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Create a Manager
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-optional-check-the-time-resolution" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. (Optional) Check the Time Resolution
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-select-the-datasets-to-compare" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Select the Datasets to Compare
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-configure-the-comparison-parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Configure the Comparison Parameters
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-run-the-comparisons" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5. Run the Comparisons
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6-inspect-the-clustermap" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6. Inspect the Clustermap
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#7-analyze-the-results" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7. Analyze the Results
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#8-optional-save-the-comparisons" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        8. (Optional) Save the Comparisons
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -962,20 +816,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
         
           
           <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
@@ -996,7 +850,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1014,7 +868,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../developer/architecture/" class="md-nav__link">
+      <a href="../../architecture/" class="md-nav__link">
         
   
   
@@ -1042,7 +896,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../developer/adding_a_widget/" class="md-nav__link">
+      <a href="../../adding_a_widget/" class="md-nav__link">
         
   
   
@@ -1067,20 +921,20 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_3" checked>
         
           
           <label class="md-nav__link" for="__nav_7_3" id="__nav_7_3_label" tabindex="0">
@@ -1101,7 +955,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_7_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1116,10 +970,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../../developer/api/io/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reader and Writer
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1135,6 +1016,126 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#napari_relax._reader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _reader
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="_reader">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._reader.napari_get_reader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        napari_get_reader
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._reader.reader_function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reader_function
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._reader.initial_loading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        initial_loading
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._reader.graph_loading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        graph_loading
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._reader.layer_preparation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        layer_preparation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#napari_relax._writer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _writer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="_writer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._writer.write_single_image" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        write_single_image
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1147,7 +1148,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../developer/api/widgets/" class="md-nav__link">
+      <a href="../widgets/" class="md-nav__link">
         
   
   
@@ -1175,7 +1176,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../developer/api/lineage_tree_analysis/" class="md-nav__link">
+      <a href="../lineage_tree_analysis/" class="md-nav__link">
         
   
   
@@ -1203,7 +1204,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../developer/api/multiple_datasets/" class="md-nav__link">
+      <a href="../multiple_datasets/" class="md-nav__link">
         
   
   
@@ -1231,7 +1232,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../developer/api/utilities/" class="md-nav__link">
+      <a href="../utilities/" class="md-nav__link">
         
   
   
@@ -1294,101 +1295,102 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#0-optional-label-the-dataset" class="md-nav__link">
+  <a href="#napari_relax._reader" class="md-nav__link">
     <span class="md-ellipsis">
       
-        0. (Optional) Label the Dataset
+        _reader
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="_reader">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._reader.napari_get_reader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        napari_get_reader
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#1-create-a-manager" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._reader.reader_function" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Create a Manager
+        reader_function
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#2-optional-check-the-time-resolution" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._reader.initial_loading" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. (Optional) Check the Time Resolution
+        initial_loading
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#3-select-the-datasets-to-compare" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._reader.graph_loading" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Select the Datasets to Compare
+        graph_loading
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#4-configure-the-comparison-parameters" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._reader.layer_preparation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Configure the Comparison Parameters
+        layer_preparation
       
     </span>
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
-  <a href="#5-run-the-comparisons" class="md-nav__link">
+  <a href="#napari_relax._writer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Run the Comparisons
+        _writer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="_writer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#napari_relax._writer.write_single_image" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        write_single_image
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#6-inspect-the-clustermap" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6. Inspect the Clustermap
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#7-analyze-the-results" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7. Analyze the Results
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#8-optional-save-the-comparisons" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        8. (Optional) Save the Comparisons
-      
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1435,10 +1437,28 @@
     
     
       <li class="md-path__item">
-        <a href="../../guides/" class="md-path__link">
+        <a href="../../architecture/" class="md-path__link">
           
   <span class="md-ellipsis">
-    Guides
+    Developer
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="./" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    API Reference
   </span>
 
         </a>
@@ -1457,7 +1477,7 @@
 
 
   
-    <a href="https://github.com/GuignardLab/napari-relax/edit/main/docs/guides/cross_lineage_distance/cross_comparison.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/GuignardLab/napari-relax/edit/main/docs/developer/api/io.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -1465,57 +1485,698 @@
   
 
 
-<h1 id="cross-dataset-lineage-comparison">Cross-Dataset Lineage Comparison<a class="headerlink" href="#cross-dataset-lineage-comparison" title="Permanent link">&para;</a></h1>
-<p>Comparing lineages within a single embryo can provide valuable insights into the developmental patterns of that organism.<br />
-However, even more knowledge can be gained by comparing lineages <strong>across different specimens or species</strong>.<br />
-This tutorial demonstrates how to perform <strong>blind lineage comparisons between organisms</strong>, using prior knowledge to extract meaningful biological relationships.</p>
-<hr />
-<h3 id="0-optional-label-the-dataset">0. (Optional) Label the Dataset<a class="headerlink" href="#0-optional-label-the-dataset" title="Permanent link">&para;</a></h3>
-<p>The imported dataset may not contain predefined labels.<br />
-However, adding labels can greatly enhance the interpretation and comparison of lineages.<br />
-To learn how to assign and save labels, follow the instructions in <a href="../../saving/saving_tut/"><strong>Relabelling and Saving Progress</strong></a>.</p>
-<hr />
-<h3 id="1-create-a-manager">1. Create a Manager<a class="headerlink" href="#1-create-a-manager" title="Permanent link">&para;</a></h3>
-<p><img alt="manager_1" src="../manager_1.png" width="300" /></p>
-<p>First, create a <strong>Manager</strong> to handle the processes required for cross-dataset comparison.<br />
-To quickly create a manager from the loaded datasets, click <strong>Create a Manager from existing layers</strong> in <strong>Manager Manipulation</strong>.</p>
-<hr />
-<h3 id="2-optional-check-the-time-resolution">2. (Optional) Check the Time Resolution<a class="headerlink" href="#2-optional-check-the-time-resolution" title="Permanent link">&para;</a></h3>
-<p><img alt="manager_2" src="../manager_2.png" width="300" /></p>
-<p>Time resolution is an important parameter when comparing datasets.<br />
-By <strong>right-clicking</strong> on any dataset in the manager list and choosing <strong>Change Time Resolution</strong>, you can modify its time resolution.<br />
-This ensures that time-dependent events are properly aligned between datasets.</p>
-<hr />
-<h3 id="3-select-the-datasets-to-compare">3. Select the Datasets to Compare<a class="headerlink" href="#3-select-the-datasets-to-compare" title="Permanent link">&para;</a></h3>
-<p><img alt="config_1" src="../config_1.png" width="700" /></p>
-<p>Open <strong>Cross Distance Calculation</strong> and select the datasets to be compared by clicking on each preferred dataset in the list.</p>
-<hr />
-<h3 id="4-configure-the-comparison-parameters">4. Configure the Comparison Parameters<a class="headerlink" href="#4-configure-the-comparison-parameters" title="Permanent link">&para;</a></h3>
-<p><img alt="config_2" src="../config_2.png" width="700" /></p>
-<p>Configure the comparison parameters for each dataset individually, following the same procedure described in <a href="../../comparing/blind_comparing/"><strong>Blindly Comparing Lineages</strong></a>.  </p>
-<p>Each dataset must be configured independently to ensure accurate distance measurements.<br />
-For example, it was possible to compare two <em>Parhyale hawaiensis</em> embryos — one starting with 8 cells and another with 19 cells.<br />
-The choice of starting timepoints depends on the dataset:<br />
-some can be aligned easily using their population graphs, while others may require advanced techniques such as <strong>dynamic time warping</strong>.
-<strong>Again, using full tree for comparison is highly not recommended</strong></p>
-<hr />
-<h3 id="5-run-the-comparisons">5. Run the Comparisons<a class="headerlink" href="#5-run-the-comparisons" title="Permanent link">&para;</a></h3>
-<p>Once configuration is complete, press <strong>Run Comparisons</strong> to begin the analysis.</p>
-<hr />
-<h3 id="6-inspect-the-clustermap">6. Inspect the Clustermap<a class="headerlink" href="#6-inspect-the-clustermap" title="Permanent link">&para;</a></h3>
-<p><img alt="clustermap_1" src="../clustermap_1.png" width="700" /></p>
-<p>The user interface is nearly identical to that of <a href="../../comparing/blind_comparing/"><strong>Blindly Comparing Lineages</strong></a>,<br />
-with the addition of two dataset viewers on the left side.<br />
-In the clustermap, each dataset name is clearly displayed for easier cross-reference, and hovering over a cell shows the compared lineages and their score.</p>
-<hr />
-<h3 id="7-analyze-the-results">7. Analyze the Results<a class="headerlink" href="#7-analyze-the-results" title="Permanent link">&para;</a></h3>
-<p><img alt="clustermap_2" src="../clustermap_2.png" width="700" /></p>
-<p>Interpreting similarities and differences across datasets can be more challenging than when comparing a single embryo’s lineages.<br />
-Clusters will usually include <strong>self-to-self</strong> lineages, while the comaprisons across embryos may not be in the center of the clusters.<br />
-To gain deeper insights, it is recommended to explore multiple cells in the clustermap and examine their contributions.</p>
-<hr />
-<h3 id="8-optional-save-the-comparisons">8. (Optional) Save the Comparisons<a class="headerlink" href="#8-optional-save-the-comparisons" title="Permanent link">&para;</a></h3>
-<p>If the results are satisfactory, save the comparisons as a <code>.pkl</code> file with <strong>Select file</strong> and <strong>Save Comparisons</strong>, for future reference or further analysis using external tools and libraries.</p>
+<h1 id="reader-and-writer">Reader and Writer<a class="headerlink" href="#reader-and-writer" title="Permanent link">&para;</a></h1>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="napari_relax._reader" class="doc doc-heading">
+            <code>napari_relax._reader</code>
+
+
+<a href="#napari_relax._reader" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents first">
+
+        <p>napari reader for LineageTree files and the formats LineageTree loads.</p>
+<p>Opening a file shows the loader selection and Loading Parameters
+dialogs, then builds a Points layer (and a Surface layer when the
+dataset has meshes) that carries the LineageTree in its metadata.
+See https://napari.org/stable/plugins/guides.html#readers.</p>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="napari_relax._reader.napari_get_reader" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">napari_get_reader</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></code>
+
+<a href="#napari_relax._reader.napari_get_reader" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return the ReLAX reader if the file extension is supported.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>path</code>
+            </td>
+            <td>
+                  <code>str or list of str</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Path to file, or list of paths.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="function">function</span> or None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If the path is a recognized format, return a function that
+accepts the same path or list of paths, and returns a list of
+layer data tuples.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="napari_relax._reader.reader_function" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">reader_function</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></code>
+
+<a href="#napari_relax._reader.reader_function" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Load a dataset and return the napari layers to create.</p>
+<p>Readers are expected to return data as a list of tuples, where
+each tuple is (data, [add_kwargs, [layer_type]]), "add_kwargs"
+and "layer_type" are both optional.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>path</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Path to the file to open.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code>list of tuple or None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A list of LayerData tuples (data, add_kwargs, layer_type), or
+None if the Loading Parameters dialog was cancelled.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="napari_relax._reader.initial_loading" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">initial_loading</span><span class="p">(</span><span class="n">lT</span><span class="p">,</span> <span class="n">scaling</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+<a href="#napari_relax._reader.initial_loading" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute the minimal data needed to display a LineageTree.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>lT</code>
+            </td>
+            <td>
+                  <code><span title="lineagetree.LineageTree">LineageTree</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The LineageTree to load.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>scaling</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If True, divide the positions by the largest distance between
+two cells, by default False.</p>
+              </div>
+            </td>
+            <td>
+                  <code>False</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="collections.namedtuple">namedtuple</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p><code>initial_spatial_data</code> with the fields:</p>
+<ul>
+<li><code>data</code>: point positions as (track, time, z, y, x) rows;</li>
+<li><code>lT_to_here</code> and <code>here_to_lT</code>: mappings between
+  LineageTree node IDs and napari point indices;</li>
+<li><code>clone</code>: index of the root lineage of each point;</li>
+<li><code>default_colors</code>: RGBA color of each point;</li>
+<li><code>cmap</code>: colormap used to color the lineages;</li>
+<li><code>barycenter</code>: center removed from the positions;</li>
+<li><code>last_c_of_track</code> and <code>first_c_to_track</code>: first and
+  last node of each chain, used to build the graphs;</li>
+<li><code>rescaling_factor</code>: factor the positions were divided by.</li>
+</ul>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="napari_relax._reader.graph_loading" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">graph_loading</span><span class="p">(</span><span class="n">lT</span><span class="p">,</span> <span class="n">last_c_of_track</span><span class="p">,</span> <span class="n">first_c_to_track</span><span class="p">,</span> <span class="n">divisor</span><span class="p">)</span></code>
+
+<a href="#napari_relax._reader.graph_loading" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build the lineage graphs displayed in the Lineage Viewer.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>lT</code>
+            </td>
+            <td>
+                  <code><span title="lineagetree.LineageTree">LineageTree</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The LineageTree to draw.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>last_c_of_track</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Last node of each chain, from <code>initial_loading</code>.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>first_c_to_track</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Chain index of each first node, from <code>initial_loading</code>.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>divisor</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filter value from the Loading Parameters dialog. Lineages with
+fewer than (number of timepoints / divisor) nodes are skipped;
+0 keeps every lineage.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code>tuple of dict</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The graph of each lineage, the node positions of each graph,
+and the chain connectivity used to build a Tracks layer.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="napari_relax._reader.layer_preparation" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">layer_preparation</span><span class="p">(</span><span class="n">lT</span><span class="p">,</span> <span class="n">points_layer_name</span><span class="p">,</span> <span class="n">no_graph</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#napari_relax._reader.layer_preparation" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Prepare the napari layers for a LineageTree.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>lT</code>
+            </td>
+            <td>
+                  <code><span title="lineagetree.LineageTree">LineageTree</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The LineageTree to display.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>points_layer_name</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> or <span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Name of the Points layer. If it is an existing file path, its
+stem is used.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>no_graph</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If True, skip building the Lineage Viewer graphs, by default
+False.</p>
+              </div>
+            </td>
+            <td>
+                  <code>False</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>parameters</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Loading parameters: <code>rescale</code> (bool) and <code>divisor</code> (int).</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code>list of tuple</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>LayerData tuples: one Points layer, plus one Surface layer if
+the LineageTree has meshes.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="napari_relax._writer" class="doc doc-heading">
+            <code>napari_relax._writer</code>
+
+
+<a href="#napari_relax._writer" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents first">
+
+        <p>napari writer saving a LineageTree as a <code>.lT</code> file.</p>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="napari_relax._writer.write_single_image" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">write_single_image</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">meta</span><span class="p">)</span></code>
+
+<a href="#napari_relax._writer.write_single_image" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Save the LineageTree of a layer as a <code>.lT</code> file.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>path</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Destination path. <code>.lT</code> is used if it has another extension.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>data</code>
+            </td>
+            <td>
+                  <code><span title="typing.Any">Any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Layer data, unused.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>meta</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Layer attributes; the LineageTree is read from its metadata or
+from the metadata of the linked layer.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code>list of str</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The path that was written.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
 
 
 
@@ -1545,7 +2206,7 @@ To gain deeper insights, it is recommended to explore multiple cells in the clus
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../../comparing/blind_comparing/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Blind comparison of Lineages">
+          <a href="../../adding_a_widget/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Adding a Widget">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1555,20 +2216,20 @@ To gain deeper insights, it is recommended to explore multiple cells in the clus
                 Previous
               </span>
               <div class="md-ellipsis">
-                Blind comparison of Lineages
+                Adding a Widget
               </div>
             </div>
           </a>
         
         
           
-          <a href="../../../developer/architecture/" class="md-footer__link md-footer__link--next" aria-label="Next: Architecture">
+          <a href="../widgets/" class="md-footer__link md-footer__link--next" aria-label="Next: Dock Widgets">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Architecture
+                Dock Widgets
               </div>
             </div>
             <div class="md-footer__button md-icon">
