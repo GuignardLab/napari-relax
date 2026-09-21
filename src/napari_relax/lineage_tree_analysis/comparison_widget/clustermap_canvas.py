@@ -105,11 +105,8 @@ class ClusterMapCanvas(FigureCanvas):
         Each cell is the normalized distance between two sublineages;
         rows and columns are ordered by Ward hierarchical clustering.
         """
-        try:
-            if hasattr(self, "colorbar"):
-                self.colorbar.remove()
-        except:  # noqa: E722
-            ...
+        if hasattr(self, "colorbar"):
+            self.colorbar.remove()
         self.ax.cla()
         if not hasattr(self, "comps"):
             return
@@ -188,7 +185,7 @@ class ClusterMapCanvas(FigureCanvas):
         if hasattr(self, "hover_annotation") and self.hover_annotation:
             try:
                 self.hover_annotation.remove()
-            except:  # noqa: E722
+            except (AttributeError, ValueError, NotImplementedError):
                 self.hover_annotation = None
 
     def is_mouse_on_figure(self) -> bool:
