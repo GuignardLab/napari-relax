@@ -8,7 +8,6 @@ See https://napari.org/stable/plugins/guides.html#readers.
 
 import uuid
 from collections import namedtuple
-from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -24,7 +23,7 @@ from ._util_classes import LoadingDialog, SetupDialog
 from ._utils import _infer_point_size, find_pair_with_the_longest_distance
 
 if TYPE_CHECKING:
-    from napari.utils import CyclicLabelColormap
+    pass
 
 
 def napari_get_reader(path):
@@ -105,6 +104,12 @@ def reader_function(path: str):
     return layer_preparation(lT, path, parameters=setup.parameters)
 
 
+def clean_lT(lT: LineageTree):
+    for node, label in tuple(lT.labels.items()):
+        if label == "":
+            lT.labels.pop(node)
+
+
 def _extract_napari_surface_from_lT(lT: LineageTree):
     # First pass: count total vertices and faces to pre-allocate arrays
     """Merge the meshes of all nodes into one napari surface.
@@ -166,6 +171,7 @@ def _extract_napari_surface_from_lT(lT: LineageTree):
 
     return all_vertices, all_faces
 
+
 def initial_loading(lT: LineageTree, scaling=False) -> namedtuple:
     """Compute the minimal data needed to display a LineageTree.
 
@@ -194,6 +200,7 @@ def initial_loading(lT: LineageTree, scaling=False) -> namedtuple:
         - ``rescaling_factor``: factor the positions were divided by.
     """
     tracks = lT.all_chains
+    clean_lT(lT)
     first_c_to_track = {}
     last_c_of_track = {}
     if scaling:
@@ -304,7 +311,7 @@ def graph_loading(
         and the chain connectivity used to build a Tracks layer.
     """
     if divisor == 0:
-        graphs = lT._create_dict_of_plots({root for root in lT.roots})
+        graphs = lT._create_dict_of_plots(set(lT.roots))
 
         pos = {
             i: utils.hierarchical_pos(

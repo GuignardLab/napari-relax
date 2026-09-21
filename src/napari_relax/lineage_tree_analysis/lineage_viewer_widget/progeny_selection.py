@@ -846,6 +846,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 clearButtonEnabled=True,
             )  # type: ignore
             self.graph_slider = QSlider()
+            print("creation")
             self.graph_slider.setOrientation(Qt.Orientation.Horizontal)
             self.range = 0
             self.graph_slider.setMaximum(0)
@@ -1000,9 +1001,18 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         shown_cont = Containerize([hide_lin, show_lin, hide_all, show_all])
         self.layout().addWidget(shown_cont)
 
-        self.viewer.mouse_drag_callbacks.append(self.point_click)
+        self.cleanup_callbacks()
+        self.viewer_signal = self.viewer.mouse_drag_callbacks.append(
+            self.point_click
+        )
         self.viewer.layers.selection.events.active.connect(self.layer_change)
         self.canvas.node_signal.connect(self._click_on_tree_graph)
         self.canvas.setFocusPolicy(Qt.WheelFocus)
         self.canvas.setFocus()
         self.viewer.dims.events.current_step.connect(self.canvas.time_line)
+
+    def cleanup_callbacks(self):
+        """Remove the point_click callback from the mouse draf callbacks because it stays on the list of signals even after the death of the plugin."""
+        for callback in list(self.viewer.mouse_drag_callbacks):
+            if "point_click" in callback.__name__:
+                self.viewer.mouse_drag_callbacks.remove(callback)
