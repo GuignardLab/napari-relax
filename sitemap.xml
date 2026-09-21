@@ -2,86 +2,86 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://guignardlab.github.io/napari-relax/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
     <url>
          <loc>https://guignardlab.github.io/napari-relax/attribute/attribute/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
     <url>
          <loc>https://guignardlab.github.io/napari-relax/cross%2Bcomparison/distance_cross/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
     <url>
          <loc>https://guignardlab.github.io/napari-relax/cross%2Bcomparison/manager/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
     <url>
          <loc>https://guignardlab.github.io/napari-relax/developer/adding_a_widget/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
     <url>
          <loc>https://guignardlab.github.io/napari-relax/developer/architecture/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
     <url>
          <loc>https://guignardlab.github.io/napari-relax/developer/api/io/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
     <url>
          <loc>https://guignardlab.github.io/napari-relax/developer/api/lineage_tree_analysis/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
     <url>
          <loc>https://guignardlab.github.io/napari-relax/developer/api/multiple_datasets/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
     <url>
          <loc>https://guignardlab.github.io/napari-relax/developer/api/utilities/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
     <url>
          <loc>https://guignardlab.github.io/napari-relax/developer/api/widgets/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
     <url>
          <loc>https://guignardlab.github.io/napari-relax/distance/distance/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
     <url>
          <loc>https://guignardlab.github.io/napari-relax/explore_relabel/explore_relabel/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
     <url>
          <loc>https://guignardlab.github.io/napari-relax/guides/guides/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
     <url>
          <loc>https://guignardlab.github.io/napari-relax/guides/loading_data/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
     <url>
          <loc>https://guignardlab.github.io/napari-relax/guides/comparing/blind_comparing/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
     <url>
          <loc>https://guignardlab.github.io/napari-relax/guides/cross_lineage_distance/cross_comparison/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
     <url>
          <loc>https://guignardlab.github.io/napari-relax/guides/saving/saving_tut/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
     <url>
          <loc>https://guignardlab.github.io/napari-relax/guides/show_and_hide/show_and_hide_tut/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
     <url>
          <loc>https://guignardlab.github.io/napari-relax/quick_start/q_start/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
     <url>
          <loc>https://guignardlab.github.io/napari-relax/viewer/viewer/</loc>
-         <lastmod>2026-09-18</lastmod>
+         <lastmod>2026-09-21</lastmod>
     </url>
 </urlset>

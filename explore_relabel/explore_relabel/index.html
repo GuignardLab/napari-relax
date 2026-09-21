@@ -1345,18 +1345,14 @@
 </ul>
 <hr />
 <h2 id="controls">Controls<a class="headerlink" href="#controls" title="Permanent link">&para;</a></h2>
-<div class="admonition note">
-<p class="admonition-title">Screenshot from an earlier version</p>
-<p>Since this screenshot was taken, the configuration button and window (<strong>1</strong> and <strong>2</strong>) moved to napari's preferences, a <strong>Cell ID selector</strong> was added under the lineage slider (<strong>4</strong>), and a <strong>Reset slider</strong> button was added next to the size slider (<strong>8</strong>). The descriptions below match the current version.</p>
-</div>
 <div class="split-container">
   <div >
 
 <ol>
-  <li>
-    <strong>Lineage Viewer settings</strong> (<strong>1</strong> and <strong>2</strong> in the screenshot): the node size, edge size and font size of the Lineage Viewer are set in napari's <strong>File>Preferences</strong>, on the <strong>ReLAX</strong> page (napari 0.9 or newer).
+  <li value = "0">
+    <strong>Lineage Viewer settings: The node size, edge size and font size of the Lineage Viewer are set in napari's <strong>File>Preferences</strong>, on the <strong>ReLAX</strong> page (napari 0.9 or newer).
   </li>
-  <li value="3">
+  <li value="1">
     <strong>The Lineage Viewer</strong>: Using this viewer, the user may inspect all the lineages in the dataset. The current timepoint of the <a href="../viewer/viewer.md">Napari Viewer</a> is drawn on it.
     <p><em>Controlling the Lineage Viewer:</em></p>
     <ul>
@@ -1369,9 +1365,8 @@
   </li>
   <li>
     <strong>Lineage slider</strong>: Use the slider to inspect the different lineages that exist in the dataset. Its tooltip shows how many lineages are available; small lineages may be hidden by the <em>Filter Dataset</em> option used when <a href="../guides/loading_data.md">opening the dataset</a>.
-    <ul>
-      <li><strong>Cell ID selector</strong> (under the slider): type a cell ID and press <strong>Enter</strong> or <strong>Go</strong>. The Lineage Viewer shows the lineage containing this cell and circles it, the cell is selected in the Napari Viewer, and the time slider moves to its first timepoint. If the ID does not exist, the closest existing ID is used.</li>
-    </ul>
+
+  <li><strong>Cell ID selector</strong> (under the slider): type a cell ID and press <strong>Enter</strong> or <strong>Go</strong>. The Lineage Viewer shows the lineage containing this cell and circles it, the cell is selected in the Napari Viewer, and the time slider moves to its first timepoint. If the ID does not exist, the closest existing ID is used.</li>
   </li>
   <li>
     <strong>Label manipulation</strong>: The text field shows the ID and label of the current node (<em>ID of root: … - Label: …</em>). Type a new label and press <strong>Enter</strong> to rename it, press <strong>Remove this label</strong> to delete it, or <strong>Show Labels</strong> to list all labels. Labels are used by <a href="../distance/distance.md">Distance Calculation</a> and saved with the LineageTree.
@@ -1396,7 +1391,7 @@
 
   </div>
   <div class="fixed-right">
-    <img src="../exploration.png" alt="Explore and Relabel panel">
+    <img src="./exploration.png" alt="Explore and Relabel panel">
   </div>
 </div>
 
@@ -1405,7 +1400,7 @@
 <p>This layer was produced by pressing on <code>Add Tracks</code> while a viable layer (contains a LineageTree) was selected</p>
 <p><img alt="tracks" src="../tracks.png" style="width:400px;" /></p>
 <hr />
-<p>Go to <a href="../../">Starting page</a>                                         <br />
+<p>Go to <a href="../../">Starting page</a><br />
 Go to <a href="../../guides/guides/">Tutorials</a></p>
 
 
