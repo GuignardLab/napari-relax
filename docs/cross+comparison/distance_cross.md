@@ -1,8 +1,6 @@
 
 For comparisons across embryos the User Interface remains as close as possible to [Distance Calculation](../distance/distance.md). However some changes have been made to accommodate the needs of such an analysis. It is the **Cross Distance Calculation** entry of the **Cross Lineagetree comparison** widget, and uses the datasets of the [Manager](manager.md).
 
-!!! note "Screenshots from an earlier version"
-    The entry was called **Embryo comparisons** when these screenshots were taken. It is now **Cross Distance Calculation**; the controls are the same.
 
 ## Configuration
 

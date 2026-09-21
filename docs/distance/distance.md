@@ -1,4 +1,4 @@
-*Distance Calculation* focuses on systematic calculation of unordered tree edit distances of lineages and their sublineages across multiple timepoints, using various [approximation methods](https://guignardlab.github.io/LineageTree/uted/). 
+*Distance Calculation* focuses on systematic calculation of unordered tree edit distances of lineages and their sublineages across multiple timepoints, using various [approximation methods](https://guignardlab.github.io/LineageTree/uted/).
 
 This systematic comparison enables users to calculate the pairwise distance of clones/sublineages that spawn from a specific timepoint, across multiple timepoints.
 
@@ -63,7 +63,7 @@ The results of these comparisons will be shown on a clustermap, which the user c
 
   </div>
   <div class="fixed-right3">
-    <img src="../config_uted.png" alt="Configuration Panel">
+    <img src="./config_uted.png" alt="Configuration Panel">
   </div>
 </div>
 ---
@@ -107,11 +107,11 @@ The results of these comparisons will be shown on a clustermap, which the user c
 
   </div>
   <div class="fixed-right4">
-    <img src="../clustermap_analysis_celegans.png" alt="Clustermap tab">
+    <img src="./clustermap_analysis_celegans.png" alt="Clustermap tab">
   </div>
 </div>
 
 ---
 
-Go to [Starting page](../index.md)                                           
+Go to [Starting page](../index.md)  
 Go to [Tutorials](../guides/guides.md)
