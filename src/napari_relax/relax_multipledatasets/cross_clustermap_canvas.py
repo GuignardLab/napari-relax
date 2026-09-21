@@ -44,11 +44,9 @@ class CrossClusterMapCanvas(ClusterMapCanvas):
         Each cell is the normalized distance between two sublineages;
         labels start with the dataset name.
         """
-        try:
-            if hasattr(self, "colorbar"):
-                self.colorbar.remove()
-        except:  # noqa: E722
-            ...
+        if hasattr(self, "colorbar"):
+            self.colorbar.remove()
+
         self.ax.cla()
         if not hasattr(self, "comps"):
             return
