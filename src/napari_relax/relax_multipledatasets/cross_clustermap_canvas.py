@@ -44,11 +44,9 @@ class CrossClusterMapCanvas(ClusterMapCanvas):
         Each cell is the normalized distance between two sublineages;
         labels start with the dataset name.
         """
-        try:
-            if hasattr(self, "colorbar"):
-                self.colorbar.remove()
-        except:
-            ...
+        if hasattr(self, "colorbar"):
+            self.colorbar.remove()
+
         self.ax.cla()
         if not hasattr(self, "comps"):
             return
@@ -125,16 +123,22 @@ class CrossClusterMapCanvas(ClusterMapCanvas):
             Score shown in the box.
         """
         self.hover_annotation = self.ax.annotate(
-            f"Lineage 1: {self.labels_of_node_real[int(x + 0.5)]}\nLineage 2: {self.labels_of_node_real[int(y + 0.5)]}\nScore: {value:.2f}",
+            f"Lineage 1: {self.labels_of_clustermap[int(x + 0.5)]}\nLineage 2: {self.labels_of_clustermap[int(y + 0.5)]}\nScore: {value:.2f}",
             (x, y),
             xytext=offset_xy,
             textcoords="offset points",
             ha=ha,
             va="bottom",
-            bbox=dict(boxstyle="round", fc="black", ec="none", alpha=0.5),
+            bbox={
+                "boxstyle": "round",
+                "fc": "black",
+                "ec": "none",
+                "alpha": 0.5,
+            },
             color="white",
             clip_on=False,
         )
+        self.hover_annotation.set_in_layout(False)
 
     def _click(self, event):
         if event.button == 1 and event.inaxes:
