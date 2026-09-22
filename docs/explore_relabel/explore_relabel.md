@@ -65,7 +65,7 @@ The main capabilities of this component include:
 
   </div>
   <div class="fixed-right">
-    <img src="../exploration.png" alt="Explore and Relabel panel">
+    <img src="./exploration.png" alt="Explore and Relabel panel">
   </div>
 </div>
 
@@ -78,5 +78,5 @@ This layer was produced by pressing on ```Add Tracks``` while a viable layer (co
 
 ---
 
-Go to [Starting page](../index.md)                                           
+Go to [Starting page](../index.md)  
 Go to [Tutorials](../guides/guides.md)
