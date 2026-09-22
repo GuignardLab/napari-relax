@@ -846,7 +846,6 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 clearButtonEnabled=True,
             )  # type: ignore
             self.graph_slider = QSlider()
-            print("creation")
             self.graph_slider.setOrientation(Qt.Orientation.Horizontal)
             self.range = 0
             self.graph_slider.setMaximum(0)

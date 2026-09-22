@@ -104,12 +104,6 @@ def reader_function(path: str):
     return layer_preparation(lT, path, parameters=setup.parameters)
 
 
-def clean_lT(lT: LineageTree):
-    for node, label in tuple(lT.labels.items()):
-        if label == "":
-            lT.labels.pop(node)
-
-
 def _extract_napari_surface_from_lT(lT: LineageTree):
     # First pass: count total vertices and faces to pre-allocate arrays
     """Merge the meshes of all nodes into one napari surface.
@@ -200,7 +194,6 @@ def initial_loading(lT: LineageTree, scaling=False) -> namedtuple:
         - ``rescaling_factor``: factor the positions were divided by.
     """
     tracks = lT.all_chains
-    clean_lT(lT)
     first_c_to_track = {}
     last_c_of_track = {}
     if scaling:
