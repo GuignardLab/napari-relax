@@ -285,10 +285,7 @@ class CrossClustermap(LayerCorrectorTreeProducer):
                 del lT._protected_time
 
         data = {
-            # "roots": roots,
-            "times": self.time,
-            # "end_times": end_times,
-            "comparisons": self.comparisons,
+            "comparisons": self.comps,
             "norms": self.norms,
             "names": self.names,
             "ltm": self.manager,

@@ -1001,6 +1001,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.layout().addWidget(shown_cont)
 
         self.cleanup_callbacks()
+        self.destroyed.connect(self.cleanup_callbacks)
         self.viewer_signal = self.viewer.mouse_drag_callbacks.append(
             self.point_click
         )
