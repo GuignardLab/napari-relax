@@ -1,5 +1,7 @@
 """Tests of the two dock widgets and of the signals connecting their tabs."""
 
+from types import SimpleNamespace
+
 import numpy as np
 import pytest
 from qtpy.QtWidgets import QComboBox, QStackedWidget
@@ -144,3 +146,49 @@ def test_open_the_dock_widget_with_napari(viewer, lt_layer):
     assert isinstance(widget, LineageTreeAnalysisWidget)
     explore = widget.widget_dictionary["Explore and Relabel"]
     assert explore.lT is lt_layer.metadata["LineageTree"]
+
+
+@pytest.mark.xfail(
+    strict=True,
+    raises=RuntimeError,
+    reason="BUG: ProgenySelection appends point_click to the viewer's "
+    "mouse drag callbacks and never removes it, so a Shift + right "
+    "click after the plugin is closed reaches the destroyed widget",
+)
+def test_mouse_click_after_the_plugins_are_closed(qtbot, viewer, lt_layer):
+    """Open both plugins, close them, then click in the viewer."""
+    from napari._qt.qt_viewer import QtViewer
+    from napari.utils.interactions import mouse_press_callbacks
+
+    viewer.layers.selection.active = lt_layer
+    docks = [
+        viewer.window.add_plugin_dock_widget("napari-relax", name)
+        for name in ("Lineage tree analysis", "Cross Lineagetree comparison")
+    ]
+    handler = docks[1][1].widget_dictionary["Cross Distance Calculation"]
+    dataset_viewers = (handler.qt_viewer1, handler.qt_viewer2)
+
+    # Removing the dock keeps the widget alive, so wait for its death.
+    for dock, widget in docks:
+        viewer.window.remove_dock_widget(dock)
+        with qtbot.waitSignal(widget.destroyed, timeout=5000):
+            widget.deleteLater()
+    for dataset_viewer in dataset_viewers:
+        QtViewer._instances.discard(dataset_viewer)
+
+    event = SimpleNamespace(
+        type="mouse_press",
+        modifiers=["Shift"],
+        button=2,
+        position=np.zeros(4),
+        view_direction=np.array([0, 1, 0, 0]),
+        dims_displayed=[1, 2, 3],
+        is_dragging=False,
+        handled=False,
+    )
+    mouse_press_callbacks(viewer, event)
+    assert not [
+        callback
+        for callback in viewer.mouse_drag_callbacks
+        if "point_click" in callback.__name__
+    ]
