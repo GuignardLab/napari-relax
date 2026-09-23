@@ -20,7 +20,7 @@ The main capabilities of this component include:
 
 <ol>
   <li value = "0">
-    <strong>Lineage Viewer settings: The node size, edge size and font size of the Lineage Viewer are set in napari's <strong>File>Preferences</strong>, on the <strong>ReLAX</strong> page (napari 0.9 or newer).
+    <strong>Lineage Viewer settings:</strong> The node size, edge size and font size of the Lineage Viewer are set in napari's <strong>File>Preferences</strong>, on the <strong>ReLAX</strong> page (napari 0.9 or newer).
   </li>
   <li value="1">
     <strong>The Lineage Viewer</strong>: Using this viewer, the user may inspect all the lineages in the dataset. The current timepoint of the <a href="../viewer/viewer.md">Napari Viewer</a> is drawn on it.
@@ -61,7 +61,9 @@ The main capabilities of this component include:
 
   </div>
   <div class="fixed-right">
-    <img src="./exploration.png" alt="Explore and Relabel panel">
+    <img src="./exploration.png" alt="Explore and Relabel panel"
+     width="600"
+    height="1000">
   </div>
 </div>
 
