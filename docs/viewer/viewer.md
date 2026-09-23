@@ -26,12 +26,12 @@ For this plugin the ```Points Layer``` is the most common and important type of 
     <li>Drag Left Click: Rotate the dataset.</li>
     <li>Shift Left Click: Move the dataset.</li>
     <li>Scroll: Zoom in and out.</li>
-    <li><strong>Shift Right Click</strong>: Select one node. When a node is selected the Lineage Viewer will also show the corresponding lineage on the <a href="../explore_relabel/explore_relabel.md">Lineage Viewer</a>.</li>
+    <li><strong>Shift Right Click</strong>: Select one node. When a node is selected the Lineage Viewer will also show the corresponding lineage on the <a href="../../explore_relabel/explore_relabel/">Lineage Viewer</a>.</li>
     </ul>
 </li>
 </ol>
 
-<p>Using the time slider on the Napari Viewer will also show the corresponding timepoint, as a grey line, on the <a href="../explore_relabel/explore_relabel.md">Lineage Viewer</a>.</p>
+<p>Using the time slider on the Napari Viewer will also show the corresponding timepoint, as a grey line, on the <a href="../../explore_relabel/explore_relabel/">Lineage Viewer</a>.</p>
 
   </div>
   <div class="fixed-right">

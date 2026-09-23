@@ -45,7 +45,7 @@ The results of these comparisons will be shown on a clustermap, which the user c
   </li>
 
   <li>
-    <strong>Subtree selection</strong>: The list shows the labelled lineages as <em>label - ID starts from t timepoint</em> (see <a href="../explore_relabel/explore_relabel.md">Explore and Relabel</a> to add labels).
+    <strong>Subtree selection</strong>: The list shows the labelled lineages as <em>label - ID starts from t timepoint</em> (see <a href="../../explore_relabel/explore_relabel/">Explore and Relabel</a> to add labels).
     Specific lineages may be selected to calculate their pairwise distances; if none is selected, all lineages that start at the first timepoint of the dataset are compared.
     Some lineages may spawn later than the first selected timepoint due to tracking or imaging issues;
     they can still be included if they exist at any of the selected timepoints.
@@ -63,7 +63,7 @@ The results of these comparisons will be shown on a clustermap, which the user c
 
   </div>
   <div class="fixed-right3">
-    <img src="./config_uted.png" alt="Configuration Panel">
+    <img src="../config_uted.png" alt="Configuration Panel">
   </div>
 </div>
 ---
@@ -107,7 +107,7 @@ The results of these comparisons will be shown on a clustermap, which the user c
 
   </div>
   <div class="fixed-right4">
-    <img src="./clustermap_analysis_celegans.png" alt="Clustermap tab">
+    <img src="../clustermap_analysis_celegans.png" alt="Clustermap tab">
   </div>
 </div>
 
