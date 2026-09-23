@@ -54,10 +54,13 @@ def _infer_point_size(lT: LineageTree):
     else:
         sampled_timepoints = timepoints
 
+    # lineagetree renamed get_idx3d to idx3d after 3.2.0.
+    spatial_index = getattr(lT, "idx3d", None) or lT.get_idx3d
+
     for t in sampled_timepoints:
         nodes = lT.time_nodes[t]
         if len(nodes) > 1:
-            idx3d, nodes = lT.idx3d(t)
+            idx3d, nodes = spatial_index(t)
 
             nn_dists = idx3d.query(idx3d.data, k=2)[0][:, 1]
 
@@ -455,7 +458,7 @@ def find_pair_with_the_longest_distance(lT: LineageTree) -> float:
     true_distance = 0
     for time_step in range(lT.t_b, lT.t_e, 10):
         nodes = lT.time_nodes[time_step]
-        pos = np.array([lT.pos[node] for node in nodes])
+        pos = np.array([lT.pos[node] for node in nodes], dtype=float)
         pos -= np.mean(pos, axis=0)
         if len(pos) == 1:
             continue

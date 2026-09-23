@@ -72,13 +72,15 @@ class TestInferPointSize:
     def test_long_datasets_are_subsampled(self, monkeypatch):
         lT = _chain_tree(150, 2.0)
         queried = []
-        original = LineageTree.idx3d
+        # lineagetree renamed get_idx3d to idx3d after 3.2.0.
+        name = "idx3d" if hasattr(LineageTree, "idx3d") else "get_idx3d"
+        original = getattr(LineageTree, name)
 
         def spy(self, t):
             queried.append(t)
             return original(self, t)
 
-        monkeypatch.setattr(LineageTree, "idx3d", spy)
+        monkeypatch.setattr(LineageTree, name, spy)
         _, optimal, _ = _infer_point_size(lT)
         assert optimal == pytest.approx(1.0)
         # 150 timepoints sampled every 150 // 10 = 15 timepoints.
