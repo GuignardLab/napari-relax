@@ -151,9 +151,10 @@ def test_open_the_dock_widget_with_napari(viewer, lt_layer):
 @pytest.mark.xfail(
     strict=True,
     raises=RuntimeError,
-    reason="BUG: ProgenySelection appends point_click to the viewer's "
-    "mouse drag callbacks and never removes it, so a Shift + right "
-    "click after the plugin is closed reaches the destroyed widget",
+    reason="BUG: point_click stays in the viewer's mouse drag callbacks "
+    "after the widget is destroyed, so a Shift + right click reaches the "
+    "dead widget. The destroyed -> cleanup_callbacks connection does not "
+    "fire: its receiver is the object being destroyed",
 )
 def test_mouse_click_after_the_plugins_are_closed(qtbot, viewer, lt_layer):
     """Open both plugins, close them, then click in the viewer."""

@@ -1,3 +1,5 @@
+import pickle
+
 import numpy as np
 import pytest
 from lineagetree import LineageTreeManager
@@ -406,12 +408,6 @@ class TestCrossClustermap:
         cross_clustermap._click([["a", "b"], [4, 113]])
         assert cross_clustermap.axes[1].has_data()
 
-    @pytest.mark.xfail(
-        strict=True,
-        raises=AttributeError,
-        reason="BUG: save_dictionary reads self.comparisons and self.time, "
-        "which are never set (results are stored in self.comps)",
-    )
     def test_save_dictionary(self, cross_clustermap, tmp_path):
         comps, norms, names = cross_results()
         cross_clustermap.comps = [comps]
@@ -419,7 +415,12 @@ class TestCrossClustermap:
         cross_clustermap.names = [names]
         cross_clustermap.save_pkl.value = tmp_path / "cross.pkl"
         cross_clustermap.save_dictionary()
-        assert (tmp_path / "cross.pkl").exists()
+        with open(tmp_path / "cross.pkl", "rb") as f:
+            saved = pickle.load(f)
+        assert saved["comparisons"] == [comps]
+        assert saved["norms"] == [norms]
+        assert saved["names"] == [names]
+        assert list(saved["ltm"].lineagetrees) == ["a", "b"]
 
 
 @pytest.fixture
