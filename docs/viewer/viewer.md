@@ -15,7 +15,7 @@ If multiple datasets are imported into napari they will usually overlap with eac
 For this plugin the ```Points Layer``` is the most common and important type of layer, so it may be useful to read napari's [documentation](https://napari.org/stable/howtos/layers/points.html) on that. The most important controls will be shown on this page.
 
 <div class="split-container">
-  <div >
+  <div class="scrollable-left1">
 
 <ol>
 <li><strong>Napari Terminal</strong>: Open the Napari integrated terminal.</li>

@@ -6,7 +6,7 @@ It is the **Manager Manipulation** entry of the **Cross Lineagetree comparison**
 
 ## Manager
 <div class="split-container">
-  <div >
+  <div class="scrollable-left1">
 
 <ol>
   <li>
