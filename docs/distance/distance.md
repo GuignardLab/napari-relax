@@ -70,9 +70,6 @@ The results of these comparisons will be shown on a clustermap, which the user c
 
 ## Clustermap Tab
 
-!!! note "Screenshot from an earlier version"
-    The tabs are now called **Configuration Panel** and **Clustermap**, and the former **Histograms** tab was removed. The **Clustermap** tab contains all the controls shown here.
-
 <div class="split-container">
   <div class="scrollable-left4">
 <p>
