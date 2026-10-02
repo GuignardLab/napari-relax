@@ -19,7 +19,6 @@ from qtpy.QtWidgets import (
     QPushButton,
     QSizePolicy,
     QSpacerItem,
-    QStackedWidget,
     QVBoxLayout,
     QWidget,
 )
@@ -235,6 +234,7 @@ class Quantitative(LayerCorrectorTreeProducer):
             )
         )
         self.miss_data = MissingData()
+
         color_button = QPushButton("Recolor Dataset")
         color_button.pressed.connect(self.generate_colors)
         reset_color_button = QPushButton("Reset Color of Dataset")
@@ -243,7 +243,14 @@ class Quantitative(LayerCorrectorTreeProducer):
         layout.addWidget(
             Containerize([QLabel("Select Colormap"), self.colorbox])
         )
-        layout.addWidget(self.miss_data)
+        row = QHBoxLayout()
+
+        label = QLabel("Handle missing values:")
+        row.addWidget(label, 0, Qt.AlignTop | Qt.AlignLeft)
+
+        row.addWidget(self.miss_data, 1, Qt.AlignTop)
+
+        layout.addLayout(row)
         layout.addWidget(cont)
         self.setLayout(layout)
         self.viewer.layers.selection.events.active.connect(self.layer_change)
@@ -364,22 +371,14 @@ class Coloring(LayerCorrectorTreeProducer):
     name = "coloring"
 
     def __init__(self, napari_viewer):
-        super().__init__(napari_viewer)
-
-        self.combobox = QComboBox()
-        self.combobox.addItems(["Quantitative", "Qualitative"])
-        stack = QStackedWidget()
-        self.quant = Quantitative(napari_viewer)
-        qual = Qualitative()
-        stack.addWidget(self.quant)
-        self.combobox.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        self.combobox.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        stack.addWidget(qual)
-        self.combobox.currentIndexChanged.connect(stack.setCurrentIndex)
+        super().__init__(napari_viewer=napari_viewer)
         layout = QVBoxLayout()
-        layout.addWidget(self.combobox, alignment=Qt.AlignLeft)
-        layout.addWidget(stack)
-        layout.addStretch(1)
+        layout.setContentsMargins(0, 30, 0, 0)
+        layout.setAlignment(Qt.AlignTop)
+
+        self.quant = Quantitative(napari_viewer=napari_viewer)
+        layout.addWidget(self.quant)
+
         self.setLayout(layout)
 
         current_dir = os.path.dirname(os.path.abspath(__file__))

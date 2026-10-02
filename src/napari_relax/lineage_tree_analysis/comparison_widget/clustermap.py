@@ -275,8 +275,8 @@ class Clustermap(LayerCorrectorTreeProducer):
         self.canvas = ClusterMapCanvas(self.figure, self.ax_of_clustermap)
         self.reset_colors = QPushButton("Reset Colors")
         self.norm_combo = widgets.ComboBox(
-            value="max",
-            choices=["max", "sum", "None"],
+            value="sum",
+            choices=["sum", "None"],
         )
         self.norm_dict = {"max": max, "sum": sum, "None": lambda x: 1}
         self.colormap = MplCompatibleColorCombobox(
@@ -284,7 +284,12 @@ class Clustermap(LayerCorrectorTreeProducer):
             {i: colormaps.get(i) for i in DICT_OF_CMAPS},
         )
         self.norm_color_cont = Containerize(
-            [self.norm_combo.native, self.colormap]
+            [
+                widgets.Label(value="Normalization method:").native,
+                self.norm_combo.native,
+                widgets.Label(value="Change Colormap:").native,
+                self.colormap,
+            ]
         )
         self.colormap.combobox_continuous.currentIndexChanged.connect(
             lambda x: self.canvas._change_cmap(self.colormap.get_cmap())

@@ -10,7 +10,6 @@ from napari_relax.lineage_tree_analysis.recoloring_with_attributes_widget.clone_
     CloneRecoloring,
 )
 from napari_relax.lineage_tree_analysis.recoloring_with_attributes_widget.node_based_recoloring import (  # noqa: E501
-    Coloring,
     LineeditCheckbox,
     MissingData,
     Quantitative,
@@ -300,15 +299,6 @@ class TestQuantitative:
         quantitative.color_signal.connect(lambda: emitted.append(1))
         quantitative.reset_button_pr()
         assert not emitted
-
-
-def test_coloring_switches_between_tabs(qtbot, viewer):
-    widget = Coloring(viewer)
-    qtbot.addWidget(widget)
-    stack = widget.quant.parent()
-    assert stack.currentWidget() is widget.quant
-    widget.combobox.setCurrentIndex(1)
-    assert stack.currentIndex() == 1
 
 
 def test_recoloring_widget_tabs(qtbot, viewer):
