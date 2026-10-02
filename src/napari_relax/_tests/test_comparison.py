@@ -39,7 +39,8 @@ def fake_results(lt):
     names = {0: (4, 1, 1), 1: (5, 1, 1), 2: (13, 10, 10)}
     comps = {(0, 1): 0.0, (0, 2): 3.0, (1, 2): 6.0}
     norms = {(0, 1): (3, 3), (0, 2): (3, 3), (1, 2): (3, 3)}
-    return comps, norms, names
+    times = [1, 10, 20, 30]
+    return comps, norms, names, times
 
 
 @pytest.fixture
@@ -197,8 +198,8 @@ class TestClusterMapCanvas:
         figure = Figure()
         canvas = ClusterMapCanvas(figure, figure.add_subplot(111))
         qtbot.addWidget(canvas)
-        comps, norms, names = fake_results(lt)
-        canvas._receive_data(comps, norms, names, 3, lt)
+        comps, norms, names, times = fake_results(lt)
+        canvas._receive_data(comps, norms, names, 3, times, lt)
         return canvas
 
     def test_plot(self, canvas):
@@ -210,7 +211,7 @@ class TestClusterMapCanvas:
         # The clustering puts the two closest sublineages side by side.
         order = canvas.names_of_nodes
         assert abs(order.index(4) - order.index(5)) == 1
-        assert canvas.ax.get_title() == "Comparisons for Timepoint: 3"
+        assert canvas.ax.get_title() == "Comparisons for Timepoint: 30"
         labels = [t.get_text() for t in canvas.ax.get_xticklabels()]
         assert sorted(labels) == ["A", "A", "B"]
 
@@ -231,7 +232,7 @@ class TestClusterMapCanvas:
         figure = Figure()
         canvas = ClusterMapCanvas(figure, figure.add_subplot(111))
         qtbot.addWidget(canvas)
-        canvas._receive_data({}, {}, {}, 0, lt)
+        canvas._receive_data({}, {}, {}, 0, [0], lt)
         assert not hasattr(canvas, "plot")
 
     def test_click_emits_the_two_sublineages(self, canvas, qtbot):
@@ -295,7 +296,7 @@ def clustermap(qtbot, viewer, lt_layer, panel):
 
 
 def load_results(clustermap, lt):
-    comps, norms, names = fake_results(lt)
+    comps, norms, names, times = fake_results(lt)
     clustermap.comps, clustermap.norms = [comps], [norms]
     clustermap.naming, clustermap.times = [names], [3]
     clustermap.send_data()
@@ -441,7 +442,7 @@ class TestComparisonsHandler:
         assert handler.clustermap.configuration is handler.config
 
     def test_update_dictionary(self, handler, lt):
-        comps, norms, names = fake_results(lt)
+        comps, norms, names, times = fake_results(lt)
         handler.update_dictionary(
             ([comps, comps], [names, names], [norms] * 2, [3, 4])
         )

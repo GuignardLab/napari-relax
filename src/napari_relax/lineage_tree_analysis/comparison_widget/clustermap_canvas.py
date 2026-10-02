@@ -73,6 +73,7 @@ class ClusterMapCanvas(FigureCanvas):
         norms: dict = None,
         names: dict = None,
         time: int = None,
+        times: list = None,
         lT: LineageTree = None,
     ):
         """Receive the comparisons of one timepoint and plot them.
@@ -94,6 +95,7 @@ class ClusterMapCanvas(FigureCanvas):
         self.norms = norms
         self.names = names
         self.time = time
+        self.times = times
         self.lT = lT
         self.labels = self.lT.labels
         if comps is not None and len(comps) > 0:
@@ -154,7 +156,9 @@ class ClusterMapCanvas(FigureCanvas):
             ha="right",
             rotation_mode="anchor",
         )
-        self.ax.set_title(f"Comparisons for Timepoint: {self.time}")
+        self.ax.set_title(
+            f"Comparisons for Timepoint: {self.times[self.time]}"
+        )
         self.ax.set_aspect("auto")
         self.draw()
 

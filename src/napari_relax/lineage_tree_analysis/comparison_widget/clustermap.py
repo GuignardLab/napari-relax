@@ -5,10 +5,10 @@ import pickle
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
 from magicgui import widgets
+from matplotlib import colormaps
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from qtpy.QtWidgets import QLineEdit, QPushButton, QVBoxLayout
@@ -18,7 +18,6 @@ from ..._util_classes import (
     LayerCorrectorTreeProducer,
     TooltipButton,
 )
-from matplotlib import colormaps
 from ..._util_classes.custom_colorboxes import MplCompatibleColorCombobox
 from ..._utils import _select_active_lt_layer
 from .clustermap_canvas import ClusterMapCanvas
@@ -66,11 +65,16 @@ class Clustermap(LayerCorrectorTreeProducer):
         t = self.time_slider.value
         if isinstance(self.comps, list):
             self.canvas._receive_data(
-                self.comps[t], self.norms[t], self.naming[t], t, self.lT
+                self.comps[t],
+                self.norms[t],
+                self.naming[t],
+                t,
+                self.times,
+                self.lT,
             )
         else:
             self.canvas._receive_data(
-                self.comps, self.norms, self.naming, t, self.lT
+                self.comps, self.norms, self.naming, t, self.times, self.lT
             )
 
     def add_spot_on_graph(self, cell, val, color, ax):
