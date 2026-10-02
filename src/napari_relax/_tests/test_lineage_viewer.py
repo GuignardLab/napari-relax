@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 import numpy as np
 import pytest
 from matplotlib.figure import Figure
+from qtpy.QtWidgets import QDialog, QTableWidget
 
 from napari_relax.lineage_tree_analysis.lineage_viewer_widget.lineage_viewer.viewer import (  # noqa: E501
     SingleTreeProgeny,
@@ -164,10 +165,27 @@ class TestLabels:
         progeny.label_remover()
         assert root not in lt.labels
 
-    def test_show_all_labels(self, progeny, modal_calls):
+    def test_show_all_labels(self, progeny, monkeypatch):
+        dialogs = []
+
+        def mock_exec(self):
+            dialogs.append(self)
+            return QDialog.Accepted
+
+        monkeypatch.setattr(QDialog, "exec_", mock_exec)
         progeny.show_all_labels()
-        (box,) = modal_calls
-        assert box.informativeText() == "1:A\n10:B\n20:C"
+        assert len(dialogs) == 1
+        dialog = dialogs[0]
+        table = dialog.findChild(QTableWidget)
+        assert table is not None
+        assert table.rowCount() == 3
+        assert table.columnCount() == 2
+        assert table.item(0, 0).text() == "1"
+        assert table.item(0, 1).text() == "A"
+        assert table.item(1, 0).text() == "10"
+        assert table.item(1, 1).text() == "B"
+        assert table.item(2, 0).text() == "20"
+        assert table.item(2, 1).text() == "C"
 
 
 class TestSelection:
