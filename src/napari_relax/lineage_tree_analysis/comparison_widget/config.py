@@ -12,7 +12,7 @@ from napari.utils import notifications
 try:
     from qtpy.QtCore import QRegExp
     from qtpy.QtGui import QRegExpValidator
-except:
+except ImportError:
     from qtpy.QtCore import QRegularExpression as QRegExp
     from qtpy.QtGui import QRegularExpressionValidator as QRegExpValidator
 from qtpy.QtGui import QIntValidator
@@ -251,11 +251,7 @@ class ConfigurationPanel(LayerCorrectorTreeProducer):
         self.range = 1
         self.names_of_nodes = None
         self.names_of_roots = None
-        self.norm_combo = widgets.ComboBox(
-            value="max",
-            choices=["max", "sum", "None"],
-        )
-        self.norm_dict = {"max": max, "sum": sum, "None": lambda x: 1}
+
         self.list_widget = QListWidget()
         self.list_widget.setSelectionMode(QListWidget.MultiSelection)
         if self.lT:
