@@ -11,6 +11,7 @@ from magicgui import widgets
 from matplotlib import colormaps
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+from napari.settings import get_plugin_settings
 from qtpy.QtWidgets import QLineEdit, QPushButton, QVBoxLayout
 
 from ..._util_classes import (
@@ -47,6 +48,30 @@ DICT_OF_CMAPS: list[str] = [
     "BuGn",
     "YlGn",
 ]
+string_2_color = {
+    "red": [1.0, 0.0, 0.0, 1.0],
+    "orange": [1.0, 0.6470588, 0.0, 1.0],
+    "yellow": [1.0, 1.0, 0.0, 1.0],
+    "green": [0.0, 0.5019608, 0.0, 1.0],
+    "cyan": [0.0, 1.0, 1.0, 1.0],
+    "blue": [0.0, 0.0, 1.0, 1.0],
+    "purple": [0.5019608, 0.0, 0.5019608, 1.0],
+    "magenta": [1.0, 0.0, 1.0, 1.0],
+    "pink": [1.0, 0.7529412, 0.7960784, 1.0],
+    "brown": [0.6470588, 0.1647059, 0.1647059, 1.0],
+    "lime": [0.5019608, 1.0, 0.0, 1.0],
+    "teal": [0.0, 0.5019608, 0.5019608, 1.0],
+    "navy": [0.0, 0.0, 0.5019608, 1.0],
+    "olive": [0.5019608, 0.5019608, 0.0, 1.0],
+    "maroon": [0.5019608, 0.0, 0.0, 1.0],
+    "violet": [0.9333333, 0.5098039, 0.9333333, 1.0],
+    "indigo": [0.2941176, 0.0, 0.5098039, 1.0],
+    "gold": [1.0, 0.8431373, 0.0, 1.0],
+    "silver": [0.7529412, 0.7529412, 0.7529412, 1.0],
+    "gray": [0.5019608, 0.5019608, 0.5019608, 1.0],
+    "black": [0.0, 0.0, 0.0, 1.0],
+    "white": [1.0, 1.0, 1.0, 1.0],
+}
 
 
 if TYPE_CHECKING:
@@ -127,10 +152,21 @@ class Clustermap(LayerCorrectorTreeProducer):
         active_layer = _select_active_lt_layer(self.viewer)
         if not active_layer:
             return
-        colors = [[1, 128 / 255, 1, 1], [0, 1, 1, 1]]
-        active_layer.face_color = [1, 1, 1, 1]
+        colors = [
+            string_2_color[
+                get_plugin_settings()["napari-relax"].clustermap.right_color
+            ],
+            string_2_color[
+                get_plugin_settings()["napari-relax"].clustermap.left_color
+            ],
+        ]
+        default_color = string_2_color[
+            get_plugin_settings()["napari-relax"].clustermap.default_color
+        ]
         lineages = [lineages[0]] if lineages[0] == lineages[1] else lineages
+        total_selection = []
         for i, cell in enumerate(lineages):
+            active_layer.selected_data.clear()
             if len(lineages) < 2:
                 self.axes_for_tree_graphs[1].set_visible(False)
 
@@ -143,8 +179,8 @@ class Clustermap(LayerCorrectorTreeProducer):
                 active_layer.metadata["lT2napari"][cell]
             )
             self.sub_points_selector()
-            selection = list(active_layer.selected_data)
-            active_layer.face_color[selection] = colors[i]
+            total_selection.append(list(active_layer.selected_data))
+
             val_for_graph = self.val_finder(
                 cell, lt=self.lT, graphs=active_layer.metadata["graphs"][0]
             )
@@ -166,6 +202,11 @@ class Clustermap(LayerCorrectorTreeProducer):
 
             self.tree_canvas.draw()
             active_layer.selected_data.clear()
+        total_colors = np.tile(default_color, (len(self.lT.nodes), 1))
+        total_colors[total_selection[0]] = colors[0]
+        total_colors[total_selection[1]] = colors[1]
+        active_layer.face_color = total_colors
+
         active_layer.refresh()
         if self.time_mover.value:
             camera_pan = self.viewer.dims.current_step
