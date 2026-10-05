@@ -154,10 +154,10 @@ class Clustermap(LayerCorrectorTreeProducer):
             return
         colors = [
             string_2_color[
-                get_plugin_settings()["napari-relax"].clustermap.right_color
+                get_plugin_settings()["napari-relax"].clustermap.left_color
             ],
             string_2_color[
-                get_plugin_settings()["napari-relax"].clustermap.left_color
+                get_plugin_settings()["napari-relax"].clustermap.right_color
             ],
         ]
         default_color = string_2_color[
@@ -203,8 +203,9 @@ class Clustermap(LayerCorrectorTreeProducer):
             self.tree_canvas.draw()
             active_layer.selected_data.clear()
         total_colors = np.tile(default_color, (len(self.lT.nodes), 1))
-        total_colors[total_selection[0]] = colors[0]
-        total_colors[total_selection[1]] = colors[1]
+        for i, selection in enumerate(total_selection):
+            total_colors[selection] = colors[i]
+        # total_colors[total_selection[1]] = colors[1]
         active_layer.face_color = total_colors
 
         active_layer.refresh()
