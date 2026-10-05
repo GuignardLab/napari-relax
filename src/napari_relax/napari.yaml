@@ -48,7 +48,7 @@ contributions:
         left_color:
           type: string
           title: Color of the left Lineage
-          default: gray
+          default: cyan
           enum:
             - red
             - orange
@@ -75,7 +75,7 @@ contributions:
         right_color:
           type: string
           title: Color of right Lineage
-          default: gray
+          default: magenta
           enum:
           - red
           - orange
@@ -102,7 +102,7 @@ contributions:
         default_color:
           type: string
           title: Color of non compared Lineages
-          default: gray
+          default: white
           enum:
           - red
           - orange
