@@ -10,6 +10,8 @@ from matplotlib.figure import Figure
 from qtpy.QtCore import Qt, Signal
 from qtpy.QtGui import QIcon
 from qtpy.QtWidgets import (
+    QDialog,
+    QHBoxLayout,
     QLineEdit,
     QMessageBox,
     QPushButton,
@@ -17,6 +19,8 @@ from qtpy.QtWidgets import (
     QSlider,
     QSpacerItem,
     QSpinBox,
+    QTableWidget,
+    QTableWidgetItem,
     QVBoxLayout,
 )
 
@@ -552,14 +556,72 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.progeny_diagram_loader()
 
     def show_all_labels(self):
-        """Show all labels of the LineageTree in a message box."""
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Information)
-        msg.setText("Labels")
-        msg.setInformativeText(
-            "\n".join(f"{k}:{v}" for k, v in self.lT.labels.items())
-        )
-        msg.exec_()
+        """Show and edit all labels of the LineageTree."""
+        if not self.lT:
+            QMessageBox.information(
+                self,
+                "Labels",
+                "No LineageTree, please add one to inspect labels.",
+            )
+            return
+
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Labels")
+        dialog.resize(600, 600)
+
+        layout = QVBoxLayout(dialog)
+
+        table = QTableWidget()
+        table.setColumnCount(2)
+        table.setHorizontalHeaderLabels(["Node", "Label"])
+
+        labels = self.lT.labels
+
+        table.setColumnCount(2)
+        table.setHorizontalHeaderLabels(["Node", "Label"])
+        table.setRowCount(len(labels))
+
+        for row, (node, label) in enumerate(labels.items()):
+            # Node: read-only
+            node_item = QTableWidgetItem(str(node))
+            node_item.setFlags(node_item.flags() & ~Qt.ItemIsEditable)
+
+            # Label: editable
+            label_item = QTableWidgetItem(str(label))
+
+            table.setItem(row, 0, node_item)
+            table.setItem(row, 1, label_item)
+
+        table.setColumnWidth(0, 100)
+        table.horizontalHeader().setStretchLastSection(True)
+        table.horizontalHeader().setStretchLastSection(True)
+
+        layout.addWidget(table)
+
+        buttons = QHBoxLayout()
+
+        accept_button = QPushButton("Accept")
+        cancel_button = QPushButton("Cancel")
+
+        buttons.addWidget(accept_button)
+        buttons.addWidget(cancel_button)
+
+        layout.addLayout(buttons)
+
+        def accept_labels():
+
+            for row in range(table.rowCount()):
+                node = table.item(row, 0).text()
+                label = table.item(row, 1).text()
+                self.lT.labels[int(node)] = label
+            self.signal.emit(self.lT.labels)
+
+            dialog.accept()
+
+        accept_button.clicked.connect(accept_labels)
+        cancel_button.clicked.connect(dialog.reject)
+
+        dialog.exec_()
 
     def show_all(self):
         """Show all nodes across all layer types."""
