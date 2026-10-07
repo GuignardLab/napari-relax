@@ -957,7 +957,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.canvas.setContentsMargins(0, 0, 0, 0)
 
         label1 = widgets.Label(
-            value="""<span style="font-family: Arial; font-size: 20px; color: white;">Lineage Viewer</span>"""
+            value="""<span style="font-family: Arial; font-size: 20px;">Lineage Viewer</span>"""
         ).native
         label1.setStyleSheet("margin: 0px;padding: 0px;")
         self.layout().addWidget(label1, alignment=Qt.AlignHCenter)
