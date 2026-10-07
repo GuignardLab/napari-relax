@@ -614,6 +614,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
                 node = table.item(row, 0).text()
                 label = table.item(row, 1).text()
                 self.lT.labels[int(node)] = label
+            self.signal.emit(self.lT.labels)
 
             dialog.accept()
 

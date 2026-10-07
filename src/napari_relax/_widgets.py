@@ -113,10 +113,10 @@ class LineageTreeAnalysisWidget(ReLAXWidget):
     def __init__(self, napari_viewer):
         super().__init__(napari_viewer)
         explore_and_relabel = self.widget_dictionary["Explore and Relabel"]
-        explore_and_relabel.w_lineedit.returnPressed.connect(
+        explore_and_relabel.signal.connect(
             self.widget_dictionary["Distance Calculation"].config.label_update
         )
-        explore_and_relabel.w_lineedit.returnPressed.connect(
+        explore_and_relabel.signal.connect(
             self.widget_dictionary[
                 "Distance Calculation"
             ].clustermap.receive_new_labels
@@ -126,6 +126,7 @@ class LineageTreeAnalysisWidget(ReLAXWidget):
         ].coloring_widget.quant.color_signal.connect(
             explore_and_relabel.progeny_diagram_loader
         )
+
 
 class CrossEmbryoComparisonWidget(ReLAXWidget):
     """Multiple-dataset widget: manage datasets and compare them.
