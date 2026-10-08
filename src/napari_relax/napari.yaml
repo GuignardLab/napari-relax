@@ -25,15 +25,15 @@ contributions:
       python_name: napari_relax.demo_data:load_celegans
       title: Load C. elegans
   configurations:
-    progeny_canvas: 
-      title: Attributes of canvas
+    progeny_canvas:
+      title: Attributes of Lineage Viewer
       properties:
-        node_size: 
+        node_size:
           type: float
           multiples_of: 0.1
           default: 1
           title: Size of Nodes
-        edge_size: 
+        edge_size:
           type: float
           multiples_of: 0.1
           default: 1
@@ -42,6 +42,90 @@ contributions:
           type: integer
           default: 8
           title: Font size
+    clustermap:
+      title: Clustermap Properties
+      properties:
+        left_color:
+          type: string
+          title: Color of the left Lineage
+          default: cyan
+          enum:
+            - red
+            - orange
+            - yellow
+            - green
+            - cyan
+            - blue
+            - purple
+            - magenta
+            - pink
+            - brown
+            - lime
+            - teal
+            - navy
+            - olive
+            - maroon
+            - violet
+            - indigo
+            - gold
+            - silver
+            - gray
+            - black
+            - white
+        right_color:
+          type: string
+          title: Color of right Lineage
+          default: magenta
+          enum:
+          - red
+          - orange
+          - yellow
+          - green
+          - cyan
+          - blue
+          - purple
+          - magenta
+          - pink
+          - brown
+          - lime
+          - teal
+          - navy
+          - olive
+          - maroon
+          - violet
+          - indigo
+          - gold
+          - silver
+          - gray
+          - black
+          - white
+        default_color:
+          type: string
+          title: Color of non compared Lineages
+          default: white
+          enum:
+          - red
+          - orange
+          - yellow
+          - green
+          - cyan
+          - blue
+          - purple
+          - magenta
+          - pink
+          - brown
+          - lime
+          - teal
+          - navy
+          - olive
+          - maroon
+          - violet
+          - indigo
+          - gold
+          - silver
+          - gray
+          - black
+          - white
   readers:
     - command: napari-relax.get_reader
       accepts_directories: false

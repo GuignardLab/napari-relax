@@ -173,7 +173,7 @@ class CloneRecoloring(LayerCorrectorTreeProducer):
         self.distance_layout = QVBoxLayout()
         self.distance_layout.addWidget(
             QLabel(
-                """<span style="font-family: Arial; font-size: 20px; color: white;">Population Graph</span>"""
+                """<span style="font-family: Arial; font-size: 20px; ">Population Graph</span>"""
             ),
             alignment=Qt.AlignHCenter,
         )

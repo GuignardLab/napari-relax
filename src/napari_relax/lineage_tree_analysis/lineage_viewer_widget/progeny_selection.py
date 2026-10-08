@@ -415,6 +415,15 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         active_layer = _select_active_lt_layer(self.viewer)
         if active_layer is None:
             return
+        if hasattr(self, "previous_layer"):
+            self.previous_layer.events.face_color.disconnect(
+                self.progeny_diagram_loader
+            )
+        self.previous_layer = active_layer
+        self.previous_layer.events.face_color.connect(
+            self.progeny_diagram_loader
+        )
+
         active_layer.selected_data.clear()
         try:
             self.canvas.selected_nodes.clear()
@@ -949,7 +958,7 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.canvas.setContentsMargins(0, 0, 0, 0)
 
         label1 = widgets.Label(
-            value="""<span style="font-family: Arial; font-size: 20px; color: white;">Lineage Viewer</span>"""
+            value="""<span style="font-family: Arial; font-size: 20px;">Lineage Viewer</span>"""
         ).native
         label1.setStyleSheet("margin: 0px;padding: 0px;")
         self.layout().addWidget(label1, alignment=Qt.AlignHCenter)
@@ -1072,6 +1081,13 @@ class ProgenySelection(LayerCorrectorTreeProducer):
         self.canvas.setFocusPolicy(Qt.WheelFocus)
         self.canvas.setFocus()
         self.viewer.dims.events.current_step.connect(self.canvas.time_line)
+
+        active_layer = _select_active_lt_layer(self.viewer)
+        if active_layer:
+            self.previous_layer = active_layer
+            self.previous_layer.events.face_color.connect(
+                self.progeny_diagram_loader
+            )
 
     def cleanup_callbacks(self):
         """Remove the point_click callback from the mouse draf callbacks because it stays on the list of signals even after the death of the plugin."""

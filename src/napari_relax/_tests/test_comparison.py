@@ -6,12 +6,14 @@ import pytest
 from lineagetree import LineageTree
 from matplotlib import colormaps
 from matplotlib.figure import Figure
+from napari.settings import get_plugin_settings
 
 from napari_relax.lineage_tree_analysis.comparison_widget import (
     config as config_module,
 )
 from napari_relax.lineage_tree_analysis.comparison_widget.clustermap import (
     Clustermap,
+    string_2_color,
 )
 from napari_relax.lineage_tree_analysis.comparison_widget.clustermap_canvas import (  # noqa: E501
     ClusterMapCanvas,
@@ -24,9 +26,6 @@ from napari_relax.lineage_tree_analysis.comparison_widget.config import (
 )
 
 from .conftest import add_lt_layer, make_lineage_tree, mouse_event, points_of
-
-MAGENTA = [1, 128 / 255, 1, 1]
-CYAN = [0, 1, 1, 1]
 
 
 def run_worker(panel):
@@ -315,10 +314,24 @@ class TestClustermap:
         clustermap._click([4, 13])
         colors = lt_layer.face_color
         np.testing.assert_allclose(
-            colors[points_of(lt_layer, [4, 6, 8])], [MAGENTA] * 3
+            colors[points_of(lt_layer, [4, 6, 8])],
+            [
+                string_2_color[
+                    get_plugin_settings()["napari-relax"].clustermap.left_color
+                ]
+            ]
+            * 3,
         )
         np.testing.assert_allclose(
-            colors[points_of(lt_layer, [13, 14, 15])], [CYAN] * 3
+            colors[points_of(lt_layer, [13, 14, 15])],
+            [
+                string_2_color[
+                    get_plugin_settings()[
+                        "napari-relax"
+                    ].clustermap.right_color
+                ]
+            ]
+            * 3,
         )
         np.testing.assert_allclose(colors[points_of(lt_layer, [1, 5])], 1)
         assert all(ax.get_visible() for ax in clustermap.axes_for_tree_graphs)
@@ -339,7 +352,12 @@ class TestClustermap:
         canvas._click(mouse_event(canvas, canvas.ax, 0, 0))
         node = canvas.names_of_nodes[0]
         np.testing.assert_allclose(
-            lt_layer.face_color[points_of(lt_layer, [node])], [MAGENTA]
+            lt_layer.face_color[points_of(lt_layer, [node])],
+            [
+                string_2_color[
+                    get_plugin_settings()["napari-relax"].clustermap.left_color
+                ]
+            ],
         )
 
     @pytest.mark.xfail(
